@@ -1,0 +1,155 @@
+@charset "utf-8";
+/* CSS Document */
+#notice {
+	width:980px;
+	margin:0 auto;
+}
+#notice_left {
+	width:680px;
+	float:left;
+}
+#notice_left #notice_list {
+	border:1px solid #DDD;
+	background:#FFF;
+}
+#notice_left #notice_list dl {
+	height:50px;
+	line-height:50px;
+	border-bottom:1px dotted #DDD;
+}
+#notice_left #notice_list dl dd {
+	float:left;
+	width:480px;
+	padding-left:20px;
+}
+#notice_left #notice_list dl dd a {
+	font-size:14px;
+	color:#000;
+}
+#notice_left #notice_list dl dd a:hover {
+	color:#3AB149;
+	text-decoration:underline;
+}
+#notice_left #notice_list dl dt {
+	float:right;
+	width:135px;
+	text-align:right;
+	font-size:12px;
+	color:#666;
+	padding-right:20px;
+}
+#notice_right {
+	width:260px;
+	float:right;
+}
+#notice_right #notice_type ul li a {
+	display:block;
+	height:30px;
+	line-height:30px;
+	background:#DDD;
+	font-size:14px;
+	color:#000;
+	padding-left:15px;
+	border-bottom:1px solid #FFF;
+}
+#notice_right #notice_type ul li a:hover {
+	background:#666;
+	color:#FFF;
+}
+#notice_right #notice_top {
+	margin-top:30px;
+}
+#notice_right #notice_top h4 {
+	font-size:16px;
+	font-weight:bold;
+	background:url(../images/bg/hot.png) no-repeat left;
+	padding-left:20px;
+	color:#F00;
+}
+#notice_right #notice_top ul {
+	margin-top:10px;
+}
+#notice_right #notice_top li {
+	padding:4px;
+	list-style:decimal;
+	font-size:12px;
+	color:#333;
+	margin-left:28px;
+}
+#notice_right #notice_top li a {
+	font-size:13px;
+	color:#333;
+}
+#notice_right #notice_top li a:hover {
+	color:#F00;
+	text-decoration:underline;
+}
+#notice_left #notice_content_main {
+	background:#FFF;
+	padding:10px 20px;
+}
+#notice_left #notice_content_main h2 {
+	padding:20px 0;
+	font-weight:normal;
+}
+#notice_left #notice_content_main h5 {
+	padding:10px 0;
+	font-size:13px;
+	color:#555;
+	border-bottom:1px solid #EEE;
+	font-weight:normal;
+}
+#notice_left #notice_content {
+	margin:20px 0;
+}
+#notice_left #notice_content p {
+	font-size:15px;
+	padding:6px 0;
+	color:#333;
+}
+#notice_left #notice_link {
+	border-top:1px solid #EEE;
+	padding-top:10px;
+}
+#notice_left #notice_link ul li {
+	font-size:13px;
+	padding:4px 0;
+}
+#notice_left #notice_link ul li a {
+	font-size:14px;
+	color:#333;
+	text-decoration:underline;
+}
+#notice_search {
+	margin-top:30px;
+}
+#notice_search .search_input_txt {
+	width:138px;
+	padding:6px 4px;
+	border:1px solid #CCC;
+	background:#FFF;
+	background:url(../images/bg/search.png) no-repeat left center;
+	padding-left:35px;
+}
+#notice_search .seacr_button {
+	width:75px;
+	height:32px;
+	background:#666;
+	border:none;
+	font-size:14px;
+	color:#FFF;
+}
+
+#myjtl_tag h4{
+  color: green;
+}
+#myjtl_tag a{
+  background: rgb(0,100,200);
+  color:#fff;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 5px 15px;
+}
+#myjtl_tag a:hover{
+  background-color: rgb(0,50,150);
+}

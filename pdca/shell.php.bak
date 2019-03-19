@@ -1,0 +1,5 @@
+<?php
+if(!$_SESSION['login_status']){
+	header("location:../passport/login.php");
+}
+?>

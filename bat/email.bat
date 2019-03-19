@@ -1,0 +1,1 @@
+E:\wamp\bin\php\php5.5.12\php.exe -q E:\site\ajax_function\email_send.php

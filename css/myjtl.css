@@ -1,0 +1,200 @@
+@charset "utf-8";
+/* myjtl */
+#myjtl_top {
+	background:#111;
+}
+#myjtl_top p {
+	width:980px;
+	height:30px;
+	line-height:32px;
+	margin:0 auto;
+	font-size:13px;
+	color:#FFF;
+	text-align:right;
+}
+#myjtl_top p a {
+	color:#FFF;
+}
+#myjtl_header {
+	width:100%;
+	background:#fff;
+	/*border-bottom:1px solid #999;*/
+}
+#myjtl_header_banner {
+	width:980px;
+	height:70px;
+	line-height:70px;
+	background:url(../images/logo/logo.png) no-repeat 20px bottom;
+	background-size: 140px;
+	margin:0 auto;
+}
+#myjtl_header .header_left {
+	float:left;
+	padding-left:100px;
+	font-size:28px;
+	font-weight:bold;
+	color:#222;
+}
+#myjtl_header .header_right {
+	padding-right:10px;
+	float:right;
+	font-size:12px;
+	color:#333;
+}
+#myjtl_tag {
+	width:980px;
+	height:50px;
+	line-height:50px;
+	margin:0 auto;
+	font-size:18px;
+	font-weight:bold;
+	color:#666;
+}
+#myjtl_tag a {
+	color:#333;
+	text-decoration:underline;
+}
+#myjtl {
+	width:980px;
+	margin:0 auto;
+}
+#myjtl_left {
+	float:left;
+	width:260px;
+}
+#myjtl_work_list, #myjtl_task_list, #myjtl_employee, #myjtl_program_list {
+	height:100%;
+	border:1px solid #DDD;
+	margin-bottom:20px;
+	background:#FFF;
+}
+#myjtl_work_list h4, #myjtl_task_list h4 {
+	height:30px;
+	line-height:30px;
+	border-bottom:1px solid #999;
+	background:url(../images/system_ico/clock_14_14.png) no-repeat 5px center #EEE;
+	font-size:14px;
+	padding-left:25px;
+}
+#myjtl_work_list ul, #myjtl_task_list ul {
+	margin:4px;
+}
+#myjtl_work_list ul li, #myjtl_task_list ul li {
+	color:#333;
+	font-size:13px;
+}
+#myjtl_work_list ul li a, #myjtl_task_list ul li a {
+	color:#FF0000;
+}
+#myjtl_work_list p {
+	padding-left:4px;
+	height:30px;
+	line-height:30px;
+	background:#F9F9F9;
+	border-top:1px solid #DDD;
+	font-size:13px;
+	cursor:pointer;
+}
+#myjtl_employee h4 {
+	height:30px;
+	line-height:30px;
+	border-bottom:1px solid #999;
+	background:url(../images/system_ico/employee_14_14.png) no-repeat 5px center #EEE;
+	font-size:14px;
+	padding-left:25px;
+}
+#myjtl_employee dl {
+	margin:20px 4px 10px 4px;
+	font-size:14px;
+	color:#333;
+	text-align:center;
+}
+#myjtl_employee dl dd {
+	padding:4px;
+}
+#myjtl_employee ul {
+	width:180px;
+	background:#096;
+	margin:20px auto;
+	text-align:center;
+}
+#myjtl_employee ul li a {
+	display:block;
+	height:30px;
+	line-height:30px;
+	font-size:13px;
+	color:#333;
+	background:#DDD;
+	border-bottom:1px solid #FFF;
+}
+#myjtl_employee ul li a:hover {
+	color:#FFF;
+	background:#666;
+}
+#myjtl_right {
+	float:right;
+	width:680px;
+}
+#myjtl_program_list h4 {
+	height:30px;
+	line-height:30px;
+	border-bottom:1px solid #999;
+	background:url(../images/system_ico/program_16_14.png) no-repeat 8px center #EEE;
+	font-size:14px;
+	padding-left:30px;
+}
+#myjtl_program_list dl {
+	float:left;
+	width:125px;
+	height:90px;
+	text-align:center;
+	margin:15px 5px 10px 5px;
+}
+#myjtl_program_list dd {
+	font-size:13px;
+	color:#333;
+	height:30px;
+	line-height:30px;
+}
+#myjtl_table_sheet {
+	width:980px;
+	margin:0 auto;
+	border:1px solid #DDD;
+	background:#FFF;
+}
+#myjtl_table_sheet h4 {
+	height:35px;
+	line-height:35px;
+	background:url(../images/bg/password_16_16.png) no-repeat 10px center #EEE;
+	font-size:14px;
+	border-bottom:1px solid #999;
+	padding-left:32px;
+}
+#myjtl_table_sheet table {
+	width:100%;
+	margin:15px;
+}
+#myjtl_table_sheet table th, #myjtl_table_sheet table td {
+	padding:8px 0;
+	font-size:14px;
+}
+#myjtl_table_sheet table th {
+	font-weight:normal;
+	text-align:right;
+}
+.input_txt {
+	border:1px solid #CCC;
+	padding:4px;
+}
+.button {
+	width:60px;
+	height:30px;
+	border:1px solid #000;
+	background:#333;
+	font-size:13px;
+	color:#FFF;
+}
+.tag {
+	color:#F00;
+	font-size:13px;
+}
