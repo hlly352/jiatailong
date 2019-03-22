@@ -28,44 +28,13 @@ if($_POST['submit']){
 		$contacts = rtrim($_POST['contacts']);
 		$tel = rtrim($_POST['tel']);
 		$email = rtrim($_POST['email']);
-		$heat_name = rtrim($_POST['heat_name']);
-		$heat_weight = rtrim($_POST['heat_weight']);
-		$heat_unit_price = rtrim($_POST['heat_unit_price']);
-		$heat_price = rtrim($_POST['heat_price']);
-		$mould_material = turnchar($_POST['mould_material']);
-		$material_specification = turn($_POST['material_specification']);
-		$number = turnchar($_POST['number']);
-		$unit_price = turnchar($_POST['unit_price']);
-		$material_length = turnchar($_POST['material_length']);
-		$material_width = turnchar($_POST['material_width']);
-		$material_height = turnchar($_POST['material_height']);
-		$material_weight = turnchar($_POST['material_weight']);
-		$material_price = turnchar($_POST['material_price']);
-		$mold_standard = turnchar($_POST['mold_standard']);
-		$standard_number = turnchar($_POST['standard_number']);
-		$standard_nuit_price = turnchar($_POST['standard_unit_price']);
-		$standard_price = turnchar($_POST['standard_price']);
-		$standard_specification = turnchar($_POST['standard_specification']);
-		$standard_supplier = turnchar($_POST['standard_supplier']);
-		$mould_design = turnchar($_POST['mould_design']);
-		$design_hour = rtrim($_POST['design_hour']);
-		$design_unit_price = rtrim($_POST['design_unit_price']);
-		$design_price = rtrim($_POST['design_price']);
-		$mold_manufacturing = turnchar($_POST['mold_manufacturing']);
-		$manufacturing_hour = turnchar($_POST['manufacturing_hour']);
-		$manufacturing_unit_price = turnchar($_POST['manufacturing_unit_price']);
-		$manufacturing_price = turnchar($_POST['manufacturing_price']);
-		$trial_fee = rtrim($_POST['trial_fee']);
-		$freight_fee = rtrim($_POST['freight_fee']);
-		$management_fee = rtrim($_POST['mangement_fee']);
-		$profit = rtrim($_POST['profit']);
-		$vat_tax = rtrim($_POST['vat_tax']);
-		$mold_price_rmb = rtrim($_POST['mold_price_rmb']);
-		$mold_price_usd = rtrim($_POST['mold_price_usd']);
+		var_dump($_POST);
 	}
 	if($action == 'add'){
-		$sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
-		$db->query($sql);
+		$sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
+		var_dump($sql);
+		$res = $db->query($sql);
+		var_dump($res);
 		if($db->insert_id){
 			header("location:mould_data.php");
 		}

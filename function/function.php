@@ -139,7 +139,9 @@ function getfirstchar($s0){
 }
 //把数组转换为字符串,用于数据库的存储
 function turnchar($arr){
+	if($arr != null){
 	$new_str = implode('|',$arr);
 	return $new_str;
+	}
 }
 ?>
