@@ -51,15 +51,15 @@ $array_cutter_texture = array('A'=>'钨钢','B'=>'合金','C'=>'预硬钢');
 //模具报价
 $array_quote_status = array(0=>'报价',1=>'成交');
 //热处理数据
-$array_mould_heat = array('tempered'=>'调质','hardened'=>'淬火','nitridation'=>'氮化');
+$array_mould_heat = array('tempered'=>'调质/Tempered','hardened'=>'淬火/Hardened','nitridation'=>'氮化/Nitridation');
 //材料名称
-$array_mould_material = array('base'=>'模架','cavity'=>'型腔','core'=>'型芯','silde'=>'滑块','inserts'=>'镶件','electrode'=>'电极');
+$array_mould_material = array('base'=>'模架/Mode Base','cavity'=>'型腔/Cavity','core'=>'型芯/Core','silde'=>'滑块/Slide&Lifters','inserts'=>'镶件/Inserts','electrode'=>'电极/Electrode');
 //材料牌号
 $array_material_specification = array(0=>'1.2312',1=>'1.2343',2=>'Cu');
 //模具配件数据
-$array_mold_standard = array('Inserts'=>'镶件/日期章','sleeve'=>'顶杆/顶管','connector'=>'水管/油管接头','components'=>'标准件','hotrunner'=>'热流道','tempcontroller'=>'温控器','cylinder'=>'油缸');
+$array_mold_standard = array('Inserts'=>'镶件、日期章/Inserts','sleeve'=>'顶杆、顶管/Ejection Pin\\Sleeve','connector'=>'水管、油管接头/Connector','components'=>'标准件/Standard Components','hotrunner'=>'热流道/Hot Runner','tempcontroller'=>'温控器/Temp Controller','cylinder'=>'油缸/Hydro-cylinder');
 //模具设计项目
-$array_mould_design = array('scanning'=>'扫描测绘/Scanning','CAD'=>'结构设计/CAD','CAM'=>'CAM设计/CAM','CAE'=>'CAE分析');
+$array_mould_design = array('scanning'=>'扫描测绘/Scanning','cad'=>'结构设计/CAD','cam'=>'CAM设计/CAM','cae'=>'CAE分析/CAE');
 //模具加工费数据
-$array_mould_manufacturing = array('Maching'=>'一般机床/Maching','grinding'=>'磨床/Grinding','CNC'=>'数控机床/CNC','precision_cnc'=>'精密数控机床','WC'=>'线切割/W.C.','EDM'=>'电火花/EDM','polish'=>'抛光/Polish','fitting'=>'钳工/Fitting','laser'=>'激光烧焊/Laser Welding','texture'=>'皮纹/Texture cost');
+$array_mould_manufacturing = array('maching'=>'一般机床/Maching','grinding'=>'磨床/Grinding','cnc'=>'数控机床/CNC','precision_cnc'=>'精密数控机床','wc'=>'线切割/W.C.','edm'=>'电火花/EDM','polish'=>'抛光/Polish','fitting'=>'钳工/Fitting','laser'=>'激光烧焊/Laser Welding','texture'=>'皮纹/Texture cost');
 ?>

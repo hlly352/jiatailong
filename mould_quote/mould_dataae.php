@@ -21,12 +21,69 @@ $(function(){
 	function count_trs(trs_name,tds_name){
 		
 		 var num = $(trs_name).size()+2;
-
+	
  		$(tds_name).attr('rowspan',num);
 	}
+	
+	//计算热处理的金额
+	$(".heat_weight,.heat_unit_price").live("blur",function(){
+		if($(this).attr('class') == 'heat_weight'){
+			
+			var heats_totals = ($(this).val())*( $(this).parent().next().children().val());
+		}else{
+			var heats_totals = ($(this).val())*($(this).parent().prev().children().val());
+		}
+		 $(this).parent().parent().children().eq(3).text(heats_totals);
+		 sum_tds(".heat_trs",1,2,"#total_heats");
+	})
+	//计算模具配件的金额
+	$(".standard_number,.standard_unit_price").live("blur",function(){
+		if($(this).attr('class') == 'standard_number'){
+			var standard_totals = ($(this).val())*( $(this).parent().next().children().val());
+		} else {
+		          var standard_totals = ($(this).val())*($(this).parent().prev().children().val());
+		}
+		$(this).parent().parent().children().eq(5).text(standard_totals);
+		sum_tds(".parts_trs",3,4,"#total_standard")
+	})
+	//动态计算小计的金额
+	//tr_val   需要求值行的类名
+	//d1,d2   需要求值的乘数的列号
+	//d3        需要填写乘积的类名      
+	function sum_tds(tr_val,d1,d2,d3){
+		var s = 0;
+		var tr1 = 0;
+		var tr2 = 0;
+		var tr_nu = $(tr_val);
+
+		for(var i=0;i<(tr_nu.size());i++){
+			var tr1 = (tr_nu.eq(i).children().eq(d1).children().val())? (tr_nu.eq(i).children().eq(d1).children().val()):'0';
+			 var tr2 = (tr_nu.eq(i).children().eq(d2).children().val())? (tr_nu.eq(i).children().eq(d2).children().val()):'0';
+		
+			 s += tr1*tr2;
+		}
+	
+		$(d3).children().val(s);
+			
+	}
+
+	//删除热处理数据时重新计算总金额
+	$(".heat_dels").live('click',function(){
+		$(this).parent().parent().remove();
+		sum_tds(".heat_trs",1,2,"#total_heats");
+		//删除行时重新统计第一列需要合并的单元格列数
+		count_trs(".heat_trs","#heat_first_td");
+	})
+	//删除模具配件费是重新计算总金额
+	$(".standard_dels").live("click",function(){
+		$(this).parent().parent().remove();
+		sum_tds(".parts_trs",3,4,"#total_standard")
+		//删除行时重新统计第一列需要合并的单元格列数
+		count_trs(".parts_trs","#parts_first_td");
+	})
           //动态添加材料费
           $('#add_materia').click(function(){
-          	     var trs = '     <tr class="material_trs">               <td colspan="4">                  <input name="mould_material[]" id="mould_material"style="color:black;font-weight:150;font-size:15px">               </td>               <td>               	<select name="material_specification[]" id="material_specification" >                        <option value="">请选择</option>                        <?php
+          	     var trs = '     <tr class="material_trs">               <td colspan="4">                  <input name="mould_material[]" id="mould_material"style="color:black;font-weight:150;font-size:13px;width:163px" disabled>               </td>               <td>               	<select name="material_specification[]" id="material_specification" >                        <option value="">请选择</option>                        <?php
                             foreach($array_material_specification as $material_specification_key => $material_specification_value){
                                 echo "<option value=".$material_specification_value.'>'.$material_specification_value.'</option>';
                             }
@@ -36,26 +93,23 @@ $(function(){
      
                          $('#machining_materia').before(trs);
           })
-          //动态删除表格行
-          $('.dels').live('click',function(){
-          	    $(this).parent().parent().remove();
-          })
+       
           //动态添加热处理
           $('#add_heat').click(function(){
-          		var heats = '  <tr class="heat_trs">              <td colspan="4">               <input name="mould_heat_name[]" id="mould_heat_name"  style="color:black;font-weight:150;font-size:15px">             </td>              <td colspan="2">                  <input name="heat_weight" type="text" id="heat_weight">              </td>              <td colspan="6">                 <input name="heat_unit_price" type="text" id="heat_unit_price" value="24">	              </td>              <td colspan="2">                <input name="heat_price" type="text" id="heat_price">              </td>             <td><p class="dels"  style="width:50px;height:5px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;cursor:pointer">删除</p></td>         </tr>';
+          		var heats = '  <tr class="heat_trs">              <td colspan="4">               <input name="mould_heat_name[]" id="mould_heat_name"  style="color:black;font-weight:150;font-size:13px;width:163px" disabled>             </td>              <td colspan="2">                  <input name="heat_weight" type="text" class="heat_weight">              </td>              <td colspan="6">                 <input name="heat_unit_price" type="text" class="heat_unit_price" value="24">	              </td>              <td colspan="2">                <input name="heat_price" type="text" id="heat_price" disabled value="0" style="border-style:none">              </td>             <td><p class="dels heat_dels"  style="width:50px;height:5px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;cursor:pointer">删除</p></td>         </tr>';
           		count_trs(".heat_trs","#heat_first_td");
      
           		$('#mould_heats').before(heats);
           })  
           //动态添加模具配件费
           $('#add_standard').click(function(){
-          	         var standard = '<tr class="parts_trs">       	<td colspan="4">      	     <input name="mold_standard[]" id="mold_standard" style="color:black;font-weight:150;font-size:15px" >      	</td>      	<td colspan="2">      	    <input type="text" name="standard_specification[]" id="standard_specification">      	</td>      	<td colspan="5">      	     <select name="standard_supplier[]" id="standard_supplier" style="width:150px">                  	<option>请选择</option>                  </select>      	</td>      	<td>      	    <input type="text" name="standard_number[]" id="standard_number">	      	</td>      	<td>               <input type="text" name="standard_unit_price[]" id="standard_unit_price">      	</td>      	<td>      	   <input type="text" name="standard_price[]" id="standard_price">	      	</td>     <td><p class="dels"  style="width:50px;height:5px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;cursor:pointer">删除</p></td>	      </tr>';
+          	         var standard = '<tr class="parts_trs">       	<td colspan="4">      	     <input name="mold_standard[]" id="mold_standard" style="color:black;font-weight:150;font-size:13px;width:163px" disabled >      	</td>      	<td colspan="2">      	    <input type="text" name="standard_specification[]" id="standard_specification">      	</td>      	<td colspan="5">      	     <select name="standard_supplier[]" id="standard_supplier" style="width:150px">                  	<option>请选择</option>                  </select>      	</td>      	<td>      	    <input type="text" name="standard_number[]" class="standard_number">	      	</td>      	<td>               <input type="text" name="standard_unit_price[]" class="standard_unit_price" value="2000">      	</td>      	<td>      	   <input type="text" name="standard_price[]" id="standard_price">	      	</td>     <td><p class="dels standard_dels"  style="width:50px;height:5px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;cursor:pointer">删除</p></td>	      </tr>';
                	  count_trs(".parts_trs","#parts_first_td");
                         $('#standard_parts').before(standard);
           })
           //动态添加设计费
           $('#add_designs').click(function(){
-          		var design_adder = '    <tr class="design_trs">              <td colspan="4">                  <input name="mold_design_name[]" id="mold_design_name" style="color:black;font-weight:150;font-size:15px">                           </td>              <td colspan="2">                 <input type="text" name="design_hour[]" id="design_hour" value="109">              </td>              <td colspan="6">                 <input type="text" name="design_unit_price[]" id="design_unit_price" value="100">              </td>              <td colspan="2">                <input type="text" name="design_price[]" id="design_price">              </td>        <td><p class="dels"  style="width:50px;height:5px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;cursor:pointer">删除</p></td> </tr>';
+          		var design_adder = '    <tr class="design_trs">              <td colspan="4">                  <input name="mold_design_name[]" id="mold_design_name" style="color:black;font-weight:150;font-size:13px;width:163px" disabled>                           </td>              <td colspan="2">                 <input type="text" name="design_hour[]" id="design_hour" value="109">              </td>              <td colspan="6">                 <input type="text" name="design_unit_price[]" id="design_unit_price" value="100">              </td>              <td colspan="2">                <input type="text" name="design_price[]" id="design_price">              </td>        <td><p class="dels"  style="width:50px;height:5px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;cursor:pointer">删除</p></td> </tr>';
           		count_trs(".design_trs","#design_first_td");
           		$('#designs').before(design_adder);
 
@@ -63,7 +117,7 @@ $(function(){
           })
           //动态添加加工费
           $('#add_manu').click(function(){
-     		var manu = '<tr class="manus_trs">              <td colspan="4">                  <input name="mold_manufacturing[]" id="mold_manufacturing" style="color:black;font-weight:150;font-size:15px">                            </td>              <td colspan="2">                  <input type="text" name="manufacturing_hour[]" id="manufacturing_hour" value="124">              </td>              <td colspan="6">                  <input type="text" name="manufacturing_unit_price[]" id="manufacturing_unit_price" value="100">              </td>              <td colspan="2">               <input type="text" name="manufacturing_price[]" id="manufacuring_price">               </td>                 <td><p class="dels"  style="width:50px;height:5px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;cursor:pointer">删除</p></td>     </tr>';
+     		var manu = '<tr class="manus_trs">              <td colspan="4">                  <input name="mold_manufacturing[]" id="mold_manufacturing" style="color:black;font-weight:150;font-size:13px;width:163px" disabled>                            </td>              <td colspan="2">                  <input type="text" name="manufacturing_hour[]" id="manufacturing_hour" value="124">              </td>              <td colspan="6">                  <input type="text" name="manufacturing_unit_price[]" id="manufacturing_unit_price" value="100">              </td>              <td colspan="2">               <input type="text" name="manufacturing_price[]" id="manufacuring_price">               </td>                 <td><p class="dels"  style="width:50px;height:5px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;cursor:pointer">删除</p></td>     </tr>';
              	count_trs(".manus_trs","#manus_first_td");
                      $('#manu_cost').before(manu);
           })
@@ -143,7 +197,29 @@ $(function(){
 			$("#cavity_type").focus();
 		}
 	})
-
+	//型腔数量变化,动态改变表格样式
+	$("#cavity_type").change(function(){
+		var mold_name = $("#cavity_type").val();
+		$("#cavitys_type").val(mold_name);
+		setTimeout("document.form1.submit()",1); 
+		
+		if($("#cavity_type").val() == "D"||$("#cavity_type").val() == "E"){
+			$("#p_length").next().remove();
+			$("#p_width").next().remove();
+			$("#p_height").next().remove();
+			var input_length = '<input type="text" name="p_length_other">';
+			var input_width = '<input type="text" name="p_width_other">';
+			var input_height = '<input type="text" name="p_height_other">';
+			$("#p_length").after(input_length);
+			$("#p_width").after(input_width);
+			$("#p_height").after(input_height);
+			
+		} else {
+			$("#p_length").next().remove();
+			$("#p_width").next().remove();
+			$("#p_height").next().remove();	
+		}
+	})
 	$("#p_length,#p_width,#p_height").blur(function(){
 		var cavity_type = $("#cavity_type").val();
 		var p_length = $("#p_length").val();
@@ -175,7 +251,7 @@ $(function(){
 		}
 	})
 	var tr_length = $("#materials").children("tr").length();
-          		alert('dd');
+          		
 	$("#cavity_type").change(function(){
 		var cavity_type = $(this).val();
 		var p_length = $("#p_length").val();
@@ -211,64 +287,70 @@ $(function(){
 	  $array_employee = $result_employee->fetch_assoc();
   ?>
   <h4>模具数据添加</h4>
+  <!--提交型腔的数量类型-->
+ <form action="" method="post" name="form1">
+  	<input type="hidden" value="" id="cavitys_type" name="cavity_types">
+ </form>
+ 
   <form action="mould_datado.php" name="mould_data" method="post">
   <style type="text/css" media="screen">
-  	#main_table tr td{border:1px solid red;}
-  	input{width:122px;}
+  	#main_table tr td{border:1px solid grey;}
+  	input{width:80px;}
+  	*{margin:0px;}
   </style>
-   <table id="main_table" style="width:95%">
+   <table id="main_table" style="word-wrap: break-word; word-break: break-all;">
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5">
    	     	<img src="" alt="logo">
    	     </td>
-   	     <td colspan="9" rowspan="5">
+   	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
       	            <p style="font-weight:blod;font-size:30px">Tooling Cost Break Down</p>
    	     </td>
-   	   <td>客户名称/Customer</td>
-      	   <td>
-      	       <input type="text" name="client_name" />
+   	   <td style="width:186px;padding-right:20px">客户名称/Customer</td>
+      	   <td style="width:186px;padding-right:0px">
+      	       <input type="text" name="client_name" style="width:120px;" />
       	   </td>	
    	</tr>
    	<tr>
    	  <td>项目名称/Program</td>
              <td>
-      	     <input type="text" name="project_name"/>
+      	     <input type="text" name="project_name" style="width:120px"/>
       	  </td>
    	</tr>
    	<tr>
       	  <td>联系人/Attention</td>
       	  <td>
-      	    <input type="text" name="contacts" value="<?php echo $array_employee['employee_name']; ?>">
+      	    <input type="text" name="contacts" value="<?php echo $array_employee['employee_name']; ?>" style="width:120px">
       	  </td>
            </tr>
            <tr>
       	  <td>电话/TEL</td>
       	  <td>
-      	    <input  type="text" name="tel" value="<?php echo $array_employee['phone']; ?>"/>
+      	    <input  type="text" name="tel" value="<?php echo $array_employee['phone']; ?>" style="width:120px"/>
       	  </td>    
            </tr>
            <tr>
               <td>信箱/E-mail</td>
               <td>
-                 <input type="text" name="email" value="<?php echo $array_employee['email']; ?>"/>
+                 <input type="text" name="email" value="<?php echo $array_employee['email']; ?>" style="width:120px"/>
              </td>  
            </tr>
            <tr>
-               <td colspan="5">模具名称/Mold Specification</td>
+               <td colspan="5" >模具名称/Mold Specification</td>
                <td colspan="2">型腔数量/Cav.</td>
                <td colspan="5" rowspan="6">
-               	<div style="border:1px solid grey;width:300px;">
+               	<div style="border:1px solid grey;">
         			<p style="margin:0px auto">产品图片</p>
         		</div>
                </td>
-               <td colspan="2">产品零件号/Part No.</td>
+               <td colspan="2" style="width:186px">产品零件号/Part No.</td>
                <td colspan="2">首次试模时间/T1 Time</td>
            </tr>
            <tr>
-               <td colspan="5">
-               	<input type="text" name="mould_name" id="mould_name" class="input_tx"/>
+               <td colspan="5" >
+               	<input  type="text" name="mould_name" id="mould_name" class="input_tx"  style="width:295px"/>
                </td>
                <td colspan="2">
                	<select name="cavity_type" id="cavity_type" style="">
@@ -281,7 +363,7 @@ $(function(){
                      </select>
                </td>
                <td colspan="2">
-               	<input type="text" name="part_number" class="input_tx"/>
+               	<input type="text" name="part_number" class="input_tx"  style="width:160px"/>
                </td>
                <td colspan="2">
                	<input type="text" name="t_time" class="input_tx"/>
@@ -295,25 +377,25 @@ $(function(){
                <td colspan="2">最终交付时间/Lead Timeme</td>
            </tr>
            <tr>
-              <td>
+              <td style="width:93px">
               	<input type="text" name="p_length" id="p_length" class="input_tx"/>
               </td>
-              <td>*</td>
-              <td>
+              <td >*</td>
+              <td style="width:93px">
               	<input type="text" name="p_width" id="p_width" class="input_tx" />
               </td>
               <td>*</td>
-              <td>
+              <td style="width:93px">
                      <input type="text" name="p_height" id="p_height" class="input_tx" />
               </td>
-              <td>
+              <td style="width:93px">
                     <input type="text" name="p_weight" id="p_weight" class="input_tx"/>
               </td>
-              <td>
+              <td style="width:93px">
               	<input type="text" name="m_material" id="m_material" class="input_tx"/>
               </td>
               <td colspan="2">
-              	<input type="text" name="drawing_file" class="input_tx"/>
+              	<input type="text" name="drawing_file" class="input_tx" style="width:160px"/>
               </td>
               <td colspan="2">
               	<input type="text" name="lead_time" class="input_tx" />
@@ -354,19 +436,28 @@ $(function(){
                <td>材料牌号/Specification</td>
                <td>数量/Number</td>
                <td colspan="5">尺寸/Size(mm*mm*mm)</td>
-               <td>重量/Weight(kg)</td>
-               <td>单价(元)/Unit Price</td>
+               <td style="width:93px">重量/Weight(kg)</td>
+               <td style="width:93px">单价(元)/Unit Price</td>
                <td>金额/Price(RMB)</td>
                <td>小计(元)</td>
            </tr>
               <?php
               $i = 0;
-               foreach($array_mould_material as $mould_material_Key=>$mould_material_value){
+              //获取型腔数量
+         
 
+	
+                 $cavity_type = isset($_POST['cavity_types'])?$_POST['cavity_types']:'A';
+        
+               foreach($array_mould_material as $mould_material_key=>$mould_material_value){
+            	if($cavity_type == 'D' || $cavity_type == "E"){
+            		
+
+            	}
       	?>
            <tr class="material_trs">
                <td colspan="4">
-                  <input name="mould_material[]" id="mould_material" value=<?php echo $mould_material_value ?> disabled style="border-style:none;color:black;font-weight:150;font-size:15px">
+                  <input name="mould_material[]" class="mould_material" value=<?php echo $mould_material_value ?> disabled style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled>
                </td>
                <td>
                	<select name="material_specification[]" id="material_specification" >
@@ -381,15 +472,15 @@ $(function(){
              <td>
                    <input type="text" name="materials_number[]" id="materials_number" >
              </td>
-             <td>
+             <td style="width:93px">
                    <input name="material_length[]" id="material_length" type="text" placeholder="长">
              </td>
              <td>*</td>
-             <td>
+             <td style="width:93px">
                  <input name="material_width[]" id="material_width" type="text" placeholder="宽">
              </td>
              <td>*</td>
-             <td>
+             <td style="width:93px">
                   <input name="material_height[]" id="material_height" type="text" placeholder="高">
              </td>
              <td>
@@ -433,21 +524,21 @@ $(function(){
            ?>
            <tr class="heat_trs">
               <td colspan="4">
-                  <input name="mould_heat_name[]" id="mould_heat_name" value=<?php echo $mould_heat_value ?> disabled style="border-style:none;color:black;font-weight:150;font-size:15px" class="fix_txt">
+                  <input name="mould_heat_name[]" id="mould_heat_name" value=<?php echo $mould_heat_value ?> disabled style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled class="fix_txt">
               </td>
               <td colspan="2">
-                  <input name="heat_weight" type="text" id="heat_weight">
+                  <input name="heat_weight" type="text" class="heat_weight">
               </td>
               <td colspan="6">
-                 <input name="heat_unit_price" type="text" id="heat_unit_price" value="24">	
+                 <input name="heat_unit_price" type="text" class="heat_unit_price" value="24">	
               </td>
               <td colspan="2">
-                <input name="heat_price" type="text" id="heat_price">
+                <input name="heat_price" type="text" id="heat_price" disabled value="0" style="border-style:none">
               </td>
                 <?php 
           	    
           	     if($i == 0){
-          	     	echo '<td rowspan="3" id="total_heats"></td>  ';
+          	     	echo '<td rowspan="3" id="total_heats"><input type="text" value="0" disabled style="border-style:none"/></td>  ';
           	     }
   	     $i++;
           ?> 
@@ -478,29 +569,31 @@ $(function(){
       ?>
       <tr class="parts_trs"> 
       	<td colspan="4">
-      	     <input name="mold_standard[]" id="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:15px" value="<?php echo $mold_standard_value ?>">
+      	     <input name="mold_standard[]" id="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:13px;width:193px" disabled value="<?php echo $mold_standard_value ?>">
       	</td>
       	<td colspan="2">
-      	    <input type="text" name="standard_specification[]" id="standard_specification">
+      	    <input type="text" name="standard_specification[]" id ="standard_specification">
       	</td>
       	<td colspan="5">
-      	     <select name="standard_supplier[]" id="standard_supplier" style="width:150px">
+      	     <select name="standard_supplier[]" id="standard_supplier">
                   	<option>请选择</option>
                   </select>
       	</td>
       	<td>
-      	    <input type="text" name="standard_number[]" id="standard_number">	
+      	    <input type="text" name="standard_number[]" class="standard_number">	
       	</td>
       	<td>
-               <input type="text" name="standard_unit_price[]" id="standard_unit_price">
+               <input type="text" name="standard_unit_price[]" class="standard_unit_price" value="2000">
       	</td>
       	<td>
-      	   <input type="text" name="standard_price[]" id="standard_price">	
+      	   <input type="text" name="standard_price[]" class="standard_price">	
       	</td>
       	 <?php 
           	    
           	     if($i == 0){
-          	     	echo '<td rowspan="7" id="total_standard"></td>  ';
+          	     	echo '<td rowspan="7" id="total_standard">
+			<input type="text" name="total_standard">
+          	     	</td>  ';
           	     }
   	     $i++;
           ?> 
@@ -530,7 +623,7 @@ $(function(){
             ?>
            <tr class="design_trs">
               <td colspan="4">
-                  <input name="mold_design_name[]" id="mold_design_name" style="border-style:none;color:black;font-weight:150;font-size:15px" value="<?php echo $mould_design_value ?>">
+                  <input name="mold_design_name[]" id="mold_design_name" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled value="<?php echo $mould_design_value ?>">
               
               </td>
               <td colspan="2">
@@ -574,7 +667,7 @@ $(function(){
         	?>
            <tr class="manus_trs">
               <td colspan="4">
-                  <input name="mold_manufacturing[]" id="mold_manufacturing" style="border-style:none;color:black;font-weight:150;font-size:15px" value="<?php echo $mould_manufacturing_value ?>">
+                  <input name="mold_manufacturing[]" id="mold_manufacturing" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled value="<?php echo $mould_manufacturing_value ?>">
               
               </td>
               <td colspan="2">
@@ -657,497 +750,33 @@ $(function(){
              </p>
           </td>
           </tr>
+          <!--模具价格-->
+          <tr>
+          	    <td colspan="5">模具价格(元)不含税/Mold Price without VAT(RMB)</td>
+          	    <td colspan="11">
+          	    	 <input type="text" name="mold_price_rmb" id="mold_price_rmb">
+          	    </td>
+          	</tr>
+          	<tr>
+          	    <td colspan="5">模具价格(USD)/Mold Price(USD) Rate=6.5</td>
+          	    <td colspan="11">
+          	    	 <input type="text" name="mold_price_usd" id="mold_price_usd">
+          	    </td>
+          	</tr>
+          	<tr>
+          	    <td colspan="5">模具价格(元)含17%增值税/Mold with VAT(RMB)</td>
+          	    <td colspan="11">
+          	    	<input type="text" name="mold_with_vat" id="mold_with_vat">
+          	    </td>
+          </tr>
+          <tr height="20"></tr>
+          <tr>
+              <td style="border-style:none" colspan="16" align="center"><input type="submit" name="submit" id="submit" value="确定" class="button" />
+        	    &nbsp;&nbsp;
+              <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
+              <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
+           </tr>
    </table>
-
-
-
-
-
-
-
-
-
-
-<div style="height:20px"></div>
-    <table id="basic_info" style="width:91%" border="1">
-
-      
-      <tr>
-      	<td style="width:100px" rowspan="5">
-      		<img src="" alt="logo">
-      	</td>
-      	<td colspan="3" rowspan="5" >
-      	    <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
-      	    <p style="font-weight:blod;font-size:30px">Tooling Cost Break Down</p>
-      	</td>
-      	<td>客户名称/Customer</td>
-      	<td >
-      	   <input type="text" name="client_name" />
-      	 </td>
-        </tr>
-        <tr>
-         <td>信箱/E-mail</td>
-         <td>
-             <input type="text" name="email" value="<?php echo $array_employee['email']; ?>" />
-         </td>  
-      </tr>
-      </tr>
-      <tr>    	
-      	<td>项目名称/Program</td>
-      	<td>
-      	   <input type="text" name="project_name"/>
-      	</td>
-      </tr>
-      <tr>
-      	<td>联系人/Attention</td>
-      	<td>
-      	    <input type="text" name="contacts" value="<?php echo $array_employee['employee_name']; ?>">
-      	</td>
-      </tr>
-      <tr>
-      	<td>电话/TEL</td>
-      	<td>
-      	    <input  type="text" name="tel" value="<?php echo $array_employee['phone']; ?>"/>
-      	</td>    
-      </tr>
-     <tr>
-         <td>信箱/E-mail</td>
-         <td>
-             <input type="text" name="email" value="<?php echo $array_employee['email']; ?>"/>
-         </td>  
-      </tr>
-      <tr>
-        <td>模具名称/Mold Specification</td>
-        <td>型腔数量/Cav.</td>
-        <td width="350" rowspan="6" >
-        		<div style="border:1px solid grey;width:300px;height:200px">
-        			<p style="margin:90px auto">产品图片</p>
-        		</div>
-        </td>
-        <td>产品零件号/Part No.</td>
-        <td colspan="2">首次试模时间/T1 Time</td>
-      </tr>
-      <tr>
-        <td><input type="text" name="mould_name" id="mould_name"  size="27" /></td>
-        <td><select name="cavity_type" id="cavity_type" style="width:200px">
-            <option value="">请选择</option>
-            <?php
-			foreach($array_mould_cavity_type as $cavity_type_key=>$cavity_type_value){
-				echo "<option value=\"".$cavity_type_key."\">".$cavity_type_value."</option>";
-			}
-			?>
-          </select></td>
-        <td><input type="text" name="part_number"  size="30" /></td>
-        <td colspan="2"><input type="text" name="t_time"  size="35" /></td>
-      </tr>
-      <tr>
-        <td>产品大小/Part Size (mm)</td>
-        <td>产品重量/Part Weight(g)&nbsp;<span>材料/Material</span></td>
-        <td>数据文件名/Drawing No.</td>
-        <td colspan="2">最终交付时间/Lead Timeme</td>
-      </tr>
-      <tr>
-        <td><input type="text" name="p_length" id="p_length"  size="5" />
-          *
-          <input type="text" name="p_width" id="p_width"  size="5" />
-          *
-          <input type="text" name="p_height" id="p_height"  size="5" /></td>
-        <td>
-        	<input type="text" name="p_weight" id="p_weight"  size="10" />        	
-        	 <input type="text" name="m_material" id="m_material"  size="5" style="margin-left:48px" />
-        </td>
-
-        <td><input type="text" name="drawing_file"  size="30" /></td>
-        <td colspan="2"><input type="text" name="lead_time"  size="35" /></td>
-      </tr>
-      <tr>
-        <td>模具尺寸/Mold Size (mm)</td>
-        <td>模具重量/Mold Weight(Kg)</td>
-        <td>模具寿命/Longevity</td>
-        <td colspan="2">设备吨位/Press(Ton)</td>
-      </tr>
-      <tr>
-        <td><input type="text" name="m_length" id="m_length"  size="5" readonly="readonly" />
-          *
-          <input type="text" name="m_width" id="m_width"  size="5" readonly="readonly" />
-          *
-          <input type="text" name="m_height" id="m_height"  size="5" readonly="readonly" /></td>
-        <td>
-        	  <input type="text" name="m_weight" id="m_weight"  size="25" readonly="readonly" />
-        </td>
-        <td><input type="text" name="lift_time" id="lift_time"  size="30" /></td>
-        <td colspan="2"><input type="text" name="tonnage"  size="35" /></td>
-      </tr>
-      </table>
-      <div style="height:10px"></div>
-     <!--加工材料费-->
-     <style type="text/css" media="screen">
-     	#heats tr td,#materials tr td,#molds_parts tr td,#basic_info tr td,#molds_designs tr td,#molds_others tr td,#molds_manus tr td{border:1px solid grey;}
-
-     </style>
-     <table id="materials" style="width:91%;" border="1" >
-      <tr>
-          <td colspan="8" style=";font-size:20px;font-weight:blod">材料加工费/Machining Materia</td>
-      </tr>
-    
-      <tr >
-         <td width="230">材料名称/Material</td>
-         <td width="48">材料牌号/Specification</td>
-         <td width="48">数量/Number</td>
-         <td width="390">尺寸/Size(mm*mm*mm)</td>
-         <td width="110">重量/Weight(kg)</td>
-         <td>单价(元)/Unit Price</td>
-         <td width="80">金额/Price(RMB)</td>
-         <td width="185">小计(元)</td>
-      </tr>
-         <?php $i=0;foreach($array_mould_material as $mould_material_Key=>$mould_material_value){
-
-      	?>
-      <tr>
-          <td>
-              <input name="mould_material[]" id="mould_material" value=<?php echo $mould_material_value ?> disabled style="border-style:none;color:black;font-weight:150;font-size:15px">
-          </td>
-          <td>
-              <select name="material_specification[]" id="material_specification"  style="width:100px">
-                        <option value="">请选择</option>
-                        <?php
-                            foreach($array_material_specification as $material_specification_key => $material_specification_value){
-                                echo "<option value=".$material_specification_value.'>'.$material_specification_value.'</option>';
-                            }
-                        ?>
-              </select>
-          </td>
-          <td>
-              <input type="text" name="number[]" id="number" size="11">
-          </td>
-                 <td>
-              <input name="material_length[]" type="text" placeholder="长" size="7">
-              *
-              <input name="material_width[]" type="text" placeholder="宽" size="7">
-              *
-              <input name="material_height[]" type="text" placeholder="高" size="7">
-          </td>   
-           <td>
-              <input type="text" name="material_weight[]" id="material_weight" size="12">
-          </td>
-           <td>
-              <input type="text" name="unit_price[]" id="unit_price" value="70" size="15"/>
-          </td>  
-          <td>
-              <input type="text" name="material_price[]" id="material_price" size="15">
-          </td>
-          <?php 
-          	    
-          	     if($i == 0){
-          	     	echo '<td rowspan="6" id="total_machining" ></td>  ';
-          	     }
-  	     $i++;
-          ?> 
-      	                          
-      </tr>
-   
-      <?php } ?>
-      <tr id="machining_materia"></tr>
-      <tr >
-          <td colspan="9" style="">
-              <p id="add_materia" style="width:200px;height;50px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;margin:10px auto;cursor:pointer">
-                    添加项目
-             </p>
-          </td>
-      </tr>
-
-      </table>
-      <div style="height:10px">
-      	
-      </div>
-      <!--热处理-->
-      <table id="heats" style="width:91%">
-        <tr>
-            <td colspan="5" style="font-size:20px;font-weight:blod;">热处理/Heat Treatment</td>
-      </tr>
-         <tr>
-          <td width="212">热处理名称/Item</td>
-          <td>重量/weight(kg)</td>
-          <td>单价/Unit Price(RMB)</td>
-          <td>金额/Price(RMB)</td>
-          <td width="52">小计(元)</td>
-      </tr>
-      <?php
-      	$i = 0;
-      	foreach($array_mould_heat as $mould_heat_key=>$mould_heat_value){
-      ?>
-      <tr>
-          <td>
-              <input name="mould_heat_name[]" id="mould_heat_name" value=<?php echo $mould_heat_value ?> disabled style="border-style:none;color:black;font-weight:150;font-size:15px" class="fix_txt">
-          </td>
-          <td>
-              <input name="heat_weight" type="text" id="heat_weight">
-          </td>        
-          <td>
-              <input name="heat_unit_price" type="text" id="heat_unit_price" value="24">
-          </td>
-          <td>
-              <input name="heat_price" type="text" id="heat_price">
-          </td>
-           <?php 
-          	    
-          	     if($i == 0){
-          	     	echo '<td rowspan="3" id="total_heats"></td>  ';
-          	     }
-  	     $i++;
-          ?> 
-      	                          
-      </tr>
-   
- 
-      </tr>
-      <?php } ?>
-      <tr id="mould_heats"></tr>
-        <tr >
-          <td colspan="5" style="">
-              <p id="add_heat" style="width:200px;height;50px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;margin:10px auto;cursor:pointer">
-                    添加项目
-             </p>
-          </td>
-      </tr>
-    </table>
-    <div style="height:10px"></div>
-      <!--模具配件-->
-      <table id="molds_parts" style="width:91%">
-      <tr>
-          <td colspan="7" style=";font-size:20px;font-weight:blod">模具配件/Mold standard parts</td>
-      </tr>
-           <tr>
-          <td width="212">装配件/Item</td>
-           <td>规格型号/Specification</td>
-          <td>品牌/Supplier</td>
-          <td>数量/Number</td>
-          <td>单价(元)/Unit Price</td>
-          <td>金额(RMB)/price</td>
-          <td>小计(元)</td>
-      </tr>
-      <?php
-      	$i = 0;
-      	foreach($array_mold_standard as $mold_standard_key=>$mold_standard_value){
-      ?>
-      <tr>
-          <td>
-             <input name="mold_standard[]" id="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:15px" value="<?php echo $mold_standard_value ?>">
-         </td>
-              <td>
-                <input type="text" name="standard_specification[]">
-          </td>
-          <td>
-             
-                  <select name="standard_supplier[]" id="standard_supplier" style="width:150px">
-                  	<option>请选择</option>
-                  </select>
-          </td>
-         <td>
-             <input type="text" name="standard_number[]" id="standard_number">
-         </td>
-          	 <td>
-             <input type="text" name="standard_unit_price[]" id="standard_unit_price">
-         </td>
-         <td>
-             <input type="text" name="standard_price[]" id="standard_price">
-
-         </td>
-           <?php 
-          	    
-          	     if($i == 0){
-          	     	echo '<td rowspan="7" id="total_standard"></td>  ';
-          	     }
-  	     $i++;
-          ?> 
-      	      
-        
-      </tr>
-        
-     
-       <?php } ?>
-       <tr id="standard_parts"></tr>
-      <tr>
-          <td colspan="7" style="">
-              <p id="add_standard" style="width:200px;height;50px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;margin:10px auto;cursor:pointer">
-                    添加项目
-             </p>
-          </td>
-      </tr>
-    </table>
-      <!--设计费-->
-      <div style="height:10px"></div>
-    <table id="molds_designs" style="width:91%">
-        <tr>
-               <td colspan="5" style=";font-size:20px;font-weight:blod">设计费/Design</td>
-        </tr>
-           <tr>
-            <td width="212">设计名称/Item</td>
-            <td>工时(小时)/Hour</td>
-            <td>单价(元)/Unit price(RBM)</td>
-            <td>金额(元)/Price(RMB)</td>
-            <td width="52">小计(元)</td>
-        </tr>
-         <?php 
-            $i = 0;
-        	  foreach($array_mould_design as $mould_design_key => $mould_design_value){	
-        ?>
-     
-        <tr>
-            <td>
-                  <input name="mold_design_name[]" id="mold_design_name" style="border-style:none;color:black;font-weight:150;font-size:15px" value="<?php echo $mould_design_value ?>">
-              
-            </td>
-            <td>
-                <input type="text" name="design_hour[]" id="design_hour" value="109">
-            </td>
-            <td>
-                <input type="text" name="design_unit_price[]" id="design_unit_price" value="100">
-            </td>
-            <td>
-                <input type="text" name="design_price[]" id="design_price">
-            </td>
-                  <?php 
-          	    
-          	     if($i == 0){
-          	     	echo '<td rowspan="4" id="total_designs"></td>  ';
-          	     }
-  	     $i++;
-          ?> 
-        </tr>
-        <?php }?>
-       <tr id="designs"></tr>
-      <tr>
-          <td colspan="5" style="">
-              <p id="add_designs" style="width:200px;height;50px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;margin:10px auto;cursor:pointer">
-                    添加项目
-             </p>
-          </td>
-      </tr>
-      </table>
-        <!--加工费-->
-       <table id="molds_manus" style="width:91%">
-        <tr>
-               <td colspan="5" style=";font-size:20px;font-weight:blod">加工费/Manufacturing Cost</td>
-        </tr>
-        <tr>
-            <td width="212">名称/Item</td>
-            <td>工时(小时)/Hour</td>
-            <td>单价(元)/Unit Price(RMB)</td>
-            <td>金额(元)/Price(RMB)</td>
-            <td width="52">小计(元)</td>
-        </tr>
-        <?php 
-        	$i = 0;
-        	foreach($array_mould_manufacturing as $mould_manufacturing_key=>$mould_manufacturing_value){
-        	?>
-	        <tr>
-	            <td>
-	              <input name="mold_manufacturing[]" id="mold_manufacturing" style="border-style:none;color:black;font-weight:150;font-size:15px" value="<?php echo $mould_manufacturing_value ?>">
-	         </td>
-	         <td>
-	             <input type="text" name="manufacturing_hour[]" id="manufacturing_hour" value="124">
-	         </td>
-	         <td>
-	             <input type="text" name="manufacturing_unit_price[]" id="manufacturing_unit_price" value="100">
-	         </td>
-	         <td>
-	             <input type="text" name="manufacturing_price[]" id="manufacuring_price"> 
-	         </td>
-	         <?php 
-          	    
-          	     if($i == 0){
-          	     	echo '<td rowspan="10" id="total_manufacturing"></td>  ';
-          	     }
-  	     $i++;
-             ?> 
-	        </tr>
-	<?php } ?>
-	<tr  id="manu_cost"></tr>
-        <tr>
-            <td colspan="5" style="">
-              <p id="add_manu" style="width:200px;height;50px;border:1px solid grey;background:rgb(221,221,221);dispaly:inline-block;margin:10px auto;cursor:pointer">
-                    添加项目
-             </p>
-          </td>
-      </tr>
-      </table>
-      <div style="height:10px"></div>
-        <!--其他费用-->
-       <table id="molds_others" style="width:91%">
-          <tr>
-               <td colspan="5" style=";font-size:20px;font-weight:blod">其它费用/Other Fee</td>
-        </tr>
-        <tr>
-        	<td width="212">费用名称</td>
-        	<td colspan="2">费用计算说明</td>
-        	<td>金额(元)</td>
-        	<td width="52">小计(元)</td>
-        </tr>
-        <tr>
-        	<td>试模费/Trial Fee</td>
-        	<td colspan="2">3 times mold trial(excluding raw material cost)</td>
-        	<td>
-               <input type="text" name="trial_fee" id="trial_fee">	
-        	</td>
-        	<td rowspan="5" id="total_others"></td>
-        </tr>
-        <tr>
-        	<td>运输费/Freight Fee</td>
-        	<td colspan="2">sample and tooling transport cost paid by customer</td>
-        	<td>
-                <input type="text" name="freight_fee" id="freight_fee">
-            </td>
-        </tr>
-        <tr>
-        	<td>管理费/Management Fee</td>
-        	<td colspan="2">5%</td>
-        	<td>
-                <input type="text" name="management_fee" id="management_fee">
-            </td>
-        </tr>
-        <tr>
-            <td>利润/Profit</td> 
-            <td colspan="2">10%</td>  
-            <td>
-                <input type="text" name="profit" id="profit" >
-            </td>         
-        </tr>
-           <tr>
-            <td>税/VAT TAX(16%)</td>
-            <td colspan="2">16%</td>
-            <td>
-                <input type="text" name="vat_tax" id="vat_tax">
-            </td>
-        </tr>
-        <!--总计-->
-          <tr>
-               <td colspan="5" style=";font-size:20px;font-weight:blod">模具价格/Mold Price</td>
-        </tr>
-        <tr>
-            <td>模具价格(元)不含税/Mold Price without VAT(RMB)</td>
-            <td colspan="3">
-                <input type="text" name="mold_price_rmb" id="mold_price_rmb">
-            </td>
-         <tr>
-         	  <td>模具价格(USD)/Mold Price(USD) Rate=6.5</td>
-         	  <td colspan="3">
-                <input type="text" name="mold_price_usd" id="mold_price_usd">
-            </td>
-         </tr>
-        </tr>
-            <td>模具价格(元)含17%增值税/Mold with VAT(RMB)</td>
-            <td colspan="3">
-               <input type="text" name="mold_with_vat" id="mold_with_vat">
-            </td>
-        </tr>
-      <tr>
-        <td style="border-style:none" colspan="5" align="center"><input type="submit" name="submit" id="submit" value="确定" class="button" />
-        	&nbsp;&nbsp;
-          <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-          <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
-      </tr>
-    </table>
   </form>
   <?php
   }elseif($action == 'edit'){
