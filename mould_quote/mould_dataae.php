@@ -69,7 +69,7 @@ $(function(){
 	//tr_val   需要求值行的类名
 	//d1,d2,d4  需要求值的乘数的列号
 	//d3        需要填写乘积的类名      
-	function sum_tds(tr_val,d1,d2,d3,d4){
+	function sum_tds(tr_val,d1,d2,d3){
 		var s = 0;
 		var tr1 = 0;
 		var tr2 = 0;
@@ -78,8 +78,7 @@ $(function(){
 		for(var i=0;i<(tr_nu.size());i++){
 			var tr1 = (tr_nu.eq(i).children().eq(d1).children().val())? (tr_nu.eq(i).children().eq(d1).children().val()):'0';
 			 var tr2 = (tr_nu.eq(i).children().eq(d2).children().val())? (tr_nu.eq(i).children().eq(d2).children().val()):'0';
-			var tr3 = (tr_nu.eq(i).children().eq(d4).children().val())? (tr_nu.eq(i).children().eq(d4).children().val()):'1';
-			 s += tr1*tr2*tr3;
+			 s += tr1*tr2;
 		}
 	
 		$(d3).children().val(s);
@@ -110,7 +109,7 @@ $(function(){
 	//删除设计费是重新计算总金额
 	$(".design_dels").live("click",function(){
 		$(this).parent().parent().remove();
-		sum_tds(".design_trs",1,2,"#total_designs")
+		sum_tds(".design_trs",1,2,"#total_designs");
 		//删除行时重新统计第一列需要合并的单元格列数
 		count_del_trs(".design_trs","#design_first_td","#total_designs");
 	})
@@ -130,7 +129,7 @@ $(function(){
 	})
           //动态添加工材料费
           $('#add_material').click(function(){
-          	     var trs = '     <tr class="material_trs">               <td colspan="4">                  <input name="mould_material[]" id="mould_material" style="color:black;font-weight:150;font-size:13px;width:150px">     <p class="material_dels dels">删除</p>           </td>               <td>               	<select name="material_specification[]" id="material_specification" >                        <option value="">请选择</option>                        <?php
+          	     var trs = '     <tr class="material_trs">               <td colspan="4">                  <input name="mould_material[]" id="mould_material" class="mould_material" style="color:black;font-weight:150;font-size:13px;width:150px">     <p class="material_dels dels">删除</p>           </td>               <td>               	<select name="material_specification[]" id="material_specification" >                        <option value="">请选择</option>                        <?php
                             foreach($array_material_specification as $material_specification_key => $material_specification_value){
                                 echo "<option value=".$material_specification_value.'>'.$material_specification_value.'</option>';
                             }
@@ -157,7 +156,7 @@ $(function(){
           })
           //动态添加设计费
           $('#add_designs').click(function(){
-          		var design_adder = '    <tr class="design_trs">              <td colspan="4">                  <input name="mold_design_name[]" id="mold_design_name" style="color:black;font-weight:150;font-size:13px;width:150px">           <p class="dels design_dels">删除</p>                 </td>              <td colspan="2">                 <input type="text" name="design_hour[]" id="design_hour" value="109">              </td>              <td colspan="6">                 <input type="text" name="design_unit_price[]" id="design_unit_price" value="100">              </td>              <td colspan="2">                <input type="text" name="design_price[]" id="design_price">              </td>        </tr>';
+          		var design_adder = '    <tr class="design_trs">              <td colspan="4">                  <input name="mold_design_name[]" id="mold_design_name" class="mold_design_name" style="color:black;font-weight:150;font-size:13px;width:150px">           <p class="dels design_dels">删除</p>                 </td>              <td colspan="2">                 <input type="text" name="design_hour[]" id="design_hour" class="design_hour" value="109">              </td>              <td colspan="6">                 <input type="text" name="design_unit_price[]" id="design_unit_price" class="design_unit_price" value="100">              </td>              <td colspan="2">                <input type="text" name="design_price[]" class="design_price" id="design_price">              </td>        </tr>';
           		count_trs(".design_trs","#design_first_td","#total_designs");
           		$('#designs').before(design_adder);
 
@@ -175,6 +174,7 @@ $(function(){
           	     	count_trs(".others_trs","#others_first_td","#total_others");
                      $('#others_fees').before(others_adder);
           })
+
           //统计总共有多少tr标签
 	$("#submit").click(function(){
 		var mould_name = $("#mould_name").val();
@@ -257,12 +257,12 @@ $(function(){
                             foreach($array_material_specification as $material_specification_key => $material_specification_value){
                                 echo "<option value=".$material_specification_value.'>'.$material_specification_value.'</option>';
                             }
-                        ?>               </select>             </td>             <td>                   <input type="text" name="materials_number[]" id="materials_number" >             </td>             <td style="width:93px">                   <input name="material_length[]" id="material_length" type="text" placeholder="长">             </td>             <td>*</td>             <td style="width:93px">                 <input name="material_width[]" id="material_width" type="text" placeholder="宽">             </td>             <td>*</td>             <td style="width:93px">                  <input name="material_height[]" id="material_height" type="text" placeholder="高">             </td>             <td>                 <input type="text" name="material_weight[]" id="material_weight">             </td>             <td>                 <input type="text" name="material_unit_price[]" id="material_unit_price" value="70"/>             </td>   <td>                 <input type="text" name="material_price[]" id="material_price"> 	             </td></tr>';
+                        ?>               </select>             </td>             <td>                   <input type="text" name="materials_number[]" id="materials_number" class="materials_number" >             </td>             <td style="width:93px">                   <input name="material_length[]" id="material_length" type="text" placeholder="长">             </td>             <td>*</td>             <td style="width:93px">                 <input name="material_width[]" id="material_width" type="text" placeholder="宽">             </td>             <td>*</td>             <td style="width:93px">                  <input name="material_height[]" id="material_height" type="text" placeholder="高">             </td>             <td>                 <input type="text" name="material_weight[]" id="material_weight">             </td>             <td>                 <input type="text" name="material_unit_price[]" id="material_unit_price" value="70"/>             </td>   <td>                 <input type="text" name="material_price[]" id="material_price"> 	             </td></tr>';
    		var material_add_core = ' <tr class="material_trs">               <td colspan="4">                  <input name="mould_material[]" class="mould_material only_add" value="型芯2/Core" disabled style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled>               </td>               <td>               	<select name="material_specification[]" id="material_specification" >                        <option value="">请选择</option>                        <?php
                             foreach($array_material_specification as $material_specification_key => $material_specification_value){
                                 echo "<option value=".$material_specification_value.'>'.$material_specification_value.'</option>';
                             }
-                        ?>               </select>             </td>             <td>                   <input type="text" name="materials_number[]" id="materials_number" >             </td>             <td style="width:93px">                   <input name="material_length[]" id="material_length" type="text" placeholder="长">             </td>             <td>*</td>             <td style="width:93px">                 <input name="material_width[]" id="material_width" type="text" placeholder="宽">             </td>             <td>*</td>             <td style="width:93px">                  <input name="material_height[]" id="material_height" type="text" placeholder="高">             </td>             <td>                 <input type="text" name="material_weight[]" id="material_weight">             </td>             <td>                 <input type="text" name="material_unit_price[]" id="material_unit_price" value="70"/>             </td>   <td>                 <input type="text" name="material_price[]" id="material_price"> 	             </td></tr>';
+                        ?>               </select>             </td>             <td>                   <input type="text" name="materials_number[]" id="materials_number" >             </td>             <td style="width:93px">                   <input name="material_length[]" id="material_length" type="text" placeholder="长">             </td>             <td>*</td>             <td style="width:93px">                 <input name="material_width[]" id="material_width" type="text" placeholder="宽">             </td>             <td>*</td>             <td style="width:93px">                  <input name="material_height[]" id="material_height" type="text" placeholder="高">             </td>             <td>                 <input type="text" name="material_weight[]" id="material_weight">             </td>             <td>                 <input type="text" name="material_unit_price[]" id="material_unit_price" class="material_unit_price" value="70"/>             </td>   <td>                 <input type="text" name="material_price[]" id="material_price"> 	             </td></tr>';
 		
 		count_trs(".material_trs","#material_first_td","#total_machining");
 		if($("#cavity_type").val() == "A"||$("#cavity_type").val()== "B" || $("#cavity_type").val() == "C"){
@@ -308,7 +308,7 @@ $(function(){
                             foreach($array_material_specification as $material_specification_key => $material_specification_value){
                                 echo "<option value=".$material_specification_value.'>'.$material_specification_value.'</option>';
                             }
-                        ?>               </select>             </td>             <td>                   <input type="text" name="materials_number[]" id="materials_number" >             </td>             <td style="width:93px">                   <input name="material_length[]" id="material_length" type="text" placeholder="长">             </td>             <td>*</td>             <td style="width:93px">                 <input name="material_width[]" id="material_width" type="text" placeholder="宽">             </td>             <td>*</td>             <td style="width:93px">                  <input name="material_height[]" id="material_height" type="text" placeholder="高">             </td>             <td>                 <input type="text" name="material_weight[]" id="material_weight">             </td>             <td>                 <input type="text" name="material_unit_price[]" id="material_unit_price" value="70"/>             </td>             <td>                 <input type="text" name="material_price[]" id="material_price"> 	             </td>        </tr> <?php } ?>';
+                        ?>               </select>             </td>             <td>                   <input type="text" name="materials_number[]" class="materials_number" id="materials_number" value="1">             </td>             <td style="width:93px">                   <input name="material_length[]" id="material_length" class="material_length" type="text" placeholder="长">             </td>             <td>*</td>             <td style="width:93px">                 <input name="material_width[]" id="material_width" class="material_width" type="text" placeholder="宽">             </td>             <td>*</td>             <td style="width:93px">                  <input name="material_height[]" id="material_height" class="material_height" type="text" placeholder="高">             </td>             <td>                 <input type="text" name="material_weight[]" class="material_weight" id="material_weight">             </td>             <td>                 <input type="text" name="material_unit_price[]" class="material_unit_price" id="material_unit_price" value="70"/>             </td>             <td>                 <input type="text" name="material_price[]" id="material_price" class="material_price"> 	             </td>        </tr> <?php } ?>';
 	//添加删除按钮
 	$("#add_cavitys").one('click',function(){
 
@@ -316,11 +316,22 @@ $(function(){
 		$(this).before(add_cavity);
 		$("#machining_material").before(add_materials);
 		//初始化合并的单元格行数
-		$("#material_first_td").attr('rowspan',13);
-		$("#total_machining").attr('rowspan',12);
+		$("#material_first_td").attr('rowspan',15);
+		$("#total_machining").attr('rowspan',14);
 	        	j = 1;
 	})
-	var k = 1;
+	 m = 0;
+	//页面加载完成遍历材料名称把点击数改为2
+	var mould_num = $(".mould_material").size();
+		
+		for(var i=0;i<mould_num;i++){
+			if($(".mould_material").eq(i).val() == '电极/Electrode'){
+				$(".materials_number").eq(i).val(2);
+			} 
+			
+			
+		}
+		
 	//点击添加按钮
 	$("#add_cavitys").click(function(){
 		if($(this).nextAll().size() == 0){	
@@ -334,7 +345,7 @@ $(function(){
 		count_tr(".material_trs","#material_first_td","#total_machining");
 		}
 		j +=1;
-		var input_length = '<input type="text" name="p_length[]" id="p_length" class="p_length" bid=""/>';
+		var input_length = '<input type="text" name="p_length[]" id="p_length" class="p_length"/>';
 		var input_width  = '<input type="text" name="p_width[]" id="p_width" class="p_width"/>';
 		var input_height = '<input type="text" name="p_height[]" id="p_height" class="p_height"/>';
 		var input_part    ='<input type="text" name="part_number[]" id="part_number" class="part_number" style="width:182px"/>';
@@ -348,18 +359,128 @@ $(function(){
 		$("#pp_file").before(input_file);
 		$("#pp_weight").before(input_weight);
 		$("#pp_material").before(input_material);
-		//给新添加的输入框做标记
-		// $(".p_length").attr('bid','inp'+k);
-		// $(".p_width").attr('bid','inp'+k);
+		//给添加的材料名称后面添加下标
+		var mould_num = $(".mould_material").size();
+		var cavity_number = $(this).prevAll().size()-1;
+		for(var i=0;i<mould_num;i++){
+			switch($(".mould_material").eq(i).val()) {
+				case  '型腔/Cavity':
+					m +=1;
+					var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+				           $(".mould_material").eq(i).val(new_mould);
+					break;
+				case '型芯/Core':
+					var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+				           $(".mould_material").eq(i).val(new_mould);
+					break;
+				case '滑块/Slide&Lifter':
+					var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+				           $(".mould_material").eq(i).val(new_mould);
+					break;
+				case '斜顶/Lifter':
+					var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+				           $(".mould_material").eq(i).val(new_mould);
+					break;
+				case '镶件/Insert':
+					var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+				           $(".mould_material").eq(i).val(new_mould);
+					break;
+				case '电极/Electrode':
+					var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+				           $(".mould_material").eq(i).val(new_mould);
+					break;
+			}
 
-		alert(k);
-		k +=1;
+			
+		}
+		//添加时更改电极数
+		for(var i=0;i<mould_num;i++){
+			if($(".mould_material").eq(i).val() == '电极'+cavity_number+'/Electrode'){
+				$(".materials_number").eq(i).val(2);
+			} 	
+		}
+		
+
+	})
+	//k_num选项更改时
+	$("#k_num").change(function(){
+		var k_num = $(this).val();
+		var cavity_number = $("#add_cavitys").prevAll().size();
+		var mould_num = $(".mould_material").size();
+			//遍历材料的名称
+			for(var i=0;i < mould_num;i++){
+			
+					if(k_num == '2'){
+						var core_num = $(".materials_number").eq(i).val()*2;
+						$(".materials_number").eq(i).val(core_num);	
+					} else {
+						var core_num = $(".materials_number").eq(i).val()/2;
+						$(".materials_number").eq(i).val(core_num);	
+				
+					
+				}
+		}
+
+
+	})
+	//型腔类型发生变化
+	$(".cavity_type").live('change',function(){
+		var cavity_val = $(this).val();
+		var cavity_number = $(this).prevAll().size();
+		var mould_num = $(".mould_material").size();
+		var k_num = $("#k_num").val();
+		//动态更改型腔的数量
+		//当只有一个输入框时更给型腔数
+		if($("#add_cavitys").prevAll().size() == 2) {
+			cavity_number = '';
+		}
+			for(var i=0;i<mould_num;i++){
+				if($(".mould_material").eq(i).val() == '型腔'+cavity_number+'/Cavity' || $(".mould_material").eq(i).val() == '型芯'+cavity_number+'/Core' ||  $(".mould_material").eq(i).val() == '滑块'+cavity_number+'/Slide&Lifter' || $(".mould_material").eq(i).val() == '镶件'+cavity_number+'/Insert' || $(".mould_material").eq(i).val() == '斜顶'+cavity_number+'/Lifter'){
+					 $(".materials_number").eq(i).val(cavity_val*k_num);
+				}
+				if($(".mould_material").eq(i).val() == '电极'+cavity_number+'/Electrode'){
+					 $(".materials_number").eq(i).val(cavity_val * 2*k_num);
+				}
+		}
+	
 	})
 	//删除型腔类型
 	$("#del_cavitys").live('click',function(){
+		//只有一个输入框时去除删除按钮
 		if($("#add_cavitys").prevAll().size() == 3){
 			$(this).remove();
+			m = 0;
+			var mould_num = $(".mould_material").size();
+			for(var i=0;i<mould_num;i++){
+				switch($(".mould_material").eq(i).val()) {
+					case  '型腔1/Cavity':
+						var new_mould =  '型腔/Cavity';
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '型芯1/Core':
+						var new_mould = '型芯/Core';
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '滑块1/Slide&Lifter':
+						var new_mould = '滑块/Slide&Lifter';
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '斜顶1/Lifter':
+						var new_mould = '斜顶/Lifter';
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '镶件1/Insert':
+						var new_mould = '镶件/Insert';
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '电极1/Electrode':
+						var new_mould = '电极/Electrode';
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					}
+			}
 		}
+		//删除已经添加的项目
 		$(".material_dels").parent().parent().remove();
 		$("#add_cavitys").prev().remove();
 		//删除尺寸输入框
@@ -370,12 +491,44 @@ $(function(){
 		$("#pp_file").prev().remove();
 		$("#pp_weight").prev().remove();
 		$("#pp_material").prev().remove();
-		//删除加工材料项目
-		$("#machining_material").prevAll().slice(0,5).remove();
+		//删除加工型腔类型输入框
+		$("#machining_material").prevAll().slice(0,6).remove();
 		count_tr(".material_trs","#material_first_td","#total_machining");
-		
-		k -=1;
-		alert(k);
+		//给减少的材料名称后面添加下标
+		var mould_num = $(".mould_material").size();
+		var cavity_number = $(this).prevAll().size()-2;
+		     if($("#add_cavitys").prevAll().size() >3){
+			for(var i=0;i<mould_num;i++){
+				switch($(".mould_material").eq(i).val()) {
+					case  '型腔/Cavity':
+						m -=1;
+						var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '型芯/Core':
+						var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '斜顶/Lifter':
+						var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '滑块/Slide&Lifter':
+						var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '镶件/Insert':
+						var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+					case '电极/Electrode':
+						var new_mould = $(".mould_material").eq(i).val().replace(/\//,m+"/");
+					           $(".mould_material").eq(i).val(new_mould);
+						break;
+				}
+
+			}
+		}
 	})
 	$("#p_length,#p_width,#p_height").blur(function(){
 		var cavity_type = $("#cavity_type").val();
@@ -389,7 +542,7 @@ $(function(){
 			$(this).val(p_default_value);
 			$(this).focus();
 		}else if($.trim(p_value)){
-			$(this).val(parseFloat(p_value).toFixed(1));
+			//$(this).val(parseFloat(p_value).toFixed(1));
 		}
            //ajax请求动态获取模具的长宽高
 		if(cavity_type && $.trim(p_length) && $.trim(p_width) && $.trim(p_height)){
@@ -428,17 +581,162 @@ $(function(){
 			})
 		}
 	})
+	//计算模具的克重
 	$(".p_length,.p_width,.p_height").live('blur',function(){
-		var p_length = $("#p_length").val();
-		var p_width = $("#p_width").val();
-		var p_height = $("#p_height").val();
+		//判断是第几个输入框
+		var no = $(this).prevAll().size();
+		var no1 = no+1;
+		var p_length = $("#length_no").children().eq(no).val();
+		var p_width = $("#width_no").children().eq(no).val();
+		var p_height = $("#height_no").children().eq(no).val();
+		var mould_num = $(".mould_material").size();
+		var total_machining = 0;
 		if($.trim(p_length) && $.trim(p_width) && $.trim(p_height)){
+			
+			if($("#add_cavitys").prevAll().size() == 2) {
+			no1 = '';
+
+			}
 			var weight_g = (p_length - 4) * (p_width - 4) * (p_height - 2);
+			//计算型腔的尺寸
+			for(var i = 0;i < mould_num; i++){
+				if($(".mould_material").eq(i).val() == '型腔'+no1+'/Cavity' || $(".mould_material").eq(i).val() == '型芯'+no1+'/Core' ){
+					 $(".material_length").eq(i).val(parseFloat(p_length)+110);
+					 $(".material_width").eq(i).val(parseFloat(p_width)+110);
+					 $(".material_height").eq(i).val(parseFloat(p_height)+100);
+					//计算重量
+					var wei = (parseFloat(p_length)+110)*(parseFloat(p_width)+110)*(parseFloat(p_height)+100)*7.8;
+					wei = Math.round(wei);
+					$('.material_weight').eq(i).val(wei);
+					
+				} else if($(".mould_material").eq(i).val() == '电极'+no1+'/Electrode'){
+					 $(".material_length").eq(i).val(parseFloat(p_length)+100);
+					 $(".material_width").eq(i).val(parseFloat(p_width)+100);
+					 $(".material_height").eq(i).val(150);
+					//计算重量
+					var wei = (parseFloat(p_length)+100)*(parseFloat(p_width)+100)*150*8.9;
+					wei = Math.round(wei);
+					$('.material_weight').eq(i).val(wei);
+				}
+				//计算材料费的金额
+			 	var prices  = ($(".material_weight").eq(i).val())*($(".materials_number").eq(i).val())*($(".material_unit_price").eq(i).val());
+			 	
+				$(".material_price").eq(i).val(prices);
+				total_machining += parseFloat($(".material_price").eq(i).val());
+
+			}
+		//计算总金额
+		$("#total_machining").children().val(total_machining);
+		//计算淬火的重量
+		var handened_weight = 0;
+		for(var j = 0;j < mould_num; j++){
+			if($(".mould_material").eq(j).val().indexOf('型腔') !=-1 || $(".mould_material").eq(j).val().indexOf('型芯') !=-1 || $(".mould_material").eq(j).val().indexOf('滑块') !=-1 || $(".mould_material").eq(j).val().indexOf('镶件') !=-1 ){
+				var res_weight = parseInt($(".material_weight").eq(j).val())?parseInt($(".material_weight").eq(j).val()):0;
+				handened_weight +=res_weight;
+
+			}
+			}
+			$(".heat_weight").eq(1).val(handened_weight);
+			//设置热处理的金额计算
+	 		sum_tds(".heat_trs",1,2,"#total_heats");
+	 		//计算设计费的工时
+			var design_unit_hour = total_machining*0.15/100/4;
+			var design_num = $(".design_hour").size();
+			for(var n=0;n<design_num;n++){
+				$(".design_hour").eq(n).val(design_unit_hour);
+			}
+			//计算加工费的工时
+			var manu_unit_hour = total_machining*1.5/100/10;
+			var manu_num = $(".mold_manufacturing").size();
+			
+			for(var e = 0; e<manu_num;e++){
+				switch($(".mold_manufacturing").eq(e).val()) {
+					case '一般机床/Maching':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour);
+						break;
+					case '磨床/Grinding':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour*0.6);
+						break;
+					case '数控机床/CNC':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour*1.2);
+						break;
+					case '精密数控机床':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour*0.8);
+						break;
+					case '线切割/W.C.':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour*0.8);
+						break;
+					case '电火花/EDM':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour);
+						break;
+					case '抛光/Polish':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour);
+						break;
+					case '钳工/Fitting':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour*0.8);
+						break;
+					case '激光烧焊/Laser Welding':
+						$(".manufacturing_hour").eq(e).val(manu_unit_hour*0.5);
+						break;
+				}
+			//尺寸输入后计算设计费金额
+			$(".design_price").eq(e).val(($(".design_hour").eq(e).val())*($(".design_unit_price").eq(e).val()));
+			
+			sum_tds(".design_trs",1,2,"#total_designs");
+			//尺寸输入后计算加工费金额
+			$(".manufacturing_price").eq(e).val(($(".manufacturing_hour").eq(e).val())*($(".manufacturing_unit_price").eq(e).val()));
+			}
+			sum_tds(".manus_trs",1,2,"#total_manufacturing")
+		//计算配件费的金额
+		$(".standard_number,.standard_unit_price").live("blur",function(){
+		if($(this).attr('class') == 'standard_number'){
+			var standard_totals = ($(this).val())*( $(this).parent().next().children().val());
+		} else {
+		          var standard_totals = ($(this).val())*($(this).parent().prev().children().val());
+		}
+		$(this).parent().parent().children().eq(5).text(standard_totals);
+		sum_tds(".parts_trs",3,4,"#total_standard")
+		})
+
 		}
 		if(weight_g > 0 && weight_g != ' '){	
-		$(this).parent().next().children().val(weight_g);
-	}
+		$("#weight_no").children().eq(no).val(weight_g);
+	    }
 	})
+	//加载完成后计算配件费
+	var standard_nu = $(".standard_number").size();
+
+	for(var s=0;s<=standard_nu;s++){
+		//设置默认单价
+		switch($(".mold_standard").eq(s).val()) {
+			case '镶件、日期章/Inserts':
+				$(".standard_unit_price").eq(s).val(5000);
+				break;
+			case '顶杆、顶管/Ejection Pin\\Sleeve':
+				$(".standard_unit_price").eq(s).val(5000);
+				break;
+			case '水管、油管接头/Connector':
+				$(".standard_unit_price").eq(s).val(8000);
+				break;
+			case '标准件/Standard Components':
+				$(".standard_unit_price").eq(s).val(16000);
+				break;
+			case '热流道/Hot Runner':
+				$(".standard_unit_price").eq(s).val(10000);
+				break;
+			case '温控器/Temp Controller':
+				$(".standard_unit_price").eq(s).val(8000);
+				break;
+			case '油缸/Hydro-cylinder':
+				$(".standard_unit_price").eq(s).val(8000);
+				break;
+		}
+		//计算配件费金额
+		$(".standard_price").eq(s).val(($(".standard_number").eq(s).val())*($(".standard_unit_price").eq(s).val()));
+		
+	}
+	sum_tds(".parts_trs",3,4,"#total_standard")
+	
 })
 </script>
 <title>模具报价-希尔林</title>
@@ -521,7 +819,7 @@ $(function(){
                <td colspan="5" style="padding-right:2px">
                	<input  type="text" name="mould_name" id="mould_name" class="input_tx"  style="width:315px;margin-right:2px"/>
                </td>
-               <td colspan="2">
+               <td colspan="2" id="cavity_no">
                	<!-- <select name="cavity_type" id="cavity_type" style="">
                         <option value="">请选择</option>
                           <?php
@@ -554,33 +852,33 @@ $(function(){
           
            </tr>
            <tr>
-              <td style="width:93px">
+              <td style="width:93px" id="length_no">
               	<input type="text" name="p_length[]" id="p_length" class="p_length"/>
               	<span id="pp_length"></span>
               </td>
               <td >*</td>
-              <td style="width:93px">
+              <td style="width:93px" id="width_no">
               	<input type="text" name="p_width[]" id="p_width" class="p_width" />
               	<span id="pp_width"></span>
               </td>
               <td>*</td>
-              <td style="width:93px">
+              <td style="width:93px" id="height_no">
                      <input type="text" name="p_height[]" id="p_height" class="p_height" />
                      <span id="pp_height"></span>
               </td>
-              <td style="width:93px">
+              <td style="width:93px" id="weight_no">
                     <input type="text" name="p_weight[]" id="p_weight" class="input_tx"/>
                     <span id="pp_weight"></span>
               </td>
-              <td style="width:93px">
+              <td style="width:93px" id="material_no">
               	<input type="text" name="m_material[]" id="m_material" class="input_tx"/>
               	<span id="pp_material"></span>
               </td>
-              <td colspan="2" style="padding-right:8px">
+              <td colspan="2" style="padding-right:8px" id="part_no">
                    <input type="text" name="part_number[]" id="part_number" class="input_tx"  style="width:182px"/>
                    <span id="pp_number"></span>
                </td>
-               <td colspan="2">
+               <td colspan="2" id="file_no">
                    <input type="text" name="drawing_file[]" id="drawing_file" class="input_tx" style="width:310px"/>
                    <span id="pp_file"></span>
               </td>
@@ -615,7 +913,7 @@ $(function(){
            </tr>
            <!--加工材料费-->
            <tr id="material_last_tr">
-               <td id="material_first_td" rowspan="8">材料加工费/Machining Materia</td> 	
+               <td id="material_first_td" rowspan="9">材料加工费/Machining Materia</td> 	
                <td colspan="4">材料名称/Material</td>
                <td>材料牌号/Specification</td>
                <td>数量/Number</td>
@@ -635,33 +933,35 @@ $(function(){
                         <option value="1.2312">1.2312</option><option value="1.2343">1.2343</option><option value="Cu">Cu</option>               </select>
              </td>
              <td>
-                   <input type="text" name="materials_number[]" id="materials_number">
+                   <input type="text" name="materials_number[]" class="materials_number" id="materials_number" value="1">
              </td>
              <td style="width:93px">
-                   <input name="material_length[]" id="material_length" type="text" placeholder="长">
+                   <input name="material_length[]" id="material_length" class="material_length" type="text" placeholder="长">
              </td>
              <td>*</td>
              <td style="width:93px">
-                 <input name="material_width[]" id="material_width" type="text" placeholder="宽">
+                 <input name="material_width[]" id="material_width" class="material_width" type="text" placeholder="宽">
              </td>
              <td>*</td>
              <td style="width:93px">
-                  <input name="material_height[]" id="material_height" type="text" placeholder="高">
+                  <input name="material_height[]" id="material_height" class="material_height" type="text" placeholder="高">
              </td>
              <td>
-                 <input type="text" name="material_weight[]" id="material_weight">
+                 <input type="text" name="material_weight[]" id="material_weight" class="material_weight">
              </td>
              <td>
-                 <input type="text" name="material_unit_price[]" id="material_unit_price" value="70">
+                 <input type="text" name="material_unit_price[]" id="material_unit_price" class="material_unit_price" value="70">
              </td>
              <td>
-                 <input type="text" name="material_price[]" id="material_price"> 	
+                 <input type="text" name="material_price[]" id="material_price" class="material_price"> 	
              </td>
-               <td rowspan="7" id="total_machining"></td>   
+               <td rowspan="8" id="total_machining"><input type="text" name="total_machining"></td>   
            </tr>
               <?php
               $i = 0;
                foreach($array_mould_material as $mould_material_key=>$mould_material_value){
+               	
+
       	?>
            <tr class="material_trs">
                <td colspan="4">
@@ -678,27 +978,27 @@ $(function(){
                </select>
              </td>
              <td>
-                   <input type="text" name="materials_number[]" id="materials_number" >
+                   <input type="text" name="materials_number[]" class="materials_number" id="materials_number" value="1">
              </td>
              <td style="width:93px">
-                   <input name="material_length[]" id="material_length" type="text" placeholder="长">
+                   <input name="material_length[]" class="material_length" id="material_length" type="text" placeholder="长">
              </td>
              <td>*</td>
              <td style="width:93px">
-                 <input name="material_width[]" id="material_width" type="text" placeholder="宽">
+                 <input name="material_width[]" class="material_width" id="material_width" type="text" placeholder="宽">
              </td>
              <td>*</td>
              <td style="width:93px">
-                  <input name="material_height[]" id="material_height" type="text" placeholder="高">
+                  <input name="material_height[]" class="material_height" id="material_height" type="text" placeholder="高">
              </td>
              <td>
-                 <input type="text" name="material_weight[]" id="material_weight">
+                 <input type="text" name="material_weight[]" id="material_weight" class="material_weight">
              </td>
              <td>
-                 <input type="text" name="material_unit_price[]" id="material_unit_price" value="70"/>
+                 <input type="text" name="material_unit_price[]" id="material_unit_price" class="material_unit_price" value="70"/>
              </td>
              <td>
-                 <input type="text" name="material_price[]" id="material_price"> 	
+                 <input type="text" name="material_price[]" class="material_price" id="material_price"> 	
              </td>
            </tr>
            <?php } ?>
@@ -724,13 +1024,13 @@ $(function(){
            ?>
            <tr class="heat_trs">
               <td colspan="4">
-                  <input name="mould_heat_name[]" id="mould_heat_name" value=<?php echo $mould_heat_value ?> disabled style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled class="fix_txt">
+                  <input name="mould_heat_name[]" id="mould_heat_name" class="mould_heat_name" value=<?php echo $mould_heat_value ?> disabled style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled class="fix_txt">
               </td>
               <td colspan="2">
-                  <input name="heat_weight" type="text" class="heat_weight">
+                  <input name="heat_weight" type="text" class="heat_weight" value="0">
               </td>
               <td colspan="6">
-                 <input name="heat_unit_price" type="text" class="heat_unit_price" value="24">	
+                 <input name="heat_unit_price" type="text" class="heat_unit_price" value="18">	
               </td>
               <td colspan="2">
                 <input name="heat_price" type="text" id="heat_price" disabled value="0" style="border-style:none">
@@ -768,7 +1068,7 @@ $(function(){
       ?>
       <tr class="parts_trs"> 
       	<td colspan="4">
-      	     <input name="mold_standard[]" id="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:13px;width:193px" disabled value="<?php echo $mold_standard_value ?>">
+      	     <input name="mold_standard[]" id="mold_standard" class="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:13px;width:193px" disabled value="<?php echo $mold_standard_value ?>">
       	</td>
       	<td colspan="2">
       	    <input type="text" name="standard_specification[]" id ="standard_specification">
@@ -779,10 +1079,10 @@ $(function(){
                   </select>
       	</td>
       	<td>
-      	    <input type="text" name="standard_number[]" class="standard_number">	
+      	    <input type="text" name="standard_number[]" class="standard_number" value="1">	
       	</td>
       	<td>
-               <input type="text" name="standard_unit_price[]" class="standard_unit_price" value="2000">
+               <input type="text" name="standard_unit_price[]" class="standard_unit_price">
       	</td>
       	<td>
       	   <input type="text" name="standard_price[]" class="standard_price">	
@@ -825,18 +1125,18 @@ $(function(){
               
               </td>
               <td colspan="2">
-                 <input type="text" name="design_hour[]" id="design_hour" value="109">
+                 <input type="text" name="design_hour[]" id="design_hour" class="design_hour" value="0">
               </td>
               <td colspan="6">
-                 <input type="text" name="design_unit_price[]" id="design_unit_price" value="100">
+                 <input type="text" name="design_unit_price[]" id="design_unit_price" class="design_unit_price" value="100">
               </td>
               <td colspan="2">
-                <input type="text" name="design_price[]" id="design_price">
+                <input type="text" name="design_price[]" class="design_price" id="design_price">
               </td>
                   <?php 
           	    
           	     if($i == 0){
-          	     	echo '<td rowspan="5" id="total_designs"></td>  ';
+          	     	echo '<td rowspan="5" id="total_designs"><input type="text" name="total_designs"></td>  ';
           	     }
   	     $i++;
           ?> 
@@ -864,22 +1164,22 @@ $(function(){
         	?>
            <tr class="manus_trs">
               <td colspan="4">
-                  <input name="mold_manufacturing[]" id="mold_manufacturing" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled value="<?php echo $mould_manufacturing_value ?>">
+                  <input name="mold_manufacturing[]" id="mold_manufacturing" class="mold_manufacturing" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" disabled value="<?php echo $mould_manufacturing_value ?>">
               
               </td>
               <td colspan="2">
-                  <input type="text" name="manufacturing_hour[]" id="manufacturing_hour" value="124">
+                  <input type="text" name="manufacturing_hour[]" id="manufacturing_hour" class="manufacturing_hour" value="0">
               </td>
               <td colspan="6">
-                  <input type="text" name="manufacturing_unit_price[]" id="manufacturing_unit_price" value="100">
+                  <input type="text" name="manufacturing_unit_price[]" id="manufacturing_unit_price" class="manufacturing_unit_price" value="100">
               </td>
               <td colspan="2">
-               <input type="text" name="manufacturing_price[]" id="manufacuring_price"> 
+               <input type="text" name="manufacturing_price[]" class="manufacturing_price" id="manufacuring_price"> 
               </td>
                       <?php 
           	    
           	     if($i == 0){
-          	     	echo '<td rowspan="11" id="total_manufacturing"></td>  ';
+          	     	echo '<td rowspan="11" id="total_manufacturing"><input type="text" name="total_manufacturing"></td>  ';
           	     }
   	     $i++;
              ?> 
