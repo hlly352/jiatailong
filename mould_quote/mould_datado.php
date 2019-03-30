@@ -9,13 +9,13 @@ if($_POST['submit']){
 
 		$mould_name = rtrim($_POST['mould_name']);
 		$cavity_type = $_POST['cavity_type'];
-		$part_number = rtrim($_POST['part_number']);
+		$part_number = turnchar($_POST['part_number']);
 		$t_time = rtrim($_POST['t_time']);
 		$p_length = $_POST['p_length'];
 		$p_width = $_POST['p_width'];
 		$p_height = $_POST['p_height'];
 		$p_weight = $_POST['p_weight'];
-		$drawing_file = rtrim($_POST['drawing_file']);
+		$drawing_file = turnchar($_POST['drawing_file']);
 		$lead_time = rtrim($_POST['lead_time']);
 		$m_length = $_POST['m_length'];
 		$m_width = $_POST['m_width'];
@@ -29,6 +29,11 @@ if($_POST['submit']){
 		$tel = rtrim($_POST['tel']);
 		$email = rtrim($_POST['email']);
 		var_dump($_POST);
+		if($_FILES['file']['name']){
+			echo '收到啦';
+		} else{
+			echo '未收到';
+		}
 	}
 	if($action == 'add'){
 		$sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
