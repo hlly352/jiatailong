@@ -391,11 +391,11 @@ $(function(){
 		j +=1;
 		//动态添加排位选择框
 	      	 
-	        	var style_wid = '<span  style="display:inline-block">	  <input type="text" class="cavity_names" name="" style="border-style:none;background:white" disabled value="型腔" placeholder="">	    			<br />	    			    			<select name="cavity_length" class="cavity_length">	    				<option value="">cavity长</option>	    			</select>	    				    			<br />	    			    				    			<select name="cavity_width" class="cavity_width">	    				<option value="">cavity宽</option>	    			</select>    			</span>';
+	        	var style_wid = '<span  style="display:inline-block">	  <input type="text" class="cavity_names" name="" style="border-style:none;background:white" disabled value="型腔" placeholder="">	    			<br />	    			    			<select name="cavity_length" class="cavity_length" style="width:100px">	    				<option class="first_length" value="">cavity长</option>	    			</select>	    				    			<br />	    			    				    			<select name="cavity_width" class="cavity_width" style="width:100px">	    				<option value="" class="first_width">cavity宽</option>	    			</select>    			</span>';
 	        	
 	        	$("#cavity_widths").before(style_wid);
 	        	//动态添加布局选项框
-	        	var cavity_styles = '<div style="display:inline-block;background:#eee;">    			<span  style="padding-left:20px"><input class="cavity_style_names" style="border-style:none;background:white" disabled type="text"></span><br />    			<span>    				<select name="cavity_length" class="cavity_style_length">    					<option value="" id="first_length">cavity长</option>    				</select>    			</span><br />    			<span>    				<select name="cavity_width" class="cavity_style_width">    					<option value="">cavity宽</option>    				</select>    			</span></div>';
+	        	var cavity_styles = '<div style="display:inline-block;background:#eee;">    			<span  style="padding-left:20px"><input class="cavity_style_names" style="border-style:none;background:white" disabled type="text"></span><br />    			<span>    				<select name="cavity_length" class="cavity_style_length">    					<option value="" class="first_style_length">长度方向</option><option value="1">1</option>    				</select>    			</span><br />    			<span>    				<select name="cavity_style_width" class="cavity_style_width">    					<option class="first_style_width" value="">宽度方向</option>    <option value="1">1</option>				</select>    			</span></div>';
 	        	$("#cavity_width_styles").before(cavity_styles);
 	  
 	        	var add_nums = $("#add_cavitys").prevAll().size()-1;
@@ -501,35 +501,239 @@ $(function(){
 					 $(".materials_number").eq(i).val(cavity_val * 2*k_num);
 				}
 		}
+		var cavity_num = cavity_number-1 ;
+		//删除原来的选项
+		$(".first_style_length").eq(cavity_num).siblings(cavity_num).remove();
+		$(".first_style_width").eq(cavity_num).siblings(cavity_num).remove();
 		//加入布局选项框
 		for(var h=0;h<cavity_val;h++){
-
+			
 			var h1 = h+1;
 			
 			var h2 = cavity_val/h1 + "";
 			
-			if(h1%2 ==0 && h2.indexOf('.') == -1){
-			var cavity_style_layout = '<option>'+h1+'</option>';
-			var cavity_num = cavity_number - 1;
-			$(".cavity_style_length").eq(cavity_num).append(cavity_style_layout);
-		} 
-			if(h1%2 == 1){
-				var h3 = h1+1;
-				var h4 = cavity_val/h1 + "";
-				if(h3%2 ==0 && h4.indexOf('.') == -1){
-			var cavity_style_layout = '<option>'+h1+'</option>';
-			var cavity_num = cavity_number - 1;
-			$(".cavity_style_length").eq(cavity_num).append(cavity_style_layout);
-			if(h3 < cavity_val){
-			var cavity_style_layouts = '<option>'+h3+'</option>';
-			$(".cavity_style_length").eq(cavity_num).append(cavity_style_layouts);
-		}
-		} 
-			}
+			if(h2.indexOf('.') == -1){
+			var cavity_style_layout = '<option value='+h1+'>'+h1+'</option>';
 			
+			$(".cavity_style_length").eq(cavity_num).append(cavity_style_layout);
+		} 
+
 		}
-	
+	//重新计算材料费金额
+	var total_machinings = 0;
+		for(var t=0;t<mould_num;t++){
+			var prices  = ($(".material_weight").eq(t).val())*($(".materials_number").eq(t).val())*($(".material_unit_price").eq(t).val());
+				 	
+			$(".material_price").eq(t).val(prices);
+			total_machinings += parseInt($(".material_price").eq(t).val());
+		}
+		//计算总金额
+		$("#total_machining").children().val(total_machinings);
+		//计算其它费用及模具价格
+	    	sum_other_fee();
+
+
 	})
+	//当型腔布局发生更改时
+	$(".cavity_style_length").live('change',function(){
+		//获取当前是第几个型腔
+		var type_val;
+		var cavity_nu = $(this).parent().parent().prevAll().size() - 2;
+		
+		var type_val = $(".cavity_type").eq(cavity_nu).val();
+		var p_length = $('.p_length').eq(cavity_nu).val();
+		var p_width = $('.p_width').eq(cavity_nu).val();
+		//删除宽的布局
+		$(".first_style_width").eq(cavity_nu).siblings().remove();
+		$(".first_width").eq(cavity_nu).siblings().remove();
+		//获取当前布局的值
+		var cavity_style_length = $(this).val();
+		//计算型腔布局的宽并加入到布局选项中
+		var cavity_style_width = Math.ceil(type_val/cavity_style_length);
+		//通过获取的值计算型腔的长和宽
+		var opt_length = (parseInt(p_length) + 110)*cavity_style_length;
+		var opt_width  = (parseInt(p_width) + 110)*cavity_style_width;
+
+		
+				
+		//添加布局宽度
+		 var style_length = '<option selected value='+cavity_style_width+'>'+cavity_style_width+'</option>'; 
+		$(".cavity_style_width").eq(cavity_nu).append(style_length);
+		if(!opt_length){
+			$(".p_length").eq(cavity_nu).focus();
+			alert('请输入产品的长度');
+			$(".cavity_style_length").eq(cavity_nu).val(0);
+			$(".cavity_style_width").eq(cavity_nu).val(0);
+			return false;
+		}
+		if(!opt_width){
+			$(".p_width").eq(cavity_nu).focus();
+			alert('请输入产品的宽度');
+			$(".cavity_style_length").eq(cavity_nu).val(0);
+			$(".cavity_style_width").eq(cavity_nu).val(0);
+			return false;
+		}
+		
+	
+
+		//删除原来的型腔排位长的选项
+		$(".first_length").eq(cavity_nu).siblings().remove();
+		//把选项添加到型腔布局选项框中
+		var  cavity_style_length  = '<option value='+opt_length+'>'+opt_length+'</option>';
+		var  cavity_style_width  = '<option value='+opt_width+'>'+opt_width+'</option>';	
+		var  cavity_zero = '<option value="0">0</option>';	
+		$(".cavity_length").eq(cavity_nu).append(cavity_zero);
+		$(".cavity_length").eq(cavity_nu).append(cavity_style_length);
+		$(".cavity_length").eq(cavity_nu).append(cavity_style_width);
+		
+		var cavity_nums = $(".cavity_length").size();
+		var cavity_length_sums = 0;
+		for(var q = 0;q<cavity_nums;q++){
+
+		}
+
+	})
+	
+	//当选择型腔排位长之后,动态添加宽
+		$(".cavity_length").live('change',function(){
+			var cavity_nu = $(this).prevAll().size() -1;
+			
+			var type_val = $(".cavity_type").eq(cavity_nu).val();
+			var p_length = $('.p_length').eq(cavity_nu).val();
+			
+			var p_width = $('.p_width').eq(cavity_nu).val();
+		
+			
+			//获取型腔布局的长和宽的值
+			var cavity_style_length = $(".cavity_style_length").eq(cavity_nu).val();
+			var cavity_style_width  = $(".cavity_style_width").eq(cavity_nu).val();
+			//通过获取的值计算型腔的长和宽
+			////删除原来的型腔排位宽的选项
+			$(".first_width").eq(cavity_nu).siblings().remove();
+			var opt_length = (parseInt(p_length) + 110)*cavity_style_length;
+			
+			var opt_width  = (parseInt(p_width) + 110)*cavity_style_width;
+			//获取选择的值
+			var cavity_length_val  = $(this).val();
+			//判断选择的是否是长
+			if(cavity_length_val == opt_length){
+				 var  cavity_style_widths  = '<option selected value='+opt_width+'>'+opt_width+'</option>';
+				 $(".cavity_width").eq(cavity_nu).append(cavity_style_widths);	
+				
+			} else {
+				var  cavity_style_lengths  = '<option selected value='+opt_length+'>'+opt_length+'</option>';
+				 $(".cavity_width").eq(cavity_nu).append(cavity_style_lengths);	
+			}
+		
+		//如果型腔长度都已经选中,计算型腔的长度和
+		var cavity_nus = $(".cavity_length").size();
+
+		var cavity_length_sum = 0;
+		var cavity_width_sum = 0;
+		for(var a = 0; a < cavity_nus ;a++){
+			
+			cavity_length_sum += parseInt($(".cavity_length").eq(a).val());
+			cavity_width_sum += parseInt($(".cavity_width").eq(a).val());
+		
+		}
+		if(!isNaN(cavity_length_sum)){
+			$("#style_length_sum").val(cavity_length_sum);
+			$("#style_width_sum").val(cavity_width_sum);
+			//ajax 求模架的尺寸
+			$.post('../ajax_function/mould_base_size.php',{cavity_length_sum:cavity_length_sum,cavity_width_sum:cavity_width_sum},function(data){
+				var arr = data.split('#');
+				
+				$("#base_length").val(arr[0]);
+				$("#base_width").val(arr[1]);  
+				$("#base_height").val(arr[2]);
+			//计算各种金额
+			//求模架的重量
+			var total_machining = 0;
+			var base_weight = ($("#base_length").val()/1000)*($("#base_width").val()/1000)*($("#base_height").val()/1000)*7800;
+			base_weight = parseInt(base_weight);
+			
+			$("#base_weight").val(base_weight);
+			var mould_num = $(".mould_material").size();
+			for(var i = 0;i < mould_num; i++){
+
+			//求出模架尺寸后计算材料费的金额
+			 	var prices  = ($(".material_weight").eq(i).val())*($(".materials_number").eq(i).val())*($(".material_unit_price").eq(i).val());
+			 	
+				$(".material_price").eq(i).val(prices);
+				total_machining += parseInt(prices);
+			}
+		//计算总金额
+		$("#total_machining").children().val(total_machining);
+		//输入产品大小后计算淬火的重量
+		var handened_weight = 0;
+		for(var j = 0;j < mould_num; j++){
+			if($(".mould_material").eq(j).val().indexOf('型腔') !=-1 || $(".mould_material").eq(j).val().indexOf('型芯') !=-1 || $(".mould_material").eq(j).val().indexOf('滑块') !=-1 || $(".mould_material").eq(j).val().indexOf('镶件') !=-1 ){
+				var res_weight = parseInt($(".material_weight").eq(j).val())?parseInt($(".material_weight").eq(j).val()):0;
+				handened_weight +=res_weight;
+
+			}
+			}
+			$(".heat_weight").eq(1).val(handened_weight);
+			//输入产品大小后设置热处理的金额计算
+	 		sum_tds(".heat_trs",1,2,"#total_heats");
+	 		//输入产品大小后计算设计费的工时
+			var design_unit_hour = Math.round(total_machining*0.15/100/4);
+			var design_num = $(".design_hour").size();
+			for(var n=0;n<design_num;n++){
+				$(".design_hour").eq(n).val(design_unit_hour);
+			}
+			//输入产品大小后计算加工费的工时
+			var manu_unit_hour = total_machining*1.5/100/10;
+			var manu_num = $(".mold_manufacturing").size();
+			
+			for(var e = 0; e<manu_num;e++){
+				switch($(".mold_manufacturing").eq(e).val()) {
+					case '一般机床/Maching':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour));
+						break;
+					case '磨床/Grinding':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.6));
+						break;
+					case '数控机床/CNC':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*1.2));
+						break;
+					case '精密数控机床':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.8));
+						break;
+					case '线切割/W.C.':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.8));
+						break;
+					case '电火花/EDM':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour));
+						break;
+					case '抛光/Polish':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour));
+						break;
+					case '钳工/Fitting':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.8));
+						break;
+					case '激光烧焊/Laser Welding':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.8));
+						break;
+				}
+			//产品大小输入后计算设计费金额
+			$(".design_price").eq(e).val(($(".design_hour").eq(e).val())*($(".design_unit_price").eq(e).val()));
+			
+			sum_tds(".design_trs",1,2,"#total_designs");
+			//产品大小输入后计算加工费金额
+			$(".manufacturing_price").eq(e).val(($(".manufacturing_hour").eq(e).val())*($(".manufacturing_unit_price").eq(e).val()));
+			}
+			sum_tds(".manus_trs",1,2,"#total_manufacturing")
+		
+
+		//计算其它费用及模具价格
+	    	sum_other_fee();
+			
+			})
+		
+		}
+
+		})
 	//删除型腔类型
 	$("#del_cavitys").live('click',function(){
 		//删除排位选项框
@@ -769,6 +973,7 @@ $(function(){
 
 			}
 			var weight_g = (p_length - 4) * (p_width - 4) * (p_height - 2);
+			weight_g = (weight_g/1000).toFixed(2);
 			//输入产品大小后计算型腔的尺寸
 			for(var i = 0;i < mould_num; i++){
 				if($(".mould_material").eq(i).val() == '型腔'+no1+'/Cavity' || $(".mould_material").eq(i).val() == '型芯'+no1+'/Core' ){
@@ -797,18 +1002,6 @@ $(function(){
 				$(".material_price").eq(i).val(prices);
 				total_machining += parseFloat($(".material_price").eq(i).val());
 				}
-				//加入到型腔排位尺寸中
-				
-					var opt_length = parseInt(p_length) + 110;
-					var opt_width = parseInt(p_width) + 110;
-					var style_length = '<option>'+opt_length+'</option>'; 
-					var style_width  = '<option>'+opt_width+'</option>';
-						
-					$(".cavity_length").eq(no).append(style_length);
-					$(".cavity_length").eq(no).append(style_width);
-
-					$(".cavity_width").eq(no).append(style_length);
-					$(".cavity_width").eq(no).append(style_width);
 				
 					
 		//计算总金额
@@ -876,6 +1069,7 @@ $(function(){
 		
 
 		}
+		//克重
 		if(weight_g > 0 && weight_g != ' '){	
 		$("#weight_no").children().eq(no).val(weight_g);
 	    }
@@ -937,6 +1131,7 @@ $(function(){
 		var no = $(this).prevAll().size();
 		var no2 = no+1;
 		var total_machinings = 0;
+		var mould_num = $(".mould_material").size();
 		if($("#add_cavitys").prevAll().size() == 2) {
 			no2 = '';
 
@@ -976,11 +1171,13 @@ $(function(){
 		}
 	})
 	//更改材料重量和单价后重新计算金额
-	$(".material_weight,.material_unit_price").live('blur',function(){
+	$(".material_weight,.material_unit_price,.materials_number").live('change',function(){
+		var mould_nums = $(".mould_material").size();
 		var total_machinings = 0;
-		for(var t=0;t<mould_num;t++){
+		
+		for(var t=0;t<mould_nums;t++){
 			var prices  = ($(".material_weight").eq(t).val())*($(".materials_number").eq(t).val())*($(".material_unit_price").eq(t).val());
-				 	
+			
 			$(".material_price").eq(t).val(prices);
 			total_machinings += parseInt($(".material_price").eq(t).val());
 		}
@@ -1307,14 +1504,14 @@ $(function(){
 	    			<br />
 	    		
 	    			<select name="cavity_length" class="cavity_length">
-	    				<option value="">cavity长</option>
+	    				<option value="" class="first_length">cavity长</option>
 	    			</select>
 	    			
 	    			<br />
 	    		
 	    			
 	    			<select name="cavity_width" class="cavity_width">
-	    				<option value="">cavity宽</option>
+	    				<option value="" class="first_width">cavity宽</option>
 	    			</select>
     			</span>
     			<span id="cavity_widths"></span>
@@ -1323,13 +1520,15 @@ $(function(){
     		<div style="display:inline-block;background:#eee;">
     			<span style="padding-left:20px">型腔1</span><br />
     			<span>
-    				<select name="cavity_style_length" class="cavity_style_length">
-    					<option value="">cavity长</option>
+    				<select name="cavity_style_length" class="cavity_style_length" style="width:80px">
+    					<option value="" class="first_style_length">长度方向</option>
+    					<option value="1" >1</option>
     				</select>
     			</span><br />
     			<span>
-    				<select name="cavity_style_width" class="cavity_style_width">
-    					<option value="">cavity宽</option>
+    				<select name="cavity_style_width" class="cavity_style_width" style="width:80px">
+    					<option value="" class="first_style_width">宽度方向</option>
+    					<option value="1">1<option>
     				</select>
     			</span>
 
@@ -1374,7 +1573,7 @@ $(function(){
                <td>材料牌号/Specification</td>
                <td>数量/Number</td>
                <td colspan="5">尺寸/Size(mm*mm*mm)</td>
-               <td style="width:93px">重量/Weight(kg)</td>
+               <td style="width:93px">总重量/Weight(kg)</td>
                <td style="width:93px">单价(元)/Unit Price</td>
                <td>金额/Price(RMB)</td>
                <td>小计(元)</td>
@@ -1394,18 +1593,18 @@ $(function(){
                    <input type="text" name="materials_number[]" class="materials_number" id="materials_number" value="1">
              </td>
              <td style="width:93px">
-                   <input name="material_length[]" id="material_length" class="material_length" type="text" placeholder="长">
+                   <input name="material_length[]" id="base_length" class="material_length" type="text" placeholder="长">
              </td>
              <td>*</td>
              <td style="width:93px">
-                 <input name="material_width[]" id="material_width" class="material_width" type="text" placeholder="宽">
+                 <input name="material_width[]" id="base_width" class="material_width" type="text" placeholder="宽">
              </td>
              <td>*</td>
              <td style="width:93px">
-                  <input name="material_height[]" id="material_height" class="material_height" type="text" placeholder="高">
+                  <input name="material_height[]" id="base_height" class="material_height" type="text" placeholder="高">
              </td>
              <td>
-                 <input type="text" name="material_weight[]" id="material_weight" class="material_weight">
+                 <input type="text" name="material_weight[]" id="base_weight" class="material_weight">
              </td>
              <td>
                  <input type="text" name="material_unit_price[]" id="material_unit_price" class="material_unit_price" value="70">
