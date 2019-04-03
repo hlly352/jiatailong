@@ -28,7 +28,27 @@ if($_POST['submit']){
 		$contacts = rtrim($_POST['contacts']);
 		$tel = rtrim($_POST['tel']);
 		$email = rtrim($_POST['email']);
-		var_dump($_POST);
+		//接受数据
+		
+		$data = $_POST;
+		foreach($data as $key=>$value){
+			if(is_array($value)){
+				$value = implode("$",$value);
+			}
+			$data[$key] = $value; 
+		}
+		unset($data['action']);
+		unset($data['submit']);
+		var_dump($data);
+		$m = '';
+		$n = '';
+		foreach($data as $k=>$v){
+			$m .= $k.',';
+			$n .= $v.',';
+		}
+		//$c = substr($m,0,strlen($m)-3);
+		echo $m;
+		echo $n;
 		if($_FILES['file']['name']){
 			echo '收到啦';
 		} else{
@@ -36,8 +56,16 @@ if($_POST['submit']){
 		}
 	}
 	if($action == 'add'){
-		$sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
-		var_dump($sql);
+		// $sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
+		foreach($data as $k=>$v){
+			//$sql = "INSERT INTO db_mould_data($k) VALUES($v)";
+			//$res = $db->query($sql);
+		
+		}
+		//$sql = "INSERT INTO `db_mould_data`( client_name,project_name,contacts,tel,email,mould_name,k_num,cavity_type,t_time,lead_time,p_length,p_width,p_height,p_weight,m_material,part_number,drawing_file,m_length,m_width,m_height,m_weight,lift_time,tonnage,mould_material, material_specification,materials_number,material_length,material_width,material_height,material_weight, material_unit_price,material_price,total_machining,mould_heat_name,heat_weight,heat_unit_price,heat_price,mold_standard,standard_specification,standard_supplier,standard_number,standard_unit_price, standard_price,  total_standard,mold_design_name,design_hour,design_unit_price,design_price,total_designs,mold_manufacturing,manufacturing_hour,manufacturing_unit_price,manufacturing_price,total_manufacturing,other_fee_name, other_fee_instr,other_fee_price,total_others,management_fee,profit,vat_tax,mold_price_rmb,mold_price_usd,mold_with_vat) VALUES( $client_name,$project_name,$contacts,$tel,$email,$mould_name,$k_num,$cavity_type,$t_time,$lead_time,$p_length,$p_width,$p_height,$p_weight,$m_material,$part_number,$drawing_file,$m_length,$m_width,$m_height,$m_weight,$lift_time,$tonnage,$mould_material,$material_specification,$materials_number,$material_length,$material_width,$material_height,$material_weight,$material_unit_price,$material_price,$total_machining,$mould_heat_name,$heat_weight,$heat_unit_price,$heat_price,$mold_standard,$standard_specification,$standard_supplier,$standard_number,$standard_unit_price,$standard_price,  $total_standard,$mold_design_name,$design_hour,$design_unit_price,$design_price,$total_designs,$mold_manufacturing,$manufacturing_hour,$manufacturing_unit_price,$manufacturing_price,$total_manufacturing,$other_fee_name,$other_fee_instr,$other_fee_price,$total_others,$management_fee,$profit,$vat_tax,$mold_price_rmb,$mold_price_usd,$mold_with_vat)";
+		//var_dump($sql);
+		
+		$sql = "INSERT INTO db_mould_data(client_name,project_name,contacts,tel,email,mould_name,k_num,cavity_type,t_time,lead_time,p_length,p_width,p_height,p_weight,m_material,part_number,drawing_file,m_length,m_width,m_height,m_weight,lift_time,tonnage,mould_material,material_specification,materials_number,material_length,material_width,material_height,material_weight,material_unit_price,material_price,total_machining,mould_heat_name,heat_weight,heat_unit_price,heat_price,mold_standard,standard_specification,standard_supplier,standard_number,standard_unit_price,standard_price,total_standard,mold_design_name,design_hour,design_unit_price,design_price,total_designs,mold_manufacturing,manufacturing_hour,manufacturing_unit_price,manufacturing_price,total_manufacturing,other_fee_name,other_fee_instr,other_fee_price,total_others,management_fee,profit,vat_tax,mold_price_rmb,mold_price_usd,mold_with_vat) VALUES (母士川,18981272483,hr004jtl.com,S,1,1,131,10,200,200,20,705.67,20,101,1321,31,20,13,132,31,313,模架/Mode$型腔/Cavity$型芯/Core$滑块/Slide&Lifter$斜顶/Lifter$镶件/Insert$电极/Electrode,$$$$$$,1$1$1$1$1$1$2,560$310$310$100$100$200$300,560$310$310$100$300$200$300,400$120$120$100$100$300$150,1116$90$90$9$27$107$120,18$70$70$70$70$70$70,20088$6300$6300$630$1890$7490$16800,59498,调质/Tempered$淬火/Hardened$氮化/Nitridation,0$180$0,18$18$18,0$0$0,镶件、日期章/Inserts$顶杆、顶管/Ejection/HotRunner$温控器/TempController$油缸/Hydro-cylinder,11$22$33$44$55$66$77,请选择$请选择$请选择$请选择$请选择$请选择$请选择,1$1$1$1$1$1$1,5000$5000$8000$16000$10000$8000$8000,5000$5000$8000$16000$10000$8000$8000,60000,扫描测绘/Scanning$结构设计/CAD$设计/CAM$分析/CAE,12$12$12$12,100$100$100$100,1200$1200$1200$1200,4800,一般机床/Maching$磨床/Grinding$数控机床/CNC$精密数控机床$线切割/W.C.$电火花/EDM$抛光/Polish$钳工/Fitting$激光烧焊/LaserWelding$皮纹/Texturecost,46$27$55$36$36$46$46$36$36$0,100$100$100$100$100$100$100$100$100$100,4600$2700$5500$3600$3600$4600$4600$3600$3600$0,36400,试模费/Trial,3,2000$1000,54749,8346,16693,26710,191977,33644,218687)";
 		$res = $db->query($sql);
 		var_dump($res);
 		if($db->insert_id){
