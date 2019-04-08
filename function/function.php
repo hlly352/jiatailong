@@ -137,11 +137,50 @@ function getfirstchar($s0){
 	if($asc>=-11055 and $asc<=-10247)return "Z"; 
 	return null; 
 }
-//把数组转换为字符串,用于数据库的存储
-function turnchar($arr){
-	if($arr != null){
-	$new_str = implode('|',$arr);
-	return $new_str;
-	}
-}
+//把从数据库拿出的字符串转换为数组
+  function turn_arr($arr){
+		  	$new_arr = explode("$$",$arr);
+		  	return $new_arr;
+		  }
+//取两个数组键名相同的数组,组成一个新的二维数组
+function arr_merge($arr1,$arr2){
+		 	foreach($arr1 as $key=>$value){
+		 		foreach($arr2 as $ks=>$vs){
+		 			if(is_array($value)){
+
+		 				if($key == $ks){
+			        		$arr1[$key][] = $vs;
+			        		$new_arr = $arr1;
+			        			}
+		 			} else {
+		 				if(is_array($vs)){
+		 					if($key == $ks){
+		 						$arr2[$key][] = $value;
+		 						$new_arr = $arr2;
+		 					}
+		 				} else {
+			 				if($key == $ks){
+			 					$new_arr[$key][] = $value;
+			 					$new_arr[$key][] = $vs;
+			 				}
+			 			}
+		 			}
+		 		}
+		 	}
+		 	return $new_arr;	
+		 }
+//得到最终的数据
+	function getdata($arrs){
+		 $exp_arr = [];
+		 $final_arr = [];
+		for($x = 0; $x<count($arrs);$x++){
+			$exp_arr[$x] = explode("$$",$arrs[$x]);
+			if($x == 1){
+			$final_arr = arr_merge($exp_arr[0],$exp_arr[1]);
+			} elseif($x > 1 ){
+			$final_arr = arr_merge($final_arr,$exp_arr[$x]);
+			}
+		}
+		 return $final_arr;
+			}
 ?>

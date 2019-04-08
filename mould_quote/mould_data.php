@@ -45,6 +45,7 @@ $result_id = $db->query($sqllist);
   <?php
   if($result->num_rows){
 	  while($row_id = $result_id->fetch_assoc()){
+
 		  $array_mould_dataid .= $row_id['mould_dataid'].',';
 	  }
 	  $array_mould_dataid = rtrim($array_mould_dataid,',');
@@ -61,48 +62,66 @@ $result_id = $db->query($sqllist);
   <form action="mould_datado.php" name="list" method="post">
     <table>
       <tr>
-        <th width="4%">ID</th>
-        <th width="10%">模具名称</th>
-        <th width="8%">产品图片</th>
-        <th width="8%">型腔数量</th>
-        <th width="10%">产品零件号</th>
-        <th width="10%">产品尺寸</th>
-        <th width="8%">产品重量(g)</th>
-        <th width="10%">模具尺寸</th>
-        <th width="8%">模具重量(Kg)</th>
-        <th width="8%">客户名称</th>
-        <th width="8%">项目名称</th>
-        <th width="4%">报价</th>
-        <th width="4%">Edit</th>
-      </tr>
+        <th width="">ID</th>
+        <th width="">客户名称</th>
+        <th width="">项目名称</th>
+        <th width="">模具名称</th>
+        <th width="">零件编号</th>
+        <th width="">零件图片</th>
+        <th width="">产品尺寸</th>
+        <th width="">塑胶材料</th>
+        <th width="">模穴数</th>
+        <th width="">模具尺寸</th>
+        <th width="">模具重量</th>
+        <th width="">型腔/型芯材质</th>
+        <th width="">模具数量</th>
+        <th width="">未税价格</th>
+        <th width="">含税价格</th>
+        <th width="">报价时间</th>
+        <th width="">历史价格</th>
+        <th width="">修改</th>
       <?php
       while($row = $result->fetch_assoc()){
 		  $mould_dataid = $row['mould_dataid'];
 		  $image_filedir = $row['image_filedir'];
-		  $image_filename = $row['image_filename'];
-		  $image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
+		  $image_filepath = $row['upload_final_path'];
+		  if(stristr($image_filepath,'$') == true){
+		  	$image_filepath = substr($image_filepath,0,strripos($image_filepath,"$"));
+			}
+		  //echo $image_filename.'<br>';
+		  //$image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
 		  if(is_file($image_filepath)){
-			  $image_file = "<img src=\"".$image_filepath."\" />";
+			  $image_file = "<img width=\"85\" height=\"45\" src=\"".$image_filepath."\" />";
 		  }else{
 			  $image_file = "<img src=\"../images/no_image_85_45.png\" width=\"85\" height=\"45\" />";
 		  }
 		  $count = array_key_exists($mould_dataid,$array_group)?$array_group[$mould_dataid]:0;
 	  ?>
-      <tr>
+     <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $mould_dataid; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
+        <td><?php echo $row['contacts']; ?></td>
+        <td><?php echo $row['project_name']; ?></td>
         <td><?php echo $row['mould_name']; ?></td>
-        <td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>
+        <td><?php echo $row['part_number']; ?></td>
+        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->
+        <td><?php echo $image_file ?></td>
+         <td><?php echo $row['p_length'].'*'.$row['p_length'].'*'.$row['p_length']; ?></td>
+
         <td><?php echo $array_mould_cavity_type[$row['cavity_type']]; ?></td>
         <td><?php echo $row['part_number']; ?></td>
-        <td><?php echo $row['p_length'].'*'.$row['p_length'].'*'.$row['p_length']; ?></td>
-        <td><?php echo $row['p_weight']; ?></td>
         <td><?php echo $row['m_length'].'*'.$row['m_length'].'*'.$row['m_length']; ?></td>
         <td><?php echo $row['m_weight']; ?></td>
+        
+        <td></td>
+        
         <td><?php echo $row['client_name']; ?></td>
-        <td><?php echo $row['project_name']; ?></td>
-        <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td>
+        <td>&yen;<?php echo $row['mold_price_rmb']; ?></td>
+        <td>&yen;<?php echo $row['mold_with_vat'] ?></td>
+        <td></td>
+        <td>查看</td>
+      <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
         <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>
-      </tr>
+      </tr> 
       <?php } ?>
     </table>
     <div id="checkall">

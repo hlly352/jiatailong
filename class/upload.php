@@ -34,7 +34,8 @@ class upload{
 				if($this->upload_error[$i] == 0){
 					if(is_uploaded_file($this->upload_tmp_name[$i])){
 						if(move_uploaded_file($this->upload_tmp_name[$i], $this->upload_target_path . $this->upload_final_name . $i . $this->get_fileinfo($this->upload_name[$i],1))){
-							$this->array_upload_files[]= array('upload_name' => $this->upload_name[$i],'upload_file_size' => $this->upload_file_size[$i],'upload_final_name' => $this->upload_final_name . $i . $this->get_fileinfo($this->upload_name[$i],1),'upload_file_number' =>$i);
+							$this->array_upload_files[]= array('upload_name' => $this->upload_name[$i],'upload_file_size' => $this->upload_file_size[$i],'upload_final_name' => $this->upload_final_name . $i . $this->get_fileinfo($this->upload_name[$i],1),'upload_file_number' =>$i,'upload_target_path'=>$this->upload_target_path);
+							
 						}
 					}
 				}
