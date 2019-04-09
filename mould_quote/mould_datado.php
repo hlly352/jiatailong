@@ -39,57 +39,70 @@ if($_POST['submit']){
 	           $filedir = date("Ymd");
 		$upfiledir = "../upload/mould_image/".$filedir."/";
 		 //得到传输的数据
-		 if(empty($_FILES['file']['tmp_name'])){
-		if($_FILES['file']['name']){
-			 //图片上传
-			$upload = new upload();
-			$upload->upload_files($upfiledir);
-			$target_path =  '';
-			$target_name = '';
-			$final_path = '';
-			$upload_final_path = '';
-			//图片上传后得到图片的信息
-			$upload_info = $upload->array_upload_files;
-			//从图片信息中提取图片的存储路径
-			foreach($upload_info as $key=>$value){
-				foreach($value as $ks=>$vs){
-		
-				if($ks == 'upload_target_path'){
-					$target_path = $vs;
-				} elseif($ks == 'upload_final_name'){
-					$target_name = $vs;
+		 if(($_FILES['file']['tmp_name'][0]) == null){
+		 
+		 } else {
+			if($_FILES['file']['name']){
+				 //图片上传
+				$upload = new upload();
+				$upload->upload_files($upfiledir);
+				$target_path =  '';
+				$target_name = '';
+				$final_path = '';
+				$upload_final_path = '';
+				//图片上传后得到图片的信息
+				$upload_info = $upload->array_upload_files;
+				//从图片信息中提取图片的存储路径
+				foreach($upload_info as $key=>$value){
+					foreach($value as $ks=>$vs){
+			
+					if($ks == 'upload_target_path'){
+						$target_path = $vs;
+					} elseif($ks == 'upload_final_name'){
+						$target_name = $vs;
+					}
+					$final_path = $target_path.$target_name;
 				}
-				$final_path = $target_path.$target_name;
+				$upload_final_path .= $final_path.'$';
+				}
 			}
-			$upload_final_path .= $final_path.'$';
-			}
 		}
 		}
-		}
-		//拼接数据库字段
-		$key_word .= ',`upload_final_path`';
-		//拼接上传数据
-		$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
-		$value_word .= ',"'.$upload_final_path.'"';
+		
 
 	if($action == 'add'){
-
+		//报价单号
+		$mold_id = FLOOR(RAND()*9000+1000);
+		//拼接数据库字段
+		$key_word .= ',`upload_final_path`,`time`,`mold_id`';
+		//拼接上传数据
+		$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
+		$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id;
 		// $sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
 		$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
 		
 		//执行sql语句
 		$res = $db->query($sql);
 		if($db->insert_id){
-			
+			$id = $db->insert_id;		
 			header("location:mould_data.php");
 		}
 	}elseif($action == 'edit'){
-		$mould_dataid = $_POST['mould_dataid'];
-		$sql = "UPDATE `db_mould_data` SET `mould_name` = '$mould_name',`cavity_type` = '$cavity_type',`part_number` = '$part_number',`t_time` = '$t_time',`p_length` = '$p_length',`p_width` = '$p_width',`p_height` = '$p_height',`p_weight` = '$p_weight',`drawing_file` = '$drawing_file',`lead_time` = '$lead_time',`m_length` = '$m_length',`m_width` = '$m_width',`m_height` = '$m_height',`m_weight` = '$m_weight',`lift_time` = '$lift_time',`tonnage` = '$tonnage',`client_name` = '$client_name',`project_name` = '$project_name',`contacts` = '$contacts',`tel` = '$tel',`email` = '$email' WHERE `mould_dataid` = '$mould_dataid'";
-		$db->query($sql);
-		if($db->affected_rows){
-			header("location:".$_POST['pre_url']);
+		//拼接数据库字段
+		$key_word .= ',`time`';
+		//拼接上传数据
+		$value_word .= ','.time();
+		$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
+		
+		//$mould_dataid = $_POST['mould_dataid'];
+		//$sql = "UPDATE `db_mould_data` SET `mould_name` = '$mould_name',`cavity_type` = '$cavity_type',`part_number` = '$part_number',`t_time` = '$t_time',`p_length` = '$p_length',`p_width` = '$p_width',`p_height` = '$p_height',`p_weight` = '$p_weight',`drawing_file` = '$drawing_file',`lead_time` = '$lead_time',`m_length` = '$m_length',`m_width` = '$m_width',`m_height` = '$m_height',`m_weight` = '$m_weight',`lift_time` = '$lift_time',`tonnage` = '$tonnage',`client_name` = '$client_name',`project_name` = '$project_name',`contacts` = '$contacts',`tel` = '$tel',`email` = '$email' WHERE `mould_dataid` = '$mould_dataid'";
+		$res = $db->query($sql);
+		if($db->insert_id){
+			header("location:mould_data.php");
 		}
+		/*if($db->affected_rows){
+			header("location:".$_POST['pre_url']);
+		}*/
 	}elseif($action == 'del'){
 		$array_mould_dataid = fun_convert_checkbox($_POST['id']);
 		$sql_list = "DELETE `db_mould_quote_list` FROM `db_mould_quote_list` INNER JOIN `db_mould_quote` ON `db_mould_quote`.`quoteid` = `db_mould_quote_list`.`quoteid` WHERE `db_mould_quote`.`mould_dataid` IN ($array_mould_dataid)";

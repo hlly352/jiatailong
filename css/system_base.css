@@ -90,8 +90,9 @@ select {
 #table_search h4 {
 	height:30px;
 	line-height:30px;
+	margin-bottom: 5px;
 	font-size:14px;
-	background:url(../images/system_ico/search_16_16.png) no-repeat 12px center #DDD;
+	
 	padding-left:32px;
 }
 #table_search form {

@@ -336,7 +336,7 @@ $(function(){
 	})
 	//动态添加型腔数量输入框
 	var add_cavity = '<input type="text" class="cavity_type" id="add_cav" value="1" name="cavity_type[]" style="width:25px">';
-	var del_cavity = '  <button id="del_cavitys" type="button">删除</button>';
+	 del_cavity = '  <button id="del_cavitys" type="button">删除</button>';
 	var add_materials = '     <?php
 	 
                foreach($array_mould_material as $mould_material_key=>$mould_material_value){
@@ -350,8 +350,9 @@ $(function(){
    
 	//添加删除按钮
 	$("#add_cavitys").one('click',function(){
-
+		if($(this).nextAll().size() == 0){
 		$(this).after(del_cavity);
+		}
 		$(this).before(add_cavity);
 		$("#machining_material").before(add_materials);
 		//初始化合并的单元格行数
@@ -851,12 +852,15 @@ $(function(){
 		//更改模架尺寸时,动态更改模具尺寸
 		$("#base_length").change(function(){
 			$("#m_length").val($(this).val());
+			
 		})
 		$("#base_width").change(function(){
 			$("#m_width").val($(this).val());
+			
 		})
 		$("#base_height").change(function(){
 			$("#m_height").val($(this).val());
+			
 		})
 		$("#base_weight").change(function(){
 			$("#m_weight").val($(this).val());
@@ -1269,9 +1273,9 @@ $(function(){
 
 						
 				} else if($(".mould_material").eq(i).val() == '电极'+no1+'/Electrode'){
-					 $(".material_length").eq(i).val(parseFloat(p_length)+100);
-					 $(".material_width").eq(i).val(parseFloat(p_width)+100);
-					 $(".material_height").eq(i).val(150);
+					 $(".material_length").eq(i).val(parseFloat(p_length)+20);
+					 $(".material_width").eq(i).val(parseFloat(p_width)+20);
+					 $(".material_height").eq(i).val(120);
 					//输入产品大小后计算电极的重量
 					var wei = ((parseFloat(p_length)+100)/1000)*((parseFloat(p_width)+100)/1000)*(150/1000)*8900;
 					wei = Math.round(wei);
@@ -1443,6 +1447,12 @@ $(function(){
 						var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*8900/1000000000;
 						wei = Math.round(wei);
 						$('.material_weight').eq(t).val(wei);
+					} else if($(".mould_material").eq(t).val() == "模架/Mode") {
+						//计算模架的重量
+						var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*8900/1000000000;
+						wei = Math.round(wei);
+						$('.material_weight').eq(t).val(wei);
+						$("#m_weight").val(wei);
 					} else {
 						//计算其它的重量
 						var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*8900/1000000000;
@@ -2286,8 +2296,87 @@ $(function(){
   	.adder{width:100px;height:30px;line-height:30px;text-align:center;display:block;border:1px solid grey;background-color:rgb(221,221,221);margin:2px auto;cursor:pointer;font-size:15px;}
   	.autocomplete-items{position:absolute;z-index:22;background-color:grey;width:84px;}
   </style>
+  <script type="text/javascript" charset="utf-8">
+  	$(function(){
+  		//判断型腔数如果大于1,增加删除按钮
+  		var cavity_num = $(".cavity_type").size();
+  		if(cavity_num >1){
+                          $("#add_cavitys").after(del_cavity);
+  		} 
+  		//把型腔数量添加到布局
+  		
+
+  		//加入布局选项框
+  		var cavity_type_num = $(".cavity_type").size();
+  		for(var m=0;m<cavity_type_num;m++){
+  			var cavity_val = $(".cavity_type").eq(m).val();
+  			for(var h=0;h<cavity_val;h++){
+			
+			var h1 = h+1;
+			
+			var h2 = cavity_val/h1 + "";
+			
+			if(h2.indexOf('.') == -1){
+			var cavity_style_layout = '<option value='+h1+'>'+h1+'</option>';
+
+			if($(".cav_style_len").eq(m).html() != h1){
+			$(".cavity_style_length").eq(m).append(cavity_style_layout);
+			}
+			}}
+		
+			
+			var type_val = $(".cavity_type").eq(m).val();
+			var p_length = $('.p_length').eq(m).val();
+			var p_width = $('.p_width').eq(m).val();
+			
+			//获取当前布局的值
+			var cavity_style_length = $(".cavity_style_length").eq(m).val();
+			//计算型腔布局的宽并加入到布局选项中
+			var cavity_style_width = Math.ceil(type_val/cavity_style_length);
+			//通过获取的值计算型腔的长和宽
+			var opt_length = (parseInt(p_length) + 110)*cavity_style_length;
+			var opt_width  = (parseInt(p_width) + 110)*cavity_style_width;
+
+		
+			//把选项添加到型腔布局选项框中
+			var  cavity_style_length  = '<option value='+opt_length+'>'+opt_length+'</option>';
+			var  cavity_style_width  = '<option value='+opt_width+'>'+opt_width+'</option>';	
+			var  cavity_zero = '<option value="0">0</option>';	
+			//加入到排位长的选项中
+			
+			if($(".cav_len").eq(m).html() == opt_length){
+			$(".cavity_length").eq(m).append(cavity_zero);
+			$(".cavity_length").eq(m).append(cavity_style_width);
+			} else if($(".cav_len").eq(m).html() == opt_width){
+			   $(".cavity_length").eq(m).append(cavity_zero);
+			   $(".cavity_length").eq(m).append(cavity_style_length);
+			} else{
+				$(".cavity_length").eq(m).append(cavity_style_width);
+				$(".cavity_length").eq(m).append(cavity_style_length);
+			}
+			//加入到排位宽的选项中
+			if($(".cav_len").eq(m).html() == opt_length){
+			$(".cavity_width").eq(m).append(cavity_zero);
+			$(".cavity_width").eq(m).append(cavity_style_width);
+			} else if($(".cav_len").eq(m).html() == opt_width){
+			   $(".cavity_width").eq(m).append(cavity_zero);
+			   $(".cavity_width").eq(m).append(cavity_style_length);
+			} else{
+				$(".cavity_width").eq(m).append(cavity_style_width);
+				$(".cavity_width").eq(m).append(cavity_style_length);
+			}
+
+			
+		
+  		
+		
+              }
+  	})
+  </script>
    <table id="main_table" style="word-wrap: break-word; word-break: break-all;">
-   	<input type="hidden" name="employeeid" value=<?php echo $employeeid ?> />
+   	<input type="hidden" name="employeeid" value="<?php echo $employeeid ?>" />
+   	<input type="hidden" name="mold_id" value="<?php echo $array['mold_id'] ?>" >
+   	<input type="hidden" name="upload_final_path" value="<?php echo $array['upload_final_path'] ?>">
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5">
@@ -2299,13 +2388,13 @@ $(function(){
    	     </td>
    	   <td style="width:186px;padding-right:20px">客户名称/Customer</td>
       	   <td style="width:186px;padding-right:0px">
-      	       <input type="text" name="client_name" value=<?php echo $array['client_name'] ?> style="width:125px;" />
+      	       <input type="text" name="client_name" value="<?php echo $array['client_name'] ?>" style="width:125px;" />
       	   </td>	
    	</tr>
    	<tr>
    	  <td>项目名称/Program</td>
              <td>
-      	     <input type="text" name="project_name" value=<?php echo $array['project_name'] ?> style="width:125px"/>
+      	     <input type="text" name="project_name" value="<?php echo $array['project_name'] ?>" style="width:125px"/>
       	  </td>
    	</tr>
    	<tr>
@@ -2346,7 +2435,7 @@ $(function(){
            </tr>
            <tr>
                <td colspan="5" style="padding-right:2px">
-               	<input  type="text" name="mould_name" id="mould_name" value=<?php echo $array['mould_name'] ?> class="input_tx"  style="width:315px;margin-right:2px"/>
+               	<input  type="text" name="mould_name" id="mould_name" value="<?php echo $array['mould_name'] ?>" class="input_tx"  style="width:315px;margin-right:2px"/>
                </td>
                <td colspan="2" id="cavity_no">
                	<!-- <select name="cavity_type" id="cavity_type" style="">
@@ -2368,10 +2457,10 @@ $(function(){
 
                </td>
                <td colspan="2" style="padding_style:8px">
-               	<input type="text" name="t_time" class="input_tx" value=<?php echo $array['t_time'] ?> style="width:182px"/>
+               	<input type="text" name="t_time" class="input_tx" value="<?php echo $array['t_time'] ?>" style="width:182px"/>
               </td>
               <td colspan="2">
-              	<input type="text" name="lead_time" class="input_tx" value=<?php echo $array['lead_time'] ?>  style="width:310px" />
+              	<input type="text" name="lead_time" class="input_tx" value="<?php echo $array['lead_time'] ?>"  style="width:310px" />
                </td>
            </tr>
            <tr>
@@ -2436,18 +2525,18 @@ $(function(){
            </tr>
            <tr id="adder_style">
               <td>
-              	<input type="text" name="m_length" id="m_length" value=<?php echo $array['m_length'] ?> readonly  />
+              	<input type="text" name="m_length" id="m_length" value="<?php echo $array['m_length'] ?>" readonly  />
               </td>
               <td>*</td>
               <td>
-              	 <input type="text" name="m_width" id="m_width" value=<?php echo $array['m_width'] ?> readonly />
+              	 <input type="text" name="m_width" id="m_width" value="<?php echo $array['m_width'] ?>" readonly />
               </td>
               <td>*</td>
               <td>
-                    <input type="text" name="m_height" id="m_height" value=<?php echo $array['m_height'] ?>  readonly /></td>
+                    <input type="text" name="m_height" id="m_height" value="<?php echo $array['m_height'] ?>"  readonly /></td>
               </td>
               <td colspan="2">
-                   <input type="text" name="m_weight" id="m_weight" value=<?php echo $array['m_weight'] ?> readonly  style="width:176px" />
+                   <input type="text" name="m_weight" id="m_weight" value="<?php echo $array['m_weight'] ?>" readonly  style="width:176px" />
               </td>
               <td colspan="2" style="padding-right:8px">
               	<input type="text" name="lift_time" id="lift_time" value="<?php echo $array['lift_time'] ?>" style="width:182px;"/>
@@ -2477,17 +2566,17 @@ $(function(){
 	    			型腔<?php echo $k+1 ?>
 	    			<br />
 	    		
-	    			<select class="cavity_length">
+	    			<select class="cavity_length" name="cavity_length[]">
 	    				<option value="" class="first_length">cavity长</option>
-	    				<option value="<?php echo $v[0] ?>" selected class="first_length"><?php echo $v[0] ?></option>
+	    				<option class="cav_len" value="<?php echo $v[0] ?>" selected class="first_length"><?php echo $v[0] ?></option>
 	    			</select>
 	    			
 	    			<br />
 	    		
 	    			
-	    			<select class="cavity_width">
+	    			<select class="cavity_width" name="cavity_width[]">
 	    				<option value="" class="first_width">cavity宽</option>
-	    				<option value="<?php echo $v[1] ?>" selected class="first_width"><?php echo $v[1] ?></option>
+	    				<option class="cav_wid" value="<?php echo $v[1] ?>" selected class="first_width"><?php echo $v[1] ?></option>
 
 	    			</select>
     			</span>
@@ -2499,13 +2588,13 @@ $(function(){
     		<div style="display:inline-block;background:#eee;">
     			<span style="padding-left:20px">型腔<?php echo $k+1 ?></span><br />
     			<span>
-    				<select  class="cavity_style_length" style="width:80px">
+    				<select  class="cavity_style_length" name="cavity_style_length[]" style="width:80px">
     					<option value="" class="first_style_length">长度方向</option>
-    					<option value="<?php echo $v[0] ?>" selected  ><?php echo $v[0] ?></option>
+    					<option class="cav_style_len" value="<?php echo $v[0] ?>" selected  ><?php echo $v[0] ?></option>
     				</select>
     			</span><br />
     			<span>
-    				<select  class="cavity_style_width" style="width:80px">
+    				<select  class="cavity_style_width" name="cavity_style_width[]" style="width:80px">
     					<option value="" class="first_style_width">宽度方向</option>
     					<option value="<?php echo $v[1] ?>" selected ><?php echo $v[1] ?><option>
     				</select>
@@ -2563,7 +2652,7 @@ $(function(){
              <td>
                  <input type="text" name="material_price[]" id="material_price" class="material_price" value=<?php echo $arrs_materials[0][8] ?>> 	
              </td>
-               <td rowspan="8" id="total_machining"><input type="text" class="min_total" value=<?php echo $array['total_machining'] ?> name="total_machining"></td>   
+               <td rowspan="8" id="total_machining"><input type="text" class="min_total" value="<?php echo $array['total_machining'] ?>" name="total_machining"></td>   
            </tr>
               <?php
               $i = 0;
@@ -2645,7 +2734,7 @@ $(function(){
           	    
           	     if($i == 0){
           	     	echo '<td rowspan="4" id="total_heats">
-          	     		<input type="text" name="total_heat" value='.$array['total_heat'].' class="min_total" />
+          	     		<input type="text" name="total_heat"  class="min_total" value="'.$array["total_heat"].'"/>
           	     		</td>  ';
           	     }
   	     $i++;
@@ -2693,7 +2782,7 @@ $(function(){
                <input type="text" name="standard_unit_price[]" class="standard_unit_price" value=<?php echo $mold_standard_value[4] ?>>
       	</td>
       	<td>
-      	   <input type="text" name="standard_price[]" class="standard_price" value=<?php echo $mold_standard_value[5] ?>>	
+      	   <input type="text" name="standard_price[]" class="standard_price" value="<?php echo $mold_standard_value[5] ?>">	
       	</td>
       	 <?php 
           	    
