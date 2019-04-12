@@ -7,9 +7,11 @@ require_once '../class/image.php';
 require_once 'shell.php';
 if($_POST['submit']){
 	$action = $_POST['action'];
-	if($action == 'add' || $action == 'edit'){
+	if($action == 'add' || $action == 'edit' || $action == 'approval' || $action == 'approval_edit'){
 		//接受数据		
 		$data = $_POST;
+		$mould_dataid = $_POST['id'];
+		unset($data['id']);
 		$new_data = array();
 		foreach($data as $key=>$value){
 			//把值是数组的转换为字符串
@@ -18,8 +20,13 @@ if($_POST['submit']){
 			}
 			$new_data[$key] = $value; 
 		}
+		//如果更新图片,则删除图片字段
+		if(($_FILES['file']['tmp_name'][0]) != null){
+			unset($new_data['upload_final_path']);
+		}
 		unset($new_data['action']);
 		unset($new_data['submit']);
+
 		//遍历数组,获取字符串
 		$key_word = '';
 		$value_word = '';
@@ -39,9 +46,7 @@ if($_POST['submit']){
 	           $filedir = date("Ymd");
 		$upfiledir = "../upload/mould_image/".$filedir."/";
 		 //得到传输的数据
-		 if(($_FILES['file']['tmp_name'][0]) == null){
-		 
-		 } else {
+		 if(($_FILES['file']['tmp_name'][0]) != null){
 			if($_FILES['file']['name']){
 				 //图片上传
 				$upload = new upload();
@@ -64,6 +69,8 @@ if($_POST['submit']){
 					$final_path = $target_path.$target_name;
 				}
 				$upload_final_path .= $final_path.'$';
+				
+
 				}
 			}
 		}
@@ -75,6 +82,7 @@ if($_POST['submit']){
 		$mold_id = FLOOR(RAND()*9000+1000);
 		//拼接数据库字段
 		$key_word .= ',`upload_final_path`,`time`,`mold_id`';
+
 		//拼接上传数据
 		$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
 		$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id;
@@ -88,12 +96,80 @@ if($_POST['submit']){
 			header("location:mould_data.php");
 		}
 	}elseif($action == 'edit'){
+		//报价单号
+		$mold_id = FLOOR(RAND()*9000+1000);
 		//拼接数据库字段
+		//判断是否修改了图片
+		if(($_FILES['file']['tmp_name'][0]) != null){
+			$key_word .= ',`upload_final_path`,`time`,`mold_id`';
+			//拼接上传数据
+			$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
+			$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id;
+		} else {
+			$key_word .= ',`time`,`mold_id`';
+			//拼接上传数据
+			$value_word .= ','.time().','.$mold_id;
+		}
+		
+		$key_arr = explode(',',$key_word);
+		$value_arr = explode(',',$value_word);
+		$result_arr = array_combine($key_arr,$value_arr);
+		$str = '';
+		foreach($result_arr as $key=>$val){
+			$str .= $key.'='.$val.',';
+		}
+		//拼接更新数据库的sql语句
+		$str = substr($str,0,strlen($str) - 1);
+		$sql = "UPDATE `db_mould_data` SET".$str." WHERE `mould_dataid` = ".$mould_dataid;
+	
+		$res = $db->query($sql);
+		if($res){
+			header("location:mould_data.php");
+		}
+		/*if($db->insert_id){
+			header("location:mould_data.php");
+		}
+		if($db->affected_rows){
+			header("location:".$_POST['pre_url']);
+		}*/
+	}elseif($action == 'approval'){
+		//报价单号
+		$mold_id = FLOOR(RAND()*9000+1000);
+		//拼接数据库字段
+		if(($_FILES['file']['tmp_name'][0]) != null){
+			$key_word .= ',`upload_final_path`,`time`,`mold_id`,`is_approval`';
+			//拼接上传数据
+			$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
+			$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id.',"1"';
+		} else {
+			$key_word .= ',`time`,`mold_id`,`is_approval`';
+			//拼接上传数据
+			$value_word .= ','.time().','.$mold_id.',"1"';
+		}
+		
+		$key_arr = explode(',',$key_word);
+		$value_arr = explode(',',$value_word);
+		$result_arr = array_combine($key_arr,$value_arr);
+		$str = '';
+		foreach($result_arr as $key=>$val){
+			$str .= $key.'='.$val.',';
+		}
+		//拼接更新数据库的sql语句
+		$str = substr($str,0,strlen($str) - 1);
+		$sql = "UPDATE `db_mould_data` SET".$str." WHERE `mould_dataid` = ".$mould_dataid;
+		echo $sql;exit;
+		$res = $db->query($sql);
+		if($res){
+			header("location:mould_data.php");
+		}
+		/*************************/
+			//拼接数据库字段
 		$key_word .= ',`time`';
 		//拼接上传数据
 		$value_word .= ','.time();
-		$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
-		
+		//echo substr($value_word;exit;
+	
+		echo $sql;//exit;
 		//$mould_dataid = $_POST['mould_dataid'];
 		//$sql = "UPDATE `db_mould_data` SET `mould_name` = '$mould_name',`cavity_type` = '$cavity_type',`part_number` = '$part_number',`t_time` = '$t_time',`p_length` = '$p_length',`p_width` = '$p_width',`p_height` = '$p_height',`p_weight` = '$p_weight',`drawing_file` = '$drawing_file',`lead_time` = '$lead_time',`m_length` = '$m_length',`m_width` = '$m_width',`m_height` = '$m_height',`m_weight` = '$m_weight',`lift_time` = '$lift_time',`tonnage` = '$tonnage',`client_name` = '$client_name',`project_name` = '$project_name',`contacts` = '$contacts',`tel` = '$tel',`email` = '$email' WHERE `mould_dataid` = '$mould_dataid'";
 		$res = $db->query($sql);
@@ -103,6 +179,24 @@ if($_POST['submit']){
 		/*if($db->affected_rows){
 			header("location:".$_POST['pre_url']);
 		}*/
+	} elseif($action == 'approval_edit'){
+		//拼接数据库字段
+		if(($_FILES['file']['tmp_name'][0]) != null){
+			$key_word .= ',`upload_final_path`,`time`,`is_approval`';
+			//拼接上传数据
+			$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
+			$value_word .= ',"'.$upload_final_path.'",'.time().',"1"';
+		} else {
+			$key_word .= ',`time`,`is_approval`';
+			//拼接上传数据
+			$value_word .= ','.time().',"1"';
+		}
+			$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
+			$db->query($sql);
+		if($db->insert_id){
+			$id = $db->insert_id;		
+			header("location:mould_data_approval.php");
+		}
 	}elseif($action == 'del'){
 		$array_mould_dataid = fun_convert_checkbox($_POST['id']);
 		$sql_list = "DELETE `db_mould_quote_list` FROM `db_mould_quote_list` INNER JOIN `db_mould_quote` ON `db_mould_quote`.`quoteid` = `db_mould_quote_list`.`quoteid` WHERE `db_mould_quote`.`mould_dataid` IN ($array_mould_dataid)";
@@ -126,6 +220,6 @@ if($_POST['submit']){
 		if($db->affected_rows){
 			header("location:".$_SERVER['HTTP_REFERER']);
 		}
-	}
+	} 
 }
 ?>

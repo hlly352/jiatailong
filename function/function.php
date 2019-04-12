@@ -17,7 +17,7 @@ function fun_getdate(){
 }
 //检测action值并返回值
 function fun_check_action(){
-	$array_action = array('add','edit','del');
+	$array_action = array('add','edit','del','approval','approval_edit');
 	$action = $_GET['action'];
 	if(!in_array($_GET['action'],$array_action,true)){
 		echo "System Prompt:Parameter Error!";
@@ -182,5 +182,15 @@ function arr_merge($arr1,$arr2){
 			}
 		}
 		 return $final_arr;
+			}
+//处理多模穴数的数据
+	function getin($data){
+				if(is_array($data)){
+					foreach($data as $v){
+						echo $v.'<br/>';
+					}
+				} else {
+					echo $data;
+				}
 			}
 ?>

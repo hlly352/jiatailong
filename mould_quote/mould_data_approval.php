@@ -11,12 +11,11 @@ if($_GET['submit']){
 	$project_name = trim($_GET['project_name']);
 	$sqlwhere = "  AND `client_name` LIKE '%$client_name%' AND `mould_name` LIKE '%$mould_name%' AND `project_name` LIKE '%$project_name%'";
 }
-/*$sql = "SELECT * FROM `db_mould_data` 
+$sql = "SELECT * FROM `db_mould_data` 
 WHERE time in (
 SELECT max(a.time)
 FROM db_mould_data a
-GROUP BY mold_id)".$sqlwhere;*/
-$sql = "SELECT * FROM `db_mould_data` WHERE `is_approval` = '0'".$sqlwhere;
+GROUP BY mold_id)".$sqlwhere."AND `is_approval` = '1'";
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -55,14 +54,55 @@ function getdate(timestamp) {
 
 			}
 		}
-		$('.but').click(function(){
+		$('.but').bind('click',function(){
+			 mold_nu = $('.but').index(this);
+
+			var mold_id = $('.mold_id_val').eq(mold_nu).val();
+			$.ajax({
+				'url':'../ajax_function/mould_id_data.php',
+				'type':'post',
+				'dataType':'json',
+				'async':true,
+				'data':{mold_id:mold_id},
+				'success':function(data){
+					for(var i=1;i<data.length;i++){
+							if($(".mold_num").eq(mold_nu).text() >1){
+								var getdat = getdate(data[i].time);
+				var tr = '   <tr class="block'+data[i].mold_id+'">        <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+data[i].part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+data[i].p_length+'*'+data[i].p_width+'*'+data[i].p_height+'</td>        <td>'+data[i].m_material+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>        <td>        	<?php 
+        		if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
+        			echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
+        		} else {
+        			echo '无';
+        		}
+        	?>        </td>        <td>'+data[i].tonnage+'</td>        <td>&yen;'+data[i].mold_price_rmb+'</td>        <td>&yen;'+data[i].mold_with_vat+'</td>        <td></td>      <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->        <td><!--<?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?>--></td>      </tr> ';			
+        	 $('.but').eq(mold_nu).parent().parent().after(tr);
+        	 $('.but').eq(mold_nu).unbind('click').val('收起').css('background','#ddd').addClass('del');
+  
+        	 			}
+			 }			
+		},
+				'error':function(){
+					alert('获取数据失败');
+			 	}
+			});
+			 
+					
+        	 	}) 
+		//收起子列表
+		$(".del").live('click',function(){
+			if($(this).val() == '收起'){
+
+				var id_nu = $('.but').index(this);
+				var mold_id = $('.mold_ids').eq(id_nu).val();
+				$(".block"+mold_id).remove();
+				$(this).val('查看').css('background','green').removeClass('del').bind('click',function(){
 			 mold_nu = $('.but').index(this);
 			var mold_id = $('.mold_id_val').eq(mold_nu).val();
 			$.ajax({
 				'url':'../ajax_function/mould_id_data.php',
 				'type':'post',
 				'dataType':'json',
-				'async':false,
+				'async':true,
 				'data':{mold_id:mold_id},
 				'success':function(data){
 					for(var i=1;i<data.length;i++){
@@ -70,43 +110,32 @@ function getdate(timestamp) {
 						//console.log(mold_nu);
 							if($(".mold_num").eq(mold_nu).text() >1){
 								var getdat = getdate(data[i].time);
-				var tr = '   <tr class="show">        <td><input type="checkbox" name="id[]" value="'+data[i].mould+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+data[i].part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+data[i].p_length+'*'+data[i].p_width+'*'+data[i].p_height+'</td>        <td>'+data[i].m_material+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>        <td>        	<?php 
+				var tr = '   <tr class="block'+data[i].mold_id+'">         <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+data[i].part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+data[i].p_length+'*'+data[i].p_width+'*'+data[i].p_height+'</td>        <td>'+data[i].m_material+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>        <td>        	<?php 
         		if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
         			echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
         		} else {
         			echo '无';
         		}
-        	?>        </td>        <td>'+data[i].tonnage+'</td>        <td>&yen;'+data[i].mold_price_rmb+'</td>        <td>&yen;'+data[i].mold_with_vat+'</td>        <td><input type="button" class="but" value="查看"></button>&nbsp;<span class="mold_num"><?php echo $row['num'];
-        		
-        	 ?></span></td>      <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->        <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>      </tr> ';			
-        	 $('.but').eq(mold_nu).parent().parent().after(tr);				
-        	 	}
-					}
-					
-					//console.log(data);
-				},
+        	?>        </td>        <td>'+data[i].tonnage+'</td>        <td>&yen;'+data[i].mold_price_rmb+'</td>        <td>&yen;'+data[i].mold_with_vat+'</td>        <td></td>      <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->        <td><!--<?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?>--></td>      </tr> ';			
+        	 $('.but').eq(mold_nu).parent().parent().after(tr);
+        	 $('.but').eq(mold_nu).unbind('click').val('收起').css('background','#ddd').addClass('del');
+  
+        	 			}
+			 }			
+		},
 				'error':function(){
 					alert('获取数据失败');
-				}
+			 	}
 			});
+			 
 					
-        	 		}) 
-		$('.show').click(function(){
-			var mold_dataid = $(this).children().children('[name^=id]:checkbox').val();
-			//alert(mold_dataid);
-			$('.show').each(function(){
-				window.open('mould_dataae.php?action=approval&id=130','_blank');
-			})
+        	 	}) ;
+			}
 		})
-	
-        	 			})
+        	 })
+
       </script>
 <title>模具报价-希尔林</title>
-<style type="text/css">
-	#main{table-layout:fixed;width:1420px;}
-	#main tr td{word-wrap:break-word;word-break:break-all;}
-	
-</style>
 </head>
 
 <body>
@@ -116,7 +145,7 @@ function getdate(timestamp) {
   	 
   </h4>
   <form action="" name="search" method="get">
-    <table >
+    <table>
       <tr>
       	
           
@@ -159,26 +188,27 @@ function getdate(timestamp) {
 	
   ?>
   <form action="mould_datado.php" name="list" method="post">
-    <table id="main" cellpadding="0" cellspacing="0">
+    <table>
       <tr>
-        <th >ID</th>
-        <th style="width:82px">报价时间</th>
-        <th style="width:82px">客户名称</th>
-        <th style="width:82px">项目名称</th>
-        <th style="width:82px">模具名称</th>
-        <th style="width:82px">零件编号</th>
-        <th style="width:82px">零件图片</th>
-        <th style="width:82px">产品尺寸</th>
-        <th style="width:44px">塑胶材料</th>
-        <th style="width:44px">模穴数</th>
-        <th style="width:82px">模具尺寸</th>
-        <th style="width:44px">模具重量</th>
-        <th style="width:82px">型腔/型芯材质</th>
-        <th style="width:82px">热流道类型</th>
-        <th style="width:44px">吨位</th>
-        <th style="width:82px">未税价格</th>
-        <th style="width:82px">含税价格</th>
-        <th style="width:44px">修改</th>
+        <th width="">ID</th>
+        <th width="">报价时间</th>
+        <th width="">客户名称</th>
+        <th width="">项目名称</th>
+        <th width="">模具名称</th>
+        <th width="">零件编号</th>
+        <th width="">零件图片</th>
+        <th width="">产品尺寸</th>
+        <th width="">塑胶材料</th>
+        <th width="">模穴数</th>
+        <th width="">模具尺寸</th>
+        <th width="">模具重量</th>
+        <th width="">型腔/型芯材质</th>
+        <th width="">热流道类型</th>
+        <th width="">吨位</th>
+        <th width="">未税价格</th>
+        <th width="">含税价格</th>
+        <th width="">历史价格</th>
+        <th width="">修改</th>
       <?php
       while($row = $result->fetch_assoc()){
 		  $mould_dataid = $row['mould_dataid'];
@@ -251,9 +281,9 @@ function getdate(timestamp) {
 		 $row['num'] = $r[0];
 	  ?>
      <tr class="show">
-        <td><input type="checkbox" name="id[]" value="<?php echo $mould_dataid; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
+       <td><input type="checkbox" name="id[]" value="<?php echo $mould_dataid; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
         <td><?php echo date('Y-m-d',$row['time']) ?></td>
-        <td><?php echo $row['client_name']; ?></td>
+        <td><?php echo $row['client_name']; ?><input type="hidden" class="mold_ids" value="<?php echo $row['mold_id'] ?>"></td>
         <td><?php echo $row['project_name']; ?></td>
         <td><?php echo $row['mould_name']; ?></td>
         <td><?php getin($part_number); ?></td>
@@ -278,10 +308,11 @@ function getdate(timestamp) {
         </td>
         <td><?php echo $row['tonnage']; ?></td>
         <td>&yen;<?php echo $row['mold_price_rmb']; ?></td>
-        <td>&yen;<?php echo $row['mold_with_vat'] ?></td>     		
-            <input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
+        <td>&yen;<?php echo $row['mold_with_vat'] ?></td>
+        <td><input type="button" class="but" value="查看"></button>&nbsp;<span class="mold_num"><?php echo $row['num'];        		
+        	 ?><input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
-        <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><input type="button" value="修改"></a><?php } ?><?php if($count == 0){ ?><hr><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval"><input type="button" value="审批"></a><?php } ?></td>
+        <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval_edit"><input type="button" value="修改"></a><?php } ?></td>
       </tr> 
       <?php } ?>
     </table>

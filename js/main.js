@@ -41,7 +41,8 @@ $(function(){
 		$('[id=submit]').attr('disabled',flag);
 	});
 	//checkbox id 选择
-	$('[name^=id]:checkbox').click(function(){
+	$('[name^=id]:checkbox').live('click',function(){
+		
 		flag=false;
 		if(!$('[name^=id]:checkbox').filter(':checked').length){
 			flag=true;

@@ -63,5 +63,7 @@ $array_mold_standard = array('Inserts'=>'镶件、日期章/Inserts','sleeve'=>'
 $array_mould_design = array('scanning'=>'扫描测绘/Scanning','cad'=>'结构设计/CAD','cam'=>'CAM设计/CAM','cae'=>'CAE分析/CAE');
 //模具加工费数据
 $array_mould_manufacturing = array('maching'=>'一般机床/Maching','grinding'=>'磨床/Grinding','cnc'=>'数控机床/CNC','precision_cnc'=>'精密数控机床','wc'=>'线切割/W.C.','edm'=>'电火花/EDM','polish'=>'抛光/Polish','fitting'=>'钳工/Fitting','laser'=>'激光烧焊/Laser Welding','texture'=>'皮纹/Texture cost');
+//模具配件品牌
+$array_standard_supplier = array('品牌一','品牌二','品牌三','品牌四');
 
 ?>
