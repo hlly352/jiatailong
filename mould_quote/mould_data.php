@@ -80,22 +80,21 @@ function getdate(timestamp) {
         		
         	 ?></span></td>      <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->        <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>      </tr> ';			
         	 $('.but').eq(mold_nu).parent().parent().after(tr);				
-        	 	}
-					}
+        	 			}
+			}
 					
-					//console.log(data);
-				},
+		},
 				'error':function(){
 					alert('获取数据失败');
 				}
 			});
 					
         	 		}) 
-		$('.show').click(function(){
-			var mold_dataid = $(this).children().children('[name^=id]:checkbox').val();
-			//alert(mold_dataid);
+		$('.show_list').click(function(){
+			var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
+			
 			$('.show').each(function(){
-				window.open('mould_dataae.php?action=approval&id=130','_blank');
+				window.open('mould_show.php?action=show&id='+mold_dataid);
 			})
 		})
 	
@@ -103,7 +102,7 @@ function getdate(timestamp) {
       </script>
 <title>模具报价-希尔林</title>
 <style type="text/css">
-	#main{table-layout:fixed;width:1420px;}
+	#main{table-layout:fixed;width:1350px;}
 	#main tr td{word-wrap:break-word;word-break:break-all;}
 	
 </style>
@@ -161,7 +160,7 @@ function getdate(timestamp) {
   <form action="mould_datado.php" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
-        <th >ID</th>
+        <th style="width:50px">ID</th>
         <th style="width:82px">报价时间</th>
         <th style="width:82px">客户名称</th>
         <th style="width:82px">项目名称</th>
@@ -251,23 +250,24 @@ function getdate(timestamp) {
 		 $row['num'] = $r[0];
 	  ?>
      <tr class="show">
+     <i class="info_list">
         <td><input type="checkbox" name="id[]" value="<?php echo $mould_dataid; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
-        <td><?php echo date('Y-m-d',$row['time']) ?></td>
-        <td><?php echo $row['client_name']; ?></td>
-        <td><?php echo $row['project_name']; ?></td>
-        <td><?php echo $row['mould_name']; ?></td>
-        <td><?php getin($part_number); ?></td>
+        <td class="show_list"><?php echo date('Y-m-d',$row['time']) ?></td>
+        <td class="show_list"><?php echo $row['client_name']; ?></td>
+        <td class="show_list"><?php echo $row['project_name']; ?></td>
+        <td class="show_list"><?php echo $row['mould_name']; ?></td>
+        <td class="show_list"><?php getin($part_number); ?></td>
         <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->
-        <td><?php echo $image_file ?></td>
-         <td><?php echo $re ?></td>
+        <td class="show_list"><?php echo $image_file ?></td>
+         <td class="show_list"><?php echo $re ?></td>
 
-        <td><?php getin($m_material); ?></td>
-        <td><?php echo $cavity_nu; ?></td>
-        <td><?php echo $row['m_length'].'*'.$row['m_width'].'*'.$row['m_height']; ?></td>
-        <td><?php echo $row['m_weight']; ?></td>
+        <td class="show_list"><?php getin($m_material); ?></td>
+        <td class="show_list"><?php echo $cavity_nu; ?></td>
+        <td class="show_list"><?php echo $row['m_length'].'*'.$row['m_width'].'*'.$row['m_height']; ?></td>
+        <td class="show_list"><?php echo $row['m_weight']; ?></td>
         
-        <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>
-        <td>
+        <td class="show_list"><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>
+        <td class="show_list">
         	<?php 
         		if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
         			echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
@@ -276,9 +276,10 @@ function getdate(timestamp) {
         		}
         	?>
         </td>
-        <td><?php echo $row['tonnage']; ?></td>
-        <td>&yen;<?php echo $row['mold_price_rmb']; ?></td>
-        <td>&yen;<?php echo $row['mold_with_vat'] ?></td>     		
+        <td class="show_list"><?php echo $row['tonnage']; ?></td>
+        <td class="show_list">&yen;<?php echo $row['mold_price_rmb']; ?></td>
+        <td class="show_list">&yen;<?php echo $row['mold_with_vat'] ?></td>     	
+        </i>	
             <input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
         <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><input type="button" value="修改"></a><?php } ?><?php if($count == 0){ ?><hr><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval"><input type="button" value="审批"></a><?php } ?></td>

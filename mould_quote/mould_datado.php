@@ -157,25 +157,25 @@ if($_POST['submit']){
 		//拼接更新数据库的sql语句
 		$str = substr($str,0,strlen($str) - 1);
 		$sql = "UPDATE `db_mould_data` SET".$str." WHERE `mould_dataid` = ".$mould_dataid;
-		echo $sql;exit;
+		
 		$res = $db->query($sql);
 		if($res){
-			header("location:mould_data.php");
+			header("location:mould_data_approval.php");
 		}
 		/*************************/
 			//拼接数据库字段
-		$key_word .= ',`time`';
+		//$key_word .= ',`time`';
 		//拼接上传数据
-		$value_word .= ','.time();
+		//$value_word .= ','.time();
 		//echo substr($value_word;exit;
 	
-		echo $sql;//exit;
+		//echo $sql;//exit;
 		//$mould_dataid = $_POST['mould_dataid'];
 		//$sql = "UPDATE `db_mould_data` SET `mould_name` = '$mould_name',`cavity_type` = '$cavity_type',`part_number` = '$part_number',`t_time` = '$t_time',`p_length` = '$p_length',`p_width` = '$p_width',`p_height` = '$p_height',`p_weight` = '$p_weight',`drawing_file` = '$drawing_file',`lead_time` = '$lead_time',`m_length` = '$m_length',`m_width` = '$m_width',`m_height` = '$m_height',`m_weight` = '$m_weight',`lift_time` = '$lift_time',`tonnage` = '$tonnage',`client_name` = '$client_name',`project_name` = '$project_name',`contacts` = '$contacts',`tel` = '$tel',`email` = '$email' WHERE `mould_dataid` = '$mould_dataid'";
-		$res = $db->query($sql);
-		if($db->insert_id){
-			header("location:mould_data.php");
-		}
+		//$res = $db->query($sql);
+		//if($db->insert_id){
+		//	header("location:mould_data.php");
+		//}
 		/*if($db->affected_rows){
 			header("location:".$_POST['pre_url']);
 		}*/

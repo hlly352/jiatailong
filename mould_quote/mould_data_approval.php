@@ -132,6 +132,14 @@ function getdate(timestamp) {
         	 	}) ;
 			}
 		})
+		$('.show_list').click(function(){
+			var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
+			
+			$('.show').each(function(){
+				window.open('mould_show.php?action=show&id='+mold_dataid);
+			})
+		})
+	
         	 })
 
       </script>
@@ -282,21 +290,21 @@ function getdate(timestamp) {
 	  ?>
      <tr class="show">
        <td><input type="checkbox" name="id[]" value="<?php echo $mould_dataid; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
-        <td><?php echo date('Y-m-d',$row['time']) ?></td>
-        <td><?php echo $row['client_name']; ?><input type="hidden" class="mold_ids" value="<?php echo $row['mold_id'] ?>"></td>
-        <td><?php echo $row['project_name']; ?></td>
-        <td><?php echo $row['mould_name']; ?></td>
-        <td><?php getin($part_number); ?></td>
+        <td class="show_list"><?php echo date('Y-m-d',$row['time']) ?></td>
+        <td class="show_list"><?php echo $row['client_name']; ?><input type="hidden" class="mold_ids" value="<?php echo $row['mold_id'] ?>"></td>
+        <td class="show_list"><?php echo $row['project_name']; ?></td>
+        <td class="show_list"><?php echo $row['mould_name']; ?></td>
+        <td class="show_list"><?php getin($part_number); ?></td>
         <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->
-        <td><?php echo $image_file ?></td>
-         <td><?php echo $re ?></td>
+        <td class="show_list"><?php echo $image_file ?></td>
+         <td class="show_list"><?php echo $re ?></td>
 
-        <td><?php getin($m_material); ?></td>
-        <td><?php echo $cavity_nu; ?></td>
-        <td><?php echo $row['m_length'].'*'.$row['m_width'].'*'.$row['m_height']; ?></td>
-        <td><?php echo $row['m_weight']; ?></td>
+        <td class="show_list"><?php getin($m_material); ?></td>
+        <td class="show_list"><?php echo $cavity_nu; ?></td>
+        <td class="show_list"><?php echo $row['m_length'].'*'.$row['m_width'].'*'.$row['m_height']; ?></td>
+        <td class="show_list"><?php echo $row['m_weight']; ?></td>
         
-        <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>
+        <td class="show_list"><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>
         <td>
         	<?php 
         		if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
@@ -306,9 +314,9 @@ function getdate(timestamp) {
         		}
         	?>
         </td>
-        <td><?php echo $row['tonnage']; ?></td>
-        <td>&yen;<?php echo $row['mold_price_rmb']; ?></td>
-        <td>&yen;<?php echo $row['mold_with_vat'] ?></td>
+        <td class="show_list"><?php echo $row['tonnage']; ?></td>
+        <td class="show_list">&yen;<?php echo $row['mold_price_rmb']; ?></td>
+        <td class="show_list">&yen;<?php echo $row['mold_with_vat'] ?></td>
         <td><input type="button" class="but" value="查看"></button>&nbsp;<span class="mold_num"><?php echo $row['num'];        		
         	 ?><input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
@@ -320,8 +328,8 @@ function getdate(timestamp) {
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
-      <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" disabled="disabled" />
-      <input type="hidden" name="action" value="del" />
+     <!-- <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" disabled="disabled" />
+      <input type="hidden" name="action" value="del" />-->
     </div>
   </form>
   <div id="page">
