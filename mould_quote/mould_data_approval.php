@@ -195,7 +195,7 @@ function getdate(timestamp) {
 	  }
 	
   ?>
-  <form action="mould_datado.php" name="list" method="post">
+  <form action="mould_excel.php?action=mould_excel" name="list" method="get">
     <table>
       <tr>
         <th width="">ID</th>
@@ -328,8 +328,8 @@ function getdate(timestamp) {
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
-     <!-- <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" disabled="disabled" />
-      <input type="hidden" name="action" value="del" />-->
+      <input type="submit" name="submit" id="submit" value="导出" class="select_button" disabled="disabled" />
+      <input type="hidden" name="action" value="mould_excel" />
     </div>
   </form>
   <div id="page">

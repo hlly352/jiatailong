@@ -1,9 +1,9 @@
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
-require_once 'shell.php';
+header("Content-type:application/vnd.ms-excel"); 
+header("Content-Disposition:attachment;filename=export_data.xls"); 
 $action = fun_check_action($_GET['action']);
-
 $employeeid = $_SESSION['employee_info']['employeeid'];
 ?>
 
@@ -13,19 +13,14 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link href="../css/system_base.css" type="text/css" rel="stylesheet" />
-<link href="css/main.css" type="text/css" rel="stylesheet" />
-<link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script language="javascript" type="text/javascript">
-
-$(function(){
-	//统计第一列需要合并的单元格个数
+//统计第一列需要合并的单元格个数
 	function count_trs(trs_name,tds_name,trs_total){
 		//判断型腔数对合并行的影响
 		  var num = $(trs_name).size()+3;	
-		
+	
  		$(tds_name).attr('rowspan',num);
  		$(trs_total).attr('rowspan',num-1);
 	}
@@ -35,10 +30,11 @@ $(function(){
 		//判断型腔数对合并行的影响
 		  var num = $(trs_name).size()+1;	
 
- 		$(tds_name).attr('rowspan',num);
- 		$(trs_total).attr('rowspan',num-1);
+ 		$(tds_name).prop('rowspan',num);
+ 		$(trs_total).prop('rowspan',num-1);
 	}
-
+$(function(){
+	
 	//删除行时统计第一列需要合并的单元格个数
 	function count_del_trs(trs_name,tds_name,trs_total){
 		//判断型腔数对合并行的影响
@@ -1642,18 +1638,21 @@ $(function(){
 </head>
 
 <body>
-<?php include "header.php"; ?>
+
 <div id="table_sheet">
   <?php
-  if($action == 'show'){
+  if($action == 'mould_excel'){
 
   		$mould_dataid = fun_check_int($_GET['id']);
+
 	  //查询模具报价的信息
 	  $sql = "SELECT * FROM `db_mould_data` WHERE `mould_dataid` = '$mould_dataid'";
+
 	  $result = $db->query($sql);
+
 	  if($result->num_rows){
+
 		  $array = $result->fetch_assoc();
-		 
 		  $sql_cfm = "SELECT `quoteid` FROM `db_mould_quote` WHERE `mould_dataid` = '$mould_dataid' AND `quote_status` = 1";
 		  $result_cfm = $db->query($sql_cfm);
 		 // if(!$result_cfm->num_rows){
@@ -1693,8 +1692,7 @@ $(function(){
 		$cavity_style_data = getdata($old_cavity_style);
 
   ?>
-  <h4>模具报价审批</h4> 
-
+ 
   <style type="text/css" media="screen">
   	#main_table tr td{border:1px solid grey;}
   	input{width:80px;}
@@ -1776,11 +1774,8 @@ $(function(){
               }
   	})
   </script>
-  <style type="text/css" media="screen">
-  	input{border-style:none;outline:none;pointer-events: none;}
-  	#id,#cation,#submit{pointer-events:auto;}
-  </style>
-   <table id="main_table" style="word-wrap: break-word; word-break: break-all;">
+
+   <table id="main_table" style="word-wrap: break-word; word-break: break-all;" x:str border=1 cellpadding=1 cellspacing=0 width=100% style="border-collapse: collapse">
    	<input type="hidden" name="employeeid" value="<?php echo $employeeid ?>" />
    	<!--<input type="hidden" name="mold_id" value="<?php echo $array['mold_id'] ?>" >-->
    	<input type="hidden" name="id" value="<?php echo $mould_dataid ?>">
@@ -1796,44 +1791,39 @@ $(function(){
    	     </td>
    	   <td style="width:186px;padding-right:20px">客户名称/Customer</td>
       	   <td style="width:186px;padding-right:0px">
-      	      <?php echo $array['client_name'] ?>
+      	      <input type="text" value=<?php echo $array['client_name'] ?>
       	   </td>	
    	</tr>
    	<tr>
    	  <td>项目名称/Program</td>
              <td>
-      	     <?php echo $array['project_name'] ?>
+      	     <input type="text" value=<?php echo $array['project_name'] ?>
       	  </td>
    	</tr>
    	<tr>
       	  <td>联系人/Attention</td>
       	  <td>
-      	   <?php echo $array['contacts']; ?>
+      	   <input type="text" value=<?php echo $array['contacts']; ?>
       	  </td>
            </tr>
            <tr>
       	  <td>电话/TEL</td>
       	  <td>
-      	  <?php echo $array['tel']; ?>
+      	  <input type="text" value=<?php echo $array['tel']; ?>
       	  </td>    
            </tr>
            <tr>
               <td>信箱/E-mail</td>
               <td>
-                 <?php echo $array['email']; ?>
+                 <input type="text" value=<?php echo $array['email']; ?>
            </tr>
            <tr>
                <td colspan="5" >模具名称/Mold Specification</td>
                <td colspan="2">型腔数量/Cav. Number</td>
                <td colspan="5" rowspan="6" style="text-align:center">
-               	  <?php $image_filepath = $array['upload_final_path'];
-		  if(stristr($image_filepath,'$') == true){
-		  	$image_filepath = substr($image_filepath,0,strripos($image_filepath,"$"));
-			}
-		  	
-			  $image_file = "<img width=\"185\" height=\"100\" src=\"".$image_filepath."\" /><br>";
-			  echo $image_file;
-		   ?>
+               	  
+			 
+		   
                	
                </td>
                <td colspan="2">首次试模时间/T1 Time</td>
@@ -1841,11 +1831,11 @@ $(function(){
            </tr>
            <tr>
                <td colspan="5" style="padding-right:2px">
-               <?php echo $array['mould_name'] ?>
+              <input type="text" value= <?php echo $array['mould_name'] ?>
                </td>
                <td colspan="2" id="cavity_no">
                	
-			 <?php echo $array['k_num'].'k |';$val = '';?>
+			<input type="text" value= <?php echo $array['k_num'].'k |';$val = '';?>
 			
                      	<?php foreach($cavity_types as $k=>$v){ ?>
                     		
@@ -1854,9 +1844,9 @@ $(function(){
 
                </td>
                <td colspan="2" style="padding_style:8px">
-               	<?php echo $array['t_time'] ?>
+               	<input type="text" value=<?php echo $array['t_time'] ?>
               <td colspan="2">
-              	<?php echo $array['lead_time'] ?>
+              	<input type="text" value=<?php echo $array['lead_time'] ?>
                </td>
            </tr>
            <tr>
@@ -1870,45 +1860,45 @@ $(function(){
            <tr>
               <td style="width:93px" id="length_no">
                  <?php foreach($p_lengths as $k=>$v){   ?>
-              	<?php echo $v.'<br/>' ?>
+              	<input type="text" value=<?php echo $v.'<br/>' ?>
                  <?php } ?>			
               	<span id="pp_length"></span>
               </td>
               <td >*</td>
               <td style="width:93px" id="width_no">
               <?php foreach($p_widths as $k=>$v){ ?>
-              	<?php echo $v.'<br/>' ?>
+              	<input type="text" value=<?php echo $v.'<br/>' ?>
               <?php } ?>
               	<span id="pp_width"></span>
               </td>
               <td>*</td>
               <td style="width:93px" id="height_no">
                 <?php foreach($p_heights as $k=>$v) { ?>
-                    <?php echo $v.'<br>' ?>
+                   <input type="text" value= <?php echo $v.'<br>' ?>
                  <?php } ?>
                      <span id="pp_height"></span>
               </td>
               <td style="width:93px" id="weight_no">
                  <?php foreach($p_weights as $k=>$v){ ?>
-                   <?php echo $v.'<br>' ?>
+                   <input type="text" value=<?php echo $v.'<br>' ?>
                  <?php } ?>   
                     <span id="pp_weight"></span>
               </td>
               <td style="width:93px" id="material_no">
                   <?php foreach($p_materials as $k=>$v){ ?>
-              	<?php echo $v.'<br>' ?>
+              	<input type="text" value=<?php echo $v.'<br>' ?>
                   <?php } ?>	
               	<span id="pp_material"></span>
               </td>
               <td colspan="2" style="padding-right:8px" id="part_no">
                 <?php foreach($part_numbers as $k=>$v){ ?>
-                  <?php echo $v.'<br>' ?>
+                  <input type="text" value=<?php echo $v.'<br>' ?>
                 <?php } ?>   
                    <span id="pp_number"></span>
                </td>
                <td colspan="2" id="file_no">
                   <?php foreach($drawing_files as $k=>$v){ ?>
-                  <?php echo $v.'<br>' ?>
+                 <input type="text" value= <?php echo $v.'<br>' ?>
                  <?php } ?>
                    <span id="pp_file"></span>
               </td>
@@ -1921,30 +1911,30 @@ $(function(){
            </tr>
            <tr id="adder_style">
               <td>
-              	<input type="text" name="m_length" id="m_length" value="<?php echo $array['m_length'] ?>" readonly  />
+              	<input type="text" value=<?php echo $array['m_length'] ?>
               </td>
               <td>*</td>
               <td>
-              	 <input type="text" name="m_width" id="m_width" value="<?php echo $array['m_width'] ?>" readonly />
+              	<input type="text" value=<?php echo $array['m_width'] ?>
               </td>
               <td>*</td>
               <td>
-                    <input type="text" name="m_height" id="m_height" value="<?php echo $array['m_height'] ?>"  readonly /></td>
+                   <input type="text" value= <?php echo $array['m_height'] ?></td>
               </td>
               <td colspan="2">
-                   <input type="text" name="m_weight" id="m_weight" value="<?php echo $array['m_weight'] ?>" readonly  style="width:176px" />
+                  <input type="text" value= <?php echo $array['m_weight'] ?>
               </td>
               <td colspan="2" style="padding-right:8px">
-              	<input type="text" name="lift_time" id="lift_time" value="<?php echo $array['lift_time'] ?>" style="width:182px;"/>
+              	<input type="text" value=<?php echo $array['lift_time'] ?>
               </td>
               <td colspan="2">
-              	<input type="text" name="tonnage" value="<?php echo $array['tonnage'] ?>" style="width:310px"/>
+              	<input type="text" value=<?php echo $array['tonnage'] ?>
               </td>
            </tr>
 
            <!--加工材料费-->
            <tr id="material_last_tr">
-               <td id="material_first_td" rowspan="8">材料加工费/Machining Materia</td> 	
+               <td id="material_first_td" rowspan="<?php echo count($arrs_materials) + 1; ?>">材料加工费/Machining Materia</td> 	
                <td colspan="4">材料名称/Material</td>
                <td>材料牌号/Specification</td>
                <td>数量/Number</td>
@@ -1956,36 +1946,36 @@ $(function(){
            </tr>
 	<tr class="material_trs even">
                <td colspan="4">
-                  <input name="mould_material[]" class="mould_material" value="模架/Mode" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
+                 模架/Mode
                </td>
                <td>
                	
-    			<?php echo $arrs_materials[0][1] ?>
+    			<input type="text" value=<?php echo $arrs_materials[0][1] ?>
              </td>
              <td>
-                   <input type="text" name="materials_number[]" class="materials_number" id="materials_number" value=<?php echo $arrs_materials[0][2]?>>
+                 <input type="text" value=  <?php echo $arrs_materials[0][2]?>
              </td>
              <td style="width:93px">
-                   <input name="material_length[]" id="base_length" class="material_length" type="text" placeholder="长" value=<?php echo $arrs_materials[0][3] ?>>
+             <input type="text" value= <?php echo $arrs_materials[0][3] ?>
              </td>
              <td>*</td>
              <td style="width:93px">
-                 <input name="material_width[]" id="base_width" class="material_width" type="text" placeholder="宽" value=<?php echo $arrs_materials[0][4] ?>>
+          <?php echo $arrs_materials[0][4] ?>
              </td>
              <td>*</td>
              <td style="width:93px">
-                  <input name="material_height[]" id="base_height" class="material_height" type="text" placeholder="高" value=<?php echo $arrs_materials[0][5] ?>>
+                 <input type="text" value= <?php echo $arrs_materials[0][5] ?>
              </td>
              <td>
-                 <input type="text" name="material_weight[]" id="base_weight" class="material_weight" value=<?php echo $arrs_materials[0][6] ?>>
+                <input type="text" value= <?php echo $arrs_materials[0][6] ?>
              </td>
              <td>
-                 <input type="text" name="material_unit_price[]" id="material_unit_price" class="material_unit_price" value=<?php echo $arrs_materials[0][7] ?>>
+                <input type="text" value= <?php echo $arrs_materials[0][7] ?>
              </td>
              <td>
-                 <input type="text" name="material_price[]" id="material_price" class="material_price" value=<?php echo $arrs_materials[0][8] ?>> 	
+              <input type="text" value=<?php echo $arrs_materials[0][8] ?>	
              </td>
-               <td rowspan="7" id="total_machining"><input type="text" class="min_total" value="<?php echo $array['total_machining'] ?>" name="total_machining"></td>   
+               <td rowspan="<?php echo count($arrs_materials)?>" id="total_machining"><?php echo $array['total_machining'] ?></td>   
            </tr>
               <?php
               $i = 0;
@@ -1996,34 +1986,34 @@ $(function(){
       	?>
            <tr class="material_trs">
                <td colspan="4">
-                  <input name="mould_material[]" class="mould_material" value="<?php echo $mould_material_value[0] ?>" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px">
+                  <input type="text" value=<?php echo $mould_material_value[0] ?>
                </td>
                <td>
-               	<?php echo $mould_material_value[1] ?>
+               	<input type="text" value=<?php echo $mould_material_value[1] ?>
   	       </div>  
              </td>
              <td>
-                   <input type="text" name="materials_number[]" class="materials_number" id="materials_number" value=<?php echo $mould_material_value[2] ?>>
+                  <input type="text" value= <?php echo $mould_material_value[2] ?>
              </td>
              <td style="width:93px">
-                   <input name="material_length[]" class="material_length" id="material_length" type="text" placeholder="长" value=<?php echo $mould_material_value[3] ?>>
+                  <input type="text" value= <?php echo $mould_material_value[3] ?>
              </td>
              <td>*</td>
              <td style="width:93px">
-                 <input name="material_width[]" class="material_width" id="material_width" type="text" placeholder="宽" value=<?php echo $mould_material_value[4] ?>>
+                <input type="text" value=<?php echo $mould_material_value[4] ?>
              </td>
              <td>*</td>
              <td style="width:93px">
-                  <input name="material_height[]" class="material_height" id="material_height" type="text" placeholder="高" value=<?php echo $mould_material_value[5] ?>>
+                <input type="text" value=  <?php echo $mould_material_value[5] ?>
              </td>
              <td>
-                 <input type="text" name="material_weight[]" id="material_weight" class="material_weight" value=<?php echo $mould_material_value[6] ?>>
+               <input type="text" value=<?php echo $mould_material_value[6] ?>
              </td>
              <td>
-                 <input type="text" name="material_unit_price[]" id="material_unit_price" class="material_unit_price" value=<?php echo $mould_material_value[7] ?>>
+           <?php echo $mould_material_value[7] ?>
              </td>
              <td>
-                 <input type="text" name="material_price[]" class="material_price" id="material_price" value=<?php echo $mould_material_value[8] ?>> 	
+             <?php echo $mould_material_value[8] ?>
              </td>
            </tr>
            <?php } ?>
@@ -2043,22 +2033,22 @@ $(function(){
            ?>
            <tr class="heat_trs">
               <td colspan="4">
-                  <input name="mould_heat_name[]" id="mould_heat_name" class="mould_heat_name" value=<?php echo $mould_heat_value[0] ?> readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" class="fix_txt">
+                <?php echo $mould_heat_value[0] ?> 
               </td>
               <td colspan="2">
-                  <input name="heat_weight[]" type="text" class="heat_weight" value=<?php echo $mould_heat_value[1] ?>>
+          <?php echo $mould_heat_value[1] ?>
               </td>
               <td colspan="6">
-                 <input name="heat_unit_price[]" type="text" class="heat_unit_price" value=<?php echo $mould_heat_value[2] ?>>	
+               <?php echo $mould_heat_value[2] ?>
               </td>
               <td colspan="2">
-                <input name="heat_price[]" type="text" id="heat_price" class="heat_price" value="<?php echo $mould_heat_value[3] ?>" style="border-style:none">
+            <?php echo $mould_heat_value[3] ?>
               </td>
                 <?php 
           	    
           	     if($i == 0){
           	     	echo '<td rowspan="3" id="total_heats">
-          	     		<input type="text" name="total_heat"  class="min_total" value="'.$array["total_heat"].'"/>
+          	     		'.$array["total_heat"].'
           	     		</td>  ';
           	     }
   	     $i++;
@@ -2083,10 +2073,10 @@ $(function(){
       ?>
       <tr class="parts_trs"> 
       	<td colspan="4">
-      	     <input name="mold_standard[]" id="mold_standard" class="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:13px;width:193px" readonly value="<?php echo $mold_standard_value[0] ?>">
+      	    <?php echo $mold_standard_value[0] ?>"
       	</td>
       	<td colspan="2">
-      	    <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" value=<?php echo $mold_standard_value[1] ?>>
+      	 <?php echo $mold_standard_value[1] ?>
       	</td>
       	<td colspan="5">
       	   
@@ -2095,19 +2085,19 @@ $(function(){
                   	
       	</td>
       	<td>
-      	    <input type="text" name="standard_number[]" class="standard_number" value=<?php echo $mold_standard_value[3] ?>>	
+      	  <?php echo $mold_standard_value[3] ?>	
       	</td>
       	<td>
-               <input type="text" name="standard_unit_price[]" class="standard_unit_price" value=<?php echo $mold_standard_value[4] ?>>
+          <?php echo $mold_standard_value[4] ?>
       	</td>
       	<td>
-      	   <input type="text" name="standard_price[]" class="standard_price" value="<?php echo $mold_standard_value[5] ?>">	
+      	  <?php echo $mold_standard_value[5] ?>	
       	</td>
       	 <?php 
           	    
           	     if($i == 0){
           	     	echo '<td rowspan="7" id="total_standard">
-			<input type="text" class="min_total"  name="total_standard" value='.$array['total_standard'].'>
+			'.$array['total_standard'].'
           	     	</td>  ';
           	     }
   	     $i++;
@@ -2131,23 +2121,23 @@ $(function(){
             ?>
            <tr class="design_trs">
               <td colspan="4">
-                  <input name="mold_design_name[]" class="mold_design_name" id="mold_design_name" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly value="<?php echo $mould_design_value[0] ?>">
+                <?php echo $mould_design_value[0] ?>
               
               </td>
               <td colspan="2">
-                 <input type="text" name="design_hour[]" id="design_hour" class="design_hour" value=<?php echo $mould_design_value[1] ?>>
+         		  <?php echo $mould_design_value[1] ?>
               </td>
               <td colspan="6">
-                 <input type="text" name="design_unit_price[]" id="design_unit_price" class="design_unit_price" value=<?php echo $mould_design_value[2] ?>>
+                <?php echo $mould_design_value[2] ?>
               </td>
               <td colspan="2">
-                <input type="text" name="design_price[]" class="design_price" id="design_price" value=<?php echo $mould_design_value[3] ?>>
+               <?php echo $mould_design_value[3] ?>
               </td>
                   <?php 
           	    
           	     if($i == 0){
           	     	echo '<td rowspan="4" id="total_designs">
-          	     		<input type="text" class="min_total" name="total_designs" value='.$array['total_designs'].'>
+          	     		'.$array['total_designs'].'
           	     		</td>  ';
           	     }
   	     $i++;
@@ -2171,23 +2161,23 @@ $(function(){
         	?>
            <tr class="manus_trs">
               <td colspan="4">
-                  <input name="mold_manufacturing[]" id="mold_manufacturing" class="mold_manufacturing" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly value="<?php echo $mould_manufacturing_value[0] ?>">
+                 <?php echo $mould_manufacturing_value[0] ?>
               
               </td>
               <td colspan="2">
-                  <input type="text" name="manufacturing_hour[]" id="manufacturing_hour" class="manufacturing_hour" value=<?php echo $mould_manufacturing_value[1] ?>>
+               <?php echo $mould_manufacturing_value[1] ?>
               </td>
               <td colspan="6">
-                  <input type="text" name="manufacturing_unit_price[]" id="manufacturing_unit_price" class="manufacturing_unit_price" value=<?php echo $mould_manufacturing_value[2] ?>>
+                 <?php echo $mould_manufacturing_value[2] ?>
               </td>
               <td colspan="2">
-               <input type="text" name="manufacturing_price[]" class="manufacturing_price" id="manufacuring_price" value=<?php echo $mould_manufacturing_value[3] ?>> 
+              	<?php echo $mould_manufacturing_value[3] ?>
               </td>
                       <?php 
           	    
           	     if($i == 0){
           	     	echo '<td rowspan="10" id="total_manufacturing">
-          	     	       <input type="text" class="min_total" name="total_manufacturing" value='.$array['total_manufacturing'].'>
+          	     	       '.$array['total_manufacturing'].'
           	     	 </td>  ';
           	     }
   	     $i++;
@@ -2206,20 +2196,20 @@ $(function(){
          	<?php $i = 0;foreach($arrs_others as $other_key=>$others_value){ ?>
            <tr class="others_trs">
           	    <td colspan="4">
-          	    	<input type="text" name="other_fee_name[]" value=<?php echo  $others_value[0] ?> readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
+          	    	<?php echo  $others_value[0] ?>
           	    </td>
           	   <td colspan="8">
           	   	
-		<input type="text" name="other_fee_instr[]" value="<?php echo $others_value[1] ?>" readonly style="width:500px">
+		<?php echo $others_value[1] ?>
 	   </td>
           	   <td colspan="2">
-          	       <input type="text" name="other_fee_price[]" class="other_fee fixed_fee" id="freight_fee" value=<?php echo $others_value[2] ?>>
+          	     	<?php echo $others_value[2] ?>
           	   </td>
           	    <?php 
 
           	    	if($i==0){ 
-          	     		echo '<td  rowspan="5" id="total_others">
-				<input type="text" name="total_others" value='.$array["total_others"].' id="tot_others" />
+          	     		echo '<td  rowspan="5" id="total_others" id="tot_other">
+				'.$array["total_others"].' 
           	   			</td>';
           		}
           	   $i++;
@@ -2228,37 +2218,37 @@ $(function(){
           <?php } ?>
            <tr class="others_trs" id="others_fees">
           	    <td colspan="4">
-		<input type="text" name="" value="管理费/Management Fee" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
+		管理费/Management Fee
           	    </td>
           	   <td colspan="8">
-		<input type="text" name="" readonly value="5%" placeholder="">
+		5%
           	   </td>
           	   <td colspan="2">
-          	        <input type="text" name="management_fee" class="other_fee" id="management_fee" value=<?php echo $array['management_fee'] ?>>
+          	       <?php echo $array['management_fee'] ?>
           	   </td>
      
           </tr>
            <tr class="others_trs">
           	    <td colspan="4">
-		<input type="text" name="" value="利润/Profit" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
+		利润/Profit
           	    </td>
           	   <td colspan="8">
-		<input type="text" name="" readonly value="10%" placeholder="">
+		10%
           	   </td>
           	   <td colspan="2">
-          	   	<input type="text" name="profit" class="other_fee" id="profit" value=<?php echo $array['profit'] ?>>
+          	   	<?php echo $array['profit'] ?>
           	   </td>
           
           </tr>
            <tr class="others_trs">
           	    <td colspan="4">
-		<input type="text" name="" value="税/VAT TAX(16%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
+		税/VAT TAX(16%)
           	    </td>
           	   <td colspan="8">
-		<input type="text" name="" readonly value="16%" placeholder="">
+		16%
           	   </td>
           	   <td colspan="2">
-          	        <input type="text" name="vat_tax" class="other_fee" id="vat_tax" value=<?php echo $array['vat_tax'] ?>
+		<?php echo $array['vat_tax'] ?>
           	   </td>
          
           </tr>
@@ -2267,36 +2257,25 @@ $(function(){
           <tr>
           	    <td colspan="5">模具价格(元)不含税/Mold Price without VAT(RMB)</td>
           	    <td colspan="11">
-          	    	 <input type="text" name="mold_price_rmb" id="mold_price_rmb" value=<?php echo $array['mold_price_rmb'] ?>>
+          	    	<?php echo $array['mold_price_rmb'] ?>
           	    </td>
           	</tr>
           	<tr>
           	    <td colspan="5">模具价格(USD)/Mold Price(USD) Rate=6.5</td>
           	    <td colspan="11">
-          	    	 <input type="text" name="mold_price_usd" id="mold_price_usd" value=<?php echo $array['mold_price_usd'] ?>>
+          	    	<?php echo $array['mold_price_usd'] ?>
           	    </td>
           	</tr>
           	<tr>
           	    <td colspan="5">模具价格(元)含17%增值税/Mold with VAT(RMB)</td>
           	    <td colspan="11">
-          	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value=<?php echo $array['mold_with_vat'] ?>>
+          	    	<?php echo $array['mold_with_vat'] ?>
           	    </td>
           </tr>
           <tr height="20"></tr>
-           <form action="mould_excel.php" name="mould_data" method="get">
-          <tr>
-          	   
-          	     	<input id="id" name="id[]" type="hidden" value="<?php echo $_GET['id'] ?>">
-          	     	<input id="act" name="action" type="hidden" value="mould_excel">
-     <td class="submit" style="border-style:none" colspan="16" align="center"><input type="submit" name="submit" id="submit" value="导出" class="button" />
-             
-        	    &nbsp;&nbsp;
-            <!--  <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-              <input type="hidden" name="action" value="<?php //echo $action; ?>" />--></td>
-              
-           </tr>
-           </form>
+
    </table>
+
   
   <?php
 		  
