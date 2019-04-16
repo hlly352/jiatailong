@@ -1,13 +1,28 @@
 <?php
-function ddd($value){
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 header("Content-type:application/vnd.ms-excel"); 
 header("Content-Disposition:attachment;filename=export_data.xls"); 
+$action = fun_check_action($_GET['action']);
 $employeeid = $_SESSION['employee_info']['employeeid'];
+//从网络上获取图片
+function http_get_data($url) {  
+      
+    $ch = curl_init ();  
+    curl_setopt ( $ch, CURLOPT_CUSTOMREQUEST, 'GET' );  
+    curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, false );  
+    curl_setopt ( $ch, CURLOPT_URL, $url );  
+    ob_start ();  
+    curl_exec ( $ch );  
+    $return_content = ob_get_contents ();  
+    ob_end_clean ();  
+      
+    $return_code = curl_getinfo ( $ch, CURLINFO_HTTP_CODE );  
+    return $return_content;  
+}  
+  
 
-
-
+?>  
 
 ?>
 
@@ -1645,12 +1660,12 @@ $(function(){
 
 <div id="table_sheet">
   <?php
-  /*if($action == 'mould_excel'){
-  	$mould_dataid = $_GET['id'];
-  	foreach($mould_dataid as $value){*/
+  if($action == 'mould_excel'){
+
+  		$mould_dataid = fun_check_int($_GET['id']);
 
 	  //查询模具报价的信息
-	  $sql = "SELECT * FROM `db_mould_data` WHERE `mould_dataid` = '$value'";
+	  $sql = "SELECT * FROM `db_mould_data` WHERE `mould_dataid` = '$mould_dataid'";
 
 	  $result = $db->query($sql);
 
@@ -1835,14 +1850,15 @@ $(function(){
 			$image_path = str_replace('..','http://localhost',$image_filepath);
 			//获取图片到本地
 			 $return_content = http_get_data($image_path);  
-			// var_dump($return_content);
-			$filename = 'test'.$value.'.jpg';  
+			 var_dump($return_content);
+			$filename = 'test3.jpg';  
 			//将文件绑定到流
 			$fp= fopen($filename,"w"); 
 			//写入文件 
 			fwrite($fp,$return_content); 
 			
-	 		 echo '<img src="http://localhost/mould_quote/test'.$value.'.jpg" width="100">';
+	  
+	 		 echo '<img src='.'./'.$filename.' width="150">';
 	  
 		   ?>
                	
@@ -2301,11 +2317,9 @@ $(function(){
   <?php
 		  
 	  }
-	
-  
+  }
   ?>
 </div>
 <?php include "../footer.php"; ?>
 </body>
 </html>
-<?php include 'mould_excel.php'; } ?>

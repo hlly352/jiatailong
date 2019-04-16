@@ -139,6 +139,11 @@ function getdate(timestamp) {
 				window.open('mould_show.php?action=show&id='+mold_dataid);
 			})
 		})
+	//提交批量导出
+	$('#export').live('click',function(){
+			document.list.action = 'export_total_excel.php';
+			document.list.submit();
+		})
 	
         	 })
 
@@ -171,8 +176,10 @@ function getdate(timestamp) {
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
           --
           <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
-        <td><input type="submit" name="submit" value="查找" class="button" />
+        <td><input type="submit" name="submit" value="查找" class="button" /></td>
+       <td><span id="export" style="width:70px;background:#ddd;display:block;height:25px;text-align:center;margin-left:25px;border:1px solid grey;line-height:25px;cursor:pointer">导出报价单</span></td>
       </tr>
+      
     </table>
   </form>
 </div>
@@ -195,7 +202,7 @@ function getdate(timestamp) {
 	  }
 	
   ?>
-  <form action="mould_excel.php?action=mould_excel" name="list" method="get">
+  <form action="mould_excel.php?action=mould_excel" name="list" id="list" method="get">
     <table>
       <tr>
         <th width="">ID</th>
@@ -324,13 +331,13 @@ function getdate(timestamp) {
       </tr> 
       <?php } ?>
     </table>
-    <div id="checkall">
+   <!-- <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
-      <input type="submit" name="submit" id="submit" value="导出" class="select_button" disabled="disabled" />
+      <input type="button" name="" id="" value="导出" class="select_button" disabled="disabled" />
       <input type="hidden" name="action" value="mould_excel" />
-    </div>
+    </div>-->
   </form>
   <div id="page">
     <?php $pages->getPage();?>
