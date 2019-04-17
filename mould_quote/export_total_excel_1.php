@@ -3,7 +3,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 $id = $_GET['id'];
-$employee = $_SESSION['employee_info']['employee_name'];
+
 if($id == null){
 	
 	header("location:mould_data_approval.php");
@@ -45,11 +45,7 @@ $objPHPExcel = new PHPExcel();
 $objPHPExcel->setActiveSheetIndex(0);
 //设置sheet的name
 $objPHPExcel->getActiveSheet()->settitle('Simple');
-$client_names = [];
 foreach($row as $key=>$val){
-	//判断是否是同一个客户
-	$client_names[] = $val['client_name'];
-	
 	//获取图片
 	$image_filepath = $val['upload_final_path'];
 	  if(stristr($image_filepath,'$') == true){
@@ -87,7 +83,13 @@ foreach($row as $key=>$val){
 $objPHPExcel->getActiveSheet()->setCellValue('A1', ' ');
 $objPHPExcel->getActiveSheet()->setCellValue('F1', 'JOTYLONG TOLLING');
 $objPHPExcel->getActiveSheet()->setCellValue('F3','Quotation');
+$objPHPExcel->getActiveSheet()->setCellValue('P3','No:JTL');
+$objPHPExcel->getActiveSheet()->setCellValue('A4', 'To:客户名称');
+$objPHPExcel->getActiveSheet()->setCellValue('A5', '联系人');
+$objPHPExcel->getActiveSheet()->setCellValue('A6', '项目名称');
 $objPHPExcel->getActiveSheet()->setCellValue('P4', 'Suzhou JoTyLong Industrial Co.,Ltd');
+$objPHPExcel->getActiveSheet()->setCellValue('P5', 'From:');
+$objPHPExcel->getActiveSheet()->setCellValue('P6','Date:');
 $objPHPExcel->getActiveSheet()->setCellValue('A7','Item');
 $objPHPExcel->getActiveSheet()->setCellValue('B7','Part Name');
 $objPHPExcel->getActiveSheet()->setCellValue('C7','Part Picture');
@@ -191,26 +193,6 @@ $arr_note = [
 	$num = $keys + 1;
 
 }
-$client_names = array_unique($client_names);
-if(count($client_names) == 1){
-	$client = $row[0]['client_name'];
-	$project = $row[0]['project_name'];
-	$contacts = $row[0]['contacts'];
-	$mold_no = 'JTL'.$row[0]['mold_id'];
-} else {
-	$client = 'All';
-	$project = 'All';
-	$contacts = 'All';
-	$mold_no = 'All';
-}
-//设置项目信息
-$now_time = date('Y-m-d',time());
-$objPHPExcel->getActiveSheet()->setCellValue('A4', 'To:'.$client);
-$objPHPExcel->getActiveSheet()->setCellValue('A5', 'Attn:'.$contacts);
-$objPHPExcel->getActiveSheet()->setCellValue('A6', 'Project Name:'.$project);
-$objPHPExcel->getActiveSheet()->setCellValue('P3','No:'.$mold_no);
-$objPHPExcel->getActiveSheet()->setCellValue('P5', 'From:'.$employee);
-$objPHPExcel->getActiveSheet()->setCellValue('P6','Date:'.$now_time);
 //设置总计
 $objPHPExcel->getActiveSheet()->setCellValue('A'.$num,'Total');
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$num.':M'.$num);
@@ -256,10 +238,6 @@ $objPHPExcel->getActiveSheet()->mergeCells('A4:D4');
 $objPHPExcel->getActiveSheet()->mergeCells('A5:D5');
 $objPHPExcel->getActiveSheet()->mergeCells('A6:D6');
 //设置单元格水平格式
-$nums = $num + 10;
-$nums = $num + 10;
-$ns = $nums +2;
-$ns = $nums +2;
 $objPHPExcel->getActiveSheet()->getstyle('A1')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
 $objPHPExcel->getActiveSheet()->getstyle('F1')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
 $objPHPExcel->getActiveSheet()->getstyle('F3')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
@@ -267,10 +245,10 @@ $objPHPExcel->getActiveSheet()->getstyle('P3')->getAlignment()->setHorizontal(PH
 $objPHPExcel->getActiveSheet()->getstyle('P4')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_RIGHT);
 $objPHPExcel->getActiveSheet()->getstyle('P5')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_RIGHT);
 $objPHPExcel->getActiveSheet()->getstyle('P6')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_RIGHT);
-$objPHPExcel->getActiveSheet()->getstyle('C'.$nums)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
-$objPHPExcel->getActiveSheet()->getstyle('M'.$nums)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
-$objPHPExcel->getActiveSheet()->getstyle('C'.$ns)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
-$objPHPExcel->getActiveSheet()->getstyle('M'.$ns)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->getstyle('C22')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->getstyle('M22')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->getstyle('C24')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->getstyle('M24')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
 
 
 //设置单元格垂直格式
@@ -345,9 +323,9 @@ $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
  $objPHPExcel->getActiveSheet()->getStyle('F1:L2')->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
  $objPHPExcel->getActiveSheet()->getStyle('A3:R3')->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
  $objPHPExcel->getActiveSheet()->getStyle('A7:R7')->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
- $objPHPExcel->getActiveSheet()->getStyle('C'.$ns.':E'.$ns)->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
- $objPHPExcel->getActiveSheet()->getStyle('M'.$ns.':Q'.$ns)->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
- $objPHPExcel->getActiveSheet()->getStyle('A'.$ns.':Q'.$ns)->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
+ $objPHPExcel->getActiveSheet()->getStyle('C23:E23')->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
+ $objPHPExcel->getActiveSheet()->getStyle('M23:Q23')->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
+ $objPHPExcel->getActiveSheet()->getStyle('A25:Q25')->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
  $objPHPExcel->getActiveSheet()->getStyle('A7:R'.$num)->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
   $objPHPExcel->getActiveSheet()->getStyle('A7:R'.$num)->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
    $objPHPExcel->getActiveSheet()->getStyle('R7:R'.$num)->getBorders()->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
