@@ -176,6 +176,7 @@ function getdate(timestamp) {
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
           --
           <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
+
         <td><input type="submit" name="submit" value="查找" class="button" /></td>
        <td><span id="export" style="width:70px;background:#ddd;display:block;height:25px;text-align:center;margin-left:25px;border:1px solid grey;line-height:25px;cursor:pointer">导出报价单</span></td>
       </tr>
@@ -310,7 +311,6 @@ function getdate(timestamp) {
         <td class="show_list"><?php echo $cavity_nu; ?></td>
         <td class="show_list"><?php echo $row['m_length'].'*'.$row['m_width'].'*'.$row['m_height']; ?></td>
         <td class="show_list"><?php echo $row['m_weight']; ?></td>
-        
         <td class="show_list"><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>
         <td>
         	<?php 
@@ -324,6 +324,7 @@ function getdate(timestamp) {
         <td class="show_list"><?php echo $row['tonnage']; ?></td>
         <td class="show_list">&yen;<?php echo $row['mold_price_rmb']; ?></td>
         <td class="show_list">&yen;<?php echo $row['mold_with_vat'] ?></td>
+
         <td><input type="button" class="but" value="查看"></button>&nbsp;<span class="mold_num"><?php echo $row['num'];        		
         	 ?><input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
