@@ -4,8 +4,10 @@ require_once '../function/function.php';
 require_once 'shell.php';
 //获取员工id
 $employeeid = $_SESSION['employee_info']['employeeid'];
+
 $sql_employee = "SELECT `db_employee`.`employee_name`,`db_employee`.`account`,`db_employee`.`employee_number`,`db_employee`.`phone`,`db_employee`.`extnum`,`db_employee`.`email`,`db_employee`.`photo_filedir`,`db_employee`.`photo_filename`,`db_department`.`dept_name`,`db_personnel_position`.`position_name`,`db_superior`.`employee_name` AS `superior_name` FROM `db_employee` INNER JOIN `db_department` ON `db_department`.`deptid` = `db_employee`.`deptid` INNER JOIN `db_personnel_position` ON `db_personnel_position`.`positionid` = `db_employee`.`positionid` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` = '$employeeid'";
 $result_employee = $db->query($sql_employee);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -49,6 +51,7 @@ $(function(){
 	  //我的出门证未审批
 	  $sql_my_goout = "SELECT `gooutid`,`goout_num`,`apply_date` FROM `db_employee_goout` WHERE `approve_status` = 'A' AND `goout_status` = 1 AND `applyer` = '$employeeid'";
 	  $result_my_goout = $db->query($sql_my_goout);
+
 	  //我的请假未审批
 	  $sql_my_leave = "SELECT `leaveid`,`leave_num`,`apply_date` FROM `db_employee_leave` WHERE `approve_status` = 'A' AND `leave_status` = 1 AND `applyer` = '$employeeid'";
 	  $result_my_leave = $db->query($sql_my_leave);
@@ -98,6 +101,7 @@ $(function(){
       <ul id="my_apply_list" style="display:none;">
         <?php if($total_apply){ ?>
         <?php
+
 		if($result_my_goout->num_rows){
 			while($row_my_goout = $result_my_goout->fetch_assoc()){
 		?>
@@ -321,6 +325,7 @@ $(function(){
     <div id="myjtl_program_list">
       <h4><?php echo $system_type_value; ?></h4>
       <?php
+
       if($result_system->num_rows){
 		  //最新公告
 		  $sql_notice = "SELECT * FROM `db_notice` WHERE DATEDIFF(CURDATE(),DATE_FORMAT(`dotime`,'%Y-%m-%d')) <= 7 AND `notice_status` = 1";

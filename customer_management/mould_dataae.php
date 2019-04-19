@@ -1694,7 +1694,7 @@ $(function(){
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5">
-   	     	<img src="../jtl.png" width="250" height="120" alt="logo">
+   	     	<img src="" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
@@ -2426,7 +2426,7 @@ $(function(){
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5">
-   	     	<img src="../jtl.png" width="250" height="120" alt="logo">
+   	     	<img src="" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
@@ -3184,7 +3184,7 @@ $(function(){
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5">
-   	     	<img src="../jtl.png" width="250" height="120" alt="logo">
+   	     	<img src="" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
@@ -3942,7 +3942,7 @@ $(function(){
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5">
-   	     	<img src="../jtl.png" width="250" height="120" alt="logo">
+   	     	<img src="" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
