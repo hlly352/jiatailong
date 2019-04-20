@@ -5,96 +5,35 @@ require_once '../function/function.php';
 require_once '../class/upload.php';
 require_once '../class/image.php';
 require_once 'shell.php';
-var_dump($_POST);exit;
+
 if($_POST['submit']){
 	$action = $_POST['action'];
-	if($action == 'add' || $action == 'edit' || $action == 'approval' || $action == 'approval_edit'){
-		//接受数据		
-		$data = $_POST;
-		$mould_dataid = $_POST['id'];
-		unset($data['id']);
-		$new_data = array();
-		foreach($data as $key=>$value){
-			//把值是数组的转换为字符串
-			if(is_array($value)){
-				$value = implode("$$",$value);
-			}
-			$new_data[$key] = $value; 
-		}
-		//如果更新图片,则删除图片字段
-		if(($_FILES['file']['tmp_name'][0]) != null){
-			unset($new_data['upload_final_path']);
-		}
-		unset($new_data['action']);
-		unset($new_data['submit']);
-
-		//遍历数组,获取字符串
-		$key_word = '';
-		$value_word = '';
-		 foreach($new_data as $k=>$v){
-		 	$key_word .= $k.'`,`';
-		 	$value_word .= $v.',';
-		 }
-		 //拼接数据库字段
-		 $key_word = '`'.$key_word;
-		 $key_word =  substr($key_word,0,strlen($key_word)-2);
-		//拼接要插入到数据库中的值
-		 $value_word = str_replace(',','","',$value_word);
-		 $value_word = '"'.$value_word;
-		 $value_word = substr($value_word,0,strlen($value_word)-2);
-
-		 //图片的存储路径
-	           $filedir = date("Ymd");
-		$upfiledir = "../upload/mould_image/".$filedir."/";
-		 //得到传输的数据
-		 if(($_FILES['file']['tmp_name'][0]) != null){
-			if($_FILES['file']['name']){
-				 //图片上传
-				$upload = new upload();
-				$upload->upload_files($upfiledir);
-				$target_path =  '';
-				$target_name = '';
-				$final_path = '';
-				$upload_final_path = '';
-				//图片上传后得到图片的信息
-				$upload_info = $upload->array_upload_files;
-				//从图片信息中提取图片的存储路径
-				foreach($upload_info as $key=>$value){
-					foreach($value as $ks=>$vs){
-			
-					if($ks == 'upload_target_path'){
-						$target_path = $vs;
-					} elseif($ks == 'upload_final_name'){
-						$target_name = $vs;
-					}
-					$final_path = $target_path.$target_name;
-				}
-				$upload_final_path .= $final_path.'$';
-				
-
-				}
-			}
-		}
-		}
+	if($action == 'add' || $action == 'edit'){
+		//接受客户信息
+		$customer_info = $_POST;
 		
-
+	}
 	if($action == 'add'){
-		//报价单号
-		$mold_id = FLOOR(RAND()*9000+1000);
-		//拼接数据库字段
-		$key_word .= ',`upload_final_path`,`time`,`mold_id`';
+		//拼接数据库语句
+		unset($customer_info['submit']);
+		unset($customer_info['action']);
+		$key_word = ' ';
+		$value_word = ' ';
+		//拼接sql 语句的字段和值
+		foreach($customer_info as $key => $value){
+			$key_word .= '`'.$key.'`,';
+			$value_word .= '"'.$value.'",';
+		}
 
-		//拼接上传数据
-		$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
-		$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id;
-		// $sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
-		$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
-		
-		//执行sql语句
-		$res = $db->query($sql);
+		$key_word = $key_word.'`add_time`';
+		$value_word = $value_word.time();
+		$sql = "INSERT INTO `db_customer_info` ($key_word) VALUES($value_word)";
+		//执行sql 语句
+		$result = $db->query($sql);
+
 		if($db->insert_id){
-			$id = $db->insert_id;		
-			header("location:mould_data.php");
+				
+			header("location:customer_index.php");
 		}
 	}elseif($action == 'edit'){
 		//报价单号

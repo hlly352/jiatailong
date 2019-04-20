@@ -4,6 +4,7 @@ var password_Boolean = false;
 var varconfirm_Boolean = false;
 var emaile_Boolean = false;
 var Mobile_Boolean = false;
+
 $('.reg_user').live('blur',function(){
   if ((/^[a-z0-9_-]{4,8}$/).test($(".reg_user").val())){
     $('.user_hint').html("客户名称正确").css("color","green");
@@ -61,10 +62,11 @@ $('.reg_mobile').live('blur',function(){
 });
 
 // click
-$('.red_button').live('click',function(){
+/*$('.red_button').live('click',function(){
   if(user_Boolean && password_Boolea && varconfirm_Boolean && emaile_Boolean && Mobile_Boolean == true){
     alert("添加成功");
   }else {
     alert("请完善信息");
+
   }
-});
+});*/

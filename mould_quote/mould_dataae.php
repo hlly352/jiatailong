@@ -514,7 +514,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.5/100/10;
+			var manu_unit_hour = total_machining*1.8/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -796,7 +796,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.5/100/10;
+			var manu_unit_hour = total_machining*1.8/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -973,7 +973,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.5/100/10;
+			var manu_unit_hour = total_machining*1.8/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -1145,7 +1145,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.5/100/10;
+			var manu_unit_hour = total_machining*1.8/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -1311,7 +1311,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.5/100/10;
+			var manu_unit_hour = total_machining*1.8/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -1643,6 +1643,38 @@ $(function(){
 		},1000);
 		
 	})
+	//提交时判断客户名称是否为空
+	$('#submit').click(function(){
+		var client_name = $('.client_name').val();
+		if(client_name == ' '){
+			alert('请选择客户名称')
+			$('.client_name').focus();
+			return false;
+		}
+	
+	})
+	//选择客户名称后,ajax 查询客户的其它信息
+	$('#client_name').change(function(){
+		var customer_name = $('#client_name').val();
+		//判断选择的值是否为空
+		     if(customer_name != ' '){
+			$.ajax({
+				'url':'../ajax_function/customer_info.php',
+				'data':{customer_name:customer_name},
+				'type':'post',
+				'dataType':'json',
+				'async':false,
+				'success':function(data){
+					$('#customer_contacts').val(data[0].customer_contacts);
+					$('#customer_phone').val(data[0].customer_phone);
+					$('#customer_email').val(data[0].customer_email);
+				},
+				'error':function(){
+					alert('获取客户信息失败');
+				}
+			})
+		}
+	})
 	
 })
 </script>
@@ -1657,6 +1689,12 @@ $(function(){
 	  $sql_employee = "SELECT `employee_name`,`phone`,`email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
 	  $result_employee = $db->query($sql_employee);
 	  $array_employee = $result_employee->fetch_assoc();
+	  $sql_customer = "SELECT `customer_name` FROM `db_customer_info`";
+	  $result_customer = $db->query($sql_customer);
+	  while( $customer_info = $result_customer->fetch_assoc()){
+	  	$array_customer[] = $customer_info; 
+	  }
+
   ?>
   <h4>模具数据添加</h4>
   <!--提交型腔的数量类型-->
@@ -1678,7 +1716,7 @@ $(function(){
 			alert("请选择正确文件类型");
 			return false;
 		}
-	})
+		})
  	})
  </script>
   <style type="text/css" media="screen">
@@ -1702,7 +1740,15 @@ $(function(){
    	     </td>
    	   <td style="width:186px;padding-right:20px">客户名称/Customer</td>
       	   <td style="width:186px;padding-right:0px">
-      	       <input type="text" name="client_name" style="width:125px;" />
+      	      <select name="client_name" class="client_name" id="client_name"  style="width:125px;height:25px">
+      	      		<option value=' '>请选择</option>
+      	      	<?php foreach($array_customer as $key=>$value){ 
+      	      		echo '<option  value="'.$value['customer_name'].'">'.$value['customer_name'].'</option>';
+      	      	}
+      	      		?>
+      
+      	
+      	      </select>
       	   </td>	
    	</tr>
    	<tr>
@@ -1714,19 +1760,19 @@ $(function(){
    	<tr>
       	  <td>联系人/Attention</td>
       	  <td>
-      	    <input type="text" name="contacts" value="<?php echo $array_employee['employee_name']; ?>" style="width:125px">
+      	    <input type="text" name="contacts" value="" id="customer_contacts" style="width:125px">
       	  </td>
            </tr>
            <tr>
       	  <td>电话/TEL</td>
       	  <td>
-      	    <input  type="text" name="tel" value="<?php echo $array_employee['phone']; ?>" style="width:125px"/>
+      	    <input  type="text" name="tel" value="" id="customer_phone" style="width:125px"/>
       	  </td>    
            </tr>
            <tr>
               <td>信箱/E-mail</td>
               <td>
-                 <input type="text" name="email" value="<?php echo $array_employee['email']; ?>" style="width:125px"/>
+                 <input type="text" name="email" value="" id="customer_email" style="width:125px"/>
              </td>  
            </tr>
            <tr>

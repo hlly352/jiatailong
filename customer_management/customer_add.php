@@ -34,7 +34,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	  $array_employee = $result_employee->fetch_assoc();
   ?>
   <h4>添加客户</h4>
-  
+
  
   <form action="customer_datado.php" name="customer_datado" method="post" enctype="multipart/form-data">
   <div class="reg_div">
@@ -42,38 +42,43 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
     <ul class="reg_ul">
       <li>
           <span>客户名称：</span>
-          <input type="text" name="customer_name" value="" placeholder="4-8位用户名" class="reg_user">
-          <span class="tip user_hint"></span>
+          <input type="text" name="customer_name" value="" placeholder="4-8位用户名" class="customer_name">
+          <span class="tip name_hint"></span>
       </li>
       <li>
           <span>客户代码：</span>
-          <input type="text" name="customer_code" value="" placeholder="4-8位用户名" class="reg_user">
-          <span class="tip user_hint"></span>
+          <input type="text" name="customer_code" value="" placeholder="" class="customer_code">
+          <span class="tip code_hint"></span>
+      </li>
+       <li>
+          <span>客户系数：</span>
+          <input type="text" name="customer_value" value="" placeholder="" class="customer_value">
+          <span class="tip value_hint"></span>
       </li>
       <li>
           <span>联系人：</span>
-          <input type="text" name="" value=""  placeholder="联系人姓名" class="reg_contacts">
+          <input type="text" name="customer_contacts" value=""  placeholder="联系人姓名" class="customer_contacts">
           <span class="tip contacts_hint"></span>
       </li>
         <li>
           <span>手机号码：</span>
-          <input type="email" name="" value="" placeholder="手机号" class="reg_mobile">
-          <span class="tip mobile_hint"></span>
+          <input type="text" name="customer_phone" value="" placeholder="手机号" class="customer_phone">
+          <span class="tip phone_hint"></span>
       </li>
         <li>
           <span>邮箱：</span>
-          <input type="text" name="" value="" placeholder="邮箱" class="reg_email">
+          <input type="text" name="customer_email" value="" placeholder="邮箱" class="customer_email">
           <span class="tip email_hint"></span>
       </li>
       <li>
           <span>地址：</span>
-          <input type="password" name="" value="" placeholder="确认密码" class="reg_confirm">
-          <span class="tip confirm_hint"></span>
+          <input type="text" name="customer_address" value="" placeholder="地址" class="customer_address">
+          <span class="tip address_hint"></span>
       </li>
     
-    
+    <input type="hidden" value="add" name="action" >
       <li>
-        <button type="submit" name="button" class="red_button">添加</button>
+        <button type="submit" value="add" name="submit" class="red_button">添加</button>
       </li>
     </ul>
   </div>

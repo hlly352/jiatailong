@@ -147,6 +147,7 @@ function getdate(timestamp) {
 	  }
 	  $array_mould_dataid = rtrim($array_mould_dataid,',');
 	  $sql_group = "SELECT `mould_dataid`,COUNT(*) AS `count` FROM `db_mould_quote` WHERE `mould_dataid` IN ($array_mould_dataid) AND `quote_status` = 1 GROUP BY `mould_dataid`";
+
 	  $result_group = $db->query($sql_group);
 	  if($result_group->num_rows){
 		  while($row_group = $result_group->fetch_assoc()){
@@ -155,8 +156,7 @@ function getdate(timestamp) {
 	  }else{
 		  $array_group = array();
 	  }
-	
-  ?>
+	  ?>
   <form action="mould_datado.php" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
