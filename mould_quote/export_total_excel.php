@@ -93,7 +93,7 @@ foreach($row as $key=>$val){
 	
 //设置单元格的值
 $objPHPExcel->getActiveSheet()->setCellValue('A1', ' ');
-$objPHPExcel->getActiveSheet()->setCellValue('C1', 'JOTYLONG TOLLING');
+$objPHPExcel->getActiveSheet()->setCellValue('C1', 'JOTYLONG TOOLING');
 $objPHPExcel->getActiveSheet()->setCellValue('C2','Quotation');
 $objPHPExcel->getActiveSheet()->setCellValue('P3', 'Suzhou JoTyLong Industrial Co.,Ltd');
 $objPHPExcel->getActiveSheet()->setCellValue('A6','Item');
@@ -106,7 +106,7 @@ $objPHPExcel->getActiveSheet()->setCellValue('G6','Mould Type');
 $objPHPExcel->getActiveSheet()->setCellValue('H6','Mould Size');
 $objPHPExcel->getActiveSheet()->setCellValue('I6','Mould weight');
 $objPHPExcel->getActiveSheet()->setCellValue('J6','Mould Base steel');
-$objPHPExcel->getActiveSheet()->setCellValue('K6','Cavity and Core Sheel');
+$objPHPExcel->getActiveSheet()->setCellValue('K6','Cavity and Core Steel');
 $objPHPExcel->getActiveSheet()->setCellValue('L6','Runner and Gate Type');
 $objPHPExcel->getActiveSheet()->setCellValue('M6','T1 Lead Time');
 $objPHPExcel->getActiveSheet()->setCellValue('N6','QTY');
@@ -177,7 +177,7 @@ $arr_note = [
         		} else {
         			$hot_runner = '无';
         		}
-        		$hot_price = $val['mold_with_vat'] - $arrs_standards[4][4];
+        		$hot_price = $val['mold_price_rmb'] - $arrs_standards[4][4];
 	$keys = $key +7;
 	$objPHPExcel->getActiveSheet()->setCellValue('A'.$keys,$key+1);
 	$objPHPExcel->getActiveSheet()->setCellValue('B'.$keys,$val['mould_name']);
@@ -194,7 +194,7 @@ $arr_note = [
 	$objPHPExcel->getActiveSheet()->setCellValue('N'.$keys,'1');
 	$objPHPExcel->getActiveSheet()->setCellValue('O'.$keys,$arrs_standards[4][4]);
 	$objPHPExcel->getActiveSheet()->setCellValue('P'.$keys,$hot_price);
-	$objPHPExcel->getActiveSheet()->setCellValue('Q'.$keys,$val['mold_with_vat']);
+	$objPHPExcel->getActiveSheet()->setCellValue('Q'.$keys,$val['mold_price_rmb']);
 	$objPHPExcel->getActiveSheet()->setCellValue('R'.$keys,' ');
 	$num = $keys + 1;
 
@@ -226,28 +226,28 @@ $objPHPExcel->getActiveSheet()->mergeCells('A'.$num.':M'.$num);
 //合并单元格说明文字的格式
 for($x = 1;$x<8;$x++){
 	$rows = $x+$num;
-	$row = $rows + 1;
+	$row = $rows ;
 	$objPHPExcel->getActiveSheet()->mergeCells('A'.$rows.':R'.$rows);
 	//设置说明文字的内容
-	$objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$arr_note[$x]);
+	$objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$arr_note[$x-1]);
 	}
 	$nu = $num + 8;
 
-$objPHPExcel->getActiveSheet()->mergeCells('C'.$nu.':E'.$nu);
-$objPHPExcel->getActiveSheet()->mergeCells('M'.$nu.':Q'.$nu);
+$objPHPExcel->getActiveSheet()->mergeCells('C'.$nu.':F'.$nu);
+$objPHPExcel->getActiveSheet()->mergeCells('L'.$nu.':P'.$nu);
 $objPHPExcel->getActiveSheet()->setCellValue('C'.$nu,'Suzhou JoTyLong Company');
-$objPHPExcel->getActiveSheet()->setCellValue('M'.$nu,'Confirmed & Accepted By');
+$objPHPExcel->getActiveSheet()->setCellValue('L'.$nu,'Confirmed & Accepted By');
 $nus = $nu +3;
-$objPHPExcel->getActiveSheet()->mergeCells('C'.$nus.':E'.$nus);
-$objPHPExcel->getActiveSheet()->mergeCells('M'.$nus.':Q'.$nus);
+$objPHPExcel->getActiveSheet()->mergeCells('C'.$nus.':F'.$nus);
+$objPHPExcel->getActiveSheet()->mergeCells('L'.$nus.':P'.$nus);
 $objPHPExcel->getActiveSheet()->setCellValue('C'.$nus,'Authorized Signatures');
-$objPHPExcel->getActiveSheet()->setCellValue('M'.$nus,'Please Sign & Return');
+$objPHPExcel->getActiveSheet()->setCellValue('L'.$nus,'Please Sign & Return');
 $nus = $nus+1;
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$nus.':R'.$nus);
 $objPHPExcel->getActiveSheet()->setCellValue('A'.$nus,'Add: No.1429 Cangzhong Road, Mudu Town,Suzhou City, Jiangsu Province, P.R.China');
 $nus = $nus+1;
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$nus.':R'.$nus);
-$objPHPExcel->getActiveSheet()->setCellValue('A'.$nus,'TEL:+86 0512-66932311   FAX:+86-0512-66933835   Webstie:www.jotylong.com     E-mail: market@jotylong.com');
+$objPHPExcel->getActiveSheet()->setCellValue('A'.$nus,'TEL:+86 0512-66932311   FAX:+86 0512-66933835   Webstie:www.jotylong.com     E-mail: market@jotylong.com');
 
 
 
@@ -273,9 +273,9 @@ $objPHPExcel->getActiveSheet()->getstyle('P4')->getAlignment()->setHorizontal(PH
 $objPHPExcel->getActiveSheet()->getstyle('P5')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_RIGHT);
 $objPHPExcel->getActiveSheet()->getstyle('P3')->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_RIGHT);
 $objPHPExcel->getActiveSheet()->getstyle('C'.$nums)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
-$objPHPExcel->getActiveSheet()->getstyle('M'.$nums)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->getstyle('L'.$nums)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
 $objPHPExcel->getActiveSheet()->getstyle('C'.$ns)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
-$objPHPExcel->getActiveSheet()->getstyle('M'.$ns)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->getstyle('L'.$ns)->getAlignment()->setHorizontal(PHPExcel_style_Alignment::HORIZONTAL_CENTER);
 
 
 //设置单元格垂直格式
@@ -306,7 +306,7 @@ $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth($m);
 $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth($m*2);
 $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth($m*2);
 $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth($m*2);
-$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth($m*2);
+$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth($m*1.5);
 $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth($m*1.5);
 $objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth($m);
 $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth($m*2);
@@ -350,9 +350,9 @@ $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
 //设置边框
  $objPHPExcel->getActiveSheet()->getStyle('A2:R2')->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
  $objPHPExcel->getActiveSheet()->getStyle('A6:R6')->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
- $objPHPExcel->getActiveSheet()->getStyle('C'.$ns.':E'.$ns)->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
- $objPHPExcel->getActiveSheet()->getStyle('M'.$ns.':Q'.$ns)->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
- $objPHPExcel->getActiveSheet()->getStyle('A'.$ns.':R'.$ns)->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
+ $objPHPExcel->getActiveSheet()->getStyle('C'.$ns.':F'.$ns)->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
+ $objPHPExcel->getActiveSheet()->getStyle('L'.$ns.':P'.$ns)->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
+ $objPHPExcel->getActiveSheet()->getStyle('A'.$ns.':R'.$ns)->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
  $objPHPExcel->getActiveSheet()->getStyle('A6:R'.$num)->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
   $objPHPExcel->getActiveSheet()->getStyle('A6:R'.$num)->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
    $objPHPExcel->getActiveSheet()->getStyle('R6:R'.$num)->getBorders()->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
@@ -360,15 +360,17 @@ $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
  $objPHPExcel->getActiveSheet()->getStyle('A6:R6')->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 //设置单元格字体和字号
 $objPHPExcel->getActiveSheet()->getStyle('A1:R'.$nus)->getFont()->setName('Arial')->setSize(8);
-$objPHPExcel->getActiveSheet()->getStyle('C1')->getFont()->setName('Arial')->setSize(16)->setUnderline(PHPExcel_Style_Font::UNDERLINE_SINGLE);;
-$objPHPExcel->getActiveSheet()->getStyle('C2')->getFont()->setName('Arial')->setSize(16);
+$objPHPExcel->getActiveSheet()->getStyle('C1')->getFont()->setName('Arial')->setSize(16)->setUnderline(PHPExcel_Style_Font::UNDERLINE_SINGLE)->setBold(true);
+$objPHPExcel->getActiveSheet()->getStyle('C2')->getFont()->setName('Arial')->setSize(16)->setBold(true);
+//表头的字体大小
+$objPHPExcel->getActiveSheet()->getStyle('A6:R6')->getFont()->setName('Arial')->setSize(7);
 
-
-
+//设置时间格式
+$now_time = date('Ymd',time());
 // 输出Excel表格到浏览器下载
  ob_end_clean();
 header('Content-Type: application/vnd.ms-excel');
-header('Content-Disposition: attachment;filename="'.$project.'-v'.$version[0].'-'.$now_time.'.xls"');
+header('Content-Disposition: attachment;filename="'.$project.'-V'.$version[0].'-'.$now_time.'.xls"');
 header('Cache-Control: max-age=0');
 // If you're serving to IE 9, then the following may be needed
 header('Cache-Control: max-age=1');

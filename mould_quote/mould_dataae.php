@@ -18,6 +18,91 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 <script language="javascript" type="text/javascript">
 
 $(function(){
+	function change(vals){
+			var total_machining = 0;
+		if(!(vals.attr('class') == 'material_weight' || vals.attr('class') == 'material_unit_price' || vals.attr('class') == 'material_price')){
+			
+			//求模架的重量
+		
+			var base_weight = ($("#base_length").val()/1000)*($("#base_width").val()/1000)*($("#base_height").val()/1000)*600;
+			base_weight = parseInt(base_weight);
+			
+			$("#base_weight").val(base_weight);
+		}
+			var mould_num = $(".mould_material").size();
+			for(var i = 0;i < mould_num; i++){
+
+			//求出模架尺寸后计算材料费的金额
+			 var prices  = (parseInt($(".material_weight").eq(i).val()))*(parseInt($(".materials_number").eq(i).val()))*(parseInt($(".material_unit_price").eq(i).val()));
+			if(!isNaN(prices)){
+				//得到的价格不是NaN则赋值
+				
+					$(".material_price").eq(i).val(prices);
+					total_machining += parseInt(prices);
+					
+				}
+			}
+		//计算总金额
+		$("#total_machining").children().val(total_machining);
+		//添加模具尺寸和模具重量
+		$("#m_length").val($("#base_length").val());
+		$("#m_width").val($("#base_width").val());
+		$("#m_height").val($("#base_height").val());
+		$("#m_weight").val($("#base_weight").val());
+	
+	 		//输入产品大小后计算设计费的工时
+			var design_unit_hour = Math.round(total_machining*0.15/100/4);
+			var design_num = $(".design_hour").size();
+			for(var n=0;n<design_num;n++){
+				$(".design_hour").eq(n).val(design_unit_hour);
+			}
+			//输入产品大小后计算加工费的工时
+			var manu_unit_hour = total_machining*standard_ratio/100/10;
+			var manu_num = $(".mold_manufacturing").size();
+		
+			for(var e = 0; e<manu_num;e++){
+				switch($(".mold_manufacturing").eq(e).val()) {
+					case '一般机床/Maching':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour));
+						break;
+					case '磨床/Grinding':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.6));
+						break;
+					case '数控机床/CNC':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*1.2));
+						break;
+					case '精密数控机床':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.8));
+						break;
+					case '线切割/W.C.':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.8));
+						break;
+					case '电火花/EDM':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour));
+						break;
+					case '抛光/Polish':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour));
+						break;
+					case '钳工/Fitting':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.8));
+						break;
+					case '激光烧焊/Laser Welding':
+						$(".manufacturing_hour").eq(e).val(parseInt(manu_unit_hour*0.8));
+						break;
+				}
+			//产品大小输入后计算设计费金额
+			$(".design_price").eq(e).val(($(".design_hour").eq(e).val())*($(".design_unit_price").eq(e).val()));
+			
+			sum_tds(".design_trs",1,2,"#total_designs");
+			//产品大小输入后计算加工费金额
+			$(".manufacturing_price").eq(e).val(($(".manufacturing_hour").eq(e).val())*($(".manufacturing_unit_price").eq(e).val()));
+			}
+			sum_tds(".manus_trs",1,2,"#total_manufacturing")
+		
+
+		//计算其它费用及模具价格
+	    	sum_other_fee();
+	}
 	//统计第一列需要合并的单元格个数
 	function count_trs(trs_name,tds_name,trs_total){
 		//判断型腔数对合并行的影响
@@ -110,7 +195,7 @@ $(function(){
 	   	var sum_except_others =  (parseInt(fixed_fee_sum) + parseInt(min_tot));
 	   	$("#management_fee").val(parseInt(sum_except_others*0.05));
 	   	$("#profit").val(parseInt(sum_except_others*0.1));
-	   	$("#vat_tax").val(parseInt(sum_except_others*0.16));
+	   	$("#vat_tax").val(parseInt(sum_except_others*0.13));
 	   	//计算其它费用的小计
 	   	var other_num = $(".other_fee").size();
 	   	var tot_others = 0;
@@ -121,7 +206,7 @@ $(function(){
 	   	$("#tot_others").val(tot_others);
 	   	//计算模具的价格
 	   	var price_with_vat = tot_others+min_tot;
-	   	$("#mold_price_rmb").val(price_with_vat - parseInt(sum_except_others*0.16));
+	   	$("#mold_price_rmb").val(price_with_vat - parseInt(sum_except_others*0.13));
 	   	$("#mold_price_usd").val(parseInt(price_with_vat/6.5));
 	   	$("#mold_with_vat").val(price_with_vat);
 	}
@@ -495,18 +580,7 @@ $(function(){
 		
 		//计算总金额
 		$("#total_machining").children().val(total_machining);
-		//输入产品大小后计算淬火的重量   
-		var handened_weight = 0;
-		for(var j = 0;j < mould_num; j++){
-			if($(".mould_material").eq(j).val().indexOf('型腔') !=-1 || $(".mould_material").eq(j).val().indexOf('型芯') !=-1 || $(".mould_material").eq(j).val().indexOf('滑块') !=-1 || $(".mould_material").eq(j).val().indexOf('镶件') !=-1 ){
-				var res_weight = parseInt($(".material_weight").eq(j).val())?parseInt($(".material_weight").eq(j).val()):0;
-				handened_weight +=res_weight;
-
-			}
-			}
-			$(".heat_weight").eq(1).val(handened_weight);
-			//输入产品大小后设置热处理的金额计算
-	 		sum_tds(".heat_trs",1,2,"#total_heats");
+	
 	 		//输入产品大小后计算设计费的工时
 			var design_unit_hour = Math.round(total_machining*0.15/100/4);
 			var design_num = $(".design_hour").size();
@@ -514,7 +588,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.8/100/10;
+			var manu_unit_hour = total_machining*standard_ratio/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -743,7 +817,7 @@ $(function(){
 		
 		}
 		//获取最高的型腔高度
-		max_height = max_height +100;
+		
 		if(!isNaN(cavity_length_sum)){
 			$("#style_length_sum").val(cavity_length_sum);
 			$("#style_width_sum").val(cavity_width_sum);
@@ -777,18 +851,7 @@ $(function(){
 		$("#m_width").val($("#base_width").val());
 		$("#m_height").val($("#base_height").val());
 		$("#m_weight").val($("#base_weight").val());
-		//输入产品大小后计算淬火的重量
-		var handened_weight = 0;
-		for(var j = 0;j < mould_num; j++){
-			if($(".mould_material").eq(j).val().indexOf('型腔') !=-1 || $(".mould_material").eq(j).val().indexOf('型芯') !=-1 || $(".mould_material").eq(j).val().indexOf('滑块') !=-1 || $(".mould_material").eq(j).val().indexOf('镶件') !=-1 ){
-				var res_weight = parseInt($(".material_weight").eq(j).val())?parseInt($(".material_weight").eq(j).val()):0;
-				handened_weight +=res_weight;
-
-			}
-			}
-			$(".heat_weight").eq(1).val(handened_weight);
-			//输入产品大小后设置热处理的金额计算
-	 		sum_tds(".heat_trs",1,2,"#total_heats");
+	
 	 		//输入产品大小后计算设计费的工时
 			var design_unit_hour = Math.round(total_machining*0.15/100/4);
 			var design_num = $(".design_hour").size();
@@ -796,9 +859,9 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.8/100/10;
+			var manu_unit_hour = total_machining*standard_ratio/100/10;
 			var manu_num = $(".mold_manufacturing").size();
-			
+		
 			for(var e = 0; e<manu_num;e++){
 				switch($(".mold_manufacturing").eq(e).val()) {
 					case '一般机床/Maching':
@@ -954,18 +1017,7 @@ $(function(){
 		$("#m_width").val($("#base_width").val());
 		$("#m_height").val($("#base_height").val());
 		$("#m_weight").val($("#base_weight").val());
-		//输入产品大小后计算淬火的重量
-		var handened_weight = 0;
-		for(var j = 0;j < mould_num; j++){
-			if($(".mould_material").eq(j).val().indexOf('型腔') !=-1 || $(".mould_material").eq(j).val().indexOf('型芯') !=-1 || $(".mould_material").eq(j).val().indexOf('滑块') !=-1 || $(".mould_material").eq(j).val().indexOf('镶件') !=-1 ){
-				var res_weight = parseInt($(".material_weight").eq(j).val())?parseInt($(".material_weight").eq(j).val()):0;
-				handened_weight +=res_weight;
-
-			}
-			}
-			$(".heat_weight").eq(1).val(handened_weight);
-			//输入产品大小后设置热处理的金额计算
-	 		sum_tds(".heat_trs",1,2,"#total_heats");
+	
 	 		//输入产品大小后计算设计费的工时
 			var design_unit_hour = Math.round(total_machining*0.15/100/4);
 			var design_num = $(".design_hour").size();
@@ -973,7 +1025,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.8/100/10;
+			var manu_unit_hour = total_machining*standard_ratio/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -1126,18 +1178,8 @@ $(function(){
 			
 		//计算总金额
 		$("#total_machining").children().val(total_machining);
-		//输入产品大小后计算淬火的重量
-		var handened_weight = 0;
-		for(var j = 0;j < mould_num; j++){
-			if($(".mould_material").eq(j).val().indexOf('型腔') !=-1 || $(".mould_material").eq(j).val().indexOf('型芯') !=-1 || $(".mould_material").eq(j).val().indexOf('滑块') !=-1 || $(".mould_material").eq(j).val().indexOf('镶件') !=-1 ){
-				var res_weight = parseInt($(".material_weight").eq(j).val())?parseInt($(".material_weight").eq(j).val()):0;
-				handened_weight +=res_weight;
 
-			}
-			}
-			$(".heat_weight").eq(1).val(handened_weight);
-			//输入产品大小后设置热处理的金额计算
-	 		sum_tds(".heat_trs",1,2,"#total_heats");
+
 	 		//输入产品大小后计算设计费的工时
 			var design_unit_hour = Math.round(total_machining*0.15/100/4);
 			var design_num = $(".design_hour").size();
@@ -1145,7 +1187,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.8/100/10;
+			var manu_unit_hour = total_machining*standard_ratio/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -1260,11 +1302,36 @@ $(function(){
 			//输入产品大小后计算型腔的尺寸
 			for(var i = 0;i < mould_num; i++){
 				if($(".mould_material").eq(i).val() == '型腔'+no1+'/Cavity' || $(".mould_material").eq(i).val() == '型芯'+no1+'/Core' ){
-					 $(".material_length").eq(i).val(parseFloat(p_length)+110);
-					 $(".material_width").eq(i).val(parseFloat(p_width)+110);
-					 $(".material_height").eq(i).val(parseFloat(p_height)+100);
+					//计算型腔和型芯的尺寸
+					if(p_length <50){
+						$('.material_length').eq(i).val(70);
+					} else {
+						if(p_height >40 && p_height< 60){
+							$('.material_length').eq(i).val(parseInt(p_length*1.2+80));
+						} else if(p_height<=60 && p_height< 80) {
+							$('.material_length').eq(i).val(parseInt(p_length*1.2+90));
+						} else if(p_height<80 && p_height<100) {
+							$('.material_length').eq(i).val(parseInt(p_length*1.2+100));
+						} else if(p_length >= 100) {
+							$('.material_length').eq(i).val(parseInt(p_length * 1.2+110));
+						}
+					}
+					if(p_width <50){
+						$('.material_width').eq(i).val(70);
+					} else {
+						if(p_height >40 && p_height< 60){
+							$('.material_width').eq(i).val(parseInt(p_width*1.2+80));
+						} else if(p_height<=60 && p_height< 80) {
+							$('.material_width').eq(i).val(parseInt(p_width*1.2+90));
+						} else if(p_height<80 && p_height<100) {
+							$('.material_width').eq(i).val(parseInt(p_width*1.2+100));
+						} else if(p_length >= 100) {
+							$('.material_width').eq(i).val(parseInt(p_width * 1.2+110));
+						}
+					}
+					$('.material_height').eq(i).val(parseInt(p_height * 1.2 +40));
 					//输入产品大小后计算型腔和型芯的重量
-					var wei = ((parseFloat(p_length)+110)/1000)*((parseFloat(p_width)+110)/1000)*((parseFloat(p_height)+100)/1000)*7800;
+					var wei = (parseInt($('.material_length').eq(i).val())/1000)*(parseInt($('.material_width').eq(i).val())/1000)*(parseInt($('.material_height').eq(i).val()) /1000)*7800;
 					wei = Math.round(wei);
 					$('.material_weight').eq(i).val(wei);
 			
@@ -1280,30 +1347,15 @@ $(function(){
 					$('.material_weight').eq(i).val(wei);
 				}
 				//输入产品大小后计算材料费的金额
-			 	var prices  = ($(".material_weight").eq(i).val())*($(".materials_number").eq(i).val())*($(".material_unit_price").eq(i).val());
+			 	var prices  = (parseInt($(".material_weight").eq(i).val()))*(parseInt($(".materials_number").eq(i).val()))*(parseInt($(".material_unit_price").eq(i).val()));
 			 	
 				$(".material_price").eq(i).val(prices);
-				total_machining += parseFloat($(".material_price").eq(i).val());
+				total_machining += parseInt($(".material_price").eq(i).val());
 				}
 						
 		//计算总金额
 		$("#total_machining").children().val(total_machining);
-		//输入产品大小后计算淬火的重量
-		var handened_weight = 0;
-		for(var j = 0;j < mould_num; j++){
-			if($(".mould_material").eq(j).val().indexOf('型腔') !=-1 || $(".mould_material").eq(j).val().indexOf('型芯') !=-1 || $(".mould_material").eq(j).val().indexOf('滑块') !=-1 || $(".mould_material").eq(j).val().indexOf('镶件') !=-1 ){
-				var res_weight = parseInt($(".material_weight").eq(j).val())?parseInt($(".material_weight").eq(j).val()):0;
-				handened_weight +=res_weight;
-
-			}
-			}
-			$(".heat_weight").eq(1).val(handened_weight);
-			//输入产品大小后设置热处理的金额计算
-			var heat_num = $(".heat_unit_price").size();
-			for(var v=0;v<heat_num;v++){
-				$('.heat_price').eq(v).val(parseInt(parseInt($('.heat_weight').eq(v).val())*parseInt($('.heat_unit_price').eq(v).val())));
-			}
-	 		sum_tds(".heat_trs",1,2,"#total_heats");
+	
 	 		//输入产品大小后计算设计费的工时
 			var design_unit_hour = Math.round(total_machining*0.15/100/4);
 			var design_num = $(".design_hour").size();
@@ -1311,7 +1363,7 @@ $(function(){
 				$(".design_hour").eq(n).val(design_unit_hour);
 			}
 			//输入产品大小后计算加工费的工时
-			var manu_unit_hour = total_machining*1.8/100/10;
+			var manu_unit_hour = total_machining*standard_ratio/100/10;
 			var manu_num = $(".mold_manufacturing").size();
 			
 			for(var e = 0; e<manu_num;e++){
@@ -1385,25 +1437,25 @@ $(function(){
 		//设置默认单价
 		switch($(".mold_standard").eq(s).val()) {
 			case '镶件、日期章/Inserts':
-				$(".standard_unit_price").eq(s).val(5000);
+				$(".standard_unit_price").eq(s).val(4000);
 				break;
 			case '顶杆、顶管/Ejection Pin\\Sleeve':
-				$(".standard_unit_price").eq(s).val(5000);
+				$(".standard_unit_price").eq(s).val(4000);
 				break;
 			case '水管、油管接头/Connector':
-				$(".standard_unit_price").eq(s).val(8000);
+				$(".standard_unit_price").eq(s).val(4000);
 				break;
 			case '标准件/Standard Components':
-				$(".standard_unit_price").eq(s).val(16000);
+				$(".standard_unit_price").eq(s).val(8000);
 				break;
 			case '热流道/Hot Runner':
-				$(".standard_unit_price").eq(s).val(10000);
+				$(".standard_unit_price").eq(s).val(0);
 				break;
 			case '温控器/Temp Controller':
-				$(".standard_unit_price").eq(s).val(8000);
+				$(".standard_unit_price").eq(s).val(2000);
 				break;
 			case '油缸/Hydro-cylinder':
-				$(".standard_unit_price").eq(s).val(8000);
+				$(".standard_unit_price").eq(s).val(2000);
 				break;
 		}
 		//计算配件费金额
@@ -1466,10 +1518,7 @@ $(function(){
 				$(".material_price").eq(t).val(prices);
 				total_machinings += parseInt($(".material_price").eq(t).val());
 			}
-			//计算总金额
-			$("#total_machining").children().val(total_machinings);
-			//计算其它费用及模具价格
-	    		sum_other_fee();
+			change();
 		}
 	})
 	//更改其它费用后重新计算金额
@@ -1478,20 +1527,31 @@ $(function(){
 	})
 	//更改材料重量和单价后重新计算金额
 	$(".material_weight,.material_unit_price,.materials_number").live('change',function(){
-		var mould_nums = $(".mould_material").size();
-		var total_machinings = 0;
-		
-		for(var t=0;t<mould_nums;t++){
-			var prices  = ($(".material_weight").eq(t).val())*($(".materials_number").eq(t).val())*($(".material_unit_price").eq(t).val());
-			
-			$(".material_price").eq(t).val(prices);
-			total_machinings += parseInt($(".material_price").eq(t).val());
-		}
-		//计算总金额
-		$("#total_machining").children().val(total_machinings);
-		//计算其它费用及模具价格
-	    	sum_other_fee();
+		change($(this));
 
+	})
+	//更改材料重量时
+	$('.material_weight').live('blur',function(){
+			var heat_weight = 0;
+			var m = $('.material_specification').size();
+			//计算淬火的重量
+			for(var r=0;r<m;r++){
+				var material_vals = $('.material_specification').eq(r).val();
+				if($.inArray(material_vals,pre_steel) != -1){
+					if($('material_weight').eq(r).val() != ' '){
+						heat_weight += parseInt($('.material_weight').eq(r).val());
+					 
+					}
+				}
+			}
+			
+			$('.heat_weight').eq(1).val(heat_weight);
+			 //输入产品大小后设置热处理的金额计算
+			      var heat_num = $(".heat_unit_price").size();
+			      for(var v=0;v<heat_num;v++){
+			        $('.heat_price').eq(v).val(parseInt(parseInt($('.heat_weight').eq(v).val())*parseInt($('.heat_unit_price').eq(v).val())));
+			      }
+			      sum_tds(".heat_trs",1,2,"#total_heats");
 	})
 	//更改设计费的单价和工时后重新计算金额
 	$(".design_hour,.design_unit_price").live('blur',function(){
@@ -1598,8 +1658,8 @@ $(function(){
 			}
 
 	/*数组 - 包含所有材料牌号*/
-	var material_spe = ["45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)"];
-
+	var material_spe = ["45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)","Cu"];
+	var standard_supplier = ["LKM","Mold Masters","ynventive","INCOE","GUNTHER","YUDO","HASCO","DME","STAUBLI","MiSUMi","HEB","TAIYD","Parker","VEGA","HPS"];
 	/*调用函数传递参数--材料牌号*/
 	var material_myInput = $(".material_specification").size();
 	for(var u=0;u<material_myInput;u++){
@@ -1613,16 +1673,97 @@ $(function(){
 	//调用函数--模具品牌
 	var material_myInput = $(".standard_supplier").size();
 	for(var u=0;u<material_myInput;u++){
-		autocomplete($(".standard_supplier")[u], material_spe);
+		autocomplete($(".standard_supplier")[u], standard_supplier);
 	}
+	//材料的类别
+	var pre_steel = ["45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)"];
 	//材料牌号发生改变,动态更改单价
+	standard_ratio = 2;
+	var handened_heat = 0;
 	$(".material_specification").live('change',function(){
+		
 		//ajax查询对应材料的价格
-		setInterval(function(){
-			var material_num = $(".material_specification").size();
-			for(var m=0;m<material_num;m++){
-			var material_name = $(".material_specification").eq(m).val();
+		var m = $(".material_specification").index($(this));
+		setTimeout(function(){
+			//判断是否是是型腔或者型芯的材料
+			
+			if(m == 1){
+				//判断型腔
+				var cavity_val = $('.material_specification').eq(m).val();
+				var cavity_bool = $.inArray(cavity_val,pre_steel);
+				if(cavity_bool != -1){
+					var cavity_boolbean = true;
+				} else {
+					var cavity_boolbean = false;
+				}
+				//判断型芯
+				var core_val = $('.material_specification').eq(m+1).val();
+				var core_bool = $.inArray(core_val,pre_steel);
 
+				if(core_bool != -1){
+	
+					var core_boolbean = true;
+				} else {
+					var core_boolbean = false;
+				}
+				
+				}
+				
+			if(m == 2){
+
+					//判断型腔
+				var cavity_val = $('.material_specification').eq(m - 1).val();
+				var cavity_bool = $.inArray(cavity_val,pre_steel);
+				if(cavity_bool != -1){
+					var cavity_boolbean = true;
+				} else {
+					var cavity_boolbean = false;
+				}
+				//判断型芯
+				var core_val = $('.material_specification').eq(m).val();
+				var core_bool = $.inArray(core_val,pre_steel);
+				if(core_bool != -1){
+					var core_boolbean = true;
+				} else {
+					var core_boolbean = false;
+				}
+				}
+				//更改材料重量时
+		
+				var heat_weight = 0;
+				var m = $('.material_specification').size();
+				//计算淬火的重量
+				for(var r=0;r<m;r++){
+					var material_vals = $('.material_specification').eq(r).val();
+					if($.inArray(material_vals,pre_steel) != -1){
+						if($('material_weight').eq(r).val() != ' '){
+							heat_weight += parseInt($('.material_weight').eq(r).val());
+							
+						}
+					}
+				}
+				
+			$('.heat_weight').eq(1).val(heat_weight);
+			 //输入产品大小后设置热处理的金额计算
+			      var heat_num = $(".heat_unit_price").size();
+			      for(var v=0;v<heat_num;v++){
+			        $('.heat_price').eq(v).val(parseInt(parseInt($('.heat_weight').eq(v).val())*parseInt($('.heat_unit_price').eq(v).val())));
+			      }
+			      sum_tds(".heat_trs",1,2,"#total_heats");
+			//设置加工费的系数
+			if(cavity_boolbean && core_boolbean){
+				standard_ratio = 1.5;
+			} else if(cavity_boolbean || core_boolbean) {
+				standard_ratio = 1.75;
+			} else if(!(cavity_boolbean && core_boolbean)){
+				standard_ratio = 2;
+			}
+
+			//获取材料的单价
+			var material_num = $(".material_specification").size();
+	
+			var material_name = $(".material_specification").eq(m).val();
+			
 			$.ajax({
 			'url':'../ajax_function/mould_material_specification.php',
 			'data':{material_name:material_name},
@@ -1632,17 +1773,20 @@ $(function(){
 			'success':function(data){
 				if(data != null){
 					$(".material_unit_price").eq(m).val(data);
-					$(".material_unit_price").change();
+					
+					change();
 				}   
 			},
 			'error':function(){
 				alert('无法查找单价,请自行修改');
 			}
 		})
-		}
-		},1000);
+	
+		},2000);
 		
 	})
+	
+			
 	//提交时判断客户名称是否为空
 	$('#submit').click(function(){
 		var client_name = $('.client_name').val();
@@ -1678,7 +1822,7 @@ $(function(){
 	
 })
 </script>
-<title>模具报价-希尔林</title>
+<title>模具报价-嘉泰隆</title>
 </head>
 
 <body>
@@ -1731,8 +1875,8 @@ $(function(){
    	<input type="hidden" name="employeeid" value=<?php echo $employeeid ?> />
    	<!--基本信息-->
    	<tr>
-   	     <td colspan="5" rowspan="5">
-   	     	<img src="../jtl.png" width="250" height="120" alt="logo">
+   	     <td colspan="5" rowspan="5" style="text-align:center">
+   	     	<img src="../jtl.png" width="200" height="100" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
@@ -1935,11 +2079,11 @@ $(function(){
     
     		</td>
     	</tr>
-           <!--加工材料费-->
+           <!--材料费-->
            <tr id="material_last_tr">
                <td id="material_first_td" rowspan="9">材料加工费/Machining Materia</td> 	
                <td colspan="4">材料名称/Material</td>
-               <td>材料牌号/Specification</td>
+               <td >材料牌号/Specification</td>
                <td>数量/Number</td>
                <td colspan="5">尺寸/Size(mm*mm*mm)</td>
                <td style="width:93px">总重量/Weight(kg)</td>
@@ -2093,7 +2237,7 @@ $(function(){
       	</td>
       	<td colspan="2">
       		<div class="autocomplete">
-    			<input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" placeholder="输入规格">
+    			<input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" placeholder="输入规格" style="width:183px">
   	       </div> 
       	   <!-- <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification">-->
       	</td>
@@ -2284,10 +2428,10 @@ $(function(){
           </tr>
            <tr class="others_trs">
           	    <td colspan="4">
-		<input type="text" name="" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" value="税/VAT TAX(16%)" readonly /> 
+		<input type="text" name="" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" value="税/VAT TAX(13%)" readonly /> 
           	    </td>
           	   <td colspan="8">
-		<input type="text" name="" readonly value="16%" placeholder="">
+		<input type="text" name="" readonly value="13%" placeholder="">
           	   </td>
           	   <td colspan="2">
           	        <input type="text" name="vat_tax" class="other_fee" id="vat_tax" value="0">
@@ -2315,7 +2459,7 @@ $(function(){
           	    </td>
           	</tr>
           	<tr>
-          	    <td colspan="5">模具价格(元)含17%增值税/Mold with VAT(RMB)</td>
+          	    <td colspan="5">模具价格(元)含13%增值税/Mold with VAT(RMB)</td>
           	    <td colspan="11">
           	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="0">
           	    </td>
@@ -2471,8 +2615,8 @@ $(function(){
    	<input type="hidden" name="upload_final_path" value="<?php echo $array['upload_final_path'] ?>">
    	<!--基本信息-->
    	<tr>
-   	     <td colspan="5" rowspan="5">
-   	     	<img src="../jtl.png" width="250" height="120" alt="logo">
+   	     <td colspan="5" rowspan="5" style="text-align:center">
+   	     	<img src="../jtl.png" width="200" height="100" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
@@ -3071,7 +3215,7 @@ $(function(){
           	    </td>
           	</tr>
           	<tr>
-          	    <td colspan="5">模具价格(元)含17%增值税/Mold with VAT(RMB)</td>
+          	    <td colspan="5">模具价格(元)含13%增值税/Mold with VAT(RMB)</td>
           	    <td colspan="11">
           	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value=<?php echo $array['mold_with_vat'] ?>>
           	    </td>
@@ -3229,8 +3373,8 @@ $(function(){
    	<input type="hidden" name="upload_final_path" value="<?php echo $array['upload_final_path'] ?>">
    	<!--基本信息-->
    	<tr>
-   	     <td colspan="5" rowspan="5">
-   	     	<img src="../jtl.png" width="250" height="120" alt="logo">
+   	     <td colspan="5" rowspan="5" style="text-align:center">
+   	     	<img src="../jtl.png" width="200" height="100" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
@@ -3829,7 +3973,7 @@ $(function(){
           	    </td>
           	</tr>
           	<tr>
-          	    <td colspan="5">模具价格(元)含17%增值税/Mold with VAT(RMB)</td>
+          	    <td colspan="5">模具价格(元)含13%增值税/Mold with VAT(RMB)</td>
           	    <td colspan="11">
           	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value=<?php echo $array['mold_with_vat'] ?>>
           	    </td>
@@ -3987,8 +4131,8 @@ $(function(){
    	<input type="hidden" name="upload_final_path" value="<?php echo $array['upload_final_path'] ?>">
    	<!--基本信息-->
    	<tr>
-   	     <td colspan="5" rowspan="5">
-   	     	<img src="../jtl.png" width="250" height="120" alt="logo">
+   	     <td colspan="5" rowspan="5" style="text-align:center">
+   	     	<img src="../jtl.png" width="200" height="100" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
@@ -4587,7 +4731,7 @@ $(function(){
           	    </td>
           	</tr>
           	<tr>
-          	    <td colspan="5">模具价格(元)含17%增值税/Mold with VAT(RMB)</td>
+          	    <td colspan="5">模具价格(元)含13%增值税/Mold with VAT(RMB)</td>
           	    <td colspan="11">
           	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value=<?php echo $array['mold_with_vat'] ?>>
           	    </td>

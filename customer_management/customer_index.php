@@ -148,6 +148,7 @@ function getdate(timestamp) {
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
       <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" disabled="disabled" />
+      
       <input type="hidden" name="action" value="del" />
     </div>
   </form>

@@ -12,7 +12,7 @@ require_once 'shell.php';
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<title>模具报价-希尔林</title>
+<title>模具报价-嘉泰隆</title>
 </head>
 
 <body>

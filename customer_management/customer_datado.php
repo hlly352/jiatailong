@@ -5,7 +5,7 @@ require_once '../function/function.php';
 require_once '../class/upload.php';
 require_once '../class/image.php';
 require_once 'shell.php';
-
+echo '得到';
 if($_POST['submit']){
 	$action = $_POST['action'];
 	if($action == 'add' || $action == 'edit'){
@@ -138,8 +138,9 @@ if($_POST['submit']){
 			header("location:mould_data_approval.php");
 		}
 	}elseif($action == 'del'){
-		$array_mould_dataid = fun_convert_checkbox($_POST['id']);
-		$sql_list = "DELETE `db_mould_quote_list` FROM `db_mould_quote_list` INNER JOIN `db_mould_quote` ON `db_mould_quote`.`quoteid` = `db_mould_quote_list`.`quoteid` WHERE `db_mould_quote`.`mould_dataid` IN ($array_mould_dataid)";
+		//接受要操作的id值
+		$array_customer_dataid = fun_convert_checkbox($_POST['id']);
+		/*$sql_list = "DELETE `db_mould_quote_list` FROM `db_mould_quote_list` INNER JOIN `db_mould_quote` ON `db_mould_quote`.`quoteid` = `db_mould_quote_list`.`quoteid` WHERE `db_mould_quote`.`mould_dataid` IN ($array_mould_dataid)";
 		$db->query($sql_list);
 		$sql_quote = "DELETE FROM `db_mould_quote` WHERE `mould_dataid` IN ($array_mould_dataid)";
 		$db->query($sql_quote);
@@ -155,7 +156,9 @@ if($_POST['submit']){
 				fun_delfile($image_big_filepath);
 			}
 		}
-		$sql = "DELETE FROM `db_mould_data` WHERE `mould_dataid` IN ($array_mould_dataid)";
+		$sql = "DELETE FROM `db_mould_data` WHERE `mould_dataid` IN ($array_mould_dataid)";*/
+		//拼写删除sql 语句
+		$sql = "DELETE FROM `db_customer_info` WHERE `id` IN ($array_customer_dataid)";
 		$db->query($sql);
 		if($db->affected_rows){
 			header("location:".$_SERVER['HTTP_REFERER']);
