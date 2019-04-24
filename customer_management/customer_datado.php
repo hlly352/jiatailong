@@ -5,7 +5,8 @@ require_once '../function/function.php';
 require_once '../class/upload.php';
 require_once '../class/image.php';
 require_once 'shell.php';
-echo '得到';
+$employee_id = $_SESSION['employee_info']['employeeid'];
+
 if($_POST['submit']){
 	$action = $_POST['action'];
 	if($action == 'add' || $action == 'edit'){
@@ -17,6 +18,15 @@ if($_POST['submit']){
 		//拼接数据库语句
 		unset($customer_info['submit']);
 		unset($customer_info['action']);
+		foreach($customer_info as $key=>$value){
+			if(is_array($value)){
+				$customer_info[$key] = implode('$$',$value);
+			} else {
+			$customer_info[$key] = $value;
+			}	
+		}
+		
+
 		$key_word = ' ';
 		$value_word = ' ';
 		//拼接sql 语句的字段和值
@@ -25,9 +35,10 @@ if($_POST['submit']){
 			$value_word .= '"'.$value.'",';
 		}
 
-		$key_word = $key_word.'`add_time`';
-		$value_word = $value_word.time();
+		$key_word = $key_word.'`add_time`,`adder_id`';
+		$value_word = $value_word.time().','.$employee_id;
 		$sql = "INSERT INTO `db_customer_info` ($key_word) VALUES($value_word)";
+	
 		//执行sql 语句
 		$result = $db->query($sql);
 

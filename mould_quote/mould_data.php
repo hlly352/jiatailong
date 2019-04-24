@@ -100,7 +100,7 @@ function getdate(timestamp) {
 	
         	 			})
       </script>
-<title>模具报价-希尔林</title>
+<title>模具报价-嘉泰隆</title>
 <style type="text/css">
 	#main{table-layout:fixed;width:1350px;}
 	#main tr td{word-wrap:break-word;word-break:break-all;}

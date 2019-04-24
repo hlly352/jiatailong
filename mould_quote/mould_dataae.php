@@ -1799,25 +1799,66 @@ $(function(){
 	})
 	//选择客户名称后,ajax 查询客户的其它信息
 	$('#client_name').change(function(){
-		var customer_name = $('#client_name').val();
+		customer_id = $('#client_name').val();
 		//判断选择的值是否为空
-		     if(customer_name != ' '){
+		     if(customer_id != ' '){
 			$.ajax({
 				'url':'../ajax_function/customer_info.php',
-				'data':{customer_name:customer_name},
+				'data':{customer_id:customer_id},
 				'type':'post',
 				'dataType':'json',
 				'async':false,
 				'success':function(data){
-					$('#customer_contacts').val(data[0].customer_contacts);
-					$('#customer_phone').val(data[0].customer_phone);
-					$('#customer_email').val(data[0].customer_email);
+					var inp = ' <input type="text" name="contacts" value="" id="contacts_name" style="width:125px">';
+					var sel = '<select id="contacts_sel" name="contacts" style="width:125px;height:25px"><option value="">请选择</option></select>'
+			
+					//获取联系人信息
+					if(data[0].customer_id == undefined){
+						$('#contacts').children().remove();
+						$('#contacts').append(sel);
+						//有多个联系人,添加到下拉选项框中
+						
+						for(var i in data[0]){
+							var opt = '<option>'+data[0][i]+'</option>';
+							$('#contacts_sel').append(opt);
+						}
+					} else {
+						$('#contacts').children().remove();
+						if($('#contacts').children().size() == 0){
+							$('#contacts').append(inp);
+						}
+						$('#contacts_name').val(data[0].contacts_name);
+						$('#contacts_phone').val(data[0].contacts_phone);
+						$('#contacts_email').val(data[0].contacts_email);
+					}
 				},
 				'error':function(){
 					alert('获取客户信息失败');
 				}
 			})
 		}
+	})
+	//更改联系人时.获取;联系人的信息
+	$('#contacts_sel').live('change',function(){
+		var sel_name = $(this).val();
+		$.ajax({
+			'url':'../ajax_function/customer_info.php',
+			'data':{customer_id:customer_id,sel_name:sel_name},
+			'type':'post',
+			'dataType':'json',
+			'async':false,
+			//把获取的联系人电话和邮箱填到输入框中
+			'success':function(data){
+				
+				$('#contacts_phone').val(data[0]);
+				$('#contacts_email').val(data[1]);
+			},
+			'error':function(){
+				alert('获取电话失败');
+			}
+
+		})
+		
 	})
 	
 })
@@ -1833,12 +1874,12 @@ $(function(){
 	  $sql_employee = "SELECT `employee_name`,`phone`,`email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
 	  $result_employee = $db->query($sql_employee);
 	  $array_employee = $result_employee->fetch_assoc();
-	  $sql_customer = "SELECT `customer_name` FROM `db_customer_info`";
+	  $sql_customer = "SELECT `customer_name`,`customer_id` FROM `db_customer_info`";
 	  $result_customer = $db->query($sql_customer);
 	  while( $customer_info = $result_customer->fetch_assoc()){
 	  	$array_customer[] = $customer_info; 
 	  }
-
+	 
   ?>
   <h4>模具数据添加</h4>
   <!--提交型腔的数量类型-->
@@ -1887,7 +1928,7 @@ $(function(){
       	      <select name="client_name" class="client_name" id="client_name"  style="width:125px;height:25px">
       	      		<option value=' '>请选择</option>
       	      	<?php foreach($array_customer as $key=>$value){ 
-      	      		echo '<option  value="'.$value['customer_name'].'">'.$value['customer_name'].'</option>';
+      	      		echo '<option  value="'.$value['customer_id'].'">'.$value['customer_name'].'</option>';
       	      	}
       	      		?>
       
@@ -1903,20 +1944,20 @@ $(function(){
    	</tr>
    	<tr>
       	  <td>联系人/Attention</td>
-      	  <td>
-      	    <input type="text" name="contacts" value="" id="customer_contacts" style="width:125px">
+      	  <td id="contacts">
+      	    <input type="text" name="contacts" value="" id="contacts_name" style="width:125px">
       	  </td>
            </tr>
            <tr>
       	  <td>电话/TEL</td>
       	  <td>
-      	    <input  type="text" name="tel" value="" id="customer_phone" style="width:125px"/>
+      	    <input  type="text" name="tel" value="" id="contacts_phone" style="width:125px"/>
       	  </td>    
            </tr>
            <tr>
               <td>信箱/E-mail</td>
               <td>
-                 <input type="text" name="email" value="" id="customer_email" style="width:125px"/>
+                 <input type="text" name="email" value="" id="contacts_email" style="width:125px"/>
              </td>  
            </tr>
            <tr>
@@ -3184,10 +3225,10 @@ $(function(){
           </tr>
            <tr class="others_trs">
           	    <td colspan="4">
-		<input type="text" name="" value="税/VAT TAX(16%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
+		<input type="text" name="" value="税/VAT TAX(13%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
           	    </td>
           	   <td colspan="8">
-		<input type="text" name="" readonly value="16%" placeholder="">
+		<input type="text" name="" readonly value="13%" placeholder="">
           	   </td>
           	   <td colspan="2">
           	        <input type="text" name="vat_tax" class="other_fee" id="vat_tax" value=<?php echo $array['vat_tax'] ?>
@@ -3942,10 +3983,10 @@ $(function(){
           </tr>
            <tr class="others_trs">
           	    <td colspan="4">
-		<input type="text" name="" value="税/VAT TAX(16%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
+		<input type="text" name="" value="税/VAT TAX(13%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
           	    </td>
           	   <td colspan="8">
-		<input type="text" name="" readonly value="16%" placeholder="">
+		<input type="text" name="" readonly value="13%" placeholder="">
           	   </td>
           	   <td colspan="2">
           	        <input type="text" name="vat_tax" class="other_fee" id="vat_tax" value=<?php echo $array['vat_tax'] ?>
@@ -4700,10 +4741,10 @@ $(function(){
           </tr>
            <tr class="others_trs">
           	    <td colspan="4">
-		<input type="text" name="" value="税/VAT TAX(16%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
+		<input type="text" name="" value="税/VAT TAX(13%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
           	    </td>
           	   <td colspan="8">
-		<input type="text" name="" readonly value="16%" placeholder="">
+		<input type="text" name="" readonly value="13%" placeholder="">
           	   </td>
           	   <td colspan="2">
           	        <input type="text" name="vat_tax" class="other_fee" id="vat_tax" value=<?php echo $array['vat_tax'] ?>
