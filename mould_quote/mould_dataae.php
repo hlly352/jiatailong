@@ -1683,7 +1683,7 @@ $(function(){
 	$(".material_specification").live('change',function(){
 		
 		//ajax查询对应材料的价格
-		var m = $(".material_specification").index($(this));
+		var n = $(".material_specification").index($(this));
 		setTimeout(function(){
 			//判断是否是是型腔或者型芯的材料
 			
@@ -1761,9 +1761,9 @@ $(function(){
 
 			//获取材料的单价
 			var material_num = $(".material_specification").size();
-	
-			var material_name = $(".material_specification").eq(m).val();
 			
+			var material_name = $(".material_specification").eq(n).val();
+		
 			$.ajax({
 			'url':'../ajax_function/mould_material_specification.php',
 			'data':{material_name:material_name},
@@ -1772,8 +1772,8 @@ $(function(){
 			'dataType':'json',
 			'success':function(data){
 				if(data != null){
-					$(".material_unit_price").eq(m).val(data);
-					
+					$(".material_unit_price").eq(n).val(data);
+					//计算其它费用
 					change();
 				}   
 			},

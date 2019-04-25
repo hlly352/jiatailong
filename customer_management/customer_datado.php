@@ -151,6 +151,7 @@ if($_POST['submit']){
 	}elseif($action == 'del'){
 		//接受要操作的id值
 		$array_customer_dataid = fun_convert_checkbox($_POST['id']);
+		
 		/*$sql_list = "DELETE `db_mould_quote_list` FROM `db_mould_quote_list` INNER JOIN `db_mould_quote` ON `db_mould_quote`.`quoteid` = `db_mould_quote_list`.`quoteid` WHERE `db_mould_quote`.`mould_dataid` IN ($array_mould_dataid)";
 		$db->query($sql_list);
 		$sql_quote = "DELETE FROM `db_mould_quote` WHERE `mould_dataid` IN ($array_mould_dataid)";
@@ -169,7 +170,7 @@ if($_POST['submit']){
 		}
 		$sql = "DELETE FROM `db_mould_data` WHERE `mould_dataid` IN ($array_mould_dataid)";*/
 		//拼写删除sql 语句
-		$sql = "DELETE FROM `db_customer_info` WHERE `id` IN ($array_customer_dataid)";
+		$sql = "DELETE FROM `db_customer_info` WHERE `customer_id` IN ($array_customer_dataid)";
 		$db->query($sql);
 		if($db->affected_rows){
 			header("location:".$_SERVER['HTTP_REFERER']);

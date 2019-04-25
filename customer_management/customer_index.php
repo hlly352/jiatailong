@@ -5,6 +5,8 @@ require_once '../class/page.php';
 require_once 'shell.php';
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+$employee_id = $_SESSION['employee_info']['employeeid'];
+
 if($_GET['submit']){
 	$customer_name = trim($_GET['customer_name']);
 	$customer_code = trim($_GET['customer_code']);
@@ -17,13 +19,14 @@ WHERE time in (
 SELECT max(a.time)
 FROM db_mould_data a
 GROUP BY mold_id)".$sqlwhere;*/
-$sql = "SELECT * FROM `db_customer_info` WHERE `customer_status` = '1'".$sqlwhere;
+$sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1' AND `adder_id` = '$employee_id'".$sqlwhere;
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `add_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -110,36 +113,54 @@ function getdate(timestamp) {
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
         <th style="">ID</th>
+        <th style="">添加时间</th>
         <th style="">客户名称</th>
         <th style="">客户代码</th>
-        <th style="">客户系数</th>
+        <th style="">客户类型</th>
         <th style="">联系人</th>
         <th style="">手机号</th>
         <th style="">邮箱</th>
         <th style="">地址</th>
-        <th style="">添加时间</th>
+        <th style="">负责人</th>
+        <th style="">职务</th>
+        <th style="">跟进状态</th>
         <th style="">修改</th>
       <?php
       while($row = $result->fetch_assoc()){
 
-      	$id = $row['id'];
+      	$id = $row['cusomer_id'];
 	  $count = array_key_exists($id,$array_group)?$array_group[$id]:0;
+	  //获取联系人的信息
+	  if(strstr($row['contacts_name'],'$$')){
+	  	$contacts_name = explode('$$',$row['contacts_name']);
+	  	$contacts_phone = explode('$$',$row['contacts_phone']);
+	  	$contacts_email = explode('$$',$row['contacts_email']);
+
+	  } else {
+	  	$contacts_name = $row['contacts_name'];
+	  	$contacts_phone = $row['contacts_phone'];
+	  	$contacts_email = $row['contacts_email'];
+	  }
+
 	  ?>
      <tr class="show">
      <i class="info_list">
-        <td><input type="checkbox" name="id[]" value="<?php echo $row['id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $row['customer_id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
+        <td class="show_list"><?php echo date('Y-m-d',$row['add_time']) ?></td>     
         <td class="show_list"><?php echo $row['customer_name'] ?></td>
         <td class="show_list"><?php echo $row['customer_code']; ?></td>
-        <td class="show_list"><?php echo $row['customer_value']; ?></td> 
-        <td class="show_list"><?php echo $row['customer_contacts'] ?></td>
-        <td class="show_list"><?php echo $row['customer_phone'] ?></td>
-        <td class="show_list"><?php echo $row['customer_email']; ?></td>
-        <td class="show_list"><?php echo $row['customer_address']; ?></td>
-        <td class="show_list"><?php echo date('Y-m-d',$row['add_time']) ?></td>     	
+        <td class="show_list"><?php echo $row['customer_type']; ?></td> 
+        <td class="show_list"><?php echo getin($contacts_name) ?></td>
+        <td class="show_list"><?php echo getin($contacts_phone) ?></td>
+        <td class="show_list"><?php echo getin($contacts_email) ?></td>
+        <td class="show_list"><?php echo $row['customer_address'] ?></td>
+        <td class="show_list"><?php echo $row['boss_name']; ?></td>
+        <td class="show_list"><?php echo $row['boss_unit']; ?></td>
+        <td class="show_list"><?php echo $row['customer_status']; ?></td>
         </i>	
             <input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
-        <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><input type="button" value="修改"></a><?php } ?> </td>
+        <td><?php if($count == 0){ ?><a href="customer_edit.php?id=<?php echo $row['customer_id']; ?>&action=edit"><input type="button" value="修改"></a><?php } ?> </td>
       </tr> 
       <?php } ?>
     </table>

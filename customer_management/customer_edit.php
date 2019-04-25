@@ -3,7 +3,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
-
+$customer_id = $_GET['id'];
 $employeeid = $_SESSION['employee_info']['employeeid'];
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -19,37 +19,12 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 <script langeage="javascript" type="text/javascript" src="../js/add_customer.js"></script>
 <script language="javascript" type="text/javascript">
 	$(function(){
-		$('tr').removeClass('even');
-		//新增联系人
-	//var add_contacts = '        <th width="11%">联系人姓名：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" />      </td><td>	<p id="del_contacts" style="width:100px;height:15px;background:#eee;display:inline-block;cursor:pointer">删除联系人</p></td> ';
-	//var add_contacts_first = '<tr class="first"> <td colspan="2"><th width="11%">职务：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr><tr class="first"> <td colspan="2"><th width="11%">电话：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr><tr class="first"> <td colspan="2"><th width="11%">手机：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr><tr class="first"> <td colspan="2"><th width="11%">邮箱：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr><tr class="first"class="last_tr"> <td colspan="2"><th width="11%">备注：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr>';
+	//更改类名
+	$('tr').removeClass('even');
+	
 	var add_contacts= '	<tr >	  	  	 <th width="11%" >联系人姓名：</th>	     	   	<td width="18%">	      	   		<input teyp="text" name="contacts_name[]" /> <span  class="del del_contacts">删除</span>  	 	   </td>		  	</tr>	  	<tr>	  		 <th>职务：</th>	     		 <td>	      			<input type="text" name="contacts_work[]" />	     		 </td>		  	</tr>	  	<tr>	  		 <th>电话：</th>			<td>			      <input type="text" name="contacts_tel[]" />			</td>		  	</tr>	  	<tr>			<th>手机：</th>			<td>			     <input type="text" name="contacts_phone[]" />			</td>	  	</tr>	  	<tr>	  		 <th>邮箱：</th>	      		<td>	      			<input type="text" name="contacts_email[]" />	      		</td>		  	</tr>	  	<tr>	  		  <th>备注：</th>			  <td>			      <input type="text" name="contacts_note[]" />			  </td>	  	</tr>';
 	var add_company = '<tr>		      <th width="11%">客户名称：</th>		      <td width="18%">		      	<input type="text" name="customer_name[]" />	<span  class="del del_company">删除</span>	      </td>		</tr>		<tr>		      <th>客户代码 ：</th>		      <td>		      	<input type="text" name="customer_code[]" />		      </td>		</tr>		<tr>		      <th>客户类型：</th>		      <td>		      	<input type="text" name="customer_type[]" />		      </td>		</tr>		<tr>		      <th>电话：</th>		      <td>		      	<input type="text" name="customer_tel[]" />		      </td>		</tr>		<tr>		      <th>邮箱：</th>		      <td>		      	<input type="text" name="customer_email[]" />		      </td>		</tr>		<tr>		      <th>网址：</th>		      <td>		      	<input type="text" name="customer_url[]" />		      </td>		</tr>		<tr>		      <th>地址：</th>		      <td>		      	<input type="text" name="customer_address[]" />		      </td>		</tr>		<tr class="last_tr">		      <th>邮编：</th>		      <td class="post">		      	<input type="text" name ="customer_post[]" />		      </td>	    	</tr>';
-	//动态添加联系人信息
-	/*var i = 1;
-	$('#add_contacts').live('click',function(){
-		if(i ==1 ){
-			$(".post").after(add_contacts);
-			$(".post").parent().after(add_contacts_first);
-			$("input[name *= 'contacts']").parent().attr('class','even');
-			$("input[name *= 'contacts']").parent().prev().attr('class','even')
-			i +=1;
-		} else {
-			$('.last_tr:last').after(add_contacts_twice);
-			$("input[name *= 'contacts']").parent().attr('class','even');
-			$("input[name *= 'contacts']").parent().prev().attr('class','even')
-		}
-	})
-	//给联系人信息添加背景颜色
-	$("input[name *= 'contacts']").parent().attr('class','even');
-	$("input[name *= 'contacts']").parent().prev().attr('class','even')
-	//删除联系人
-	$('#del_contacts').live('click',function(){
-		$(this).parent().prev().remove();
-		$(this).parent().prev().remove();
-		$('.first').remove();
-		$(this).remove();
-	})*/
+	
 	//动态添加联系人
 	$('#add_contacts').live('click',function(){
 		$(this).parent().parent().before(add_contacts);
@@ -87,10 +62,16 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php
-  if($action == 'add'){
-	  $sql_employee = "SELECT `employee_name`,`phone`,`email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
-	  $result_employee = $db->query($sql_employee);
-	  $array_employee = $result_employee->fetch_assoc();
+  if($action == 'edit'){
+	  $sql_customer_info = "SELECT * FROM `db_customer_info` WHERE `customer_id` = '$customer_id'";
+	  $result_customer = $db->query($sql_customer_info);
+	  $array_customer = $result_customer->fetch_assoc();
+
+	  $contacts_res = [$array_customer['contacts_name'],$array_customer['contacts_work'],$array_customer['contacts_tel'],$array_customer['contacts_phone'],$array_customer['contacts_email'],$array_customer['contacts_note']];
+
+	  $contacts = getdata($contacts_res);
+
+
   ?>
   <h4 style="background:white">客户信息</h4>
   <form action="customer_datado.php" method="post">
@@ -158,42 +139,51 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	  	<tr>
 	  		<td colspan="2" style="text-align:center">联系人信息</td>
 	  	</tr>
+	  	<?php 
+	  		foreach($contacts as $k=>$v){
+	  	 ?>
 	  	<tr>
 	  	  	 <th width="11%">联系人姓名：</th>
 	     	   	<td width="18%">
-	      	   		<input teyp="text" name="contacts_name[]" />
+	      	   		<input teyp="text" name="contacts_name[]" value="<?php echo $v[0] ?>" />
+	      	   		<?php  
+	      	   			if($k > 0){
+	      	   				echo ' <span  class="del del_contacts">删除</span>  ';
+	      	   			}
+	      	   		?>
 	     	 	   </td>	
 	  	</tr>
 	  	<tr>
 	  		 <th>职务：</th>
 	     		 <td>
-	      			<input type="text" name="contacts_work[]" />
+	      			<input type="text" name="contacts_work[]" value="<?php echo $v[1] ?>"/>
 	     		 </td>	
 	  	</tr>
 	  	<tr>
 	  		 <th>电话：</th>
 			<td>
-			      <input type="text" name="contacts_tel[]" />
+			      <input type="text" name="contacts_tel[]" value="<?php echo $v[2] ?>" />
 			</td>	
 	  	</tr>
 	  	<tr>
 			<th>手机：</th>
 			<td>
-			     <input type="text" name="contacts_phone[]" />
+			     <input type="text" name="contacts_phone[]" value="<?php echo $v[3] ?>"/>
 			</td>
 	  	</tr>
 	  	<tr>
 	  		 <th>邮箱：</th>
 	      		<td>
-	      			<input type="text" name="contacts_email[]" />
+	      			<input type="text" name="contacts_email[]" value="<?php echo $v[4] ?>" />
 	      		</td>	
 	  	</tr>
 	  	<tr>
 	  		  <th>备注：</th>
 			  <td>
-			      <input type="text" name="contacts_note[]" />
+			      <input type="text" name="contacts_note[]" value="<?php echo $v[5] ?>" />
 			  </td>
 	  	</tr>
+	  	<?php } ?>
 	  	<tr>
 	  		<td colspan="2" style="text-align:center">
 	  			<p id="add_contacts" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">新增联系人</p>
@@ -209,19 +199,19 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	  	<tr>
 	  	 	<th width="11%">负责人：</th>
 	   		 <td width="18%">
-			      	<input type="text" name="boss_name" />
+			      	<input type="text" name="boss_name" value="<?php echo $array_customer['boss_name'] ?>"/>
 			 </td>	
 	  	</tr>
 	  	<tr>
 	  		 <th width="11%">所属部门：</th>
 			 <td>
-			      <input type="text" name="boss_unit" />
+			      <input type="text" name="boss_unit" value="<?php echo $array_customer['boss_unit'] ?>" />
 			 </td>
 	  	</tr>
 	  	<tr>
 		    	 <th width="11%">跟进状态：</th>
 			 <td>
-			      <input type="text" name="customer_status" />
+			      <input type="text" name="customer_status" value="<?php echo $array_customer['customer_status'] ?>"/>
 			 </td>
 	   	 </tr>
 	  </table>
@@ -232,68 +222,12 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
   	<button>保存</button>
   </div>
 </form>
-   <!--
-      <td colspan="2" style="text-align:center">
-      	
-      </td>
-    </tr>
-   
-    <tr id="add_button">
-    	<td colspan="6" style="text-align:center">
-    		<input type="submit" name="submit" value="添加"/>
-    	</td>
-    </tr>
-    
-  </table>
-  </form>
-  <!--  <ul class="reg_ul">
-      <li>
-          <span>客户名称：</span>
-          <input type="text" name="customer_name" value="" placeholder="4-8位用户名" class="customer_name">
-          <span class="tip name_hint"></span>
-      </li>
-      <li>
-          <span>客户代码：</span>
-          <input type="text" name="customer_code" value="" placeholder="" class="customer_code">
-          <span class="tip code_hint"></span>
-      </li>
-       <li>
-          <span>客户系数：</span>
-          <input type="text" name="customer_value" value="" placeholder="" class="customer_value">
-          <span class="tip value_hint"></span>
-      </li>
-      <li>
-          <span>联系人：</span>
-          <input type="text" name="customer_contacts" value=""  placeholder="联系人姓名" class="customer_contacts">
-          <span class="tip contacts_hint"></span>
-      </li>
-        <li>
-          <span>手机号码：</span>
-          <input type="text" name="customer_phone" value="" placeholder="手机号" class="customer_phone">
-          <span class="tip phone_hint"></span>
-      </li>
-        <li>
-          <span>邮箱：</span>
-          <input type="text" name="customer_email" value="" placeholder="邮箱" class="customer_email">
-          <span class="tip email_hint"></span>
-      </li>
-      <li>
-          <span>地址：</span>
-          <input type="text" name="customer_address" value="" placeholder="地址" class="customer_address">
-          <span class="tip address_hint"></span>
-      </li>
-    
-    <input type="hidden" value="add" name="action" >
-      <li>
-        <button type="submit" value="add" name="submit" class="red_button">添加</button>
-      </li>
-    </ul>
-  </div>
- </form>
+
+
   <?php
   	}  
   
-  ?>-->
+  ?>
 </div>
 <?php include "../footer.php"; ?>
 </body>
