@@ -5,7 +5,7 @@ require_once '../function/function.php';
 require_once '../class/upload.php';
 require_once '../class/image.php';
 require_once 'shell.php';
-if($_POST['submit']){
+if($_POST['button'] || $_POST['submit']){
 	$action = $_POST['action'];
 	if($action == 'add' || $action == 'edit' || $action == 'approval' || $action == 'approval_edit'){
 		//接受数据		

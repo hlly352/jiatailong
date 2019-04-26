@@ -268,9 +268,11 @@ function getdate(timestamp) {
         
         <td class="show_list"><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>
         <td class="show_list">
+
         	<?php 
-        		if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
-        			echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
+        		//var_dump($arrs_standards);
+        		if($arrs_standards[4][3] !=0&&$arrs_standards[4][2] != null){
+        			echo $arrs_standards[4][2].'/'.$arrs_standards[4][3];
         		} else {
         			echo '无';
         		}

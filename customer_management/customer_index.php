@@ -19,7 +19,34 @@ WHERE time in (
 SELECT max(a.time)
 FROM db_mould_data a
 GROUP BY mold_id)".$sqlwhere;*/
-$sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1' AND `adder_id` = '$employee_id'".$sqlwhere;
+//获取当前页面的路径
+$system_url =  dirname(__FILE__);
+
+$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+$system_url = substr($system_url,$system_pos);
+//通过路径查询对应的模块id
+$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+$system_id_res = $db->query($system_id_sql);
+$system_id = $system_id_res->fetch_row()[0];
+if($system_id ==' '){
+	header('location:../myjtl/index.php');
+}
+//查询登录用户是否是客户管理的管理员
+$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employee_id' AND `systemid`=".$system_id;
+$system_res = $db->query($system_sql);
+
+$system_info = [];
+while($system_admin = $system_res->fetch_row()){
+	$system_info = $system_admin;
+}
+
+//判断是否是管理员来决定查询方法
+
+if($system_info[0] == '1'){
+	$sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1' ";
+} else {
+	$sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1' AND `adder_id` = '$employee_id'".$sqlwhere;
+	}
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);

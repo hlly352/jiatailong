@@ -47,6 +47,7 @@ if($_POST['submit']){
 			header("location:customer_index.php");
 		}
 	}elseif($action == 'edit'){
+		var_dump($_POST); 
 		//报价单号
 		$mold_id = FLOOR(RAND()*9000+1000);
 		//拼接数据库字段

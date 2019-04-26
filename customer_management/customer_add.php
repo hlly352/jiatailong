@@ -94,6 +94,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
   ?>
   <h4 style="background:white">客户信息</h4>
   <form action="customer_datado.php" method="post">
+
   <div >
  
 	  <table style="width:450px;float:left;;position:relative;left:35px">

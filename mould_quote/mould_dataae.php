@@ -1735,8 +1735,10 @@ $(function(){
 				//计算淬火的重量
 				for(var r=0;r<m;r++){
 					var material_vals = $('.material_specification').eq(r).val();
-					if($.inArray(material_vals,pre_steel) != -1){
-						if($('material_weight').eq(r).val() != ' '){
+					
+					if($.inArray(material_vals,pre_steel) == -1 && material_vals){
+					
+						if($('.material_weight').eq(r).val()){
 							heat_weight += parseInt($('.material_weight').eq(r).val());
 							
 						}
@@ -1774,7 +1776,7 @@ $(function(){
 				if(data != null){
 					$(".material_unit_price").eq(n).val(data);
 					//计算其它费用
-					change();
+					change($(this));
 				}   
 			},
 			'error':function(){
@@ -1860,7 +1862,11 @@ $(function(){
 		})
 		
 	})
-	
+	//跳转到导出页面
+	$("#export_excel").click(function(){
+		var mold_id = $(this).prev().val();
+		window.open('mould_excel.php?action=mould_excel&id='+mold_id);
+	})
 })
 </script>
 <title>模具报价-嘉泰隆</title>
@@ -1917,11 +1923,11 @@ $(function(){
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5" style="text-align:center">
-   	     	<img src="../jtl.png" width="200" height="100" alt="logo">
+   	     	<img src="../jtl.png" width="150" height="80" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
-   	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
-      	            <p style="font-weight:blod;font-size:30px">Tooling Cost Break Down</p>
+   	     	 <p style="font-weight:blod;font-size:30px">嘉泰隆  模具费用分解表</p>
+      	            <p style="font-weight:blod;font-size:30px">JOTYLONG  Tooling Cost Break Down</p>
    	     </td>
    	   <td style="width:186px;padding-right:20px">客户名称/Customer</td>
       	   <td style="width:186px;padding-right:0px">
@@ -2169,7 +2175,7 @@ $(function(){
               <?php
               $i = 0;
                foreach($array_mould_material as $mould_material_key=>$mould_material_value){
-               	
+               
 
       	?>
            <tr class="material_trs">
@@ -2178,7 +2184,11 @@ $(function(){
                </td>
                <td>
                   <div class="autocomplete">
+                  	<?php if($mould_material_key == 'electrode'){ ?>
+    			<input id="material_specification" class="material_specification" type="text" name="material_specification[]" placeholder="输入材料" value="Cu">
+    		<?php }else{ ?>
     			<input id="material_specification" class="material_specification" type="text" name="material_specification[]" placeholder="输入材料">
+    		<?php } ?>
   	      </div>
              </td>
              <td>
@@ -2286,11 +2296,7 @@ $(function(){
       		<div class="autocomplete">
     			<input id="standard_supplier" class="standard_supplier" type="text" name="standard_supplier[]" placeholder="输入品牌" style="width:200px">
   	       </div> 
-      	   <!--  <select name="standard_supplier[]" class="standard_supplier " id="standard_supplier">
-      	     	<?php foreach($array_standard_supplier as $standard_supplier_key=>$standard_supplier_value){ ?>
-                  	<option value="<?php echo $standard_supplier_value ?>"><?php echo $standard_supplier_value ?></option>
-                  	<?php } ?>
-                  </select>-->
+      
       	</td>
       	<td>
       	    <input type="text" name="standard_number[]" class="standard_number" value="1">	
@@ -2657,11 +2663,11 @@ $(function(){
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5" style="text-align:center">
-   	     	<img src="../jtl.png" width="200" height="100" alt="logo">
+   	     	<img src="../jtl.png" width="150" height="80" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
-   	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
-      	            <p style="font-weight:blod;font-size:30px">Tooling Cost Break Down</p>
+   		 <p style="font-weight:blod;font-size:30px">嘉泰隆  模具费用分解表</p>
+      	            <p style="font-weight:blod;font-size:30px">JOTYLONG  Tooling Cost Break Down</p>
    	     </td>
    	   <td style="width:186px;padding-right:20px">客户名称/Customer</td>
       	   <td style="width:186px;padding-right:0px">
@@ -3040,15 +3046,18 @@ $(function(){
       	<td colspan="4">
       	     <input name="mold_standard[]" id="mold_standard" class="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:13px;width:193px" readonly value="<?php echo $mold_standard_value[0] ?>">
       	</td>
-      	<td colspan="2">
-      	    <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" value=<?php echo $mold_standard_value[1] ?>>
+
+        	<td colspan="2">
+      		<div class="autocomplete">
+    			<input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" placeholder="输入规格" style="width:183px" value="<?php echo $mold_standard_value[1] ?>">
+  	       </div> 
+      	   <!-- <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification">-->
       	</td>
       	<td colspan="5">
-      	     <select name="standard_supplier[]" class="standard_supplier " id="standard_supplier">
-      	     	<?php foreach($array_standard_supplier as $standard_supplier_key=>$standard_supplier_value){ ?>
-                  	<option <?php echo $standard_supplier_value == $mold_standard_value[2]?'selected':'' ?> value="<?php echo $standard_supplier_value ?>"><?php echo $standard_supplier_value ?></option>
-                  	<?php } ?>
-                  </select>
+      		<div class="autocomplete">
+    			<input id="standard_supplier" class="standard_supplier" type="text" name="standard_supplier[]" value="<?php echo $mold_standard_value[2] ?>" placeholder="输入品牌" style="width:200px">
+  	       </div> 
+      
       	</td>
       	<td>
       	    <input type="text" name="standard_number[]" class="standard_number" value=<?php echo $mold_standard_value[3] ?>>	
@@ -3263,7 +3272,12 @@ $(function(){
           </tr>
           <tr height="20"></tr>
           <tr>
-              <td style="border-style:none" colspan="16" align="center"><input type="submit" name="submit" id="submit" value="修改" class="button" />
+         		
+              <td style="border-style:none" colspan="16" align="center">
+              <input id="id" name="id" type="hidden" value="<?php echo $_GET['id'] ?>">
+              <span id="export_excel" style="width:80px;height:26px; display: inline-block;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:26px;">导出</span>
+              &nbsp;&nbsp;
+              <input type="submit" name="submit" id="submit" value="修改" class="button" />
         	    &nbsp;&nbsp;
               <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
               <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
@@ -3415,11 +3429,11 @@ $(function(){
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5" style="text-align:center">
-   	     	<img src="../jtl.png" width="200" height="100" alt="logo">
+   	     	<img src="../jtl.png" width="150" height="80" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
-   	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
-      	            <p style="font-weight:blod;font-size:30px">Tooling Cost Break Down</p>
+   		 <p style="font-weight:blod;font-size:30px">嘉泰隆  模具费用分解表</p>
+      	            <p style="font-weight:blod;font-size:30px">JOTYLONG  Tooling Cost Break Down</p>
    	     </td>
    	   <td style="width:186px;padding-right:20px">客户名称/Customer</td>
       	   <td style="width:186px;padding-right:0px">
@@ -3799,14 +3813,16 @@ $(function(){
       	     <input name="mold_standard[]" id="mold_standard" class="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:13px;width:193px" readonly value="<?php echo $mold_standard_value[0] ?>">
       	</td>
       	<td colspan="2">
-      	    <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" value=<?php echo $mold_standard_value[1] ?>>
+      		<div class="autocomplete">
+    			<input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" placeholder="输入规格" style="width:183px" value="<?php echo $mold_standard_value[1] ?>">
+  	       </div> 
+      	   <!-- <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification">-->
       	</td>
       	<td colspan="5">
-      	     <select name="standard_supplier[]" class="standard_supplier " id="standard_supplier">
-      	     	<?php foreach($array_standard_supplier as $standard_supplier_key=>$standard_supplier_value){ ?>
-                  	<option <?php echo $standard_supplier_value == $mold_standard_value[2]?'selected':'' ?> value="<?php echo $standard_supplier_value ?>"><?php echo $standard_supplier_value ?></option>
-                  	<?php } ?>
-                  </select>
+      		<div class="autocomplete">
+    			<input id="standard_supplier" class="standard_supplier" type="text" name="standard_supplier[]" value="<?php echo $mold_standard_value[2] ?>" placeholder="输入品牌" style="width:200px">
+  	       </div> 
+      
       	</td>
       	<td>
       	    <input type="text" name="standard_number[]" class="standard_number" value=<?php echo $mold_standard_value[3] ?>>	
@@ -4173,11 +4189,11 @@ $(function(){
    	<!--基本信息-->
    	<tr>
    	     <td colspan="5" rowspan="5" style="text-align:center">
-   	     	<img src="../jtl.png" width="200" height="100" alt="logo">
+   	     	<img src="../jtl.png" width="150" height="80" alt="logo">
    	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
-   	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
-      	            <p style="font-weight:blod;font-size:30px">Tooling Cost Break Down</p>
+   	     	 <p style="font-weight:blod;font-size:30px">嘉泰隆  模具费用分解表</p>
+      	            <p style="font-weight:blod;font-size:30px">JOTYLONG  Tooling Cost Break Down</p>
    	     </td>
    	   <td style="width:186px;padding-right:20px">客户名称/Customer</td>
       	   <td style="width:186px;padding-right:0px">
@@ -4556,15 +4572,17 @@ $(function(){
       	<td colspan="4">
       	     <input name="mold_standard[]" id="mold_standard" class="mold_standard" style="border-style:none;color:black;font-weight:150;font-size:13px;width:193px" readonly value="<?php echo $mold_standard_value[0] ?>">
       	</td>
-      	<td colspan="2">
-      	    <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" value=<?php echo $mold_standard_value[1] ?>>
+      		<td colspan="2">
+      		<div class="autocomplete">
+    			<input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" placeholder="输入规格" style="width:183px" value="<?php echo $mold_standard_value[1] ?>">
+  	       </div> 
+      	   <!-- <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification">-->
       	</td>
       	<td colspan="5">
-      	     <select name="standard_supplier[]" class="standard_supplier " id="standard_supplier">
-      	     	<?php foreach($array_standard_supplier as $standard_supplier_key=>$standard_supplier_value){ ?>
-                  	<option <?php echo $standard_supplier_value == $mold_standard_value[2]?'selected':'' ?> value="<?php echo $standard_supplier_value ?>"><?php echo $standard_supplier_value ?></option>
-                  	<?php } ?>
-                  </select>
+      		<div class="autocomplete">
+    			<input id="standard_supplier" class="standard_supplier" type="text" name="standard_supplier[]" value="<?php echo $mold_standard_value[2] ?>" placeholder="输入品牌" style="width:200px">
+  	       </div> 
+      
       	</td>
       	<td>
       	    <input type="text" name="standard_number[]" class="standard_number" value=<?php echo $mold_standard_value[3] ?>>	

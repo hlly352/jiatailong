@@ -1,4 +1,4 @@
-<?php
+  <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
@@ -316,7 +316,7 @@ $(function(){
     <?php
     foreach($array_system_type as $system_type_key=>$system_type_value){
 		if($system_type_key == 'A'){ //我的系统
-		    $sql_system = "SELECT `db_system`.`system_name`,`db_system`.`image_filedir`,`db_system`.`image_filename`,`db_system`.`system_dir` FROM `db_system_employee` INNER JOIN `db_system` ON `db_system`.`systemid` = `db_system_employee`.`systemid` WHERE `db_system`.`system_type` = '$system_type_key' AND `db_system`.`system_status` = 1 AND `db_system_employee`.`employeeid` = '$employeeid' ORDER BY `db_system`.`system_order` ASC,`db_system`.`systemid` ASC";
+		    $sql_system = "SELECT `db_system`.`systemid`,`db_system`.`system_name`,`db_system`.`image_filedir`,`db_system`.`image_filename`,`db_system`.`system_dir` FROM `db_system_employee` INNER JOIN `db_system` ON `db_system`.`systemid` = `db_system_employee`.`systemid` WHERE `db_system`.`system_type` = '$system_type_key' AND `db_system`.`system_status` = 1 AND `db_system_employee`.`employeeid` = '$employeeid' ORDER BY `db_system`.`system_order` ASC,`db_system`.`systemid` ASC";
 		}elseif($system_type_key == 'B'){ //公共系统
 			$sql_system = "SELECT `system_name`,`image_filedir`,`image_filename`,`system_dir` FROM `db_system` WHERE `system_type` = '$system_type_key' AND `system_status` = 1 ORDER BY `system_order` ASC,`systemid` ASC";
 		}
@@ -335,9 +335,10 @@ $(function(){
 			  $image_filename = $row_system['image_filename'];
 			  $image_filepath = "../upload/system/".$image_filedir.'/'.$image_filename;
 			  $image_info = (is_file($image_filepath))?"<img src=\"".$image_filepath."\" />":"<img src=\"../images/no_image_60_60.png\" width=\"60\" height=\"60\" />";
+			 
 	  ?>
       <dl>
-        <dt><a href="<?php echo $row_system['system_dir']; ?>"><?php echo $image_info; ?></a></dt>
+        <dt><a href="<?php echo $row_system['system_dir'].'?system_id = '.$row_system['systemid']; ?>"><?php echo $image_info; ?></a></dt>
         <dd><?php echo $row_system['system_name']; ?><?php if($row_system['system_dir'] == '/notice/' && $result_notice->num_rows) echo "<font color=red>[".$result_notice->num_rows."]</font>"; ?></dd>
       </dl>
       <?php } ?>

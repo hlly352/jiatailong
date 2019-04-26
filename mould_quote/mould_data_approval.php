@@ -5,11 +5,13 @@ require_once '../class/page.php';
 require_once 'shell.php';
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+$before_date = strtotime($sdate);
+$after_date  = strtotime($edate);
 if($_GET['submit']){
 	$mould_name = trim($_GET['mould_name']);
 	$client_name = trim($_GET['client_name']);
 	$project_name = trim($_GET['project_name']);
-	$sqlwhere = "  AND `client_name` LIKE '%$client_name%' AND `mould_name` LIKE '%$mould_name%' AND `project_name` LIKE '%$project_name%'";
+	$sqlwhere = "  AND `client_name` LIKE '%$client_name%' AND `mould_name` LIKE '%$mould_name%' AND `project_name` LIKE '%$project_name%' AND (`time`BETWEEN '$before_date' AND '$after_date')";
 }
 $sql = "SELECT * FROM `db_mould_data` 
 WHERE time in (
@@ -136,7 +138,7 @@ function getdate(timestamp) {
 			var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
 			
 			$('.show').each(function(){
-				window.open('mould_show.php?action=show&id='+mold_dataid);
+				window.open('mould_dataae.php?action=approval_edit&id='+mold_dataid,'_self');
 			})
 		})
 	//提交批量导出
@@ -314,8 +316,8 @@ function getdate(timestamp) {
         <td class="show_list"><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>
         <td>
         	<?php 
-        		if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
-        			echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
+        		if($arrs_standards[4][3] !=0&&$arrs_standards[4][2] != null){
+        			echo $arrs_standards[4][2].'/'.$arrs_standards[4][3];
         		} else {
         			echo '无';
         		}

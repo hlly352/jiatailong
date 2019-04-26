@@ -66,10 +66,13 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	  $sql_customer_info = "SELECT * FROM `db_customer_info` WHERE `customer_id` = '$customer_id'";
 	  $result_customer = $db->query($sql_customer_info);
 	  $array_customer = $result_customer->fetch_assoc();
-
+	  //获取联系人的信息
 	  $contacts_res = [$array_customer['contacts_name'],$array_customer['contacts_work'],$array_customer['contacts_tel'],$array_customer['contacts_phone'],$array_customer['contacts_email'],$array_customer['contacts_note']];
 
 	  $contacts = getdata($contacts_res);
+	  //获取客户的公司信息
+	  $customer_res = [$array_customer['customer_name'],$array_customer['customer_code'],$array_customer['customer_type'],$array_customer['customer_tel'],$array_customer['customer_email'],$array_customer['customer_url'],$array_customer['customer_address'],$array_customer['customer_post']];
+	  $customer = getdata($customer_res);
 
 
   ?>
@@ -81,54 +84,58 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	  	<tr>
 	  		<td colspan="2" style="text-align:center">客户信息</td>
 	  	</tr>
+	  	<?php 
+	  		foreach($customer as $k=>$v){
+	  	?>
 	  	<tr>
 		      <th width="11%">客户名称：</th>
 		      <td width="18%">
-		      	<input type="text" name="customer_name[]" />
+		      	<input type="text" name="customer_name[]" value="<?php  echo $v[0] ?>" />
 		      </td>
 		</tr>
 		<tr>
 		      <th width="11%">客户代码 ：</th>
 		      <td>
-		      	<input type="text" name="customer_code[]" />
+		      	<input type="text" name="customer_code[]" value="<?php echo $v[1] ?>" />
 		      </td>
 		</tr>
 		<tr>
 		      <th>客户类型：</th>
 		      <td>
-		      	<input type="text" name="customer_type[]" />
+		      	<input type="text" name="customer_type[]" value="<?php echo $v[2] ?>" />
 		      </td>
 		</tr>
 		<tr>
 		      <th>电话：</th>
 		      <td>
-		      	<input type="text" name="customer_tel[]" />
+		      	<input type="text" name="customer_tel[]" value="<?php echo $v[3] ?>" />
 		      </td>
 		</tr>
 		<tr>
 		      <th>邮箱：</th>
 		      <td>
-		      	<input type="text" name="customer_email[]" />
+		      	<input type="text" name="customer_email[]" value="<?php echo $v[4] ?>" />
 		      </td>
 		</tr>
 		<tr>
 		      <th>网址：</th>
 		      <td>
-		      	<input type="text" name="customer_url[]" />
+		      	<input type="text" name="customer_url[]" value="<?php echo $v[5] ?>" />
 		      </td>
 		</tr>
 		<tr>
 		      <th>地址：</th>
 		      <td>
-		      	<input type="text" name="customer_address[]" />
+		      	<input type="text" name="customer_address[]" value="<?php echo $v[6] ?>" />
 		      </td>
 		</tr>
 		<tr class="last_tr">
 		      <th>邮编：</th>
 		      <td class="post">
-		      	<input type="text" name ="customer_post[]" />
+		      	<input type="text" name ="customer_post[]" value="<?php echo $v[7] ?>" />
 		      </td>
 	    	</tr>
+	    	<?php } ?>
 	    	<tr>
 	    		<td colspan="2" style="text-align:center">
 	    			<p id="add_company" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">新增分公司</p>
@@ -218,7 +225,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 </div>
   <div id="save">
   	<input type="hidden" name="submit" value="submit" />
-  	<input type="hidden" name="action" value="add" />
+  	<input type="hidden" name="action" value="edit" />
   	<button>保存</button>
   </div>
 </form>

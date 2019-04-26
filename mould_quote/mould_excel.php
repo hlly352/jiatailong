@@ -25,7 +25,7 @@ function http_get_data($url) {
 if($action == 'mould_excel'){
   	$mould_dataid = $_GET['id'];
   	
-  	foreach($mould_dataid as $value){
+  	
 
 ?>
 
@@ -1668,7 +1668,7 @@ $(function(){
   	foreach($mould_dataid as $value){*/
 
 	  //查询模具报价的信息
-	  $sql = "SELECT * FROM `db_mould_data` WHERE `mould_dataid` = '$value'";
+	  $sql = "SELECT * FROM `db_mould_data` WHERE `mould_dataid` = '$mould_dataid'";
 
 	  $result = $db->query($sql);
 
@@ -2326,4 +2326,3 @@ $(function(){
 <?php include "../footer.php"; ?>
 </body>
 </html>
-<?php } ?>
