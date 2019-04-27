@@ -56,6 +56,7 @@ $(function(){
       $array_system = $result_system->fetch_assoc();
       //读取部门
       $sql_dept = "SELECT `deptid`,`dept_name` FROM `db_department` WHERE `dept_status` = 1 AND `deptid` IN (SELECT `db_employee`.`deptid` FROM `db_system_employee` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_system_employee`.`employeeid` WHERE `db_system_employee`.`systemid` = '$systemid' AND `db_employee`.`account_status` = 1 GROUP BY `db_employee`.`deptid` HAVING COUNT(*) > 0) ORDER BY `dept_order` ASC,`deptid` ASC";
+
       $result_dept = $db->query($sql_dept);
   ?>
   <table>
@@ -72,6 +73,7 @@ $(function(){
     if($result_dept->num_rows){
 		//读取员工按部门Group BY employeeid,employee_name
 		$sql_employee = "SELECT GROUP_CONCAT(CONCAT(`db_employee`.`employeeid`,'#',`db_employee`.`employee_name`) ORDER BY `db_employee`.`employeeid` ASC SEPARATOR '/') AS `employee_info`,`db_employee`.`deptid` FROM `db_system_employee` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_system_employee`.`employeeid` WHERE `db_system_employee`.`systemid` = '$systemid' AND `db_employee`.`employee_status` = 1 AND `db_employee`.`account_status` = 1 GROUP BY `db_employee`.`deptid`";
+
 		$result_employee = $db->query($sql_employee);
 		if($result_employee->num_rows){
 			while($row_employee = $result_employee->fetch_assoc()){
@@ -103,6 +105,7 @@ $(function(){
 					$employee_checkbox .= " <input type=\"checkbox\" name=\"employee\" value=\"".$employeeid."\" ".$checked."/> "."<span id=\"".$employeeid."\"".$span_style.">".$employee_name."</span>";
 				}
 			}
+
 	?>
     <tr>
       <td><?php echo $deptid; ?></td>

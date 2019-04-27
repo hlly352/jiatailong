@@ -21,7 +21,7 @@
 			}
 			
 		}
-
+		
 		echo json_encode($customer_info);
 	} else {
 		$contacts_info = [];

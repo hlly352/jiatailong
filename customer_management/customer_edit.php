@@ -226,7 +226,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
   <div id="save">
   	<input type="hidden" name="submit" value="submit" />
   	<input type="hidden" name="action" value="edit" />
-  	<button>保存</button>
+  	<button>修改</button>
   </div>
 </form>
 
