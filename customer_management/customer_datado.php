@@ -18,6 +18,15 @@ if($_POST['submit']){
 		//拼接数据库语句
 		unset($customer_info['submit']);
 		unset($customer_info['action']);
+		$customer_status_info = $customer_info;
+		$status_arr = ['status_time','status_customer','status_contacts','status_boss','status_goal','status_result','status_plan','status_note'];
+		//去除不添加到客户信息表的信息
+		foreach($customer_info as $k=>$v){
+			if(in_array($k,$status_arr)){
+				unset($customer_info[$k]);
+			}
+		}
+		//把数据是数组的转换为字符串
 		foreach($customer_info as $key=>$value){
 			if(is_array($value)){
 				$customer_info[$key] = implode('$$',$value);
@@ -38,45 +47,67 @@ if($_POST['submit']){
 		$key_word = $key_word.'`add_time`,`adder_id`';
 		$value_word = $value_word.time().','.$employee_id;
 		$sql = "INSERT INTO `db_customer_info` ($key_word) VALUES($value_word)";
-	
 		//执行sql 语句
 		$result = $db->query($sql);
 
-		if($db->insert_id){
-				
-			header("location:customer_index.php");
+		if($insert_id = $db->insert_id){
+			//获取要添加到客户状态表中的数据
+			foreach($customer_status_info as $k=>$v){
+			if(!in_array($k,$status_arr)){
+				unset($customer_status_info[$k]);
+				}
+			}	
+		
+			//拼接插入数据库的字段
+			$sql_key = ' ';
+			$sql_val = ' ';
+			foreach($customer_status_info as $key=>$value){
+				$sql_key .= '`'.$key.'`,';
+				$sql_val .= '"'.$value.'",';
+
+			}
+			//加入客户id字段
+			$sql_key .= '`customer_id`,`add_time`';
+			$sql_val  .= $insert_id.','.time();
+			//拼接sql语句
+			$sql_status = "INSERT INTO `db_customer_status` ($sql_key) VALUES($sql_val)";
+			$res = $db->query($sql_status);
+			if($db->insert_id){
+				header("location:customer_index.php");
+			} else {
+				header("location:customer_add.php");
+			}
+			
 		}
 	}elseif($action == 'edit'){
-		var_dump($_POST); 
-		//报价单号
-		$mold_id = FLOOR(RAND()*9000+1000);
-		//拼接数据库字段
-		//判断是否修改了图片
-		if(($_FILES['file']['tmp_name'][0]) != null){
-			$key_word .= ',`upload_final_path`,`time`,`mold_id`';
-			//拼接上传数据
-			$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
-			$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id;
-		} else {
-			$key_word .= ',`time`,`mold_id`';
-			//拼接上传数据
-			$value_word .= ','.time().','.$mold_id;
+		//获取修改的数据
+		$customer_data = $_POST;
+		$customer_id = $_POST['customer_id'];
+		unset($customer_data['customer_id']);
+		unset($customer_data['submit']);
+		unset($customer_data['action']);
+		//遍历得到的数据,如果是数组则转换为祖符串
+		$sql_str = ' ';
+		foreach($customer_data as $key=>$value){
+			if(is_array($value)){
+				$sql_str .= '`'.$key.'` = "'.implode('$$',$value).'",';
+				//$customer_data[$key] = implode('$$',$value);
+			} else {
+				//$customer_data[$key] = $value;
+				$sql_str .= '`'.$key.'` = "'.$value.'",';
+			}
 		}
+		//去掉末尾的逗号
+		//$str = substr($str,0,strlen($str) -1);
+		//拼接时间
+		$sql_str .= $sql_str.'`add_time` = '.time();
 		
-		$key_arr = explode(',',$key_word);
-		$value_arr = explode(',',$value_word);
-		$result_arr = array_combine($key_arr,$value_arr);
-		$str = '';
-		foreach($result_arr as $key=>$val){
-			$str .= $key.'='.$val.',';
-		}
 		//拼接更新数据库的sql语句
-		$str = substr($str,0,strlen($str) - 1);
-		$sql = "UPDATE `db_mould_data` SET".$str." WHERE `mould_dataid` = ".$mould_dataid;
-	
+		$sql = "UPDATE `db_customer_info` SET".$sql_str.' WHERE `customer_id` = '.$customer_id;
 		$res = $db->query($sql);
 		if($res){
-			header("location:mould_data.php");
+			sleep(2);
+			header("location:customer_index.php");
 		}
 		/*if($db->insert_id){
 			header("location:mould_data.php");
@@ -84,71 +115,6 @@ if($_POST['submit']){
 		if($db->affected_rows){
 			header("location:".$_POST['pre_url']);
 		}*/
-	}elseif($action == 'approval'){
-		//报价单号
-		$mold_id = FLOOR(RAND()*9000+1000);
-		//拼接数据库字段
-		if(($_FILES['file']['tmp_name'][0]) != null){
-			$key_word .= ',`upload_final_path`,`time`,`mold_id`,`is_approval`';
-			//拼接上传数据
-			$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
-			$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id.',"1"';
-		} else {
-			$key_word .= ',`time`,`mold_id`,`is_approval`';
-			//拼接上传数据
-			$value_word .= ','.time().','.$mold_id.',"1"';
-		}
-		
-		$key_arr = explode(',',$key_word);
-		$value_arr = explode(',',$value_word);
-		$result_arr = array_combine($key_arr,$value_arr);
-		$str = '';
-		foreach($result_arr as $key=>$val){
-			$str .= $key.'='.$val.',';
-		}
-		//拼接更新数据库的sql语句
-		$str = substr($str,0,strlen($str) - 1);
-		$sql = "UPDATE `db_mould_data` SET".$str." WHERE `mould_dataid` = ".$mould_dataid;
-		
-		$res = $db->query($sql);
-		if($res){
-			header("location:mould_data_approval.php");
-		}
-		/*************************/
-			//拼接数据库字段
-		//$key_word .= ',`time`';
-		//拼接上传数据
-		//$value_word .= ','.time();
-		//echo substr($value_word;exit;
-	
-		//echo $sql;//exit;
-		//$mould_dataid = $_POST['mould_dataid'];
-		//$sql = "UPDATE `db_mould_data` SET `mould_name` = '$mould_name',`cavity_type` = '$cavity_type',`part_number` = '$part_number',`t_time` = '$t_time',`p_length` = '$p_length',`p_width` = '$p_width',`p_height` = '$p_height',`p_weight` = '$p_weight',`drawing_file` = '$drawing_file',`lead_time` = '$lead_time',`m_length` = '$m_length',`m_width` = '$m_width',`m_height` = '$m_height',`m_weight` = '$m_weight',`lift_time` = '$lift_time',`tonnage` = '$tonnage',`client_name` = '$client_name',`project_name` = '$project_name',`contacts` = '$contacts',`tel` = '$tel',`email` = '$email' WHERE `mould_dataid` = '$mould_dataid'";
-		//$res = $db->query($sql);
-		//if($db->insert_id){
-		//	header("location:mould_data.php");
-		//}
-		/*if($db->affected_rows){
-			header("location:".$_POST['pre_url']);
-		}*/
-	} elseif($action == 'approval_edit'){
-		//拼接数据库字段
-		if(($_FILES['file']['tmp_name'][0]) != null){
-			$key_word .= ',`upload_final_path`,`time`,`is_approval`';
-			//拼接上传数据
-			$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
-			$value_word .= ',"'.$upload_final_path.'",'.time().',"1"';
-		} else {
-			$key_word .= ',`time`,`is_approval`';
-			//拼接上传数据
-			$value_word .= ','.time().',"1"';
-		}
-			$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
-			$db->query($sql);
-		if($db->insert_id){
-			$id = $db->insert_id;		
-			header("location:mould_data_approval.php");
-		}
 	}elseif($action == 'del'){
 		//接受要操作的id值
 		$array_customer_dataid = fun_convert_checkbox($_POST['id']);

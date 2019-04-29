@@ -5,6 +5,7 @@ require_once '../function/function.php';
 require_once '../class/upload.php';
 require_once '../class/image.php';
 require_once 'shell.php';
+$employee_id = $_SESSION['employee_info']['employeeid'];
 if($_POST['button'] || $_POST['submit']){
 	$action = $_POST['action'];
 	if($action == 'add' || $action == 'edit' || $action == 'approval' || $action == 'approval_edit'){
@@ -81,11 +82,11 @@ if($_POST['button'] || $_POST['submit']){
 		//报价单号
 		$mold_id = FLOOR(RAND()*9000+1000);
 		//拼接数据库字段
-		$key_word .= ',`upload_final_path`,`time`,`mold_id`';
+		$key_word .= ',`upload_final_path`,`time`,`mold_id`,`employee_id`';
 
 		//拼接上传数据
 		$upload_final_path = substr($upload_final_path,0,strlen($upload_final_path) - 1);
-		$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id;
+		$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id.','.$employee_id;
 		// $sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
 		$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
 		

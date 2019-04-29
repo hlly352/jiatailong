@@ -3,6 +3,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+$employee_id = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 if($_GET['submit']){
@@ -16,7 +17,7 @@ WHERE time in (
 SELECT max(a.time)
 FROM db_mould_data a
 GROUP BY mold_id)".$sqlwhere;*/
-$sql = "SELECT * FROM `db_mould_data` WHERE `is_approval` = '0'".$sqlwhere;
+$sql = "SELECT * FROM `db_mould_data` WHERE `is_approval` = '0' AND `employee_id` ='$employee_id'".$sqlwhere;
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);

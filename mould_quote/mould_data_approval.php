@@ -3,6 +3,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+$employee_id = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 $before_date = strtotime($sdate);
@@ -17,7 +18,7 @@ $sql = "SELECT * FROM `db_mould_data`
 WHERE time in (
 SELECT max(a.time)
 FROM db_mould_data a
-GROUP BY mold_id)".$sqlwhere."AND `is_approval` = '1'";
+GROUP BY mold_id)".$sqlwhere."AND `is_approval` = '1' AND `employee_id` = '$employee_id'";
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -46,6 +47,19 @@ function getdate(timestamp) {
         var s = date.getSeconds();
         return Y+M+D;
     }
+   
+    //ajax获取数据,处理产品尺寸数据
+    function getsize(length,width=null,height=null){
+
+    	var size = ' ';
+    	for(var j= 0;j<length.split('$$').length;j++){
+    		var g_width = width==null ?' ':'*'+width.split('$$')[j]+'*';
+    		var g_height = height==null?' ':height.split('$$')[j];
+    		 size += length.split('$$')[j]+g_width+g_height+'<br>';
+    	}
+   
+    	return size;
+    }
 	$(function(){
 		var mold_num = $('.mold_num').size();
 		for(var i=0;i<mold_num;i++){
@@ -54,8 +68,9 @@ function getdate(timestamp) {
 				$('.but').eq(i).css('background','green');
 				$('.but').eq(i).css('cursor','pointer');
 
-			}
+			}  
 		}
+		//点击查看,获取历史版本
 		$('.but').bind('click',function(){
 			 mold_nu = $('.but').index(this);
 
@@ -67,10 +82,11 @@ function getdate(timestamp) {
 				'async':true,
 				'data':{mold_id:mold_id},
 				'success':function(data){
+				
 					for(var i=1;i<data.length;i++){
 							if($(".mold_num").eq(mold_nu).text() >1){
 								var getdat = getdate(data[i].time);
-				var tr = '   <tr class="block'+data[i].mold_id+'">        <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+data[i].part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+data[i].p_length+'*'+data[i].p_width+'*'+data[i].p_height+'</td>        <td>'+data[i].m_material+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>        <td>        	<?php 
+				var tr = '   <tr class="block'+data[i].mold_id+'">        <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+getsize(data[i].part_number)+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+getsize(data[i].p_length,data[i].p_width,data[i].p_height)+' </td>        <td>'+getsize(data[i].m_material)+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>        <td>        	<?php 
         		if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
         			echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
         		} else {
@@ -100,6 +116,7 @@ function getdate(timestamp) {
 				$(this).val('查看').css('background','green').removeClass('del').bind('click',function(){
 			 mold_nu = $('.but').index(this);
 			var mold_id = $('.mold_id_val').eq(mold_nu).val();
+			//通过id值获取模具的其它信息
 			$.ajax({
 				'url':'../ajax_function/mould_id_data.php',
 				'type':'post',
@@ -108,11 +125,11 @@ function getdate(timestamp) {
 				'data':{mold_id:mold_id},
 				'success':function(data){
 					for(var i=1;i<data.length;i++){
-						console.log(data[i].time);
+						
 						//console.log(mold_nu);
 							if($(".mold_num").eq(mold_nu).text() >1){
 								var getdat = getdate(data[i].time);
-				var tr = '   <tr class="block'+data[i].mold_id+'">         <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+data[i].part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+data[i].p_length+'*'+data[i].p_width+'*'+data[i].p_height+'</td>        <td>'+data[i].m_material+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>        <td>        	<?php 
+				var tr = '   <tr class="block'+data[i].mold_id+'">         <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+getsize(data[i].part_number)+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+getsize(data[i].p_length,data[i].p_width,data[i].p_height)+'</td>        <td>'+getsize(data[i].m_material)+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>        <td>        	<?php 
         		if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
         			echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
         		} else {
@@ -134,6 +151,7 @@ function getdate(timestamp) {
         	 	}) ;
 			}
 		})
+		//点击每一行内容,跳转到内容的详情
 		$('.show_list').click(function(){
 			var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
 			
@@ -146,6 +164,7 @@ function getdate(timestamp) {
 			document.list.action = 'export_total_excel.php';
 			document.list.submit();
 		})
+	
 	
         	 })
 
@@ -229,6 +248,7 @@ function getdate(timestamp) {
         <th width="">修改</th>
       <?php
       while($row = $result->fetch_assoc()){
+      	
 		  $mould_dataid = $row['mould_dataid'];
 		  $image_filedir = $row['image_filedir'];
 		  $image_filepath = $row['upload_final_path'];

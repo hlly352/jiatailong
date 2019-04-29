@@ -2,7 +2,7 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
-$action = fun_check_action($_GET['action']);
+
 $customer_id = $_GET['id'];
 $employeeid = $_SESSION['employee_info']['employeeid'];
 ?>
@@ -62,7 +62,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php
-  if($action == 'edit'){
+
 	  $sql_customer_info = "SELECT * FROM `db_customer_info` WHERE `customer_id` = '$customer_id'";
 	  $result_customer = $db->query($sql_customer_info);
 	  $array_customer = $result_customer->fetch_assoc();
@@ -77,8 +77,6 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 
   ?>
   <h4 style="background:white">客户信息</h4>
-  <form action="customer_datado.php" method="post">
-              <input type="hidden" name="customer_id" value="<?php echo $customer_id ?>"></td>
   <div >
  
 	  <table style="width:450px;float:left;;position:relative;left:35px">
@@ -137,11 +135,6 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 		      </td>
 	    	</tr>
 	    	<?php } ?>
-	    	<tr>
-	    		<td colspan="2" style="text-align:center">
-	    			<p id="add_company" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">新增分公司</p>
-	    		</td>
-	    	</tr>
 	  </table>
 	  <table style="width:450px;float:left;position:relative;left:35px;background:rgb(240,243,247)">
 	  	<tr>
@@ -154,11 +147,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	  	  	 <th width="11%">联系人姓名：</th>
 	     	   	<td width="18%">
 	      	   		<input teyp="text" name="contacts_name[]" value="<?php echo $v[0] ?>" />
-	      	   		<?php  
-	      	   			if($k > 0){
-	      	   				echo ' <span  class="del del_contacts">删除</span>  ';
-	      	   			}
-	      	   		?>
+	      	   		
 	     	 	   </td>	
 	  	</tr>
 	  	<tr>
@@ -192,11 +181,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 			  </td>
 	  	</tr>
 	  	<?php } ?>
-	  	<tr>
-	  		<td colspan="2" style="text-align:center">
-	  			<p id="add_contacts" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">新增联系人</p>
-	  		</td>
-	  	</tr>
+	  
 	  </table>
 	  <table style="width:450px;float:left;position:relative;left:35px">
 	  	<tr>
@@ -227,15 +212,12 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
   <div id="save">
   	<input type="hidden" name="submit" value="submit" />
   	<input type="hidden" name="action" value="edit" />
-  	<button>修改</button>
+  	<button onclick="javascript:history.go(-1)">返回</button>
   </div>
-</form>
 
 
-  <?php
-  	}  
-  
-  ?>
+
+
 </div>
 <?php include "../footer.php"; ?>
 </body>

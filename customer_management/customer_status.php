@@ -12,48 +12,19 @@ if($_GET['submit']){
 	$customer_code = trim($_GET['customer_code']);
 	$contacts_name = trim($_GET['contacts_name']);
 	$contacts_phone = trim($_GET['contacts_phone']);
-	$sqlwhere = "  AND `customer_name` LIKE '%$customer_name%' AND `customer_code` LIKE '%$customer_code%' AND `contacts_phone` LIKE '%$contacts_phone%' AND `contacts_name` LIKE '%$contacts_name%'";
-}
-/*$sql = "SELECT * FROM `db_mould_data` 
-WHERE time in (
-SELECT max(a.time)
-FROM db_mould_data a
-GROUP BY mold_id)".$sqlwhere;*/
-//获取当前页面的路径
-$system_url =  dirname(__FILE__);
-
-$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
-$system_url = substr($system_url,$system_pos);
-//通过路径查询对应的模块id
-$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
-$system_id_res = $db->query($system_id_sql);
-$system_id = $system_id_res->fetch_row()[0];
-if($system_id ==' '){
-	header('location:../myjtl/index.php');
-}
-//查询登录用户是否是客户管理的管理员
-$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employee_id' AND `systemid`=".$system_id;
-$system_res = $db->query($system_sql);
-
-$system_info = [];
-while($system_admin = $system_res->fetch_row()){
-	$system_info = $system_admin;
+	$sqlwhere = "  `customer_name` LIKE '%$customer_name%' AND `customer_code` LIKE '%$customer_code%' AND `contacts_phone` LIKE '%$contacts_phone%' AND `contacts_name` LIKE '%$contacts_name%'";
 }
 
-//判断是否是管理员来决定查询方法
+//查询客户状态记录表
 
-if($system_info[0] == '1'){
-	$sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1'".$sqlwhere;
-} else {
-	$sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1' AND `adder_id` = '$employee_id'".$sqlwhere;
-	}
+
+	$sql = "SELECT * FROM `db_customer_status` WHERE `add_time` IN (SELECT max(`add_time`) FROM `db_customer_status` GROUP BY `customer_id`) ".$sqlwhere;
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `add_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -76,12 +47,48 @@ function getdate(timestamp) {
         var s = date.getSeconds();
         return Y+M+D;
     }
-	//点击每一行内容,跳转到内容详情页面'[name^=id]:checkbox'
-	$('.show_list').live('click',function(){
-	
-		var trs = $(this).parent().children().children('input[name^=id]').val();
-		window.open('customer_show.php?id='+trs,'_self');
-			})
+
+    	$(function(){
+		//点击每一行内容,跳转到内容详情页面'[name^=id]:checkbox'
+		$('.show_list').live('click',function(){
+		
+			var trs = $(this).parent().children().children('input[name^=id]').val();
+		
+			window.open('customer_status_show.php?action=show&id='+trs,'_self');
+				})
+
+		//点击查看获取数据
+		$('.show_history').live('click',function(){
+			var status_tr = $(this).parent().parent();
+			var customer_id = $(this).parent().prevAll('input:hidden').val();
+			var current_button = $(this);
+			//当前按钮的序列
+			var button_index = $('.show_history').index($(this));
+			if($(this).attr('class') == 'show_history'){
+
+			//通过状态id获取客户的历史状态
+			$.post('../ajax_function/customer_status_history.php',{customer_id:customer_id},function(data){
+				var count = data[0].count;
+				//alert(count);
+				//遍历得到的历史数据
+				for(var i=1;i<data.length;i++){
+					//动态添加行
+					var new_trs = '<tr class="new_tr'+button_index+'"> <td style=""><input type="checkbox" name="id[]" value="<?php echo $row['customer_status_id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>        <td style="">'+data[i].status_time+'</td>        <td style="">'+data[i].status_customer+'</td>        <td style="">'+data[i].status_boss+'</td>        <td style="">'+data[i].status_goal+'</td>        <td style="">'+data[i].status_result+'</td>        <td style="">'+data[i].status_plan+'</th>        <td style="">'+data[i].status_note+'</td>        <td style=""></td></tr>';
+					status_tr.after(new_trs)
+				}
+				
+			},'json')
+			//给按钮增加类名,作为下一次判断的依据
+			current_button.addClass('show');
+			current_button.css('background','grey');
+			} else {
+				//删除对应按钮序列下的所有新添加行
+				$('.new_tr'+button_index).remove();
+				$(this).removeClass('show');
+				$(this).css('background','green');
+			}
+		})
+	})
       </script>
 <title>模具报价-嘉泰隆</title>
 <style type="text/css">
@@ -141,58 +148,40 @@ function getdate(timestamp) {
 	  }
 	
   ?>
-  <form action="customer_datado.php" name="list" method="post">
+
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
         <th style="">ID</th>
-        <th style="">添加时间</th>
+        <th style="">跟进时间</th>
         <th style="">客户名称</th>
-        <th style="">客户代码</th>
-        <th style="">客户类型</th>
-        <th style="">联系人</th>
-        <th style="">手机号</th>
-        <th style="">邮箱</th>
-        <th style="">地址</th>
         <th style="">负责人</th>
-        <th style="">职务</th>
-        <th style="">跟进状态</th>
-        <th style="">修改</th>
+        <th style="">跟进目的</th>
+        <th style="">跟进效果</th>
+        <th style="">跟进计划</th>
+        <th style="">备注</th>
+        <th style="">查看历史</th>
       <?php
       while($row = $result->fetch_assoc()){
-
-      	$id = $row['cusomer_id'];
-	  $count = array_key_exists($id,$array_group)?$array_group[$id]:0;
-	  //获取联系人的信息
-	  if(strstr($row['contacts_name'],'$$')){
-	  	$contacts_name = explode('$$',$row['contacts_name']);
-	  	$contacts_phone = explode('$$',$row['contacts_phone']);
-	  	$contacts_email = explode('$$',$row['contacts_email']);
-
-	  } else {
-	  	$contacts_name = $row['contacts_name'];
-	  	$contacts_phone = $row['contacts_phone'];
-	  	$contacts_email = $row['contacts_email'];
-	  }
-
+      	//查询状态的历史个数
+      	$sql = "SELECT COUNT(*) FROM `db_customer_status` WHERE `customer_id`=".$row['customer_id'];
+      	$res = $db->query($sql);
+      	if($res->num_rows){
+      		$row['count'] = $res->fetch_row()[0];
+      	}
 	  ?>
      <tr class="show">
      
-        <td><input type="checkbox" name="id[]" value="<?php echo $row['customer_id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
-        <td class="show_list"><?php echo date('Y-m-d',$row['add_time']) ?></td>     
-        <td class="show_list"><?php echo $row['customer_name'] ?></td>
-        <td class="show_list"><?php echo $row['customer_code']; ?></td>
-        <td class="show_list"><?php echo $row['customer_type']; ?></td> 
-        <td class="show_list"><?php echo getin($contacts_name) ?></td>
-        <td class="show_list"><?php echo getin($contacts_phone) ?></td>
-        <td class="show_list"><?php echo getin($contacts_email) ?></td>
-        <td class="show_list"><?php echo $row['customer_address'] ?></td>
-        <td class="show_list"><?php echo $row['boss_name']; ?></td>
-        <td class="show_list"><?php echo $row['boss_unit']; ?></td>
-        <td class="show_list"><?php echo $row['customer_status']; ?></td>
-       	
-            <input type="hidden" name="customer_id" value="<?php echo $row['customer_id'] ?>"></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $row['customer_status_id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
+        <td class="show_list"><?php echo $row['status_time'] ?></td>     
+        <td class="show_list"><?php echo $row['status_customer'] ?></td>
+        <td class="show_list"><?php echo $row['status_boss']; ?></td>
+        <td class="show_list"><?php echo $row['status_goal']; ?></td> 
+        <td class="show_list"><?php echo $row['status_result'] ?></td>
+        <td class="show_list"><?php echo $row['status_plan'] ?></td>
+        <td class="show_list"><?php echo $row['status_note'] ?></td>
+         <input type="hidden" name="customer_id" value="<?php echo $row['customer_id'] ?>"></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
-        <td><?php if($count == 0){ ?><a href="customer_edit.php?id=<?php echo $row['customer_id']; ?>&action=edit"><input type="button" value="修改"></a><?php } ?> </td>
+        <td><button class="show_history" style="<?php echo $row['count']>1?'background:green':' '; ?>">查看</button></td>
       </tr> 
       <?php } ?>
     </table>
@@ -204,7 +193,6 @@ function getdate(timestamp) {
       
       <input type="hidden" name="action" value="del" />
     </div>
-  </form>
   <div id="page">
     <?php $pages->getPage();?>
   </div>

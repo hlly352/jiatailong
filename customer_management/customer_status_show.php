@@ -33,35 +33,9 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	$(function(){
 		$('tr').removeClass('even');
 		//新增联系人
-	//var add_contacts = '        <th width="11%">联系人姓名：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" />      </td><td>	<p id="del_contacts" style="width:100px;height:15px;background:#eee;display:inline-block;cursor:pointer">删除联系人</p></td> ';
-	//var add_contacts_first = '<tr class="first"> <td colspan="2"><th width="11%">职务：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr><tr class="first"> <td colspan="2"><th width="11%">电话：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr><tr class="first"> <td colspan="2"><th width="11%">手机：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr><tr class="first"> <td colspan="2"><th width="11%">邮箱：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr><tr class="first"class="last_tr"> <td colspan="2"><th width="11%">备注：</th>      <td width="18%">      	<input teyp="text" name="contacts_name" /> </tr>';
-	var add_contacts= '	<tr >	  	  	 <th width="11%" >联系人姓名：</th>	     	   	<td width="18%">	      	   		<input teyp="text" name="contacts_name[]" /> <span  class="del del_contacts">删除</span>  	 	   </td>		  	</tr>	<tr>	  		 <th>所属公司 ：</th>	     		 <td>	      			<input type="text" name="contacts_company[]" />	     		 </td>		  	</tr>  	<tr>	  		 <th>职务：</th>	     		 <td>	      			<input type="text" name="contacts_work[]" />	     		 </td>		  	</tr>	  	<tr>	  		 <th>电话：</th>			<td>			      <input type="text" name="contacts_tel[]" />			</td>		  	</tr>	  	<tr>			<th>手机：</th>			<td>			     <input type="text" name="contacts_phone[]" />			</td>	  	</tr>	  	<tr>	  		 <th>邮箱：</th>	      		<td>	      			<input type="text" name="contacts_email[]" />	      		</td>		  	</tr>	  	<tr>	  		  <th>备注：</th>			  <td>			      <input type="text" name="contacts_note[]" />			  </td>	  	</tr>';
-	var add_company = '<tr>		      <th width="11%">分公司名称：</th>		      <td width="18%">		      	<input type="text" name="customer_name[]" />	<span  class="del del_company">删除</span>	      </td>		</tr>		<tr>		      <th>客户代码 ：</th>		      <td>		      	<input type="text" name="customer_code[]" />		      </td>		</tr>		<tr>		      <th>客户类型：</th>		      <td>		      	<input type="text" name="customer_type[]" />		      </td>		</tr>		<tr>		      <th>电话：</th>		      <td>		      	<input type="text" name="customer_tel[]" />		      </td>		</tr>		<tr>		      <th>邮箱：</th>		      <td>		      	<input type="text" name="customer_email[]" />		      </td>		</tr>		<tr>		      <th>网址：</th>		      <td>		      	<input type="text" name="customer_url[]" />		      </td>		</tr>		<tr>		      <th>地址：</th>		      <td>		      	<input type="text" name="customer_address[]" />		      </td>		</tr>		<tr class="last_tr">		      <th>邮编：</th>		      <td class="post">		      	<input type="text" name ="customer_post[]" />		      </td>	    	</tr>';
-	//动态添加联系人信息
-	/*var i = 1;
-	$('#add_contacts').live('click',function(){
-		if(i ==1 ){
-			$(".post").after(add_contacts);
-			$(".post").parent().after(add_contacts_first);
-			$("input[name *= 'contacts']").parent().attr('class','even');
-			$("input[name *= 'contacts']").parent().prev().attr('class','even')
-			i +=1;
-		} else {
-			$('.last_tr:last').after(add_contacts_twice);
-			$("input[name *= 'contacts']").parent().attr('class','even');
-			$("input[name *= 'contacts']").parent().prev().attr('class','even')
-		}
-	})
-	//给联系人信息添加背景颜色
-	$("input[name *= 'contacts']").parent().attr('class','even');
-	$("input[name *= 'contacts']").parent().prev().attr('class','even')
-	//删除联系人
-	$('#del_contacts').live('click',function(){
-		$(this).parent().prev().remove();
-		$(this).parent().prev().remove();
-		$('.first').remove();
-		$(this).remove();
-	})*/
+		var add_contacts= '	<tr >	  	  	 <th width="11%" >联系人姓名：</th>	     	   	<td width="18%">	      	   		<input teyp="text" name="contacts_name[]" /> <span  class="del del_contacts">删除</span>  	 	   </td>		  	</tr>	<tr>	  		 <th>所属公司 ：</th>	     		 <td>	      			<input type="text" name="contacts_company[]" />	     		 </td>		  	</tr>  	<tr>	  		 <th>职务：</th>	     		 <td>	      			<input type="text" name="contacts_work[]" />	     		 </td>		  	</tr>	  	<tr>	  		 <th>电话：</th>			<td>			      <input type="text" name="contacts_tel[]" />			</td>		  	</tr>	  	<tr>			<th>手机：</th>			<td>			     <input type="text" name="contacts_phone[]" />			</td>	  	</tr>	  	<tr>	  		 <th>邮箱：</th>	      		<td>	      			<input type="text" name="contacts_email[]" />	      		</td>		  	</tr>	  	<tr>	  		  <th>备注：</th>			  <td>			      <input type="text" name="contacts_note[]" />			  </td>	  	</tr>';
+		var add_company = '<tr>		      <th width="11%">分公司名称：</th>		      <td width="18%">		      	<input type="text" name="customer_name[]" />	<span  class="del del_company">删除</span>	      </td>		</tr>		<tr>		      <th>客户代码 ：</th>		      <td>		      	<input type="text" name="customer_code[]" />		      </td>		</tr>		<tr>		      <th>客户类型：</th>		      <td>		      	<input type="text" name="customer_type[]" />		      </td>		</tr>		<tr>		      <th>电话：</th>		      <td>		      	<input type="text" name="customer_tel[]" />		      </td>		</tr>		<tr>		      <th>邮箱：</th>		      <td>		      	<input type="text" name="customer_email[]" />		      </td>		</tr>		<tr>		      <th>网址：</th>		      <td>		      	<input type="text" name="customer_url[]" />		      </td>		</tr>		<tr>		      <th>地址：</th>		      <td>		      	<input type="text" name="customer_address[]" />		      </td>		</tr>		<tr class="last_tr">		      <th>邮编：</th>		      <td class="post">		      	<input type="text" name ="customer_post[]" />		      </td>	    	</tr>';
+
 	//动态添加联系人
 	$('#add_contacts').live('click',function(){
 		$(this).parent().parent().before(add_contacts);
@@ -83,7 +57,15 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 		$(this).parent().parent().remove();
 		$(this).remove();
 	})
-
+	//动态添加负责人信息
+	$('#add_boss').live('click',function(){
+		var customer_boss = $('.customer_boss').children().eq(0).val();
+		var min_boss = $('.customer_boss').children().eq(1).val();
+		var boss_unit = $('.customer_boss').children().eq(2).val();
+		var old_boss = '<tr>	  	 	<th width="11%">总负责人：</th>	   		 <td width="18%" class="">			      	<input type="text" name="boss_name" value="'+customer_boss+'"/>			 </td>		  	</tr>		<tr>		    	 <th width="">负责人：</th>			 <td class="">			      <input type="text" name="min_boss" value="'+min_boss+'"/>			 </td>	   	 </tr>	  	<tr>	  		 <th width="11%">所属部门：</th>			 <td class="">			      <input type="text" name="boss_unit"  value="'+boss_unit+'"/>			 </td>	  	</tr>	  ';
+		$(this).parent().parent().after(old_boss);
+		$('.customer_boss').children().val(' ');
+	})
 	//添加客户信息自动添加信息到状态跟进表中
 	
 	$('input[name ^= customer_name]').live('blur',function(){
@@ -116,7 +98,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php
-  if($action == 'add'){
+  if($action == 'show'){
 	  $sql_employee = "SELECT `employee_name`,`phone`,`email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
 	  $result_employee = $db->query($sql_employee);
 	  $array_employee = $result_employee->fetch_assoc();
@@ -244,21 +226,26 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	  	</tr>	
 	  	<tr>
 	  	 	<th width="11%">总负责人：</th>
-	   		 <td width="18%">
+	   		 <td width="18%" class="customer_boss">
 			      	<input type="text" name="boss_name" />
 			 </td>	
 	  	</tr>
 		<tr>
 		    	 <th width="11%">负责人：</th>
-			 <td>
+			 <td class="customer_boss">
 			      <input type="text" name="min_boss" />
 			 </td>
 	   	 </tr>
 	  	<tr>
 	  		 <th width="11%">所属部门：</th>
-			 <td>
+			 <td class="customer_boss">
 			      <input type="text" name="boss_unit" />
 			 </td>
+	  	</tr>
+	  	<tr>
+	  		<td colspan="2" style="text-align:center">
+	  			<p id="add_boss" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">负责人更换</p>
+	  		</td>
 	  	</tr>
 	  	
 	  </table>
@@ -309,71 +296,14 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
   <div id="save">
   	<input type="hidden" name="submit" value="submit" />
   	<input type="hidden" name="action" value="add" />
-  	<button>保存</button>
+  	<button>修改</button>
   </div>
 </form>
-   <!--
-      <td colspan="2" style="text-align:center">
-      	
-      </td>
-    </tr>
-   
-    <tr id="add_button">
-    	<td colspan="6" style="text-align:center">
-    		<input type="submit" name="submit" value="添加"/>
-    	</td>
-    </tr>
-    
-  </table>
-  </form>
-  <!--  <ul class="reg_ul">
-      <li>
-          <span>客户名称：</span>
-          <input type="text" name="customer_name" value="" placeholder="4-8位用户名" class="customer_name">
-          <span class="tip name_hint"></span>
-      </li>
-      <li>
-          <span>客户代码：</span>
-          <input type="text" name="customer_code" value="" placeholder="" class="customer_code">
-          <span class="tip code_hint"></span>
-      </li>
-       <li>
-          <span>客户系数：</span>
-          <input type="text" name="customer_value" value="" placeholder="" class="customer_value">
-          <span class="tip value_hint"></span>
-      </li>
-      <li>
-          <span>联系人：</span>
-          <input type="text" name="customer_contacts" value=""  placeholder="联系人姓名" class="customer_contacts">
-          <span class="tip contacts_hint"></span>
-      </li>
-        <li>
-          <span>手机号码：</span>
-          <input type="text" name="customer_phone" value="" placeholder="手机号" class="customer_phone">
-          <span class="tip phone_hint"></span>
-      </li>
-        <li>
-          <span>邮箱：</span>
-          <input type="text" name="customer_email" value="" placeholder="邮箱" class="customer_email">
-          <span class="tip email_hint"></span>
-      </li>
-      <li>
-          <span>地址：</span>
-          <input type="text" name="customer_address" value="" placeholder="地址" class="customer_address">
-          <span class="tip address_hint"></span>
-      </li>
-    
-    <input type="hidden" value="add" name="action" >
-      <li>
-        <button type="submit" value="add" name="submit" class="red_button">添加</button>
-      </li>
-    </ul>
-  </div>
- </form>
+
   <?php
   	}  
   
-  ?>-->
+  ?>
 </div>
 <?php include "../footer.php"; ?>
 </body>
