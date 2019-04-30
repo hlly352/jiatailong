@@ -245,19 +245,19 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	  	<tr>
 	  	 	<th width="11%">总负责人：</th>
 	   		 <td width="18%">
-			      	<input type="text" name="boss_name" />
+			      	<input type="text" name="boss_name[]" />
 			 </td>	
 	  	</tr>
 		<tr>
 		    	 <th width="11%">负责人：</th>
 			 <td>
-			      <input type="text" name="min_boss" />
+			      <input type="text" name="min_boss[]" />
 			 </td>
 	   	 </tr>
 	  	<tr>
 	  		 <th width="11%">所属部门：</th>
 			 <td>
-			      <input type="text" name="boss_unit" />
+			      <input type="text" name="boss_unit[]" />
 			 </td>
 	  	</tr>
 	  	
