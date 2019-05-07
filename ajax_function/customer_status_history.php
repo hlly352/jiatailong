@@ -5,7 +5,7 @@ require_once '../function/function.php';
 $customer_id = trim($_POST['customer_id']);
 
 //查询历史状态
-$sql  = "SELECT * FROM `db_customer_status` WHERE `customer_id` = ".$customer_id.' ORDER  BY `add_time` DESC';
+$sql  = "SELECT * FROM `db_customer_status` WHERE `customer_id` = ".$customer_id.' ORDER  BY `add_time` ASC';
 $result = $db->query($sql);
 
 if($status_count = $result->num_rows){

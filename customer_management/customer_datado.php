@@ -9,7 +9,7 @@ $employee_id = $_SESSION['employee_info']['employeeid'];
 
 if($_POST['submit']){
 	$action = $_POST['action'];
-	if($action == 'add' || $action == 'edit' || $action=='status_edit'){
+	if($action == 'add' || $action == 'edit' || $action=='status_edit' || $action == 'customer_edit'){
 		//接受客户信息
 		$customer_info = $_POST;
 		
@@ -80,43 +80,7 @@ if($_POST['submit']){
 			
 		}
 	}elseif($action == 'edit'){
-		//获取修改的数据
-		$customer_data = $_POST;
-		$customer_id = $_POST['customer_id'];
-		unset($customer_data['customer_id']);
-		unset($customer_data['submit']);
-		unset($customer_data['action']);
-		//遍历得到的数据,如果是数组则转换为祖符串
-		$sql_str = ' ';
-		foreach($customer_data as $key=>$value){
-			if(is_array($value)){
-				$sql_str .= '`'.$key.'` = "'.implode('$$',$value).'",';
-				//$customer_data[$key] = implode('$$',$value);
-			} else {
-				//$customer_data[$key] = $value;
-				$sql_str .= '`'.$key.'` = "'.$value.'",';
-			}
-		}
-		//去掉末尾的逗号
-		//$str = substr($str,0,strlen($str) -1);
-		//拼接时间
-		$sql_str .= $sql_str.'`add_time` = '.time();
-		
-		//拼接更新数据库的sql语句
-		$sql = "UPDATE `db_customer_info` SET".$sql_str.' WHERE `customer_id` = '.$customer_id;
-		$res = $db->query($sql);
-		if($res){
-			sleep(2);
-			header("location:customer_index.php");
-		}
-		/*if($db->insert_id){
-			header("location:mould_data.php");
-		}
-		if($db->affected_rows){
-			header("location:".$_POST['pre_url']);
-		}*/
-		}elseif($action == 'status_edit'){
-			unset($customer_info['submit']);
+		unset($customer_info['submit']);
 			unset($customer_info['action']);
 			$customer_id = $customer_info['customer_id'];
 			unset($customer_info['customer_id']);
@@ -145,6 +109,130 @@ if($_POST['submit']){
 			$sql_word .= '`adder_id`='.$employee_id.',`add_times` = '.time(); 
 			$customer_sql = "UPDATE `db_customer_info` SET".$sql_word." WHERE `customer_id` =".$customer_id;
 			$result = $db->query($customer_sql);
+			if(isset($customer_status_info['status_customer'])){
+				if($db->affected_rows){
+					
+					//获取要添加到客户状态表中的数据
+					foreach($customer_status_info as $k=>$v){
+					if(!in_array($k,$status_arr)){
+						unset($customer_status_info[$k]);
+						}
+					}
+					
+					$sql_val = [];
+					foreach($customer_status_info as $k=>$v){
+						$sql_key .= '`'.$k.'`,';
+						foreach($v as $key=>$val){
+							$sql_val[$key][] = $val;
+						}
+
+					}
+					$sql_key .= '`add_time`,`employee_id`,`customer_id`';
+					//拼接sql语句
+					$i = 0;
+					
+					foreach($sql_val as $ks=>$vs){
+						$val ='"'.implode('","',$vs);
+						$microtime = microtime(true) * 10000;
+						$val .= '",'.$microtime.','.$employee_id.','.$customer_id;
+
+						//循环插入数据
+						$sql = "INSERT INTO `db_customer_status`($sql_key) VALUES($val)";
+						
+						$res = $db->query($sql);
+						if($db->affected_rows != 1){
+							$i +=1;
+							
+						}
+						sleep(1);
+					}
+					//判断时候都插入成功
+					//echo $i;
+					if($i == 0){
+						header('location:customer_index.php');
+					}
+						
+				}
+			}else{
+				header('location:customer_index.php');
+			}
+		}elseif($action == 'customer_edit'){
+			$adder = trim($customer_info['min_boss'][0]);
+			//把负责人换为最新的
+			$add_sql = "SELECT `employeeid` FROM `db_employee` WHERE `employee_name` LIKE '%".$adder."%'";
+			
+			$add_res = $db->query($add_sql);
+			if($add_res->num_rows){
+				$adder_id = $add_res->fetch_row()[0];
+			}
+			unset($customer_info['submit']);
+			unset($customer_info['action']);
+			$customer_id = $customer_info['customer_id'];
+			unset($customer_info['customer_id']);
+			//把数据是数组的转换为字符串
+			foreach($customer_info as $key=>$value){
+				if(is_array($value)){
+					$customer_info[$key] = implode('$$',$value);
+				} else {
+				$customer_info[$key] = $value;
+				}	
+			}
+			//拼接数据库字段
+			$sql_word = ' ';
+			foreach($customer_info as $k=>$v){
+				$sql_word .= '`'.$k.'`="'.$v.'",';
+			}
+			//拼接sql 语句
+			$sql_word .= '`adder_id`='.$employee_id.',`add_times` = '.time().',`adder_id`='.$adder_id; 
+			$customer_sql = "UPDATE `db_customer_info` SET".$sql_word." WHERE `customer_id` =".$customer_id;
+
+			$result = $db->query($customer_sql);
+			if($db->affected_rows){
+				header('location:customer_index.php');
+			}
+			
+		}elseif($action == 'status_edit'){
+			$adder = trim($customer_info['min_boss'][0]);
+			//把负责人换为最新的
+			$add_sql = "SELECT `employeeid` FROM `db_employee` WHERE `employee_name` LIKE '%".$adder."%'";
+		
+			$add_res = $db->query($add_sql);
+			if($add_res->num_rows){
+				$adder_id = $add_res->fetch_row()[0];
+			}
+			
+			unset($customer_info['submit']);
+			unset($customer_info['action']);
+			$customer_id = $customer_info['customer_id'];
+			unset($customer_info['customer_id']);
+			
+			$customer_status_info = $customer_info;
+			$status_arr = ['status_time','status_customer','status_contacts','status_boss','status_goal','status_result','status_plan','status_note'];
+			//去除不添加到客户信息表的信息
+			foreach($customer_info as $k=>$v){
+				if(in_array($k,$status_arr)){
+					unset($customer_info[$k]);
+				}
+			}
+			//把数据是数组的转换为字符串
+			foreach($customer_info as $key=>$value){
+				if(is_array($value)){
+					$customer_info[$key] = implode('$$',$value);
+				} else {
+				$customer_info[$key] = $value;
+				}	
+			}
+			//拼接数据库字段
+			$sql_word = ' ';
+			foreach($customer_info as $k=>$v){
+				$sql_word .= '`'.$k.'`="'.$v.'",';
+			}
+			//拼接sql 语句
+			
+			$sql_word .= '`adder_id`='.$adder_id.',`add_times` = '.time(); 
+			$customer_sql = "UPDATE `db_customer_info` SET".$sql_word." WHERE `customer_id` =".$customer_id;
+			$result = $db->query($customer_sql);
+		
 			if($db->affected_rows){
 				
 				//获取要添加到客户状态表中的数据
@@ -165,15 +253,21 @@ if($_POST['submit']){
 				$sql_key .= '`add_time`,`employee_id`,`customer_id`';
 				//拼接sql语句
 				$i = 0;
+				
 				foreach($sql_val as $ks=>$vs){
 					$val ='"'.implode('","',$vs);
-					$val .= '",'.time().','.$employee_id.','.$customer_id;
+					$microtime = microtime(true) * 10000;
+					$val .= '",'.$microtime.','.$employee_id.','.$customer_id;
+
 					//循环插入数据
 					$sql = "INSERT INTO `db_customer_status`($sql_key) VALUES($val)";
+					
 					$res = $db->query($sql);
 					if($db->affected_rows != 1){
 						$i +=1;
+						
 					}
+					sleep(1);
 				}
 				//判断时候都插入成功
 				//echo $i;
@@ -183,7 +277,17 @@ if($_POST['submit']){
 					
 			}
 
-		}elseif($action == 'del'){
+		}elseif($action == 'status_del'){
+			//接受要操作的id值
+			$array_customer_dataid = fun_convert_checkbox($_POST['id']);
+			//拼写删除sql 语句
+			$sql = "DELETE FROM `db_customer_status` WHERE `customer_status_id` IN ($array_customer_dataid)";
+			$db->query($sql);
+			if($db->affected_rows){
+				header("location:".$_SERVER['HTTP_REFERER']);
+			}
+
+	 	}elseif($action == 'del'){
 		//接受要操作的id值
 		$array_customer_dataid = fun_convert_checkbox($_POST['id']);
 		

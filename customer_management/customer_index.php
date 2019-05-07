@@ -1,6 +1,7 @@
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
+require_once '../config/config.php';
 require_once '../class/page.php';
 require_once 'shell.php';
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
@@ -50,7 +51,8 @@ if($system_info[0] == '1'){
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `add_time` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `add_times` DESC" . $pages->limitsql;
+
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
 
@@ -78,9 +80,9 @@ function getdate(timestamp) {
     }
 	//点击每一行内容,跳转到内容详情页面'[name^=id]:checkbox'
 	$('.show_list').live('click',function(){
-	
+		
 		var trs = $(this).parent().children().children('input[name^=id]').val();
-		window.open('customer_show.php?id='+trs,'_self');
+		window.open('customer_show.php?action=show&id='+trs,'_self');
 			})
       </script>
 <title>模具报价-嘉泰隆</title>
@@ -142,68 +144,99 @@ function getdate(timestamp) {
 	
   ?>
   <form action="customer_datado.php" name="list" method="post">
-    <table id="main" cellpadding="0" cellspacing="0">
+    <table id="main" cellpadding="0" cellspacing="0" style="table-layout:fixed">
       <tr>
-        <th style="">ID</th>
+        <th style="width:40px">ID</th>
         <th style="">添加时间</th>
-        <th style="">客户名称</th>
         <th style="">客户代码</th>
+        <th style="">客户等级</th>
+        <th style="">客户名称</th>
         <th style="">客户类型</th>
-        <th style="">联系人</th>
-        <th style="">手机号</th>
-        <th style="">邮箱</th>
+        <th style="">主营业务</th>
         <th style="">地址</th>
-        <th style="">负责人</th>
+        <th style="">联系人</th>
+        <th style="">所属公司</th>
         <th style="">职务</th>
-        <th style="">跟进状态</th>
-        <th style="">修改</th>
+        <th style="">手机号</th>
+        <th style="">电话</th>
+        <th style="">邮箱</th>
+        <th style="">负责人</th>
+        <th style="">所属部门</th>
       <?php
       while($row = $result->fetch_assoc()){
-
+      
       	$id = $row['cusomer_id'];
 	  $count = array_key_exists($id,$array_group)?$array_group[$id]:0;
 	  //获取联系人的信息
-	  if(strstr($row['contacts_name'],'$$')){
+	  if(strstr($row['contacts_name'],'$$') || strstr($row['customer_name'],'$$') || strstr($row['min_boss'],'$$')){
+	  	$customer_name = explode('$$',$row['customer_name']);
+	  	$customer_grade = explode('$$',$row['customer_grade']);
+	  	$customer_business = explode('$$',$row['customer_business']);
+	  	$customer_code = explode('$$',$row['customer_code']);
+	  	$customer_type = explode('$$',$row['customer_type']);
+	  	$customer_address = explode('$$',$row['customer_address']);
 	  	$contacts_name = explode('$$',$row['contacts_name']);
+	  	$contacts_company = explode('$$',$row['contacts_company']);
+	  	$contacts_work = explode('$$',$row['contacts_work']);
 	  	$contacts_phone = explode('$$',$row['contacts_phone']);
+	  	$contacts_tel = explode('$$',$row['contacts_tel']);
 	  	$contacts_email = explode('$$',$row['contacts_email']);
-
+	  	$boss_name = explode('$$',$row['min_boss']);
+	  	$boss_unit = explode('$$',$row['boss_unit']);
+	  	
 	  } else {
+	  	$customer_name = $row['customer_name'];
+	  	$customer_grade = $row['customer_grade'];
+	  	$customer_business = $row['customer_business'];
+	  	$customer_code = $row['customer_code'];
+	  	$customer_type = $row['customer_type'];
+	  	$customer_address = $row['customer_address'];
 	  	$contacts_name = $row['contacts_name'];
+	  	$contacts_company= $row['contacts_company'];
+	  	$contacts_work = $row['contacts_work'];
 	  	$contacts_phone = $row['contacts_phone'];
+	  	$contacts_tel = $row['contacts_tel'];
 	  	$contacts_email = $row['contacts_email'];
-	  }
-
+	  	$boss_name = $row['min_boss'];
+	  	$boss_unit = $row['boss_unit'];
+	  	
+	 	 }
+	 	
 	  ?>
      <tr class="show">
      
         <td><input type="checkbox" name="id[]" value="<?php echo $row['customer_id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
-        <td class="show_list"><?php echo date('Y-m-d',$row['add_time']) ?></td>     
-        <td class="show_list"><?php echo $row['customer_name'] ?></td>
-        <td class="show_list"><?php echo $row['customer_code']; ?></td>
-        <td class="show_list"><?php echo $row['customer_type']; ?></td> 
+        <td class="show_list"><?php echo date('Y-m-d',$row['add_times']) ?></td>     
+        <td class="show_list"><?php echo getin($customer_name) ?></td>
+        <td class="show_list"><?php echo getin($customer_grade)?></td>
+        <td class="show_list"><?php echo getin($customer_business) ?></td>
+        <td class="show_list"><?php echo getin($customer_code) ?></td>
+        <td class="show_list"><?php echo getin($customer_type) ?></td>
+        <td class="show_list"><?php echo getin($customer_address) ?></td> 
         <td class="show_list"><?php echo getin($contacts_name) ?></td>
+        <td class="show_list"><?php echo getin($contacts_company) ?></td>
+        <td class="show_list"><?php echo getin($contacts_work) ?></td>
         <td class="show_list"><?php echo getin($contacts_phone) ?></td>
+        <td class="show_list"><?php echo getin($contacts_tel) ?></td>
         <td class="show_list"><?php echo getin($contacts_email) ?></td>
-        <td class="show_list"><?php echo $row['customer_address'] ?></td>
-        <td class="show_list"><?php echo $row['boss_name']; ?></td>
-        <td class="show_list"><?php echo $row['boss_unit']; ?></td>
-        <td class="show_list"><?php echo $row['customer_status']; ?></td>
+        <td class="show_list"><?php echo getin($boss_name) ?></td>
+        <td class="show_list"><?php echo getin($boss_unit) ?></td>
+       
        	
             <input type="hidden" name="customer_id" value="<?php echo $row['customer_id'] ?>"></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
-        <td><?php if($count == 0){ ?><a href="customer_edit.php?id=<?php echo $row['customer_id']; ?>&action=edit"><input type="button" value="修改"></a><?php } ?> </td>
+     <!--   <td><?php if($count == 0){ ?><a href="customer_edit.php?id=<?php echo $row['customer_id']; ?>&action=edit"><input type="button" value="修改"></a><?php } ?> </td>-->
       </tr> 
       <?php } ?>
     </table>
-    <div id="checkall">
+   <!-- <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
       <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" disabled="disabled" />
       
       <input type="hidden" name="action" value="del" />
-    </div>
+    </div>-->
   </form>
   <div id="page">
     <?php $pages->getPage();?>
