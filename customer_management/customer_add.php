@@ -7,14 +7,15 @@ $action = fun_check_action($_GET['action']);
 
 $employeeid = $_SESSION['employee_info']['employeeid'];
 //通过员工id查询姓名和部门
-$sql = "SELECT a.employee_name,b.`dept_name` FROM `db_employee` as a INNER JOIN `db_department` as b ON a.deptid = b.deptid WHERE a.employeeid = ".$employeeid;
+$sql = "SELECT a.employee_name,b.`dept_name` FROM `db_employee` as a INNER JOIN `db_department` as b ON a.deptid = b.deptid WHERE a.employeeid = ".$employeeid ;
 $res = $db->query($sql);
 $dept = [];
 while($rows = $res->fetch_assoc()){
 	$dept = $rows;
 }
-//查找市场部和项目部的人员
-$min_boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` IN (2,7)";
+//查找市场部和总经办的人员
+$min_boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` =1 OR `deptid` = 2 AND `employee_status` = '1'";
+
 $min_boss = $db->query($min_boss_sql);
 $employees = [];
 if($min_boss->num_rows){
@@ -51,11 +52,11 @@ if($min_boss->num_rows){
 	$(function(){
 		$('tr').removeClass('even');
 		
-	var add_contacts= '	<tr >	  	  	 <th width="11%" >联系人姓名：</th>	     	   	<td width="18%">	      	   		<input teyp="text" name="contacts_name[]" /> <span  class="del del_contacts">删除</span>  	 	   </td>		  	</tr>	<tr>	  		 <th>所属公司 ：</th>	     		 <td>	      			<input type="text" name="contacts_company[]" />	     		 </td>		  	</tr>  	<tr>	  		 <th>职务：</th>	     		 <td>	      			<input type="text" name="contacts_work[]" />	     		 </td>		  	</tr>	  	<tr>	  		 <th>电话：</th>			<td>			      <input type="text" name="contacts_tel[]" />			</td>		  	</tr>	  	<tr>			<th>手机：</th>			<td>			     <input type="text" name="contacts_phone[]" />			</td>	  	</tr>	  	<tr>	  		 <th>邮箱：</th>	      		<td>	      			<input type="text" name="contacts_email[]" />	      		</td>		  	</tr>	  	<tr>	  		  <th>备注：</th>			  <td>			      <input type="text" name="contacts_note[]" />			  </td>	  	</tr>';
-	var add_company = '<tr>		      <th width="11%">分公司代码：</th>		      <td width="18%">		      	<input type="text" name="customer_code[]" />	<span  class="del del_company">删除</span>	      </td>		</tr>		<tr>		      <th>客户等级 ：</th>		      <td>		      		<select name="customer_grade[]" style="width:250px;height:30px">		      		<?php foreach($array_customer_grade as $k=>$v){ 
+	var add_contacts= '	<tr>	  	  	 <th>姓名：</th>	     	   	<td width="">	      	   		<input teyp="text" name="contacts_name[]" />	     	      <span  class="del del_contacts">删除</span> 	   </td>		  	</tr>	  	<tr>	  		 <th>所属公司：</th>	     		 <td>	      			<input type="text" name="contacts_company[]" />	     		 </td>		  	</tr>	  	<tr>	  		 <th>职务：</th>	     		 <td>	      			<input type="text" name="contacts_work[]" />	     		 </td>	  	</tr>	  		  	<tr>			<th>电话/手机：</th>			<td>			     <input type="text" name="contacts_phone[]" />			</td>	  	</tr>	  	<tr>	  		 <th>邮箱：</th>	      		<td>	      			<input type="text" name="contacts_email[]" />	      		</td>		  	</tr>	  	<tr>	  		  <th>备注：</th>			  <td>			      <input type="text" name="contacts_note[]" />			  </td>	  	</tr>';
+	var add_company = '<tr>		      <th width="">代码：</th>		      <td style="width:70px">		      	<input type="text" name="customer_code[]" style="width:70px" readonly/>		      </td>		      <td style="width:40px">等级：</td>		      <td>		      	<select name="customer_grade[]" style="height:30px;width:70px">		      		<?php foreach($array_customer_grade as $k=>$v){ 
 		      			echo '<option value="'.$v.'">'.$v.'</option>';
 		      			}
-		      			?>		      	</select>		      		      </td>		</tr>		<tr>		      <th>客户名称：</th>		      <td>		      	<input type="text" name="customer_name[]" />		      </td>		</tr>		<tr>		      <th>客户类型：</th>		      <td>		      	<input type="text" name="customer_type[]" />		      </td>		</tr>		<tr>		      <th>主营业务：</th>		      <td>		      	<input type="text" name="customer_business[]" />		      </td>		</tr>		<tr>		      <th>网址：</th>		      <td>		      	<input type="text" name="customer_url[]" />		      </td>		</tr>		<tr>		      <th>地址：</th>		      <td>		      	<input type="text" name="customer_address[]" />		      </td>		</tr>		<tr class="last_tr">		      <th>邮编：</th>		      <td class="post">		      	<input type="text" name ="customer_post[]" />		      </td>	    	</tr>';
+		      			?>		      	</select>	<span  class="del del_company">删除</span> 	   			      </td>		</tr>		<tr>		      <th width="">名称：</th>		      <td width="" colspan="3">		      	<input type="text" name="customer_name[]" />		      </td>		</tr>		<tr>		      <th>主营业务：</th>		      <td colspan="3">		      	<input type="text" name="customer_business[]" />		      </td>		</tr>		<tr>		      <th>网址：</th>		      <td colspan="3">		      	<input type="text" name="customer_url[]" />		      </td>		</tr>		<tr>		      <th>地址：</th>		      <td colspan="3">		      	<input type="text" name="customer_address[]" />		      </td>		</tr>		<tr class="last_tr">		      <th>邮编：</th>		      <td class="post" colspan="3">		      	<input type="text" name ="customer_post[]" />		      </td>	    	</tr>	    	';
 	
 	//动态添加联系人
 	$('#add_contacts').live('click',function(){
@@ -68,13 +69,13 @@ if($min_boss->num_rows){
 	})
 	//动态删除联系人
 	$('.del_contacts').live('click',function(){
-		$(this).parent().parent().nextAll().slice(0,6).remove();
+		$(this).parent().parent().nextAll().slice(0,5).remove();
 		$(this).parent().parent().remove();
 		$(this).remove();
 	})
 	//动态删除分公司信息
 	$('.del_company').live('click',function(){
-		$(this).parent().parent().nextAll().slice(0,7).remove();
+		$(this).parent().parent().nextAll().slice(0,5).remove();
 		$(this).parent().parent().remove();
 		$(this).remove();
 	})
@@ -90,6 +91,15 @@ if($min_boss->num_rows){
 	$('input[name ^=min_boss]').live('blur',function(){
 		$('input[name = status_boss]').val($(this).val());
 	})
+	$('input[name ^= contacts_phone]').live('blur',function(){
+		$('input[name ^= status_phone]').val($(this).val());
+	})
+	var index = $('select').eq(0).val();
+	$('input[name ^= status_grade]').val(index);
+	$('select').eq(0).change(function(){
+		var index = $(this).val();
+		$('input[name ^= status_grade]').val(index);
+	});
 	$('input[name = status_time]').val(nowDate);
 	//提交信息的时候判断所需内容是否为空
 	$('button').click(function(){
@@ -108,12 +118,7 @@ if($min_boss->num_rows){
 				$('input[name ^= customer_address]').eq(i).focus();
 				return false;
 			}
-			var type = $('input[name ^= customer_type]').eq(i).val();
-			if(!$.trim(type)){
-				alert('客户类型不能为空');
-				$('input[name ^= customer_type]').eq(i).focus();
-				return false;
-			}
+			
 		}
 		for(var j=0;j<contacts_num;j++){
 			var name = $('input[name ^= contacts_name]').eq(j).val();
@@ -126,7 +131,7 @@ if($min_boss->num_rows){
 			var tel = $('input[name ^= contacts_tel]').eq(j).val();
 			var email = $('input[name ^= contacts_email]').eq(j).val();
 			if((!$.trim(phone)) && (!$.trim(tel)) && (!$.trim(email))){
-				alert('联系人手机,电话,手机至少填写一项');
+				alert('联系人电话/手机,邮箱至少填写一项');
 				if(!$.trim(phone)){
 					$('input[name ^= contacts_phone]').eq(j).focus();
 				} else if(!$.trim(tel)){
@@ -137,6 +142,12 @@ if($min_boss->num_rows){
 				return false;
 			}
 		}
+		var boss_val = $('#min_boss').val();
+		if(boss_val == 0){
+			alert('请选择负责人');
+			$("#min_boss").focus();
+			return false;
+			}
 		//判断跟进状态的必需字段不能为空
 		var goal = $('input[name = status_goal]').val();
 		if(!$.trim(goal)){
@@ -156,6 +167,7 @@ if($min_boss->num_rows){
 			$('input[name = status_plan]').focus();
 			return false;
 		}
+		
 
 	})
 	//选择负责人后自动获取部门
@@ -175,14 +187,18 @@ if($min_boss->num_rows){
 
 </script>
 <style type="text/css" media="screen">
-	form{background:white;}
-	table:not(#customer_status) input{width:250px;height:25px;}
-	.del{display:inline-block;width:50px;height:23px;background:#eee;text-align:center;line-height:23px;font-size:13px;cursor:pointer;}
+	form{background:white;margin-left:-10px;}
+	table tr td,table tr th{text-align:left;}
+	table tr th{width:110px;}
+	table:not(#customer_status) input{width:200px;height:25px;}
+	.del{display:inline-block;width:40px;height:23px;background:#eee;text-align:center;line-height:23px;font-size:13px;cursor:pointer;}
 	#save{clear:both;width:100%;height:100px;text-align:center;margin-top:20px;}
 	#save button{width:180px;height:40px;cursor:pointer;margin-top:40px;}
+	#customer{table-layout:fixed;}
 	#customer_status tr td{border:1px solid #ddd;}
-	#customer_status tr td{height:20px;word-wrap:break-word;word-break:break-all}
+	#customer_status tr td{height:20px;width:100px;word-wrap:break-word;word-break:break-all}
 	#customer_status tr th{text-align:center;}
+	#customer_status tr td input{width:110px;}
 </style>
 <title>客户管理-嘉泰隆</title>
 </head>
@@ -198,23 +214,19 @@ if($min_boss->num_rows){
   ?>
   <h4 style="background:#eee">客户信息</h4>
   <form action="customer_datado.php" method="post">
-
-
- 
-	  <table style="width:400px;float:left;;position:relative;left:100px">
+	<div style="width:1200px;margin:0px auto">
+	  <table style="width:390px;float:left;">
 	  	<tr>
-	  		<td colspan="2" style="text-align:center">客户信息</td>
+	  		<td colspan="4" style="text-align:center">客户基本信息</td>
 	  	</tr>
 	  	<tr>
-		      <th width="11%">客户代码：</th>
-		      <td>
-		      	<input type="text" name="customer_code[]" />
+		      <th width="">代码：</th>
+		      <td style="width:70px">
+		      	<input type="text" name="customer_code[]" style="width:70px" readonly/>
 		      </td>
-		</tr>
-		<tr>
-		      <th width="11%">客户等级：</th>
+		      <td style="width:40px">等级：</td>
 		      <td>
-		      	<select name="customer_grade[]" style="width:250px;height:30px">
+		      	<select name="customer_grade[]" style="height:30px;width:70px">
 		      		<?php foreach($array_customer_grade as $k=>$v){ 
 		      			echo '<option value="'.$v.'">'.$v.'</option>';
 		      			}
@@ -225,54 +237,48 @@ if($min_boss->num_rows){
 		      </td>
 		</tr>
 		<tr>
-		      <th width="11%">客户名称：</th>
-		      <td width="18%">
+		      <th width="">名称：</th>
+		      <td width="" colspan="3">
 		      	<input type="text" name="customer_name[]" />
 		      </td>
 		</tr>
 		<tr>
-		      <th>客户类型：</th>
-		      <td>
-		      	<input type="text" name="customer_type[]" />
-		      </td>
-		</tr>
-		<tr>
 		      <th>主营业务：</th>
-		      <td>
+		      <td colspan="3">
 		      	<input type="text" name="customer_business[]" />
 		      </td>
 		</tr>
 		<tr>
 		      <th>网址：</th>
-		      <td>
+		      <td colspan="3">
 		      	<input type="text" name="customer_url[]" />
 		      </td>
 		</tr>
 		<tr>
 		      <th>地址：</th>
-		      <td>
+		      <td colspan="3">
 		      	<input type="text" name="customer_address[]" />
 		      </td>
 		</tr>
 		<tr class="last_tr">
 		      <th>邮编：</th>
-		      <td class="post">
+		      <td class="post" colspan="3">
 		      	<input type="text" name ="customer_post[]" />
 		      </td>
 	    	</tr>
 	    	<tr>
-	    		<td colspan="2" style="text-align:center">
+	    		<td colspan="4" style="text-align:center">
 	    			<p id="add_company" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">新增分公司</p>
 	    		</td>
 	    	</tr>
 	  </table>
-	  <table style="width:400px;float:left;position:relative;left:100px;background:rgb(240,243,247)">
+	  <table style="width:390px;float:left;background:rgb(240,243,247)">
 	  	<tr>
-	  		<td colspan="2" style="text-align:center">联系人信息</td>
+	  		<td colspan="2" style="text-align:center">客户联系人信息</td>
 	  	</tr>
 	  	<tr>
-	  	  	 <th width="11%">联系人姓名：</th>
-	     	   	<td width="18%">
+	  	  	 <th>姓名：</th>
+	     	   	<td width="">
 	      	   		<input teyp="text" name="contacts_name[]" />
 	     	 	   </td>	
 	  	</tr>
@@ -288,14 +294,9 @@ if($min_boss->num_rows){
 	      			<input type="text" name="contacts_work[]" />
 	     		 </td>	
 	  	</tr>
+	  	
 	  	<tr>
-	  		 <th>电话：</th>
-			<td>
-			      <input type="text" name="contacts_tel[]" />
-			</td>	
-	  	</tr>
-	  	<tr>
-			<th>手机：</th>
+			<th>电话/手机：</th>
 			<td>
 			     <input type="text" name="contacts_phone[]" />
 			</td>
@@ -318,23 +319,23 @@ if($min_boss->num_rows){
 	  		</td>
 	  	</tr>
 	  </table>
-	  <table style="width:400px;float:left;position:relative;left:100px">
+	  <table style="width:390px;float:left">
 	  	<tr>
 	  		<td colspan="2" style='text-align:center'>
-	  			负责人信息
+	  			内部对接信息
 	  		</td>
 	  	</tr>	
 	  	<tr>
-	  	 	<th width="11%">总负责人：</th>
-	   		 <td width="18%">
+	  	 	<th width="" >总负责人：</th>
+	   		 <td width="">
 			      	<input type="text" name="boss_name[]" value="杨春民" readonly />
 			 </td>	
 	  	</tr>
 		<tr>
-		    	 <th width="11%">负责人：</th>
+		    	 <th width="">负责人：</th>
 			 <td>
-			      <select name="min_boss[]" id="min_boss" style="width:250px;height:30px">
-			      		<option>--请选择--</option>
+			      <select name="min_boss[]" id="min_boss" class="current_boss" style="width:200px;height:30px">
+			      		<option value="0">--请选择--</option>
 			      	<?php foreach($employees as $k=>$v){
 			      		echo '<option value="'.$v['employee_name'].'">'.$v['employee_name'].'</option>';
 			      		} ?>
@@ -342,23 +343,27 @@ if($min_boss->num_rows){
 			 </td>
 	   	 </tr>
 	  	<tr>
-	  		 <th width="11%">所属部门：</th>
+	  		 <th width="">所属部门：</th>
 			 <td>
 			      <input type="text" id="boss_unit" name="boss_unit[]" value="" />
 			 </td>
 	  	</tr>
 	  	
 	  </table>
+	 </div>
 <div style="clear:both"></div>
 <h4 style="background:#eee">首次状态</h4>
 <div style="border-bottom:1px solid #ddd"></div>
 <div>
-	<table id="customer_status" style="width:95%;margin:30px auto;">
+	<table id="customer_status" style="width:100%;margin:30px auto;">
 		
 		<tr>
 	 		<th>时间</th>
-	 		<th>客户公司</th>	
+	 		<th>代码</th>
+	 		<th>等级</th>
+	 		<th>客户公司</th>
 	 		<th>联系人</th>
+	 		<th>电话/手机</th>
 	 		<th>负责人</th>
 	 		<th>跟进目的</th>
 	 		<th>跟进效果</th>
@@ -369,13 +374,24 @@ if($min_boss->num_rows){
 	 		<td>
 	 			<input type="text" name="status_time" >
 	 		</td>
-	 		<td>
+	 		<td class="offset">
+	 			<input type="text"  name="status_code" readonly="readonly">
+	 		</td>
+	 		<td class="offset">
+	 			<input type="text" name="status_grade" >
+	 		</td>
+	 		
+	 		<td >
 	 			<input type="text" name="status_customer">
 	 		</td>	
-	 		<td>
+	 		<td class="offset">
 	 			<input type="text" name="status_contacts">
 	 		</td>
 	 		<td>
+	 			<input type="text" name="status_phone" >
+	 		</td>
+	 		
+	 		<td class="offset">
 	 			<input type="text" name="status_boss" id="status_boss">
 	 		</td>
 	 		<td>

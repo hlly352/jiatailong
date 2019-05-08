@@ -56,6 +56,7 @@ $sqllist = $sql . " ORDER BY `add_times` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
 
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -146,59 +147,59 @@ function getdate(timestamp) {
   <form action="customer_datado.php" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0" style="table-layout:fixed">
       <tr>
-        <th style="width:40px">ID</th>
+        <th style="width:50px">ID</th>
         <th style="">添加时间</th>
-        <th style="">客户代码</th>
-        <th style="">客户等级</th>
+        <th style="width:50px">客户代码</th>
+        <th style="width:50px">客户等级</th>
         <th style="">客户名称</th>
-        <th style="">客户类型</th>
         <th style="">主营业务</th>
         <th style="">地址</th>
         <th style="">联系人</th>
-        <th style="">所属公司</th>
         <th style="">职务</th>
-        <th style="">手机号</th>
-        <th style="">电话</th>
+        <th style="">电话/手机</th>
         <th style="">邮箱</th>
         <th style="">负责人</th>
-        <th style="">所属部门</th>
+        <th style="">最新状态</th>
+        <th style="">备注</th>
       <?php
       while($row = $result->fetch_assoc()){
-      
-      	$id = $row['cusomer_id'];
+      	$id = $row['customer_id'];
+      	//查找客户的最新状态
+	$status_sql = "SELECT `status_result` FROM `db_customer_status` WHERE `add_time` IN (SELECT max(`add_time`) FROM `db_customer_status` WHERE `customer_id` ={$id})";
+	$status_res = $db->query($status_sql);
+	if($status_res->num_rows){
+		$new_status = $status_res->fetch_row()[0];
+	}
 	  $count = array_key_exists($id,$array_group)?$array_group[$id]:0;
 	  //获取联系人的信息
 	  if(strstr($row['contacts_name'],'$$') || strstr($row['customer_name'],'$$') || strstr($row['min_boss'],'$$')){
+	  	$customer_code = explode('$$',$row['customer_code']);
 	  	$customer_name = explode('$$',$row['customer_name']);
 	  	$customer_grade = explode('$$',$row['customer_grade']);
 	  	$customer_business = explode('$$',$row['customer_business']);
 	  	$customer_code = explode('$$',$row['customer_code']);
-	  	$customer_type = explode('$$',$row['customer_type']);
 	  	$customer_address = explode('$$',$row['customer_address']);
 	  	$contacts_name = explode('$$',$row['contacts_name']);
-	  	$contacts_company = explode('$$',$row['contacts_company']);
 	  	$contacts_work = explode('$$',$row['contacts_work']);
 	  	$contacts_phone = explode('$$',$row['contacts_phone']);
-	  	$contacts_tel = explode('$$',$row['contacts_tel']);
 	  	$contacts_email = explode('$$',$row['contacts_email']);
+	  	$contacts_note = explode('$$',$row['contacts_note']);
 	  	$boss_name = explode('$$',$row['min_boss']);
-	  	$boss_unit = explode('$$',$row['boss_unit']);
 	  	
 	  } else {
+	  	$customer_code = $row['customer_code'];
 	  	$customer_name = $row['customer_name'];
 	  	$customer_grade = $row['customer_grade'];
 	  	$customer_business = $row['customer_business'];
 	  	$customer_code = $row['customer_code'];
-	  	$customer_type = $row['customer_type'];
 	  	$customer_address = $row['customer_address'];
 	  	$contacts_name = $row['contacts_name'];
-	  	$contacts_company= $row['contacts_company'];
 	  	$contacts_work = $row['contacts_work'];
 	  	$contacts_phone = $row['contacts_phone'];
-	  	$contacts_tel = $row['contacts_tel'];
 	  	$contacts_email = $row['contacts_email'];
+	  	$contacts_note = $row['contacts_note'];
 	  	$boss_name = $row['min_boss'];
-	  	$boss_unit = $row['boss_unit'];
+	
 	  	
 	 	 }
 	 	
@@ -206,21 +207,20 @@ function getdate(timestamp) {
      <tr class="show">
      
         <td><input type="checkbox" name="id[]" value="<?php echo $row['customer_id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
-        <td class="show_list"><?php echo date('Y-m-d',$row['add_times']) ?></td>     
-        <td class="show_list"><?php echo getin($customer_name) ?></td>
-        <td class="show_list"><?php echo getin($customer_grade)?></td>
+        <td class="show_list"><?php echo date('Y-m-d',$row['add_times']) ?></td>    
+          <td class="show_list"><?php echo getin($customer_code) ?></td> 
+          <td class="show_list"><?php echo getin($customer_grade)?></td>
+        <td class="show_list"><?php echo getin($customer_name) ?></td>   
         <td class="show_list"><?php echo getin($customer_business) ?></td>
-        <td class="show_list"><?php echo getin($customer_code) ?></td>
-        <td class="show_list"><?php echo getin($customer_type) ?></td>
         <td class="show_list"><?php echo getin($customer_address) ?></td> 
         <td class="show_list"><?php echo getin($contacts_name) ?></td>
-        <td class="show_list"><?php echo getin($contacts_company) ?></td>
         <td class="show_list"><?php echo getin($contacts_work) ?></td>
         <td class="show_list"><?php echo getin($contacts_phone) ?></td>
-        <td class="show_list"><?php echo getin($contacts_tel) ?></td>
         <td class="show_list"><?php echo getin($contacts_email) ?></td>
         <td class="show_list"><?php echo getin($boss_name) ?></td>
-        <td class="show_list"><?php echo getin($boss_unit) ?></td>
+        <td class="show_list"><?php echo $new_status ?></td>
+        <td class="show_list"><?php echo getin($contacts_note) ?></td>
+  
        
        	
             <input type="hidden" name="customer_id" value="<?php echo $row['customer_id'] ?>"></td>

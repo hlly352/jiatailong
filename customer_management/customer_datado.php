@@ -19,7 +19,7 @@ if($_POST['submit']){
 		unset($customer_info['submit']);
 		unset($customer_info['action']);
 		$customer_status_info = $customer_info;
-		$status_arr = ['status_time','status_customer','status_contacts','status_boss','status_goal','status_result','status_plan','status_note'];
+		$status_arr = ['status_time','status_customer','status_grade','status_phone','status_code','status_contacts','status_boss','status_goal','status_result','status_plan','status_note'];
 		//去除不添加到客户信息表的信息
 		foreach($customer_info as $k=>$v){
 			if(in_array($k,$status_arr)){
@@ -47,6 +47,7 @@ if($_POST['submit']){
 		$key_word = $key_word.'`add_times`,`adder_id`';
 		$value_word = $value_word.time().','.$employee_id;
 		$sql = "INSERT INTO `db_customer_info` ($key_word) VALUES($value_word)";
+	
 		//执行sql 语句
 		$result = $db->query($sql);
 

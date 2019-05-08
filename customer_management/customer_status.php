@@ -178,16 +178,21 @@ function getdate(timestamp) {
   ?>
   <form action="customer_datado.php" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
-      <tr>
-        <th style="width:40px">ID</th>
-        <th style="">跟进时间</th>
-        <th style="">客户名称</th>
-        <th style="">负责人</th>
-        <th style="">跟进目的</th>
-        <th style="">跟进效果</th>
-        <th style="">跟进计划</th>
-        <th style="">备注</th>
-        <th style="">查看历史</th>
+     <tr>
+        	<th style="width:50px">ID</th>
+	<th>时间</th>
+	 <th style="width:50px">客户代码</th>
+	 <th style="width:50px">客户等级</th>
+	 <th>客户公司</th>
+	 <th>联系人</th>
+	 <th>电话/手机</th>
+	 <th>负责人</th>
+	 <th>跟进目的</th>
+	 <th>跟进效果</th>
+	 <th>下步计划</th>
+	 <th>备注</th>
+	 <th>查看历史</th>
+	</tr>
       <?php
       while($row = $result->fetch_assoc()){
       	//查询状态的历史个数
@@ -200,8 +205,12 @@ function getdate(timestamp) {
      <tr class="show">
      
         <td><input type="checkbox" name="id[]" value="<?php echo $row['customer_status_id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
-        <td class="show_list"><?php echo $row['status_time'] ?></td>     
+        <td class="show_list"><?php echo $row['status_time'] ?></td>    
+        <td class="show_list"><?php echo $row['status_code'] ?></td>  
+        <td class="show_list"><?php echo $row['status_grade'] ?></td> 
         <td class="show_list"><?php echo $row['status_customer'] ?></td>
+        <td class="show_list"><?php echo $row['status_contacts'] ?></td> 
+        <td class="show_list"><?php echo $row['status_phone'] ?></td> 
         <td class="show_list"><?php echo $row['status_boss']; ?></td>
         <td class="show_list"><?php echo $row['status_goal']; ?></td> 
         <td class="show_list"><?php echo $row['status_result'] ?></td>
