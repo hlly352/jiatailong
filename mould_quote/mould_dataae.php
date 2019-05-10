@@ -4042,7 +4042,10 @@ $(function(){
           </tr>
           <tr height="20"></tr>
           <tr>
-              <td style="border-style:none" colspan="16" align="center"><input type="submit" name="submit" id="submit" value="审批" class="button" />
+
+              <td style="border-style:none" colspan="16" align="center">
+                <span id="unapproval_edit" style="width:80px;height:26px; display: inline-block;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:26px;">保存</span>
+              <input type="submit" name="submit" id="submit" value="审批" class="button" />
               &nbsp;&nbsp;
               <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
               <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>

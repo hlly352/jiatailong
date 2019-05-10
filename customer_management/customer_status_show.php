@@ -17,7 +17,7 @@ if($result ->num_rows){
 	}
 }
 //查找市场部和总经办的人员
-$min_boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` =1 OR `deptid` = 2 AND `employee_status` = '1'";
+$min_boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` =1 AND `employee_status` = '1' OR `deptid` = 2 AND `employee_status` = '1'";
 
 $min_boss = $db->query($min_boss_sql);
 $employees = [];
@@ -25,6 +25,16 @@ if($min_boss->num_rows){
 	while($row = $min_boss->fetch_assoc()){
 		$employees[] = $row;
  	}
+}
+//查找总经办的人员
+$boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` =1 AND `employee_status` = '1'";
+
+$boss = $db->query($boss_sql);
+$employeess = [];
+if($boss->num_rows){
+  while($row = $boss->fetch_assoc()){
+    $employeess[] = $row;
+  }
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -50,13 +60,48 @@ if($min_boss->num_rows){
 		return currentdate;
 	}
  	 nowDate = getNowDate();
+	//获取当前页面的客户信息,组成数组
+	function getCurrentInfo(key,new_key,classname){
+		//获取数目
+		var current_val = new Array();
+		if(key == 'customer_grade'){
+			var num = $('.grades').size();
+		} else if(key == 'boss_names'){
+			var num = $('.boss_names').size();
+		} else{
+			var num = $('input[name ^= '+key+']').size();
+		}
+		//获取所有的值
+		for(var i=0;i<num;i++){
+			 if(key == 'customer_grade') {
 
+				 current_val.push($('.grades').eq(i).val());
+			} else if(key == 'boss_names'){
+				 current_val.push($.trim($('.boss_names').eq(i).val()));
+			} else {
+				current_val.push($.trim($('input[name ^= '+key+']').eq(i).val()));
+			}
+			
+		}
+		//把对应的值添加到下拉框中
+		var sel = $('<select name ^="'+new_key+'"></select>');
+		for(k in current_val){
+				var opt = '<option selected value="'+current_val[k]+'">'+current_val[k]+'</option>';
+			if(current_val[k]){	
+			sel.append(opt);
+			}
+		}
+		var index = $(classname).size()-1;
+		if(sel.children().length !=0){
+			$(classname).eq(index).append(sel);
+		}
+	}
 	$(function(){
 		$('tr').removeClass('even');
-		//新增联系人
+
 		//新增联系人
 		var add_contacts= '<tr>	  	  	 <th>姓名：</th>	     	   	<td width="">	      	   		<input teyp="text" name="contacts_name[]" />	     	      <span  class="del del_contacts">删除</span> 	   </td>		  	</tr>	  	<tr>	  		 <th>所属公司：</th>	     		 <td>	      			<input type="text" name="contacts_company[]" />	     		 </td>		  	</tr>	  	<tr>	  		 <th>职务：</th>	     		 <td>	      			<input type="text" name="contacts_work[]" />	     		 </td>	  	</tr>	  		  	<tr>			<th>电话/手机：</th>			<td>			     <input type="text" name="contacts_phone[]" />			</td>	  	</tr>	  	<tr>	  		 <th>邮箱：</th>	      		<td>	      			<input type="text" name="contacts_email[]" />	      		</td>		  	</tr>	  	<tr>	  		  <th>备注：</th>			  <td>			      <input type="text" name="contacts_note[]" />			  </td>	  	</tr>';
-		var add_company ='<tr>		      <th width="">代码：</th>		      <td style="width:70px">		      	<input type="text" name="customer_code[]" style="width:70px" readonly/>		      </td>		      <td style="width:40px">等级：</td>		      <td>		      	<select name="customer_grade[]" style="height:30px;width:70px">		      		<?php foreach($array_customer_grade as $k=>$v){ 
+		var add_company ='<tr>		      <th width="">代码：</th>		      <td style="width:70px">		      	<input type="text" name="customer_code[]" style="width:70px" readonly/>		      </td>		      <td style="width:40px">等级：</td>		      <td>		      	<select name="customer_grade[]" class="grades" style="height:30px;width:70px">		      		<?php foreach($array_customer_grade as $k=>$v){ 
 		      			echo '<option value="'.$v.'">'.$v.'</option>';
 		      			}
 		      			?>		      	</select>	<span  class="del del_company">删除</span> 	   			      </td>		</tr>		<tr>		      <th width="">名称：</th>		      <td width="" colspan="3">		      	<input type="text" name="customer_name[]" />		      </td>		</tr>		<tr>		      <th>主营业务：</th>		      <td colspan="3">		      	<input type="text" name="customer_business[]" />		      </td>		</tr>		<tr>		      <th>网址：</th>		      <td colspan="3">		      	<input type="text" name="customer_url[]" />		      </td>		</tr>		<tr>		      <th>地址：</th>		      <td colspan="3">		      	<input type="text" name="customer_address[]" />		      </td>		</tr>		<tr class="last_tr">		      <th>邮编：</th>		      <td class="post" colspan="3">		      	<input type="text" name ="customer_post[]" />		      </td>	    	</tr>	';
@@ -84,22 +129,24 @@ if($min_boss->num_rows){
 		$(this).remove();
 	})
 	//负责人信息默认不能更改
-	$('.customer_boss').children().prop('readonly',true);
-	$('.current_boss').children().prop('disabled',true);
+	$('.customer_boss').children().prop('disabled',true);
 	//动态添加负责人信息
 	$('#add_boss').live('click',function(){
-		$('.customer_boss').children().prop('readonly',false);
-		$('.current_boss').children().prop('disabled',false);
+		$('.customer_boss').eq(0).children().prop('disabled',false);
+		$('.customer_boss').eq(1).children().prop('disabled',false);
+		$('.customer_boss').eq(2).children().prop('disabled',false);
+		
 		var customer_boss = $('.customer_boss').children().eq(0).val();
 		var min_boss = $('.customer_boss').children().eq(1).val();
 		var boss_unit = $('.customer_boss').children().eq(2).val();
-		var old_boss = '<tr class="boss_val">	  	 	<th width="" >总负责人：</th>	   		 <td>			      	<input type="text" name="boss_name[]" value="'+customer_boss+'" readonly />			 </td>		  	</tr>		<tr class="boss_val">		    	 <th width="">负责人：</th>			 <td>			<input type="text" name="min_boss[]" value="'+min_boss+'" readonly class="" />		 </td>	   	 </tr>	  	<tr class="boss_val">	  		 <th width="">所属部门：</th>			 <td class="customer_boss">			      <input type="text" id="boss_unit" name="boss_unit[]" readonly value="'+boss_unit+'" />			 </td>	  	</tr>  ';
+		var old_boss = '<tr class="boss_val">	  	 	<th width="" >总负责人：</th>	   		 <td>			      	<input type="text" name="boss_name[]" value="'+customer_boss+'" readonly style="color:grey"  />			 </td>		  	</tr>		<tr class="boss_val">		    	 <th width="">负责人：</th>			 <td>			<input type="text" name="min_boss[]" value="'+min_boss+'" readonly style="color:grey"  class="" />		 </td>	   	 </tr>	  	<tr class="boss_val">	  		 <th width="">所属部门：</th>			 <td class="customer_boss">			      <input type="text" id="boss_unit" name="boss_unit[]" readonly style="color:grey"  value="'+boss_unit+'" />			 </td>	  	</tr>  ';
 		if($('.boss_val').length == 0){
 			$(this).parent().parent().after(old_boss);
-			$('.customer_boss').eq(0).children().val('杨春明');
+			$('.customer_boss').eq(0).children().val(' ');
 			$('.customer_boss').eq(1).children().val(' ');
 			$('.customer_boss').eq(2).children().val(' ');
 		}
+
 	})
 	//添加客户信息自动添加信息到状态跟进表中
 	
@@ -118,27 +165,29 @@ if($min_boss->num_rows){
 	
 	//动态添加客户状态
 	$('#add_status').live('click',function(){
-		var customer = $('.customer:last').text();
-		var contacts = $('.contacts:last').text();
-		var boss = $('.boss:last').text();
+		//获取客户基本信息
+		var  customer_status = '<tr class="status_val">	 		<td>	 			<input type="text" name="status_time[]" value="'+nowDate+'">	 		</td>	 <td class="new_status status_codes">					</td><td class="new_status status_grades">	 		    	</td>		<td class="status_names new_status" >		 		</td>		 		<td class="new_status status_contactss"> 		</td>	<td class="new_status status_phones">	 			</td> 		<td class="new_status status_bosss">	 				</td>	 		<td>	 			<input type="text" name="status_goal[]">	 		</td>	 		<td>	 			<input type="text" name="status_result[]" >	 		</td>	 		<td>	 			<input type="text" name="status_plan[]"  >	 		</td>	 		<td>	 			<input type="text" name="status_note[]" >	 		</td>		</tr>';
+	
 
-		var  customer_status = '<tr class="status_val">	 		<td>	 			<input type="text" name="status_time[]" value="'+nowDate+'">	 		</td>	 		<td>	 			<input type="text" name="status_customer[]" class="status_customer" value="'+customer+'">	 		</td>		 		<td> 			<input type="text" name="status_contacts[]" value="'+contacts+'">	 		</td>	 		<td>	 			<input type="text" name="status_boss[]" value="'+boss+'" >	 		</td>	 		<td>	 			<input type="text" name="status_goal[]">	 		</td>	 		<td>	 			<input type="text" name="status_result[]" >	 		</td>	 		<td>	 			<input type="text" name="status_plan[]"  >	 		</td>	 		<td>	 			<input type="text" name="status_note[]" >	 		</td>		</tr>';
 		$(this).parent().parent().before(customer_status);
+		getCurrentInfo('customer_code','status_code','.status_codes');
+		getCurrentInfo('customer_grade','status_grade','.status_grades');
+		getCurrentInfo('customer_name','status_customer','.status_names');
+		getCurrentInfo('contacts_name','status_contacts','.status_contactss');
+		getCurrentInfo('contacts_phone','status_phone','.status_phones');
+		getCurrentInfo('boss_names','status_boss','.status_bosss');
 
 	})
 	
 	//根据权限决定是否可以修改
-	if($('#authority').val() == '1'){
-		
-		
-	 }else{
-		$('.old_data').attr('readonly',true);
+	if($('#authority').val() != '1'){
+	
+		$('.old_data').children().children().children().children().attr('readonly',true);
 		$('.old_data').css({'border':'none','outline':'none'})
 	}
 	//撤销更换负责人
 	$('#cancel_boss').live('click',function(){
-		$('.customer_boss').children().prop('readonly',true);
-		$('.current_boss').children().prop('disabled',true);
+		$('.customer_boss').children().prop('disabled',true);
 		//把值填回到原来的输入框中
 		var customer_boss = $('.boss_val').eq(0).children().children('input').val();
 		var min_boss = $('.boss_val').eq(1).children().children('input').val();
@@ -160,7 +209,7 @@ if($min_boss->num_rows){
 			$('.status_val:last').remove();
 		}
 	})
-		//提交信息的时候判断所需内容是否为空
+	//提交信息的时候判断所需内容是否为空
 	$('button').click(function(){
 		var num = $('input[name ^= customer_name]').size();
 		var contacts_num = $('input[name ^= contacts_name]').size();
@@ -229,8 +278,10 @@ if($min_boss->num_rows){
 			return false;
 		}
 
-	}
-		
+	}	
+
+			$('.customer_boss').children().prop('disabled',false);
+	
 		
 	})
 	//选择负责人后自动获取部门
@@ -247,13 +298,8 @@ if($min_boss->num_rows){
 
 		});
 	})
-	//提交数据时,去掉负责人的disabled属性
-	$('#up_data').click(function(){
-		
-		if($('.current_boss').children().prop('disabled') == true){
-			$('.current_boss').children().prop('disabled',false);
-		}
-	})
+
+
 	})
 </script>
 <style type="text/css" media="screen">
@@ -269,6 +315,7 @@ if($min_boss->num_rows){
 	#customer_status tr td{height:20px;width:100px;word-wrap:break-word;word-break:break-all}
 	#customer_status tr th{text-align:center;}
 	#customer_status tr td input{width:110px;}
+	.new_status select{width:110px;}
 </style>
 <title>客户管理-嘉泰隆</title>
 </head>
@@ -320,7 +367,7 @@ if($min_boss->num_rows){
   	<input type="hidden" name="customer_id" value="<?php echo  $array_customer[0]['customer_id'] ?>">
   	
  <div style="width:1210px;margin:0px auto">
-	  <table style="width:400px;float:left">
+	  <table style="width:400px;float:left" class="old_data">
 	  	<tr>
 	  		<td colspan="4" style="text-align:center">客户信息</td>
 	  	</tr>
@@ -333,7 +380,7 @@ if($min_boss->num_rows){
 		      </td>
 		      <td style="width:40px">等级：</td>
 		      <td>
-		      	<select name="customer_grade[]" style="height:30px;width:70px">
+		      	<select name="customer_grade[]" class="grades" style="height:30px;width:70px">
 		      		<?php foreach($array_customer_grade as $ks=>$vs){ ?>
 		      			<option <?php echo $v[1]==$vs?"selected":" " ?> value="<?php echo $vs ?>"><?php echo $vs ?></option>
 		      			
@@ -380,7 +427,7 @@ if($min_boss->num_rows){
 	    		</td>
 	    	</tr>
 	  </table>
-	  <table style="width:400px;float:left;background:rgb(240,243,247)">
+	  <table style="width:400px;float:left;background:rgb(240,243,247)" class="old_data">
 	  	<tr>
 	  		<td colspan="2" style="text-align:center">联系人信息</td>
 	  	</tr>
@@ -439,12 +486,17 @@ if($min_boss->num_rows){
 	  	<tr>
 	  	 	<th width="" >总负责人：</th>
 	   		 <td width="" class="customer_boss">
-			      	<input type="text" name="boss_name[]" value="<?php echo $v[0] ?>" readonly />
-			 </td>	
+			
+		              <select name="boss_name[]" id="" style="width:200px;height:30px">
+		                 <?php foreach($employeess as $ks=>$vs){ ?>
+		              	<option <?php echo $v[0]==$vs['employee_name']?'selected':' ' ?> value="<?php echo $vs['employee_name'] ?>"><?php echo $vs['employee_name'] ?></option>
+		           	<?php     } ?>
+		            </select>
+     		  	</td>      	
 	  	</tr>
 		<tr>
 		    	 <th width="">负责人：</th>
-			 <td class="customer_boss current_boss">
+			 <td class="customer_boss">
 			      <select name="min_boss[]" id="min_boss" class="boss_names" style="width:200px;height:30px">
 			      		<option value="0">--请选择--</option>
 			      	<?php foreach($employees as $ks=>$vs){ ?>
@@ -475,17 +527,20 @@ if($min_boss->num_rows){
 	  </table>
 	 </div>
 <div style="clear:both"></div>
-<h4 style="background:#eee;width:100%;position:relative;left:0px;top:20px;padding-left:10px">状态履历</h4>
+<h4 style="background:#eee;width:100%;position:relative;left:0px;top:20px;">状态履历</h4>
 
 <div>
 	<table id="customer_status" style="width:95%;margin:40px auto;">
 
 		<tr>
 	 		<th>时间</th>
-	 		<th>客户公司</th>	
-	 		<th>联系人</th>
+	 		<th>客户代码</th>
+	 		<th>客户等级</th>
+	 		<th>公司名称</th>
+	 		<th>公司联系人</th>
+	 		<th>电话/手机</th>
 	 		<th>负责人</th>
-	 		<th>跟进目标</th>
+	 		<th>跟进目的</th>
 	 		<th>跟进效果</th>
 	 		<th>下步计划</th>
 	 		<th>备注</th>
@@ -498,11 +553,20 @@ if($min_boss->num_rows){
 	 		<td>
 	 			<?php echo $v['status_time']  ?>
 	 		</td>
+	 		<td class="code">
+	 			<?php echo $v['status_code']  ?>
+	 		</td>
+	 		<td class="grade">
+	 			<?php echo $v['status_grade']  ?>
+	 		</td>
 	 		<td class="customer">
 				<?php echo $v['status_customer'] ?>
 	 		</td>	
 	 		<td class="contacts">
 	 			<?php echo $v['status_contacts'] ?>
+	 		</td>
+	 		<td class="phone">
+	 			<?php echo $v['status_phone']  ?>
 	 		</td>
 	 		<td class="boss">
 	 			<?php echo $v['status_boss'] ?>
@@ -522,7 +586,7 @@ if($min_boss->num_rows){
 		</tr>
 		<?php }} ?>
 		<tr>
-	  		<td colspan="8" style="text-align:center">
+	  		<td colspan="11" style="text-align:center">
 	  			<p id="add_status" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">添加跟进状态</p>
 	  			<p id="cancel_status" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">撤销</p>
 	  		</td>

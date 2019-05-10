@@ -226,7 +226,7 @@ function getdate(timestamp) {
         <th width="">未税价格</th>
         <th width="">含税价格</th>
         <th width="">历史价格</th>
-        <th width="">修改</th>
+        
       <?php
       while($row = $result->fetch_assoc()){
       $mould_dataid = $row['mould_dataid'];
@@ -330,7 +330,7 @@ function getdate(timestamp) {
         <td><input type="button" class="but" value="查看"></button>&nbsp;<span class="mold_num"><?php echo $row['num'];           
            ?><input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
-        <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval_edit"><input type="button" value="修改"></a><?php } ?></td>
+      <!-- <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval_edit"><input type="button" value="修改"></a><?php } ?></td>-->
       </tr> 
       <?php } ?>
     </table>

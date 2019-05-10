@@ -7,13 +7,16 @@ require_once 'shell.php';
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 $employee_id = $_SESSION['employee_info']['employeeid'];
+$before_date = strtotime($sdate);
+$after_date  = strtotime($edate);
 
 if($_GET['submit']){
-	$customer_name = trim($_GET['customer_name']);
-	$customer_code = trim($_GET['customer_code']);
-	$contacts_name = trim($_GET['contacts_name']);
-	$contacts_phone = trim($_GET['contacts_phone']);
-	$sqlwhere = "  AND `customer_name` LIKE '%$customer_name%' AND `customer_code` LIKE '%$customer_code%' AND `contacts_phone` LIKE '%$contacts_phone%' AND `contacts_name` LIKE '%$contacts_name%'";
+  $customer_grade = trim($_GET['customer_grade']);
+  $customer_code = trim($_GET['customer_code']);
+    $contacts_name = trim($_GET['customer_name']);
+  $contacts_name = trim($_GET['contacts_name']);
+  $contacts_phone = trim($_GET['contacts_phone']);
+  $sqlwhere = "  AND `customer_grade` LIKE '%$customer_grade%' AND `customer_code` LIKE '%$customer_code%' AND `customer_name` LIKE '%$customer_name%'AND `contacts_phone` LIKE '%$contacts_phone%' AND `contacts_name` LIKE '%$contacts_name%'  AND (`add_times`BETWEEN '$before_date' AND '$after_date')";
 }
 /*$sql = "SELECT * FROM `db_mould_data` 
 WHERE time in (
@@ -30,7 +33,7 @@ $system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$
 $system_id_res = $db->query($system_id_sql);
 $system_id = $system_id_res->fetch_row()[0];
 if($system_id ==' '){
-	header('location:../myjtl/index.php');
+  header('location:../myjtl/index.php');
 }
 //查询登录用户是否是客户管理的管理员
 $system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employee_id' AND `systemid`=".$system_id;
@@ -38,16 +41,16 @@ $system_res = $db->query($system_sql);
 
 $system_info = [];
 while($system_admin = $system_res->fetch_row()){
-	$system_info = $system_admin;
+  $system_info = $system_admin;
 }
 
 //判断是否是管理员来决定查询方法
 
 if($system_info[0] == '1'){
-	$sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1'".$sqlwhere;
+  $sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1'".$sqlwhere;
 } else {
-	$sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1' AND `adder_id` = '$employee_id'".$sqlwhere;
-	}
+  $sql = "SELECT * FROM `db_customer_info` WHERE `status` = '1' AND `adder_id` = '$employee_id'".$sqlwhere;
+  }
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -79,18 +82,18 @@ function getdate(timestamp) {
         var s = date.getSeconds();
         return Y+M+D;
     }
-	//点击每一行内容,跳转到内容详情页面'[name^=id]:checkbox'
-	$('.show_list').live('click',function(){
-		
-		var trs = $(this).parent().children().children('input[name^=id]').val();
-		window.open('customer_show.php?action=show&id='+trs,'_self');
-			})
+  //点击每一行内容,跳转到内容详情页面'[name^=id]:checkbox'
+  $('.show_list').live('click',function(){
+    
+    var trs = $(this).parent().children().children('input[name^=id]').val();
+    window.open('customer_status_show.php?action=show&id='+trs,'_self');
+      })
       </script>
 <title>模具报价-嘉泰隆</title>
 <style type="text/css">
-	#main{table-layout:fixed;width:1350px;}
-	#main tr td{word-wrap:break-word;word-break:break-all;}
-	
+  #main{table-layout:fixed;width:1350px;}
+  #main tr td{word-wrap:break-word;word-break:break-all;}
+  #search tr td .input_tx{width:100px}	  
 </style>
 </head>
 
@@ -98,25 +101,32 @@ function getdate(timestamp) {
 <?php include "header.php"; ?>
 <div id="table_search">
   <h4 style="padding-left:10px">
-  	 
+     
   </h4>
   <form action="" name="search" method="get">
-    <table >
-      <tr>
-      	
-          
-       </tr>
+    <table  style="table-layout:fixed" id="search">
+
        <tr>
-       <td>客户名称</td>
-       <td><input type="text" name="customer_name" class="input_txt" /></td>
-       <td></td>
        <td>客户代码</td>
-       <td><input type="text" name="customer_code" class="input_txt"></td>
-       <td></td>
+       <td><input type="text" name="customer_code" class="input_tx input_txt" /></td>
+     
+       <td>客户等级</td>
+       <td>
+	    <select class="input_tx input_txt" style="height:25px" name="customer_grade">
+	    	<?php foreach($array_customer_grade as $v){ 
+	    		echo '<option value="'.$v.'">'.$v.'</option>';
+	    	}?>
+	    </select>
+        <td>客户名称</td>
+        <td><input type="text" name="customer_name" class="input_txt" /></td>
         <td>联系人</td>
-        <td><input type="text" name="contacts_name" class="input_txt" /></td>
-        <td>手机号</td>
+        <td><input type="text" name="contacts_name" class="input_tx input_txt" /></td>
+        <td>电话/手机</td>
         <td><input type="text" name="contacts_phone" class="input_txt" /></td>
+        <td>时间</td>
+        <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
+          --
+          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
         <td><input type="submit" name="submit" value="查找" class="button" />
       </tr>
     </table>
@@ -125,24 +135,24 @@ function getdate(timestamp) {
 <div id="table_list">
   <?php
   if($result->num_rows){
-	  while($row_id = $result_id->fetch_assoc()){
+    while($row_id = $result_id->fetch_assoc()){
 
-		  $array_customer_id .= $row_id['id'].',';
-	  }
-	  $array_customer_id = rtrim($array_customer_id,',');
+      $array_customer_id .= $row_id['id'].',';
+    }
+    $array_customer_id = rtrim($array_customer_id,',');
 
-	  $sql_group = "SELECT `id`,COUNT(*) AS `count` FROM `db_customer_info` WHERE `id` IN ($array_customer_id) AND `customer_status` = '0' GROUP BY `id`";
-	
-	  $result_group = $db->query($sql_group);
-	  if($result_group->num_rows){
-		  while($row_group = $result_group->fetch_assoc()){
-		  	
-			  $array_group[$row_group['id']] = $row_group['count'];
-		  }
-	  }else{
-		  $array_group = array();
-	  }
-	
+    $sql_group = "SELECT `id`,COUNT(*) AS `count` FROM `db_customer_info` WHERE `id` IN ($array_customer_id) AND `customer_status` = '0' GROUP BY `id`";
+  
+    $result_group = $db->query($sql_group);
+    if($result_group->num_rows){
+      while($row_group = $result_group->fetch_assoc()){
+        
+        $array_group[$row_group['id']] = $row_group['count'];
+      }
+    }else{
+      $array_group = array();
+    }
+  
   ?>
   <form action="customer_datado.php" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0" style="table-layout:fixed">
@@ -153,8 +163,8 @@ function getdate(timestamp) {
         <th style="width:50px">客户等级</th>
         <th style="">客户名称</th>
         <th style="">主营业务</th>
-        <th style="">地址</th>
-        <th style="">联系人</th>
+        <th style="">客户地址</th>
+        <th style="">客户联系人</th>
         <th style="">职务</th>
         <th style="">电话/手机</th>
         <th style="">邮箱</th>
@@ -163,51 +173,64 @@ function getdate(timestamp) {
         <th style="">备注</th>
       <?php
       while($row = $result->fetch_assoc()){
-      	$id = $row['customer_id'];
-      	//查找客户的最新状态
-	$status_sql = "SELECT `status_result` FROM `db_customer_status` WHERE `add_time` IN (SELECT max(`add_time`) FROM `db_customer_status` WHERE `customer_id` ={$id})";
-	$status_res = $db->query($status_sql);
-	if($status_res->num_rows){
-		$new_status = $status_res->fetch_row()[0];
-	}
-	  $count = array_key_exists($id,$array_group)?$array_group[$id]:0;
-	  //获取联系人的信息
-	  if(strstr($row['contacts_name'],'$$') || strstr($row['customer_name'],'$$') || strstr($row['min_boss'],'$$')){
-	  	$customer_code = explode('$$',$row['customer_code']);
-	  	$customer_name = explode('$$',$row['customer_name']);
-	  	$customer_grade = explode('$$',$row['customer_grade']);
-	  	$customer_business = explode('$$',$row['customer_business']);
-	  	$customer_code = explode('$$',$row['customer_code']);
-	  	$customer_address = explode('$$',$row['customer_address']);
-	  	$contacts_name = explode('$$',$row['contacts_name']);
-	  	$contacts_work = explode('$$',$row['contacts_work']);
-	  	$contacts_phone = explode('$$',$row['contacts_phone']);
-	  	$contacts_email = explode('$$',$row['contacts_email']);
-	  	$contacts_note = explode('$$',$row['contacts_note']);
-	  	$boss_name = explode('$$',$row['min_boss']);
-	  	
-	  } else {
-	  	$customer_code = $row['customer_code'];
-	  	$customer_name = $row['customer_name'];
-	  	$customer_grade = $row['customer_grade'];
-	  	$customer_business = $row['customer_business'];
-	  	$customer_code = $row['customer_code'];
-	  	$customer_address = $row['customer_address'];
-	  	$contacts_name = $row['contacts_name'];
-	  	$contacts_work = $row['contacts_work'];
-	  	$contacts_phone = $row['contacts_phone'];
-	  	$contacts_email = $row['contacts_email'];
-	  	$contacts_note = $row['contacts_note'];
-	  	$boss_name = $row['min_boss'];
-	
-	  	
-	 	 }
-	 	
-	  ?>
+        $id = $row['customer_id'];
+        //查找客户的最新状态
+  $status_sql = "SELECT `status_result`,`customer_status_id` FROM `db_customer_status` WHERE `add_time` IN (SELECT max(`add_time`) FROM `db_customer_status` WHERE `customer_id` ={$id})";
+  $status_res = $db->query($status_sql);
+  if($status_res->num_rows){
+    $infos = $status_res->fetch_row();
+  }
+  $new_status = $infos[0];
+  $customer_status_id = $infos[1];
+    $count = array_key_exists($id,$array_group)?$array_group[$id]:0;
+    //获取联系人的信息
+    if(strpos($row['customer_name'],'$$')){
+        $customer_name = substr($row['customer_name'],0,strpos($row['customer_name'],'$$'));
+        $customer_grade = substr($row['customers_grade'],0,strpos($row['customer_grade'],'$$'));
+        $customer_business = substr($row['customer_business'],0,strpos($row['customer_business'],'$$'));
+        $customer_code = substr($row['customer_code'],0,strpos($row['customer_code'],'$$'));
+        $customer_address = substr($row['customer_address'],0,strpos($row['customer_address'],'$$'));
+       
+      $customer_name = substr(strstr($row['customer_name'],'$$'),2);
+       $customer_grade = substr(strstr($row['customer_grade'],'$$'),2);
+       $customer_business = substr(strstr($row['customer_business'],'$$'),2);
+       $customer_code = substr(strstr($row['customer_code'],'$$'),2);
+       $customer_address = substr(strstr($row['customer_address'],'$$'),2);
+  	  } else {
+      $customer_code = $row['customer_code'];
+      $customer_name = $row['customer_name'];
+      $customer_grade = $row['customer_grade'];
+      $customer_business = $row['customer_business'];
+      $customer_code = $row['customer_code'];
+      $customer_address = $row['customer_address']; 
+     }
+     if(strpos($row['contacts_name'],'$$')){
+       $contacts_name = substr($row['contacts_name'],0,strpos($row['contacts_name'],'$$'));
+        $contacts_work = substr($row['contacts_work'],0,strpos($row['contacts_work'],'$$'));
+         $contacts_phone = substr($row['contacts_phone'],0,strpos($row['contacts_phone'],'$$'));
+        $contacts_email = substr($row['contacts_email'],0,strpos($row['contacts_email'],'$$'));
+        $contacts_note = substr($row['contacts_note'],0,strpos($row['contacts_note'],'$$'));
+
+   	}else{
+      $contacts_name = $row['contacts_name'];
+      $contacts_work = $row['contacts_work'];
+      $contacts_phone = $row['contacts_phone'];
+      $contacts_email = $row['contacts_email'];
+      $contacts_note = $row['contacts_note'];
+  	}
+
+    if(strpos($row['boss_name'],'$$')){
+
+       $boss_name = substr($row['boss_name'],0,strpos($row['boss_name'],'$$'));
+  	} else {
+       $boss_name = $row['min_boss'];	
+  	}
+  	
+    ?>
      <tr class="show">
      
-        <td><input type="checkbox" name="id[]" value="<?php echo $row['customer_id']; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
-        <td class="show_list"><?php echo date('Y-m-d',$row['add_times']) ?></td>    
+        <td><input type="checkbox" name="id[]" value="<?php echo $customer_status_id; ?>"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>
+        <td class="show_list"><?php echo date('Y-m-d',$row['add_date']) ?></td>    
           <td class="show_list"><?php echo getin($customer_code) ?></td> 
           <td class="show_list"><?php echo getin($customer_grade)?></td>
         <td class="show_list"><?php echo getin($customer_name) ?></td>   
@@ -222,7 +245,7 @@ function getdate(timestamp) {
         <td class="show_list"><?php echo getin($contacts_note) ?></td>
   
        
-       	
+        
             <input type="hidden" name="customer_id" value="<?php echo $row['customer_id'] ?>"></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
      <!--   <td><?php if($count == 0){ ?><a href="customer_edit.php?id=<?php echo $row['customer_id']; ?>&action=edit"><input type="button" value="修改"></a><?php } ?> </td>-->
@@ -243,7 +266,7 @@ function getdate(timestamp) {
   </div>
   <?php
   }else{
-	  echo "<p class=\"tag\">系统提示：暂无记录！</p>";
+    echo "<p class=\"tag\">系统提示：暂无记录！</p>";
   }
   ?>
 </div>

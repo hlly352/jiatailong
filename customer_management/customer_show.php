@@ -17,7 +17,7 @@ if($result ->num_rows){
 	}
 }
 //查找市场部和项目部的人员
-$min_boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` =1 OR `deptid` = 2 AND `employee_status` = '1'";
+$min_boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` =1 AND `employee_status` = '1' OR `deptid` = 2 AND `employee_status` = '1'";
 
 $min_boss = $db->query($min_boss_sql);
 $employees = [];
@@ -72,13 +72,13 @@ if($min_boss->num_rows){
 	})
 	//动态删除联系人
 	$('.del_contacts').live('click',function(){
-		$(this).parent().parent().nextAll().slice(0,6).remove();
+		$(this).parent().parent().nextAll().slice(0,5).remove();
 		$(this).parent().parent().remove();
 		$(this).remove();
 	})
 	//动态删除分公司信息
 	$('.del_company').live('click',function(){
-		$(this).parent().parent().nextAll().slice(0,7).remove();
+		$(this).parent().parent().nextAll().slice(0,5).remove();
 		$(this).parent().parent().remove();
 		$(this).remove();
 	})
@@ -113,20 +113,30 @@ if($min_boss->num_rows){
 	})
 	$('input[name = status_time]').val(nowDate);
 	
-	//添加客户状态信息
-	var  customer_status = '<tr>	 		<td>	 			<input type="text" name="status_time[]" value="'+nowDate+'">	 		</td>	 		<td>	 			<input type="text" name="status_customer[]" class="status_customer">	 		</td>		 		<td> 			<input type="text" name="status_contacts[]">	 		</td>	 		<td>	 			<input type="text" name="status_boss[]" >	 		</td>	 		<td>	 			<input type="text" name="status_goal[]">	 		</td>	 		<td>	 			<input type="text" name="status_result[]" >	 		</td>	 		<td>	 			<input type="text" name="status_plan[]"  >	 		</td>	 		<td>	 			<input type="text" name="status_note[]" >	 		</td>		</tr>';
 	//动态添加客户状态
 	$('#add_status').live('click',function(){
+		var code = $.trim($('.code:last').text());
+		var grade = $.trim($('.grade:last').text());
+		var customer = $.trim($('.customer:last').text());
+		var contacts = $.trim($('.contacts:last').text());
+		var boss = $.trim($('.boss:last').text());
+		var phone = $.trim($('.phone:last').text());
+
+		var  customer_status = '<tr class="status_val">	 		<td>	 			<input type="text" name="status_time[]" value="'+nowDate+'">	 		</td>	 <td>	 			<input type="text" name="status_code[]" value="'+code+'">	 		</td><td>	 		    	<select name="status_grade[]"  style="height:23px;width:110px">		      		<?php foreach($array_customer_grade as $ks=>$vs){ ?>		      			<option <?php echo '+grade+'==$vs?"selected":" " ?> value="<?php echo $vs ?>"><?php echo $vs ?></option>		      					      			<?php }?>		      	</select>	 		</td>		<td>	 			<input type="text" name="status_customer[]" class="status_customer" value="'+customer+'">	 		</td>		 		<td> 			<input type="text" name="status_contacts[]" value="'+contacts+'">	 		</td>	<td>	 			<input type="text" name="status_phone[]" value="'+phone+'">	 		</td> 		<td>	 			<input type="text" name="status_boss[]" value="'+boss+'" >	 		</td>	 		<td>	 			<input type="text" name="status_goal[]">	 		</td>	 		<td>	 			<input type="text" name="status_result[]" >	 		</td>	 		<td>	 			<input type="text" name="status_plan[]"  >	 		</td>	 		<td>	 			<input type="text" name="status_note[]" >	 		</td>		</tr>';
 		$(this).parent().parent().before(customer_status);
 
 	})
+	//撤销状态
+	$('#cancel_status').live('click',function(){
+		if($('.status_val').length >0){
+			$('.status_val:last').remove();
+		}
+	})
 	
 	//根据权限决定是否可以修改
-	if($('#authority').val() == '1'){
-		
-		
-	 }else{
-		$('.old_data').attr('readonly',true);
+	if($('#authority').val() != '1'){
+	
+		$('.old_data').children().children().children().children().attr('readonly',true);
 		$('.old_data').css({'border':'none','outline':'none'})
 	}
 	//负责人信息默认不能更改
@@ -289,7 +299,7 @@ if($min_boss->num_rows){
   	<input type="hidden" name="customer_id" value="<?php echo  $array_customer[0]['customer_id'] ?>">
   	
  	<div style="width:1210px;margin:0px auto">
-	  <table style="width:400px;float:left">
+	  <table style="width:400px;float:left" class="old_data">
 	  	<tr>
 	  		<td colspan="4" style="text-align:center">客户信息</td>
 	  	</tr>
@@ -349,7 +359,7 @@ if($min_boss->num_rows){
 	    		</td>
 	    	</tr>
 	  </table>
-	  <table style="width:400px;float:left;background:rgb(240,243,247)">
+	  <table style="width:400px;float:left;background:rgb(240,243,247)" class="old_data">
 	  	<tr>
 	  		<td colspan="2" style="text-align:center">联系人信息</td>
 	  	</tr>
@@ -398,7 +408,7 @@ if($min_boss->num_rows){
 	  		</td>
 	  	</tr>
 	  </table>
-	  <table style="width:400px;float:left">
+	  <table style="width:400px;float:left" class="old_data">
 	  	<tr>
 	  		<td colspan="2" style='text-align:center'>
 	  			负责人信息
@@ -444,17 +454,17 @@ if($min_boss->num_rows){
 	  </table>
 	 </div>
 <div style="clear:both"></div>
-<h4 style="background:#eee;width:100%;position:relative;left:0px;top:20px;padding-left:10px">状态履历</h4>
+<h4 style="background:#eee;width:100%;position:relative;left:0px;top:20px">状态履历</h4>
 
 <div>
 	<table id="customer_status" style="width:95%;margin:40px auto;">
 
 		<tr>
 	 		<th>时间</th>
-	 		<th>代码</th>
-	 		<th>等级</th>
+	 		<th>客户代码</th>
+	 		<th>客户等级</th>
 	 		<th>公司名称</th>
-	 		<th>联系人</th>
+	 		<th>公司联系人</th>
 	 		<th>电话/手机</th>
 	 		<th>负责人</th>
 	 		<th>跟进目的</th>
@@ -470,22 +480,22 @@ if($min_boss->num_rows){
 	 		<td>
 	 			<?php echo $v['status_time']  ?>
 	 		</td>
-	 		<td>
+	 		<td class="code">
 	 			<?php echo $v['status_code']  ?>
 	 		</td>
-	 		<td>
+	 		<td class="grade">
 	 			<?php echo $v['status_grade']  ?>
 	 		</td>
-	 		<td>
+	 		<td class="customer">
 				<?php echo $v['status_customer'] ?>
 	 		</td>	
-	 		<td>
+	 		<td class="contacts">
 	 			<?php echo $v['status_contacts'] ?>
 	 		</td>
-	 		<td>
-	 			<?php echo $v['contacts_phone']  ?>
+	 		<td class="phone">
+	 			<?php echo $v['status_phone']  ?>
 	 		</td>
-	 		<td>
+	 		<td class="boss">
 	 			<?php echo $v['status_boss'] ?>
 	 		</td>
 	 		<td>
@@ -501,8 +511,14 @@ if($min_boss->num_rows){
 	 			<?php echo $v['status_note'] ?>
 	 		</td>
 		</tr>
-		<?php }} ?>
-		
+		<?php } ?>
+		<tr>
+	  		<td colspan="11" style="text-align:center">
+	  			<p id="add_status" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">添加跟进状态</p>
+	  			<p id="cancel_status" style="width:100px;height:15px;background:grey;display:inline-block;cursor:pointer;border-radius:4px">撤销</p>
+	  		</td>
+	  	</tr>
+	  <?php } ?>
 	</table>
 </div>
   <div id="save">

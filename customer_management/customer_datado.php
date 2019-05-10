@@ -15,6 +15,14 @@ if($_POST['submit']){
 		
 	}
 	if($action == 'add'){
+		$adder = trim($customer_info['min_boss'][0]);
+			//把负责人换为最新的
+			$add_sql = "SELECT `employeeid` FROM `db_employee` WHERE `employee_name` LIKE '%".$adder."%'";
+			
+			$add_res = $db->query($add_sql);
+			if($add_res->num_rows){
+				$adder_id = $add_res->fetch_row()[0];
+			}
 		//拼接数据库语句
 		unset($customer_info['submit']);
 		unset($customer_info['action']);
@@ -43,11 +51,10 @@ if($_POST['submit']){
 			$key_word .= '`'.$key.'`,';
 			$value_word .= '"'.$value.'",';
 		}
-
-		$key_word = $key_word.'`add_times`,`adder_id`';
-		$value_word = $value_word.time().','.$employee_id;
+		$microtime = microtime(true) * 10000;
+		$key_word = $key_word.'`add_times`,`adder_id`,`add_date`';
+		$value_word = $value_word.$microtime.','.$adder_id.','.time();
 		$sql = "INSERT INTO `db_customer_info` ($key_word) VALUES($value_word)";
-	
 		//执行sql 语句
 		$result = $db->query($sql);
 
@@ -68,13 +75,14 @@ if($_POST['submit']){
 
 			}
 			//加入客户id字段
+			$microtime = microtime(true) * 10000;
 			$sql_key .= '`customer_id`,`add_time`,`employee_id`';
-			$sql_val  .= $insert_id.','.time().','.$employee_id;
+			$sql_val  .= $insert_id.','.$microtime.','.$adder_id;
 			//拼接sql语句
 			$sql_status = "INSERT INTO `db_customer_status` ($sql_key) VALUES($sql_val)";
 			$res = $db->query($sql_status);
 			if($db->insert_id){
-				header("location:customer_index.php");
+				header("location:customer_status.php");
 			} else {
 				header("location:customer_add.php");
 			}
@@ -86,7 +94,7 @@ if($_POST['submit']){
 			$customer_id = $customer_info['customer_id'];
 			unset($customer_info['customer_id']);
 			$customer_status_info = $customer_info;
-			$status_arr = ['status_time','status_customer','status_contacts','status_boss','status_goal','status_result','status_plan','status_note'];
+			$status_arr = ['status_time','status_customer','status_grade','status_phone','status_code','status_contacts','status_boss','status_goal','status_result','status_plan','status_note'];
 			//去除不添加到客户信息表的信息
 			foreach($customer_info as $k=>$v){
 				if(in_array($k,$status_arr)){
@@ -189,10 +197,49 @@ if($_POST['submit']){
 
 			$result = $db->query($customer_sql);
 			if($db->affected_rows){
-				header('location:customer_index.php');
+				//获取要添加到客户状态表中的数据
+				foreach($customer_status_info as $k=>$v){
+				if(!in_array($k,$status_arr)){
+					unset($customer_status_info[$k]);
+					}
+				}
+				
+				$sql_val = [];
+				foreach($customer_status_info as $k=>$v){
+					$sql_key .= '`'.$k.'`,';
+					foreach($v as $key=>$val){
+						$sql_val[$key][] = $val;
+					}
+
+				}
+				$sql_key .= '`add_time`,`employee_id`,`customer_id`';
+				//拼接sql语句
+				$i = 0;
+				
+				foreach($sql_val as $ks=>$vs){
+					$val ='"'.implode('","',$vs);
+					$microtime = microtime(true) * 10000;
+					$val .= '",'.$microtime.','.$employee_id.','.$customer_id;
+
+					//循环插入数据
+					$sql = "INSERT INTO `db_customer_status`($sql_key) VALUES($val)";
+					
+					$res = $db->query($sql);
+					if($db->affected_rows != 1){
+						$i +=1;
+						
+					}
+					sleep(1);
+				}
+				//判断时候都插入成功
+				//echo $i;
+				if($i == 0){
+					header('location:customer_index.php');
+				}
 			}
 			
 		}elseif($action == 'status_edit'){
+			
 			$adder = trim($customer_info['min_boss'][0]);
 			//把负责人换为最新的
 			$add_sql = "SELECT `employeeid` FROM `db_employee` WHERE `employee_name` LIKE '%".$adder."%'";
@@ -208,7 +255,7 @@ if($_POST['submit']){
 			unset($customer_info['customer_id']);
 			
 			$customer_status_info = $customer_info;
-			$status_arr = ['status_time','status_customer','status_contacts','status_boss','status_goal','status_result','status_plan','status_note'];
+			$status_arr = ['status_time','status_customer','status_grade','status_phone','status_code','status_contacts','status_boss','status_goal','status_result','status_plan','status_note'];
 			//去除不添加到客户信息表的信息
 			foreach($customer_info as $k=>$v){
 				if(in_array($k,$status_arr)){

@@ -94,7 +94,7 @@ function getdate(timestamp) {
       var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
       
       $('.show').each(function(){
-        window.open('mould_show.php?action=show&id='+mold_dataid);
+        window.open('mould_dataae.php?action=approval&id='+mold_dataid,'_self');
       })
     })
   
@@ -177,7 +177,6 @@ function getdate(timestamp) {
         <th style="width:44px">吨位</th>
         <th style="width:82px">未税价格</th>
         <th style="width:82px">含税价格</th>
-        <th style="width:44px">修改</th>
       <?php
       while($row = $result->fetch_assoc()){
       $mould_dataid = $row['mould_dataid'];
@@ -284,7 +283,7 @@ function getdate(timestamp) {
         </i>  
             <input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
-        <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><input type="button" value="修改"></a><?php } ?><?php if($count == 0){ ?><hr><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval"><input type="button" value="审批"></a><?php } ?></td>
+    <!--    <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><input type="button" value="修改"></a><?php } ?><?php if($count == 0){ ?><hr><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval"><input type="button" value="审批"></a><?php } ?></td>-->
       </tr> 
       <?php } ?>
     </table>
