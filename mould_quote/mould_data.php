@@ -3,6 +3,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+$employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 if($_GET['submit']){
@@ -11,13 +12,38 @@ if($_GET['submit']){
   $project_name = trim($_GET['project_name']);
   $sqlwhere = "  AND `client_name` LIKE '%$client_name%' AND `mould_name` LIKE '%$mould_name%' AND `project_name` LIKE '%$project_name%'";
 }
+//获取当前页面的路径
+$system_url =  dirname(__FILE__);
+
+$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+$system_url = substr($system_url,$system_pos);
+//通过路径查询对应的模块id
+$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+$system_id_res = $db->query($system_id_sql);
+$system_id = $system_id_res->fetch_row()[0];
+if($system_id ==' '){
+  header('location:../myjtl/index.php');
+}
+//查询登录用户是否是客户管理的管理员
+$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+$system_res = $db->query($system_sql);
+
+$system_info = [];
+while($system_admin = $system_res->fetch_row()){
+  $system_info = $system_admin;
+}
+
 /*$sql = "SELECT * FROM `db_mould_data` 
 WHERE time in (
 SELECT max(a.time)
 FROM db_mould_data a
 GROUP BY mold_id)".$sqlwhere;*/
-$sql = "SELECT * FROM `db_mould_data` WHERE `is_approval` = '0'".$sqlwhere;
-
+//根据权限显示对应的内容
+if($system_info[0] == 1){
+	$sql = "SELECT * FROM `db_mould_data` WHERE `is_approval` = '0'".$sqlwhere;
+	}else{
+	$sql = "SELECT * FROM `db_mould_data` WHERE `is_approval` = '0' AND `employeeid` ='$employeeid'".$sqlwhere;
+	}
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `mould_dataid` DESC" . $pages->limitsql;
@@ -283,7 +309,7 @@ function getdate(timestamp) {
         </i>  
             <input type="hidden" class="mold_id_val" value="<?php echo $row['mold_id'] ?>"></span></td>
       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->
-    <!--    <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><input type="button" value="修改"></a><?php } ?><?php if($count == 0){ ?><hr><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval"><input type="button" value="审批"></a><?php } ?></td>-->
+    <!--  <td><?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><input type="button" value="修改"></a><?php } ?><?php if($count == 0){ ?><hr><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=approval"><input type="button" value="审批"></a><?php } ?></td>-->
       </tr> 
       <?php } ?>
     </table>

@@ -84,7 +84,7 @@ if($boss->num_rows){
 			
 		}
 		//把对应的值添加到下拉框中
-		var sel = $('<select name ^="'+new_key+'"></select>');
+		var sel = $('<select name ="'+new_key+'[]"></select>');
 		for(k in current_val){
 				var opt = '<option selected value="'+current_val[k]+'">'+current_val[k]+'</option>';
 			if(current_val[k]){	
@@ -98,7 +98,7 @@ if($boss->num_rows){
 	}
 	$(function(){
 		$('tr').removeClass('even');
-
+		//新增联系人
 		//新增联系人
 		var add_contacts= '<tr>	  	  	 <th>姓名：</th>	     	   	<td width="">	      	   		<input teyp="text" name="contacts_name[]" />	     	      <span  class="del del_contacts">删除</span> 	   </td>		  	</tr>	  	<tr>	  		 <th>所属公司：</th>	     		 <td>	      			<input type="text" name="contacts_company[]" />	     		 </td>		  	</tr>	  	<tr>	  		 <th>职务：</th>	     		 <td>	      			<input type="text" name="contacts_work[]" />	     		 </td>	  	</tr>	  		  	<tr>			<th>电话/手机：</th>			<td>			     <input type="text" name="contacts_phone[]" />			</td>	  	</tr>	  	<tr>	  		 <th>邮箱：</th>	      		<td>	      			<input type="text" name="contacts_email[]" />	      		</td>		  	</tr>	  	<tr>	  		  <th>备注：</th>			  <td>			      <input type="text" name="contacts_note[]" />			  </td>	  	</tr>';
 		var add_company ='<tr>		      <th width="">代码：</th>		      <td style="width:70px">		      	<input type="text" name="customer_code[]" style="width:70px" readonly/>		      </td>		      <td style="width:40px">等级：</td>		      <td>		      	<select name="customer_grade[]" class="grades" style="height:30px;width:70px">		      		<?php foreach($array_customer_grade as $k=>$v){ 

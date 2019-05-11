@@ -93,7 +93,7 @@ function getdate(timestamp) {
 <style type="text/css">
   #main{table-layout:fixed;width:1350px;}
   #main tr td{word-wrap:break-word;word-break:break-all;}
-  #search tr td .input_tx{width:100px}	  
+  #search tr td .input_tx{width:100px}    
 </style>
 </head>
 
@@ -112,11 +112,11 @@ function getdate(timestamp) {
      
        <td>客户等级</td>
        <td>
-	    <select class="input_tx input_txt" style="height:25px" name="customer_grade">
-	    	<?php foreach($array_customer_grade as $v){ 
-	    		echo '<option value="'.$v.'">'.$v.'</option>';
-	    	}?>
-	    </select>
+      <select class="input_tx input_txt" style="height:25px" name="customer_grade">
+        <?php foreach($array_customer_grade as $v){ 
+          echo '<option value="'.$v.'">'.$v.'</option>';
+        }?>
+      </select>
         <td>客户名称</td>
         <td><input type="text" name="customer_name" class="input_txt" /></td>
         <td>联系人</td>
@@ -185,18 +185,12 @@ function getdate(timestamp) {
     $count = array_key_exists($id,$array_group)?$array_group[$id]:0;
     //获取联系人的信息
     if(strpos($row['customer_name'],'$$')){
-        $customer_name = substr($row['customer_name'],0,strpos($row['customer_name'],'$$'));
-        $customer_grade = substr($row['customers_grade'],0,strpos($row['customer_grade'],'$$'));
-        $customer_business = substr($row['customer_business'],0,strpos($row['customer_business'],'$$'));
-        $customer_code = substr($row['customer_code'],0,strpos($row['customer_code'],'$$'));
-        $customer_address = substr($row['customer_address'],0,strpos($row['customer_address'],'$$'));
-       
-      $customer_name = substr(strstr($row['customer_name'],'$$'),2);
-       $customer_grade = substr(strstr($row['customer_grade'],'$$'),2);
-       $customer_business = substr(strstr($row['customer_business'],'$$'),2);
-       $customer_code = substr(strstr($row['customer_code'],'$$'),2);
-       $customer_address = substr(strstr($row['customer_address'],'$$'),2);
-  	  } else {
+        $customer_name = substr($row['customer_name'],strrpos($row['customer_name'],'$$')+2);
+        $customer_grade = substr($row['customer_grade'],strrpos($row['customer_grade'],'$$')+2);
+        $customer_business = substr($row['customer_business'],strrpos($row['customer_business'],'$$')+2);
+        $customer_code = substr($row['customer_code'],strrpos($row['customer_code'],'$$')+2);
+        $customer_address = substr($row['customer_address'],strrpos($row['customer_address'],'$$')+2);
+      } else {
       $customer_code = $row['customer_code'];
       $customer_name = $row['customer_name'];
       $customer_grade = $row['customer_grade'];
@@ -205,27 +199,27 @@ function getdate(timestamp) {
       $customer_address = $row['customer_address']; 
      }
      if(strpos($row['contacts_name'],'$$')){
-       $contacts_name = substr($row['contacts_name'],0,strpos($row['contacts_name'],'$$'));
-        $contacts_work = substr($row['contacts_work'],0,strpos($row['contacts_work'],'$$'));
-         $contacts_phone = substr($row['contacts_phone'],0,strpos($row['contacts_phone'],'$$'));
-        $contacts_email = substr($row['contacts_email'],0,strpos($row['contacts_email'],'$$'));
-        $contacts_note = substr($row['contacts_note'],0,strpos($row['contacts_note'],'$$'));
+       $contacts_name = substr($row['contacts_name'],strrpos($row['contacts_name'],'$$')+2);
+        $contacts_work = substr($row['contacts_work'],strrpos($row['contacts_work'],'$$')+2);
+         $contacts_phone = substr($row['contacts_phone'],strrpos($row['contacts_phone'],'$$')+2);
+        $contacts_email = substr($row['contacts_email'],strrpos($row['contacts_email'],'$$')+2);
+        $contacts_note = substr($row['contacts_note'],strrpos($row['contacts_note'],'$$')+2);
 
-   	}else{
+    }else{
       $contacts_name = $row['contacts_name'];
       $contacts_work = $row['contacts_work'];
       $contacts_phone = $row['contacts_phone'];
       $contacts_email = $row['contacts_email'];
       $contacts_note = $row['contacts_note'];
-  	}
+    }
 
     if(strpos($row['boss_name'],'$$')){
 
-       $boss_name = substr($row['boss_name'],0,strpos($row['boss_name'],'$$'));
-  	} else {
-       $boss_name = $row['min_boss'];	
-  	}
-  	
+       $boss_name = substr($row['boss_name'],strrpos($row['boss_name'],'$$')+2);
+    } else {
+       $boss_name = $row['min_boss']; 
+    }
+    
     ?>
      <tr class="show">
      

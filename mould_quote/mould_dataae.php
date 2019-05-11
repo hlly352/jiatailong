@@ -5,6 +5,27 @@ require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
 
 $employeeid = $_SESSION['employee_info']['employeeid'];
+//获取当前页面的路径
+$system_url =  dirname(__FILE__);
+
+$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+$system_url = substr($system_url,$system_pos);
+//通过路径查询对应的模块id
+$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+$system_id_res = $db->query($system_id_sql);
+$system_id = $system_id_res->fetch_row()[0];
+if($system_id ==' '){
+  header('location:../myjtl/index.php');
+}
+//查询登录用户是否是客户管理的管理员
+$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+$system_res = $db->query($system_sql);
+
+$system_info = [];
+while($system_admin = $system_res->fetch_row()){
+  $system_info = $system_admin;
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -69,7 +90,7 @@ $(function(){
     $("#m_weight").val($("#base_weight").val());
   
       //输入产品大小后计算设计费的工时
-      var design_unit_hour = Math.round(total_machining*0.15/100/4);
+      var design_unit_hour = Math.round(total_machining*0.2/100/4);
       var design_num = $(".design_hour").size();
       for(var n=0;n<design_num;n++){
         $(".design_hour").eq(n).val(design_unit_hour);
@@ -280,6 +301,7 @@ $(function(){
                      count_trs(".material_trs","#material_first_td","#total_machining");
      
                          $('#machining_material').before(trs);
+                          autoCom('.material_specification',material_spe);
                    
           })
        
@@ -292,9 +314,15 @@ $(function(){
           })  
           //动态添加模具配件费
           $('#add_standard').click(function(){
-                     var standard = '<tr class="parts_trs">         <td colspan="4">             <input name="mold_standard[]" id="mold_standard" style="color:black;font-weight:150;font-size:13px;width:150px" class="mold_standard" >    <p class="dels standard_dels">删除</p>      </td>       <td colspan="2">            <input type="text" name="standard_specification[]" id="standard_specification" class="standard_specification">        </td>       <td colspan="5">             <select name="standard_supplier[]" id="standard_supplier" class="standard_supplier">                   <option>请选择</option>                  </select>       </td>       <td>            <input type="text" name="standard_number[]" class="standard_number">          </td>       <td>               <input type="text" name="standard_unit_price[]" class="standard_unit_price" value="2000">        </td>       <td>           <input type="text" name="standard_price[]" class="standard_price" id="standard_price">         </td>           </tr>';
+                     var standard = '<tr class="parts_trs">         <td colspan="4">             <input name="mold_standard[]" id="mold_standard" style="color:black;font-weight:150;font-size:13px;width:150px" class="mold_standard" >    <p class="dels standard_dels">删除</p>      </td>        <td colspan="2">          <div class="autocomplete">          <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification" placeholder="输入规格" style="width:183px">           </div>            <!-- <input type="text" name="standard_specification[]" class="standard_specification" id ="standard_specification">-->        </td>        <td colspan="5">          <div class="autocomplete">          <input id="standard_supplier" class="standard_supplier" type="text" name="standard_supplier[]" placeholder="输入品牌" style="width:200px">           </div>               </td>       <td>            <input type="text" name="standard_number[]" class="standard_number">          </td>       <td>               <input type="text" name="standard_unit_price[]" class="standard_unit_price" value="2000">        </td>       <td>           <input type="text" name="standard_price[]" class="standard_price" id="standard_price">         </td>           </tr>';
                   count_trs(".parts_trs","#parts_first_td","#total_standard");
                         $('#standard_parts').before(standard);
+
+	  //调用函数--模具配件规格
+	  autoCom('.standard_specification',standard_supplier);
+
+	  //调用函数--模具品牌
+	  autoCom('.standard_supplier',standard_supplier);
           })
           //动态添加设计费
           $('#add_designs').click(function(){
@@ -450,6 +478,8 @@ $(function(){
     }
     $(this).before(add_cavity);
     $("#machining_material").before(add_materials);
+     //自动补全
+        autoCom('.material_specification',material_spe);
     //初始化合并的单元格行数
     $("#material_first_td").attr('rowspan',15);
     $("#total_machining").attr('rowspan',14);
@@ -464,8 +494,8 @@ $(function(){
       if($(".mould_material").eq(i).val() == '电极/Electrode'){
         $(".materials_number").eq(i).val(2);
       } 
-      
-      
+      //自动补全
+      autoCom('.material_specification',material_spe); 
     }
     
   //点击添加按钮
@@ -477,7 +507,8 @@ $(function(){
     if(j != 1){
     $(this).before(add_cavity);
     $("#machining_material").before(add_materials);
-    
+     //自动补全
+        autoCom('.material_specification',material_spe);
     count_tr(".material_trs","#material_first_td","#total_machining");
     }
     j +=1;
@@ -594,7 +625,7 @@ $(function(){
     $("#total_machining").children().val(total_machining);
   
       //输入产品大小后计算设计费的工时
-      var design_unit_hour = Math.round(total_machining*0.15/100/4);
+      var design_unit_hour = Math.round(total_machining*0.2/100/4);
       var design_num = $(".design_hour").size();
       for(var n=0;n<design_num;n++){
         $(".design_hour").eq(n).val(design_unit_hour);
@@ -645,7 +676,7 @@ $(function(){
 
     //计算其它费用及模具价格
         sum_other_fee();
-      
+     
 
   })
   //型腔类型发生变化
@@ -711,10 +742,9 @@ $(function(){
     //获取当前是第几个型腔
     var type_val;
     var cavity_nu = $(this).parent().parent().prevAll().size() - 2;
-    
     var type_val = $(".cavity_type").eq(cavity_nu).val();
-    var p_length = $('.p_length').eq(cavity_nu).val();
-    var p_width = $('.p_width').eq(cavity_nu).val();
+    var p_length = $('.material_length').eq((cavity_nu)*7+1).val();
+    var p_width = $('.material_width').eq((cavity_nu)*7+1).val();
     //删除宽的布局
     $(".first_style_width").eq(cavity_nu).siblings().remove();
     $(".first_width").eq(cavity_nu).siblings().remove();
@@ -723,11 +753,9 @@ $(function(){
     //计算型腔布局的宽并加入到布局选项中
     var cavity_style_width = Math.ceil(type_val/cavity_style_length);
     //通过获取的值计算型腔的长和宽
-    var opt_length = (parseInt(p_length) + 110)*cavity_style_length;
-    var opt_width  = (parseInt(p_width) + 110)*cavity_style_width;
-
-    
-        
+    var opt_length = (parseInt(p_length) )*cavity_style_length;
+    var opt_width  = (parseInt(p_width))*cavity_style_width;
+     
     //添加布局宽度
      var style_length = '<option selected value='+cavity_style_width+'>'+cavity_style_width+'</option>'; 
     $(".cavity_style_width").eq(cavity_nu).append(style_length);
@@ -773,8 +801,8 @@ $(function(){
 
   //当选择型腔排位长之后,动态添加宽
     $(".cavity_length").live('change',function(){
+
       var cavity_nu = $(this).parent().prevAll().size() -1;
-      
       var type_val = $(".cavity_type").eq(cavity_nu).val();
       var p_length = $('.p_length').eq(cavity_nu).val();
       
@@ -787,9 +815,9 @@ $(function(){
       //通过获取的值计算型腔的长和宽
       ////删除原来的型腔排位宽的选项
       $(".first_width").eq(cavity_nu).siblings().remove();
-      var opt_length = (parseInt(p_length) + 110)*cavity_style_length;
+      var opt_length = (parseInt( $('.material_length').eq((cavity_nu)*7+1).val()))*cavity_style_length;
       
-      var opt_width  = (parseInt(p_width) + 110)*cavity_style_width;
+      var opt_width  = (parseInt($('.material_width').eq((cavity_nu)*7+1).val()))*cavity_style_width;
       //获取选择的值
       var cavity_length_val  = $(this).val();
       
@@ -834,7 +862,7 @@ $(function(){
       $("#style_length_sum").val(cavity_length_sum);
       $("#style_width_sum").val(cavity_width_sum);
       //ajax 求模架的尺寸
-      $.post('../ajax_function/mould_base_size.php',{cavity_length_sum:cavity_length_sum,cavity_width_sum:cavity_width_sum,max_length:max_height},function(data){
+      $.post('../ajax_function/mould_base_size.php',{cavity_length_sum:cavity_length_sum,cavity_width_sum:cavity_width_sum,max_height:max_height},function(data){
         var arr = data.split('#');
         
         $("#base_length").val(arr[0]);
@@ -865,7 +893,7 @@ $(function(){
     $("#m_weight").val($("#base_weight").val());
   
       //输入产品大小后计算设计费的工时
-      var design_unit_hour = Math.round(total_machining*0.15/100/4);
+      var design_unit_hour = Math.round(total_machining*0.2/100/4);
       var design_num = $(".design_hour").size();
       for(var n=0;n<design_num;n++){
         $(".design_hour").eq(n).val(design_unit_hour);
@@ -954,9 +982,9 @@ $(function(){
       //通过获取的值计算型腔的长和宽
       ////删除原来的型腔排位宽的选项
       $(".first_length").eq(cavity_nu).siblings().remove();
-      var opt_length = (parseInt(p_length) + 110)*cavity_style_length;
+      var opt_length = (parseInt($('.material_length').eq((cavity_nu)*7+1).val()) )*cavity_style_length;
       
-      var opt_width  = (parseInt(p_width) + 110)*cavity_style_width;
+      var opt_width  = (parseInt($('.material_length').eq((cavity_nu)*7+1).val()))*cavity_style_width;
       //获取选择的值
       var cavity_width_val  = $(this).val();
       
@@ -1031,7 +1059,7 @@ $(function(){
     $("#m_weight").val($("#base_weight").val());
   
       //输入产品大小后计算设计费的工时
-      var design_unit_hour = Math.round(total_machining*0.15/100/4);
+      var design_unit_hour = Math.round(total_machining*0.2/100/4);
       var design_num = $(".design_hour").size();
       for(var n=0;n<design_num;n++){
         $(".design_hour").eq(n).val(design_unit_hour);
@@ -1193,7 +1221,7 @@ $(function(){
 
 
       //输入产品大小后计算设计费的工时
-      var design_unit_hour = Math.round(total_machining*0.15/100/4);
+      var design_unit_hour = Math.round(total_machining*0.2/100/4);
       var design_num = $(".design_hour").size();
       for(var n=0;n<design_num;n++){
         $(".design_hour").eq(n).val(design_unit_hour);
@@ -1397,7 +1425,7 @@ $(function(){
     $("#total_machining").children().val(total_machining);
   
       //输入产品大小后计算设计费的工时
-      var design_unit_hour = Math.round(total_machining*0.15/100/4);
+      var design_unit_hour = Math.round(total_machining*0.2/100/4);
       var design_num = $(".design_hour").size();
       for(var n=0;n<design_num;n++){
         $(".design_hour").eq(n).val(design_unit_hour);
@@ -1655,29 +1683,29 @@ $(function(){
           }
         }
        
-        document.addEventListener("click", function (e) {
-            closeAllLists(e.target);
-            });
+      /* document.addEventListener("click", function () {
+            document.mould_data.submit();
+            });*/
       }
 
   /*数组 - 包含所有材料牌号*/
   var material_spe = ["45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)","Cu"];
   var standard_supplier = ["LKM","Mold Masters","ynventive","INCOE","GUNTHER","YUDO","HASCO","DME","STAUBLI","MiSUMi","HEB","TAIYD","Parker","VEGA","HPS"];
+  //调用函数,实现自动补全
+  function autoCom(classnames,arr_name){
+  	var input_num = $(classnames).size();
+  	for(var u = 0; u<input_num;u++){
+  		autocomplete($(classnames)[u],arr_name);
+  	}
+  }
   /*调用函数传递参数--材料牌号*/
-  var material_myInput = $(".material_specification").size();
-  for(var u=0;u<material_myInput;u++){
-    autocomplete($(".material_specification")[u], material_spe);
-  }
+  autoCom('.material_specification',material_spe);
+
   //调用函数--模具配件规格
-  var material_myInput = $(".standard_specification").size();
-  for(var u=0;u<material_myInput;u++){
-    autocomplete($(".standard_specification")[u], material_spe);
-  }
+  autoCom('.standard_specification',standard_supplier);
+
   //调用函数--模具品牌
-  var material_myInput = $(".standard_supplier").size();
-  for(var u=0;u<material_myInput;u++){
-    autocomplete($(".standard_supplier")[u], standard_supplier);
-  }
+  autoCom('.standard_supplier',standard_supplier);
   //材料的类别
    pre_steel = ["45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cu"];
   //材料牌号发生改变,动态更改单价
@@ -1872,6 +1900,10 @@ $(function(){
     var mold_id = $(this).prev().val();
     window.open('mould_excel.php?action=mould_excel&id='+mold_id);
   })
+  $('#unapproval_edit').click(function(){
+  	document.mould_data_approval.action = 'mould_datado.php?action=edit';
+  	document.mould_data_approval.submit();
+  })
 })
 </script>
 <title>模具报价-嘉泰隆</title>
@@ -1898,7 +1930,7 @@ $(function(){
     <input type="hidden" value="" id="cavitys_type" name="cavity_types</form>
  <iframe id='frameFile' name='frameFile' style='display: none;'></iframe> -->
  
-  <form action="mould_datado.php" name="mould_data" method="post" enctype="multipart/form-data">
+  <form action="mould_datado.php?action=add" name="mould_data_add" method="post" enctype="multipart/form-data">
  <script type="text/javascript" charset="utf-8">
   $(function(){
     //点击确定按钮时
@@ -2518,10 +2550,10 @@ $(function(){
           </tr>
           <tr height="20"></tr>
           <tr>
-              <td style="border-style:none" colspan="16" align="center"><input type="submit" name="submit" id="submit" value="确定" class="button" />
+              <td style="border-style:none" colspan="16" align="center"><input type="submit" name="submit" id="submit" value="保存" class="button" />
               &nbsp;&nbsp;
               <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-              <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
+            
            </tr>
    </table>
   </form>
@@ -2574,7 +2606,7 @@ $(function(){
 
   ?>
   <h4>模具报价审批</h4> 
-  <form action="mould_datado.php" name="mould_data" method="post" enctype="multipart/form-data">
+  <form action="mould_datado.php?action=approval_edit" name="mould_data" method="post" enctype="multipart/form-data">
   <style type="text/css" media="screen">
     #main_table tr td{border:1px solid grey;}
     input{width:80px;}
@@ -3282,10 +3314,10 @@ $(function(){
               <input id="id" name="id" type="hidden" value="<?php echo $_GET['id'] ?>">
               <span id="export_excel" style="width:80px;height:26px; display: inline-block;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:26px;">导出</span>
               &nbsp;&nbsp;
-              <input type="submit" name="submit" id="submit" value="修改" class="button" />
+              <input type="submit" name="button" id="submit" value="修改" class="button" />
               &nbsp;&nbsp;
               <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-              <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
+       
            </tr>
    </table>
   </form>
@@ -3340,7 +3372,7 @@ $(function(){
 
   ?>
   <h4>模具报价审批</h4> 
-  <form action="mould_datado.php" name="mould_data" method="post" enctype="multipart/form-data">
+  <form action="mould_datado.php?action=approval" name="mould_data_approval" method="post" enctype="multipart/form-data">
   <style type="text/css" media="screen">
     #main_table tr td{border:1px solid grey;}
     input{width:80px;}
@@ -4044,11 +4076,13 @@ $(function(){
           <tr>
 
               <td style="border-style:none" colspan="16" align="center">
+                <input type="hidden" name="id" value="<?php echo $mould_dataid ?>" />
                 <span id="unapproval_edit" style="width:80px;height:26px; display: inline-block;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:26px;">保存</span>
-              <input type="submit" name="submit" id="submit" value="审批" class="button" />
+                &nbsp;&nbsp;
+              <input type="submit" <?php echo $system_info[0] !=1?'style:"background:grey" disabled':' ' ?> name="button" id="button" value="审批" class="button" />
               &nbsp;&nbsp;
               <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-              <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
+
            </tr>
    </table>
   </form>

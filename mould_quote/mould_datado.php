@@ -5,8 +5,9 @@ require_once '../function/function.php';
 require_once '../class/upload.php';
 require_once '../class/image.php';
 require_once 'shell.php';
-if($_POST['submit']){
-	$action = $_POST['action'];
+
+	$action = $_GET['action'];
+
 	if($action == 'add' || $action == 'edit' || $action == 'approval' || $action == 'approval_edit'){
 		//接受数据		
 		$data = $_POST;
@@ -24,9 +25,8 @@ if($_POST['submit']){
 		if(($_FILES['file']['tmp_name'][0]) != null){
 			unset($new_data['upload_final_path']);
 		}
-		unset($new_data['action']);
 		unset($new_data['submit']);
-
+		unset($new_data['button']);
 		//遍历数组,获取字符串
 		$key_word = '';
 		$value_word = '';
@@ -88,7 +88,6 @@ if($_POST['submit']){
 		$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id;
 		// $sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
 		$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
-		
 		//执行sql语句
 		$res = $db->query($sql);
 		if($db->insert_id){
@@ -96,6 +95,7 @@ if($_POST['submit']){
 			header("location:mould_data.php");
 		}
 	}elseif($action == 'edit'){
+		
 		//报价单号
 		$mold_id = FLOOR(RAND()*9000+1000);
 		//拼接数据库字段
@@ -157,7 +157,7 @@ if($_POST['submit']){
 		//拼接更新数据库的sql语句
 		$str = substr($str,0,strlen($str) - 1);
 		$sql = "UPDATE `db_mould_data` SET".$str." WHERE `mould_dataid` = ".$mould_dataid;
-		
+
 		$res = $db->query($sql);
 		if($res){
 			header("location:mould_data_approval.php");
@@ -193,6 +193,7 @@ if($_POST['submit']){
 		}
 			$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
 			$db->query($sql);
+
 		if($db->insert_id){
 			$id = $db->insert_id;		
 			header("location:mould_data_approval.php");
@@ -221,5 +222,5 @@ if($_POST['submit']){
 			header("location:".$_SERVER['HTTP_REFERER']);
 		}
 	} 
-}
+
 ?>

@@ -181,12 +181,13 @@ if($boss->num_rows){
 
   })
   //选择负责人后自动获取部门
-  $('#min_boss').bind('change',function(){
+  $('#min_boss').live('change',function(){
     var boss_val = $(this).val();
+   
     $.post("../ajax_function/boss_dept.php",
 
     {boss_val:boss_val}, function(data,status){
-
+     
       var depts = data.split('##');
       $('#boss_unit').val(depts[0]);
       $('#status_boss').val(depts[1]);
@@ -338,7 +339,7 @@ if($boss->num_rows){
       <tr>
         <th width="" >总负责人：</th>
          <td width="">
-              <select name="boss_name[]" id="min_boss" style="width:200px;height:30px">
+              <select name="boss_name[]" id="" style="width:200px;height:30px">
                  <?php foreach($employeess as $k=>$v){
                 echo '<option value="'.$v['employee_name'].'">'.$v['employee_name'].'</option>';
                 } ?>
@@ -349,7 +350,7 @@ if($boss->num_rows){
            <th width="">负责人：</th>
        <td>
             <select name="min_boss[]" id="min_boss" class="current_boss" style="width:200px;height:30px">
-                <option value="0">--请选择--</option>
+  
               <?php foreach($employees as $k=>$v){
                 echo '<option value="'.$v['employee_name'].'">'.$v['employee_name'].'</option>';
                 } ?>
@@ -359,7 +360,7 @@ if($boss->num_rows){
       <tr>
          <th width="">所属部门：</th>
        <td>
-            <input type="text" id="boss_unit" name="boss_unit[]" value="" />
+            <input type="text" id="boss_unit" name="boss_unit[]" value="总经办" />
        </td>
       </tr>
       
