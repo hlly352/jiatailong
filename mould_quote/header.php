@@ -1,5 +1,5 @@
 <div id="header">
-  <h4>模具报价 <em>V1.0 BY Hillion 2017.07.17</em></h4>
+  <h4>模具报价</h4>
 </div>
 <div id="menu">
   <ul>
@@ -20,4 +20,5 @@
   </ul>
   <span><?php echo $_SESSION['employee_info']['employee_name']; ?> <a href="../passport/logout.php">登出</a></span>
   <div class="clear"></div>
+
 </div>  

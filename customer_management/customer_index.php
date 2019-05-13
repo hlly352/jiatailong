@@ -13,10 +13,10 @@ $after_date  = strtotime($edate);
 if($_GET['submit']){
   $customer_grade = trim($_GET['customer_grade']);
   $customer_code = trim($_GET['customer_code']);
-    $contacts_name = trim($_GET['customer_name']);
+  $customer_name = trim($_GET['customer_name']);
   $contacts_name = trim($_GET['contacts_name']);
   $contacts_phone = trim($_GET['contacts_phone']);
-  $sqlwhere = "  AND `customer_grade` LIKE '%$customer_grade%' AND `customer_code` LIKE '%$customer_code%' AND `customer_name` LIKE '%$customer_name%'AND `contacts_phone` LIKE '%$contacts_phone%' AND `contacts_name` LIKE '%$contacts_name%'  AND (`add_times`BETWEEN '$before_date' AND '$after_date')";
+  $sqlwhere = "  AND `customer_grade` LIKE '%$customer_grade' AND `customer_code` LIKE '%$customer_code%' AND `customer_name` LIKE '%$customer_name%' AND `contacts_phone` LIKE '%$contacts_phone%' AND `contacts_name` LIKE '%$contacts_name%'  AND (`add_times`BETWEEN '$before_date' AND '$after_date')";
 }
 /*$sql = "SELECT * FROM `db_mould_data` 
 WHERE time in (
@@ -113,6 +113,7 @@ function getdate(timestamp) {
        <td>客户等级</td>
        <td>
       <select class="input_tx input_txt" style="height:25px" name="customer_grade">
+        <option value="">所有</option>
         <?php foreach($array_customer_grade as $v){ 
           echo '<option value="'.$v.'">'.$v.'</option>';
         }?>

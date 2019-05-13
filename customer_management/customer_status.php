@@ -6,14 +6,13 @@ require_once 'shell.php';
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 $employee_id = $_SESSION['employee_info']['employeeid'];
-
 if($_GET['submit']){
   $status_grade = trim($_GET['status_grade']);
   $status_code = trim($_GET['status_code']);
     $status_customer = trim($_GET['status_customer']);
   $status_contacts = trim($_GET['status_contacts']);
   $status_phone = trim($_GET['status_phone']);
-  $sqlwhere = "  AND `status_grade` LIKE '%$status_grade%' AND `status_code` LIKE '%$status_code%' AND `status_customer` LIKE '%$status_customer%'AND `status_phone` LIKE '%$status_phone%' AND `status_contacts` LIKE '%$status_contacts%'  AND (`status_time`BETWEEN '$sdate' AND '$edate')";
+  $sqlwhere = "  AND `status_grade` LIKE '%$status_grade' AND `status_code` LIKE '%$status_code%' AND `status_customer` LIKE '%$status_customer%'AND `status_phone` LIKE '%$status_phone%' AND `status_contacts` LIKE '%$status_contacts%'  AND (`status_time`BETWEEN '$sdate' AND '$edate')";
 }
 //获取当前页面的路径
 $system_url =  dirname(__FILE__);
@@ -142,13 +141,14 @@ function getdate(timestamp) {
      
        <td>客户等级</td>
        <td>
-	    <select class="input_tx input_txt" style="height:25px" name="status_grade">
-	    	<?php foreach($array_customer_grade as $v){ 
-	    		echo '<option value="'.$v.'">'.$v.'</option>';
-	    	}?>
-	    </select>
+      <select class="input_tx input_txt" style="height:25px" name="status_grade">
+        <option value="">所有</option>
+        <?php foreach($array_customer_grade as $v){ 
+          echo '<option value="'.$v.'">'.$v.'</option>';
+        }?>
+      </select>
         <td>客户名称</td>
-        <td><input type="text" name="status_customerecho" class="input_txt" /></td>
+        <td><input type="text" name="status_customer" class="input_txt" /></td>
         <td>联系人</td>
         <td><input type="text" name="status_contacts" class="input_tx input_txt" /></td>
         <td>电话/手机</td>
@@ -215,7 +215,7 @@ function getdate(timestamp) {
   <th>跟进时间</th>
    <th style="width:50px">客户代码</th>
    <th style="width:50px">客户等级</th>
-   <th>客户公司</th>
+   <th>客户名称</th>
    <th>联系人</th>
    <th>电话/手机</th>
    <th>负责人</th>

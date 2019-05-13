@@ -714,11 +714,9 @@ $(function(){
       
       var h2 = cavity_val/h1 + "";
       
-      if(h2.indexOf('.') == -1){
       var cavity_style_layout = '<option value='+h1+'>'+h1+'</option>';
       
       $(".cavity_style_length").eq(cavity_num).append(cavity_style_layout);
-    } 
 
     }
   //重新计算材料费金额

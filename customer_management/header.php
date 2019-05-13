@@ -1,5 +1,5 @@
 <div id="header">
-  <h4>客户管理 <em>V1.0 BY Hillion 2017.07.17</em></h4>
+  <h4>客户管理</h4>
 </div>
 <div id="menu">
   <ul>

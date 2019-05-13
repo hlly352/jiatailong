@@ -63,7 +63,7 @@ if($boss->num_rows){
     $('tr').removeClass('even');
     
   var add_contacts= ' <tr>           <th>姓名：</th>           <td width="">               <input teyp="text" name="contacts_name[]" />              <span  class="del del_contacts">删除</span>      </td>        </tr>     <tr>         <th>所属公司：</th>          <td>             <input type="text" name="contacts_company[]" />          </td>        </tr>     <tr>         <th>职务：</th>          <td>             <input type="text" name="contacts_work[]" />           </td>      </tr>           <tr>      <th>电话/手机：</th>     <td>           <input type="text" name="contacts_phone[]" />      </td>     </tr>     <tr>         <th>邮箱：</th>           <td>              <input type="text" name="contacts_email[]" />           </td>       </tr>     <tr>          <th>备注：</th>        <td>            <input type="text" name="contacts_note[]" />        </td>     </tr>';
-  var add_company = '<tr>         <th width="">代码：</th>         <td style="width:70px">           <input type="text" name="customer_code[]" style="width:70px" readonly/>         </td>         <td style="width:40px">等级：</td>         <td>            <select name="customer_grade[]" style="height:30px;width:70px">             <?php foreach($array_customer_grade as $k=>$v){ 
+  var add_company = '<tr>         <th width="">代码：</th>         <td style="width:70px">           <input type="text" name="customer_code[]" style="width:70px" readonly/>         </td>         <td style="width:40px">等级：</td>         <td>            <select name="customer_grade[]" style="height:30px;width:70px" class="customer_grades">             <?php foreach($array_customer_grade as $k=>$v){ 
                 echo '<option value="'.$v.'">'.$v.'</option>';
                 }
                 ?>            </select> <span  class="del del_company">删除</span>                </td>   </tr>   <tr>          <th width="">名称：</th>         <td width="" colspan="3">           <input type="text" name="customer_name[]" />          </td>   </tr>   <tr>          <th>主营业务：</th>          <td colspan="3">            <input type="text" name="customer_business[]" />          </td>   </tr>   <tr>          <th>网址：</th>          <td colspan="3">            <input type="text" name="customer_url[]" />         </td>   </tr>   <tr>          <th>地址：</th>          <td colspan="3">            <input type="text" name="customer_address[]" />         </td>   </tr>   <tr class="last_tr">          <th>邮编：</th>          <td class="post" colspan="3">           <input type="text" name ="customer_post[]" />         </td>       </tr>       ';
@@ -76,6 +76,8 @@ if($boss->num_rows){
   //动态添加分公司
   $('#add_company').live('click',function(){
     $(this).parent().parent().before(add_company);
+      var customer_grades = $('.customer_grades:last').val();
+      var status_grades = $('.status_grades').val(customer_grades);
   })
   //动态删除联系人
   $('.del_contacts').live('click',function(){
@@ -194,6 +196,11 @@ if($boss->num_rows){
 
     });
   })
+  //自动选择跟进状态的客户等级
+  $('.customer_grades').live('change',function(){
+    var customer_grades = $('.customer_grades:last').val();
+    var status_grades = $('.status_grades').val(customer_grades);
+  })
   })
 
 </script>
@@ -237,7 +244,7 @@ if($boss->num_rows){
           </td>
           <td style="width:40px">等级：</td>
           <td>
-            <select name="customer_grade[]" style="height:30px;width:70px">
+            <select name="customer_grade[]" style="height:30px;width:70px" class="customer_grades">
               <?php foreach($array_customer_grade as $k=>$v){ 
                 echo '<option value="'.$v.'">'.$v.'</option>';
                 }
@@ -393,7 +400,12 @@ if($boss->num_rows){
         <input type="text"  name="status_code" readonly="readonly">
       </td>
       <td class="offset">
-        <input type="text" name="status_grade" >
+        <select name="status_grade" style="width:112px" class="status_grades">
+          <?php foreach($array_customer_grade as $k=>$v){ ?>
+          <option value="<?php echo $v ?>"><?php echo $v ?></option>
+          <?php } ?>
+
+        </select>
       </td>
       
       <td >
@@ -407,7 +419,7 @@ if($boss->num_rows){
       </td>
       
       <td class="offset">
-        <input type="text" name="status_boss" id="status_boss">
+        <input type="text" name="status_boss" id="status_boss" value="杨春民">
       </td>
       <td>
         <input type="text" name="status_goal">

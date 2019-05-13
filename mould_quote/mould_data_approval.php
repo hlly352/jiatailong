@@ -172,7 +172,8 @@ function getdate(timestamp) {
                 	     }
                 //获取型腔和型芯材料
                 var specification = data[i].material_specification.split('$$');
-                var cavity_core = specification[1]+'/'+specification[2];     
+                var cavity_core = specification[1]+'/'+specification[2];  
+                console.log(data[i].cavity_type);   
         var tr = '   <tr class="block'+data[i].mold_id+'">         <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+p_size+'</td>        <td>'+m_material+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td>'+cavity_core+'</td>        <td>          <?php 
             if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
               echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];

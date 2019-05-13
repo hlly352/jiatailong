@@ -219,11 +219,10 @@ if($_POST['submit']){
 				foreach($sql_val as $ks=>$vs){
 					$val ='"'.implode('","',$vs);
 					$microtime = microtime(true) * 10000;
-					$val .= '",'.$microtime.','.$employee_id.','.$customer_id;
+					$val .= '",'.$microtime.','.$adder_id.','.$customer_id;
 
 					//循环插入数据
 					$sql = "INSERT INTO `db_customer_status`($sql_key) VALUES($val)";
-					
 					$res = $db->query($sql);
 					if($db->affected_rows != 1){
 						$i +=1;
@@ -239,7 +238,6 @@ if($_POST['submit']){
 			}
 			
 		}elseif($action == 'status_edit'){
-			
 			$adder = trim($customer_info['min_boss'][0]);
 			//把负责人换为最新的
 			$add_sql = "SELECT `employeeid` FROM `db_employee` WHERE `employee_name` LIKE '%".$adder."%'";
@@ -248,7 +246,6 @@ if($_POST['submit']){
 			if($add_res->num_rows){
 				$adder_id = $add_res->fetch_row()[0];
 			}
-			
 			unset($customer_info['submit']);
 			unset($customer_info['action']);
 			$customer_id = $customer_info['customer_id'];
@@ -305,7 +302,7 @@ if($_POST['submit']){
 				foreach($sql_val as $ks=>$vs){
 					$val ='"'.implode('","',$vs);
 					$microtime = microtime(true) * 10000;
-					$val .= '",'.$microtime.','.$employee_id.','.$customer_id;
+					$val .= '",'.$microtime.','.$adder_id.','.$customer_id;
 
 					//循环插入数据
 					$sql = "INSERT INTO `db_customer_status`($sql_key) VALUES($val)";
