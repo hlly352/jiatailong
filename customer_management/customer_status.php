@@ -92,11 +92,14 @@ function getdate(timestamp) {
       //通过状态id获取客户的历史状态
       $.post('../ajax_function/customer_status_history.php',{customer_id:customer_id},function(data){
         var count = data[0].count;
-        console.log(data);
         //遍历得到的历史数据
         for(var i=0;i<data.length - 1;i++){
           //动态添加行
-          var new_trs = '<tr class="new_tr'+button_index+'"> <td style=""><input type="checkbox" name="id[]" value="'+data[i].customer_status_id+'"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>        <td style="">'+data[i].status_time+'</td>   <td style="">'+data[i].status_code+'</td>  <td style="">'+data[i].status_grade+'</td>       <td style="">'+data[i].status_customer+'</td>  <td style="">'+data[i].status_contacts+'</td>   <td style="">'+data[i].status_phone+'</td>       <td style="">'+data[i].status_boss+'</td>        <td style="">'+data[i].status_goal+'</td>        <td style="">'+data[i].status_result+'</td>        <td style="">'+data[i].status_plan+'</th>        <td style="">'+data[i].status_note+'</td>        <td style=""></td></tr>';
+          var status_code = ' ';
+          if(data[i].status_code != null){
+          		 status_code = data[i].status_code;
+          }
+          var new_trs = '<tr class="new_tr'+button_index+'"> <td style=""><input type="checkbox" name="id[]" value="'+data[i].customer_status_id+'"<?php if($count > 0) echo " disabled=\"disabled\""; ?> /></td>        <td style="">'+data[i].status_time+'</td>   <td style="">'+status_code+'</td>  <td style="">'+data[i].status_grade+'</td>       <td style="">'+data[i].status_customer+'</td>  <td style="">'+data[i].status_contacts+'</td>   <td style="">'+data[i].status_phone+'</td>       <td style="">'+data[i].status_boss+'</td>        <td style="">'+data[i].status_goal+'</td>        <td style="">'+data[i].status_result+'</td>        <td style="">'+data[i].status_plan+'</th>        <td style="">'+data[i].status_note+'</td>        <td style=""></td></tr>';
           status_tr.after(new_trs)
         }
         

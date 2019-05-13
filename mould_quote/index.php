@@ -38,6 +38,8 @@ require_once 'shell.php';
   line-height:24px;
   color: blue;
 }
+#help_info .p1{color:red;margin-top:20px;}
+#help_info .p2{color:blue;font-size:16px;font-family:'黑体';}
 </style>
 <title>模具报价-嘉泰隆</title>
 </head>
@@ -52,6 +54,11 @@ require_once 'shell.php';
     <dd class="content">2.报价审核：操作者对未审核报价单进行修改，管理者对新建的报价单进行审核。</dd>
     <dd class="content">3.报价汇总：查看审核通过的报价单。</dd>
     <dd class="content">4.成交报价：查看与客户达成交易的报价单。</dd>
+      <p class="p1">特别说明 :</p>
+	<p class="p2">
+    本系统资料属我司最重要商业秘密须保密。未经我方明确许可，不得传递，复制，使用或泄露其内容。保留所有权利，特别是申请知识产权保护之权利。
+
+  </p>
   </dl>
 </div>
 <?php

@@ -12,7 +12,7 @@ require_once 'shell.php';
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<title>模具报价-希尔林</title>
+<title>模具报价-嘉泰隆</title>
 <style>
 #help_info {
   width:980px;
@@ -40,7 +40,7 @@ require_once 'shell.php';
   color: blue;
 }
 #help_info .p1{color:red;margin-top:20px;}
-#help_info .p2{color:blue;padding-left:15px;font-size:16px;font-family:'黑体';}
+#help_info .p2{color:blue;font-size:16px;font-family:'黑体';}
 </style>
 </head>
 
@@ -56,7 +56,7 @@ require_once 'shell.php';
   </dl>
   <p class="p1">特别说明 :</p>
 <p class="p2">
-    本系统资料属我司最重要商业秘密，必须须保密。未经我方明确许可，不得传递，复制，使用或泄露其内容。保留所有权利，特别是申请知识产权保护之权利。
+    本系统资料属我司最重要商业秘密须保密。未经我方明确许可，不得传递，复制，使用或泄露其内容。保留所有权利，特别是申请知识产权保护之权利。
 
   </p>
 </div>

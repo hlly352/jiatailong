@@ -176,9 +176,11 @@ if($boss->num_rows){
 		getCurrentInfo('contacts_name','status_contacts','.status_contactss');
 		getCurrentInfo('contacts_phone','status_phone','.status_phones');
 		getCurrentInfo('boss_names','status_boss','.status_bosss');
-
+			//状态负责人默认选择第一个
+	var indexs = $('.status_bosss').children().children();
+	indexs[0].selected = true;
 	})
-	
+
 	//根据权限决定是否可以修改
 	if($('#authority').val() != '1'){
 	

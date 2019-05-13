@@ -1,13 +1,31 @@
 <?php
-function ddd($value){
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 header("Content-type:application/vnd.ms-excel"); 
 header("Content-Disposition:attachment;filename=export_data.xls"); 
+$action = fun_check_action($_GET['action']);
 $employeeid = $_SESSION['employee_info']['employeeid'];
+//从网络上获取图片
+function http_get_data($url) {  
+      
+    $ch = curl_init ();  
+    curl_setopt ( $ch, CURLOPT_CUSTOMREQUEST, 'GET' );  
+    curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, false );  
+    curl_setopt ( $ch, CURLOPT_URL, $url );  
+    ob_start ();  
+    curl_exec ( $ch );  
+    $return_content = ob_get_contents ();  
+    ob_end_clean ();  
+      
+    $return_code = curl_getinfo ( $ch, CURLINFO_HTTP_CODE );  
+    return $return_content;  
+}  
+  
 
-
-
+if($action == 'mould_excel'){
+  	$mould_dataid = $_GET['id'];
+  	
+  	
 
 ?>
 
@@ -1650,7 +1668,7 @@ $(function(){
   	foreach($mould_dataid as $value){*/
 
 	  //查询模具报价的信息
-	  $sql = "SELECT * FROM `db_mould_data` WHERE `mould_dataid` = '$value'";
+	  $sql = "SELECT * FROM `db_mould_data` WHERE `mould_dataid` = '$mould_dataid'";
 
 	  $result = $db->query($sql);
 
@@ -2302,10 +2320,9 @@ $(function(){
 		  
 	  }
 	
-  
+  }
   ?>
 </div>
 <?php include "../footer.php"; ?>
 </body>
 </html>
-<?php include 'mould_excel.php'; } ?>
