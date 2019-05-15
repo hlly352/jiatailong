@@ -27,7 +27,17 @@ function http_get_data($url) {
     $return_code = curl_getinfo ( $ch, CURLINFO_HTTP_CODE );  
     return $return_content;  
 }  
-  
+//型腔数超过1时，获取产品尺寸数据
+function getExcelSize($size){
+	if(strpos($size,'$$')){
+		$res = str_replace("$$",PHP_EOL,$size);
+		
+	} else {
+		$res = $size;
+	}
+	return $res;
+}
+
 /** Error reporting */
 error_reporting(E_ALL);
 /** Include path **/
@@ -44,15 +54,32 @@ $objPHPExcel->getActiveSheet()->mergeCells('A1:E5');
 $objPHPExcel->getActiveSheet()->mergeCells('F1:N2');
 $objPHPExcel->getActiveSheet()->mergeCells('F3:N5');
 
-$objPHPExcel->getActiveSheet()->mergeCells('A6:E6');
-$objPHPExcel->getActiveSheet()->mergeCells('F6:G6');
-$objPHPExcel->getActiveSheet()->mergeCells('H6:L11');
-$objPHPExcel->getActiveSheet()->mergeCells('M6:N6');
-$objPHPExcel->getActiveSheet()->mergeCells('O6:p6');
-
 $objPHPExcel->getActiveSheet()->mergeCells('A7:E7');
 $objPHPExcel->getActiveSheet()->mergeCells('F7:G7');
-	
+$objPHPExcel->getActiveSheet()->mergeCells('H7:L12');
+$objPHPExcel->getActiveSheet()->mergeCells('M7:N7');
+$objPHPExcel->getActiveSheet()->mergeCells('O7:P7');
+
+$objPHPExcel->getActiveSheet()->mergeCells('A8:E8');
+$objPHPExcel->getActiveSheet()->mergeCells('F8:G8');
+$objPHPExcel->getActiveSheet()->mergeCells('M8:N8');
+$objPHPExcel->getActiveSheet()->mergeCells('O8:P8');
+
+$objPHPExcel->getActiveSheet()->mergeCells('A9:E9');	
+$objPHPExcel->getActiveSheet()->mergeCells('M9:N9');
+$objPHPExcel->getActiveSheet()->mergeCells('O9:P9');
+
+$objPHPExcel->getActiveSheet()->mergeCells('M10:N10');
+$objPHPExcel->getActiveSheet()->mergeCells('O10:P10');
+
+$objPHPExcel->getActiveSheet()->mergeCells('A11:E11');
+$objPHPExcel->getActiveSheet()->mergeCells('F11:G11');
+$objPHPExcel->getActiveSheet()->mergeCells('M11:N11');
+$objPHPExcel->getActiveSheet()->mergeCells('O11:P11');
+
+$objPHPExcel->getActiveSheet()->mergeCells('F12:G12');
+$objPHPExcel->getActiveSheet()->mergeCells('M12:N12');
+$objPHPExcel->getActiveSheet()->mergeCells('O12:P12');
 //设置单元格的值
 $objPHPExcel->getActiveSheet()->setCellValue('F1', '嘉泰隆 模具费用分解表');
 $objPHPExcel->getActiveSheet()->setCellValue('F3', 'JOTYLONG Tooling Cost Break Down');
@@ -67,14 +94,193 @@ $objPHPExcel->getActiveSheet()->setCellValue('P2', $row['project_name']);
 $objPHPExcel->getActiveSheet()->setCellValue('P3', $row['contacts']);
 $objPHPExcel->getActiveSheet()->setCellValue('P4', $row['tel']);
 $objPHPExcel->getActiveSheet()->setCellValue('P5', $row['email']);
-$objPHPExcel->getActiveSheet()->setCellValue('A6', '模具名称/Mold Specification');
-$objPHPExcel->getActiveSheet()->setCellValue('F6', '型腔数量/Cav. Number');
-$objPHPExcel->getActiveSheet()->setCellValue('M6', '首次试模时间/T1 Time');
-$objPHPExcel->getActiveSheet()->setCellValue('O6', '最终交付时间/Lead Timeme');
+$objPHPExcel->getActiveSheet()->setCellValue('A7', '模具名称/Mold Specification');
+$objPHPExcel->getActiveSheet()->setCellValue('F7', '型腔数量/Cav. Number');
+$objPHPExcel->getActiveSheet()->setCellValue('M7', '首次试模时间/T1 Time');
+$objPHPExcel->getActiveSheet()->setCellValue('O7', '最终交付时间/Lead Timeme');
 
-$objPHPExcel->getActiveSheet()->setCellValue('A7', $row['mould_name']);
+$objPHPExcel->getActiveSheet()->setCellValue('A8', $row['mould_name']);
+$objPHPExcel->getActiveSheet()->setCellValue('M8', $row['t_time']);
+$objPHPExcel->getActiveSheet()->setCellValue('O8', $row['lead_time']);
+
+$objPHPExcel->getActiveSheet()->setCellValue('A9', '产品大小/Part Size (mm)');
+$objPHPExcel->getActiveSheet()->setCellValue('F9', '克重/Part Weight(g)');
+$objPHPExcel->getActiveSheet()->setCellValue('G9', '材料/Material');
+$objPHPExcel->getActiveSheet()->setCellValue('M9', '产品零件号/Part No.');
+$objPHPExcel->getActiveSheet()->setCellValue('O9', '数据文件名/Drawing No.');
+
+//把格式设置为文本格式，方便单元格内换行
+$objPHPExcel->getActiveSheet()->getStyle('10')->getAlignment()->setWrapText(true);
+$objPHPExcel->getActiveSheet()->getStyle('M10')->getAlignment()->setWrapText(true);
+$objPHPExcel->getActiveSheet()->getStyle('O10')->getAlignment()->setWrapText(true);
+$objPHPExcel->getActiveSheet()->setCellValue('A10', getExcelSize($row['p_length']));
+$objPHPExcel->getActiveSheet()->setCellValue('B10', '*');
+$objPHPExcel->getActiveSheet()->setCellValue('C10', getExcelSize($row['p_width']));
+$objPHPExcel->getActiveSheet()->setCellValue('D10', '*');
+$objPHPExcel->getActiveSheet()->setCellValue('E10', getExcelSize($row['p_height']));
+$objPHPExcel->getActiveSheet()->setCellValue('F10', getExcelSize($row['p_weight']));
+$objPHPExcel->getActiveSheet()->setCellValue('G10', getExcelSize($row['m_material']));
+$objPHPExcel->getActiveSheet()->setCellValue('M10', getExcelSize($row['part_number']));
+$objPHPExcel->getActiveSheet()->setCellValue('O10', getExcelSize($row['drawing_file']));
+
+$objPHPExcel->getActiveSheet()->setCellValue('A11', '模具尺寸/Mold Size (mm)');
+$objPHPExcel->getActiveSheet()->setCellValue('F11', '模具重量/Mold Weight(Kg)');
+$objPHPExcel->getActiveSheet()->setCellValue('M11', '模具寿命/Longevity');
+$objPHPExcel->getActiveSheet()->setCellValue('O11', '设备吨位/Press(Ton)');
+
+$objPHPExcel->getActiveSheet()->setCellValue('A12', $row['m_length']);
+$objPHPExcel->getActiveSheet()->setCellValue('B12', '*');
+$objPHPExcel->getActiveSheet()->setCellValue('C12', $row['m_width']);
+$objPHPExcel->getActiveSheet()->setCellValue('D12', '*');
+$objPHPExcel->getActiveSheet()->setCellValue('E12', $row['m_height']);
+$objPHPExcel->getActiveSheet()->setCellValue('F12', $row['m_weight']);
+$objPHPExcel->getActiveSheet()->setCellValue('M12', $row['lift_time']);
+$objPHPExcel->getActiveSheet()->setCellValue('O12', $row['tonnage']);
+//设置表格的行高
+for($j=1;$j<100;$j++){
+	if($j != 10){
+		$objPHPExcel->getActiveSheet()->getRowDimension($j)->setRowHeight(10);
+		}
+	} 
+//设置单元格的文本格式
+$objPHPExcel->getActiveSheet()->getStyle('P')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);
+$objPHPExcel->getActiveSheet()->getStyle('C')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);
+$objPHPExcel->getActiveSheet()->getStyle('A')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);
+
+//长度不够时，自动换行
+$objPHPExcel->getActiveSheet()->getStyle('A')->getAlignment()->setWrapText(true);
+
+	
+/*
+	$objPHPExcel    表格对象
+	$data                从数据库中取出的数据
+	$start_num	    每个项目开始单元格的行数
+	$arr_cols           包含行号，合并单元格信息的数组
+	$arr_val             需要写值得字段组成的数组
+	$tot_name          小计的类名
+	$first_content     每个项目第一个单元格的内容
+ */
+function mergeCell($objPHPExcel,$data,$start_num,$arr_cols,$arr_val,$tot_name,$first_content){
+	
+	//设置表头的行高
+	$objPHPExcel->getActiveSheet()->getRowDimension($start_num)->setRowHeight(15);
+	//设置项目之间间隙的行高
+	$objPHPExcel->getActiveSheet()->getRowDimension(6)->setRowHeight(5);
+	$objPHPExcel->getActiveSheet()->getRowDimension($start_num-1)->setRowHeight(5);	
+	
+	//设置第一个单元格垂直居中
+	$objPHPExcel->getActiveSheet()->getStyle('A')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	//长度不够时，自动换行
+	$objPHPExcel->getActiveSheet()->getStyle('A')->getAlignment()->setWrapText(true);
+	$num = substr_count($data[$arr_val[0]],'$$') +1;
+	//设置第一个的合并多少单元格
+	$t_mer = $num+$start_num;
+	$tot_mer = $start_num+1;
+	$objPHPExcel->getActiveSheet()->mergeCells('A'.$start_num.':B'.$t_mer);
+	//设置第一个单元格的内容
+	$objPHPExcel->getActiveSheet()->setCellValue('A'.$start_num,$first_content);
+	//设置小计合并多少单元格
+	$objPHPExcel->getActiveSheet()->mergeCells('P'.$tot_mer.':P'.$t_mer);	
+	//获取要填写的数据
+	$new_arr = array();
+	foreach($arr_val as $key=>$value){
+		$new_arr[] = explode('$$',$data[$value]);
+		}
+	//设置变量，用来统计填写内容遍历了多少次	
+	$i = 0;
+	foreach($arr_cols as $k=>$v){	
+		//合并表头的单元格
+		if(is_array($v)){
+			
+			$objPHPExcel->getActiveSheet()->mergeCells($k.$start_num.':'.$v[1].$start_num);
+			//设置表头的值
+			$objPHPExcel->getActiveSheet()->setCellValue($k.$start_num,$v[0]);
+			} else {
+		//设置表头的值
+		$objPHPExcel->getActiveSheet()->setCellValue($k.$start_num,$v);
+		//设置表头自动换行
+		$objPHPExcel->getActiveSheet()->getStyle($k.$start_num)->getAlignment()->setWrapText(true);
+		//设置表头垂直居中
+		$objPHPExcel->getActiveSheet()->getStyle($k.$start_num)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+		 }
+		
+		//填写数据
+		foreach($new_arr[$i] as $keys=>$vals){
+			$no = $keys+$start_num+1;
+			//填写数据的单元格合并
+			if(!empty($v[2]) && is_array($v)){
+				$objPHPExcel->getActiveSheet()->mergeCells($k.$no.':'.$v[2].$no);
+			}
+			//设置填充数据的单元格左对齐
+			$objPHPExcel->getActiveSheet()->getStyle($k.$no)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);	
+				if($arr_val[0] == 'mould_material'){
+					//最后三列的金额加上人民币符号
+					 if($i>count($new_arr)-3){
+						$objPHPExcel->getActiveSheet()->setCellValue($k.$no, '￥'.$vals);
+				   	}else{
+						$objPHPExcel->getActiveSheet()->setCellValue('I'.$no,'*');
+						$objPHPExcel->getActiveSheet()->setCellValue('K'.$no,'*');
+						$objPHPExcel->getActiveSheet()->setCellValue($k.$no, $vals);
+					}
+				} else {
+					if($i>count($new_arr)-3){
+					     	$objPHPExcel->getActiveSheet()->setCellValue($k.$no, '￥'.$vals);
+					} else{
+					    	$objPHPExcel->getActiveSheet()->setCellValue($k.$no, $vals);
+					}
+				}	
+			
+		}
+		//判断数据遍历的次数
+		if($i<count($new_arr)-1){
+			$i++;
+			}
+		}
+		//垂直居中
+		$objPHPExcel->getActiveSheet()->getStyle('P'.$tot_mer)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+		//返回下一个项目的开始行数
+		return $no+2;
+		}
+//加工材料
+
+$material_arr = [
+	'C'=>['材料名称/Material','E','E'],
+	'F'=>'材料牌号/Specification',
+	'G'=>'数量/Number',
+	'H'=>['尺寸/Size(mm*mm*mm)','L'],
+	'J'=>' ',  
+	'L'=>' ',
+	'M'=>'总重量/Weight(kg)',
+	'N'=>'单价(元)/Unit Price',
+	'O'=>'金额/Price(RMB)',
+	'P'=>'小计(元)'
+];
+$material_key = ['mould_material','material_specification','materials_number','material_length','material_width','material_height','material_weight','material_unit_price','material_price'];
+$heat_num = mergeCell($objPHPExcel,$row,14,$material_arr,$material_key,'total_machining','材料加工费/Machining Materia');
+//热处理
+$heat_arr = [
+	'C'=>['热处理名称/Item','E','E'],
+	'F'=>['重量/weight(kg)','G','G'],
+	'H'=>['	单价/Unit Price(RMB)','M','M'],
+	'N'=>['金额/Price(RMB)','O','O'],
+	'P'=>'小计(元)'
+];
+$heat_key = ['mould_heat_name','heat_weight','heat_unit_price','heat_price'];
+//$standard_num = mergeCell($objPHPExcel,$row,$heat_num,$heat_arr,$heat_key,'total_heat','热处理/Heat Treatment');
+//模具配件
+$standard_arr = [
+	'C'=>['装配件/Item','E','E'],
+	'F'=>['规格型号/Specification','G','G'],
+	'H'=>['品牌/Supplier','L','L'],
+	'M'=>'数量/Number',
+	'N'=>'单价(元)/Unit Price',
+	'O'=>'金额(RMB)/price',
+	'P'=>'小计(元)'
+];
+$standard_key = ['mold_standard','standard_specification','standard_supplier','standard_number','standard_unit_price','standard_price'];
+//$design_num = mergeCell($objPHPExcel,$row,$standard_num,$standard_arr,$standard_key,'total_standard','模具配件/Mold standard parts');
 //获取型腔数量
-  
+
 if(strpos($row['cavity_type'],'$$')){
 		$cavity_nums = str_replace('$$','+',$row['cavity_type']);
 	} else {
@@ -82,9 +288,27 @@ if(strpos($row['cavity_type'],'$$')){
 	}
 $objPHPExcel->getActiveSheet()->setCellValue('F7', $row['k_num'].'k |'.$cavity_nums);
 
-//设置单元格的文本格式
-$objPHPExcel->getActiveSheet()->getStyle('P')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);
 
+//设置表格的列宽
+$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(1);
+$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(1);
+$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(1);
+$objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('K')->setWidth(1);
+$objPHPExcel->getActiveSheet()->getColumnDimension('L')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('M')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('N')->setWidth(6.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(12.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(12.75);
+
+//设置表格的字体
+$objPHPExcel->getActiveSheet()->getStyle('A1:P100')->getFont()->setName('宋体')->setSize(5);
 
 //添加图片
 /*实例化插入图片类*/

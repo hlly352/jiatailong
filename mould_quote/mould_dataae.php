@@ -1567,7 +1567,7 @@ $(function(){
             var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*8900/1000000000;
             wei = Math.round(wei);
             $('.material_weight').eq(t).val(wei);
-          } else if($(".mould_material").eq(t).val() == "模架/Mode") {
+          } else if($(".mould_material").eq(t).val() == "模架/Mould Base") {
             //计算模架的重量
             var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*7800/1000000000;
             wei = Math.round(wei);
@@ -2175,7 +2175,7 @@ $(function(){
            </tr>
   <tr class="material_trs even">
                <td colspan="4">
-                  <input name="mould_material[]" class="mould_material" value="模架/Mode" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
+                  <input name="mould_material[]" class="mould_material" value="模架/Mould Base" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
                </td>
                <td>
                 <div class="autocomplete">
@@ -2938,7 +2938,7 @@ $(function(){
            </tr>
   <tr class="material_trs even">
                <td colspan="4">
-                  <input name="mould_material[]" class="mould_material" value="模架/Mode" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
+                  <input name="mould_material[]" class="mould_material" value="模架/Mould Base" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
                </td>
                <td>
                 <div class="autocomplete">
@@ -3704,7 +3704,7 @@ $(function(){
            </tr>
   <tr class="material_trs even">
                <td colspan="4">
-                  <input name="mould_material[]" class="mould_material" value="模架/Mode" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
+                  <input name="mould_material[]" class="mould_material" value="模架/Mould Base" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
                </td>
                <td>
                 <div class="autocomplete">
@@ -4469,7 +4469,7 @@ $(function(){
            </tr>
   <tr class="material_trs even">
                <td colspan="4">
-                  <input name="mould_material[]" class="mould_material" value="模架/Mode" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
+                  <input name="mould_material[]" class="mould_material" value="模架/Mould Base" base="" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px;color:red">
                </td>
                <td>
                 <div class="autocomplete">

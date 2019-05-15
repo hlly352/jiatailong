@@ -52,7 +52,7 @@ require_once 'shell.php';
     <dd class="tag"> 客户管理>>2019-05-13</dd>
     <dd class="content">1.新建客户：操作者或管理者添加新客户的信息和首次跟进状态。</dd>
     <dd class="content">2.跟进客户：记录、查看客户的跟进状态。</dd>
-    <dd class="content">3.客户列表：汇总、查看客户的所有信息。</dd>
+    <dd class="content">3.客户列表：汇总、查看、更新客户的所有信息。</dd>
   </dl>
   <p class="p1">特别说明 :</p>
 <p class="p2">

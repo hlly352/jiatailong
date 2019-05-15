@@ -6,6 +6,7 @@ require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
 
 $employeeid = $_SESSION['employee_info']['employeeid'];
+
 //通过员工id查询姓名和部门
 $sql = "SELECT a.employee_name,b.`dept_name` FROM `db_employee` as a INNER JOIN `db_department` as b ON a.deptid = b.deptid WHERE a.employeeid = ".$employeeid ;
 $res = $db->query($sql);
@@ -14,7 +15,7 @@ while($rows = $res->fetch_assoc()){
   $dept = $rows;
 }
 //查找市场部和总经办的人员
-$min_boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` =1 AND `employee_status` = '1' OR `deptid` = 2 AND `employee_status` = '1'";
+$min_boss_sql = "SELECT `employee_name`,`employeeid`,`deptid`,`position_type` FROM `db_employee` WHERE `deptid` =1 AND `employee_status` = '1' OR `deptid` = 2 AND `employee_status` = '1'";
 
 $min_boss = $db->query($min_boss_sql);
 $employees = [];
@@ -25,7 +26,7 @@ if($min_boss->num_rows){
 }
 
 //查找总经办的人员
-$boss_sql = "SELECT `employee_name`,`employeeid`,`deptid` FROM `db_employee` WHERE `deptid` =1 AND `employee_status` = '1'";
+$boss_sql = "SELECT `employee_name`,`employeeid`,`deptid`,`position_type` FROM `db_employee` WHERE `deptid` =1 AND `employee_status` = '1'";
 
 $boss = $db->query($boss_sql);
 $employeess = [];
@@ -182,6 +183,9 @@ if($boss->num_rows){
     
 
   })
+  //跟进状态中显示默认选中的负责人
+  var select_boss = $('#min_boss').val();
+  $('#status_boss').val(select_boss);
   //选择负责人后自动获取部门
   $('#min_boss').live('change',function(){
     var boss_val = $(this).val();
@@ -201,6 +205,7 @@ if($boss->num_rows){
     var customer_grades = $('.customer_grades:last').val();
     var status_grades = $('.status_grades').val(customer_grades);
   })
+
   })
 
 </script>
@@ -347,9 +352,10 @@ if($boss->num_rows){
         <th width="" >总负责人：</th>
          <td width="">
               <select name="boss_name[]" id="" style="width:200px;height:30px">
-                 <?php foreach($employeess as $k=>$v){
-                echo '<option value="'.$v['employee_name'].'">'.$v['employee_name'].'</option>';
-                } ?>
+                 <?php foreach($employeess as $k=>$v){ ?>
+
+                      <option <?php echo $v['position_type'] == "A" ?"selected":" " ?> value="<?php echo $v['employee_name'] ?>"><?php echo  $v['employee_name'] ?></option>';
+                 <?php } ?>
             </select>
        </td>  
       </tr>
@@ -358,16 +364,16 @@ if($boss->num_rows){
        <td>
             <select name="min_boss[]" id="min_boss" class="current_boss" style="width:200px;height:30px">
   
-              <?php foreach($employees as $k=>$v){
-                echo '<option value="'.$v['employee_name'].'">'.$v['employee_name'].'</option>';
-                } ?>
+              <?php foreach($employees as $k=>$v){ ?>
+                    <option <?php echo $v['employeeid'] == $employeeid?'selected':' ' ?> value="<?php echo  $v['employee_name'] ?>"><?php echo  $v['employee_name'] ?></option>;
+               <?php } ?>
             </select>
        </td>
        </tr>
       <tr>
          <th width="">所属部门：</th>
        <td>
-            <input type="text" id="boss_unit" name="boss_unit[]" value="总经办" />
+            <input type="text" id="boss_unit" name="boss_unit[]" value="<?php echo $dept['dept_name'] == '市场部' ?'市场部':'总经办' ?>" />
        </td>
       </tr>
       
@@ -419,7 +425,7 @@ if($boss->num_rows){
       </td>
       
       <td class="offset">
-        <input type="text" name="status_boss" id="status_boss" value="杨春民">
+        <input type="text" name="status_boss" id="status_boss" value="">
       </td>
       <td>
         <input type="text" name="status_goal">
