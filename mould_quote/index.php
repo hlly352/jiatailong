@@ -50,7 +50,7 @@ require_once 'shell.php';
   <dl>
     <dt>模具报价模块操作说明</dt>
     <dd class="tag"> 模具报价>>2019-05-13</dd>
-    <dd class="content">1.新建报价：操作者或管理者填入相应数据，新建一份报价单。</dd>
+    <dd class="content">1.新建报价：操作者或管理者填入相应数据，新建一份报价单（新建报价之前须先建立客户资料）。</dd>
     <dd class="content">2.报价审核：操作者对未审核报价单进行修改，管理者对新建的报价单进行审核。</dd>
     <dd class="content">3.报价汇总：查看审核通过的报价单。</dd>
     <dd class="content">4.成交报价：查看与客户达成交易的报价单。</dd>

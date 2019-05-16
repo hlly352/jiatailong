@@ -88,6 +88,7 @@ require_once 'shell.php';
 		$value_word .= ',"'.$upload_final_path.'",'.time().','.$mold_id;
 		// $sql = "INSERT INTO `db_mould_data` (`mould_dataid`,`mould_name`,`cavity_type`,`part_number`,`t_time`,`p_length`,`p_width`,`p_height`,`p_weight`,`drawing_file`,`lead_time`,`m_length`,`m_width`,`m_height`,`m_weight`,`lift_time`,`tonnage`,`client_name`,`project_name`,`contacts`,`tel`,`email`,`) VALUES (NULL,'$mould_name','$cavity_type','$part_number','$t_time','$p_length','$p_width','$p_height','$p_weight','$drawing_file','$lead_time','$m_length','$m_width','$m_height','$m_weight','$lift_time','$tonnage','$client_name','$project_name','$contacts','$tel','$email')";
 		$sql = "INSERT INTO `db_mould_data`($key_word) VALUES($value_word)";
+		
 		//执行sql语句
 		$res = $db->query($sql);
 		if($db->insert_id){
