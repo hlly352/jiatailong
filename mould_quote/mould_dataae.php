@@ -150,8 +150,13 @@ $(function(){
     $(tds_name).attr('rowspan',num);
     $(trs_total).attr('rowspan',num-1);
   }
+  
   count_tr(".material_trs","#material_first_td","#total_machining");
   count_tr(".heat_trs","#heat_first_td","#total_heats");
+  count_tr(".parts_trs","#parts_first_td","#total_standard");
+  count_tr(".design_trs","#design_first_td","#total_designs");
+  count_tr(".manus_trs","#manus_first_td","#total_manufacturing");
+  count_tr(".others_trs","#others_first_td","#tot_others");
   //统计第一列需要合并的单元格个数
   function count_tr(trs_name,tds_name,trs_total){
     //判断型腔数对合并行的影响
@@ -333,11 +338,11 @@ $(function(){
                   count_trs(".parts_trs","#parts_first_td","#total_standard");
                         $('#standard_parts').before(standard);
 
-	  //调用函数--模具配件规格
-	  autoCom('.standard_specification',standard_supplier);
+    //调用函数--模具配件规格
+    autoCom('.standard_specification',standard_supplier);
 
-	  //调用函数--模具品牌
-	  autoCom('.standard_supplier',standard_supplier);
+    //调用函数--模具品牌
+    autoCom('.standard_supplier',standard_supplier);
           })
           //动态添加设计费
           $('#add_designs').click(function(){
@@ -488,10 +493,10 @@ $(function(){
    
        //获取/后面的数字
       function getCaption(obj){
-	    var index=obj.lastIndexOf("\/");
-	    obj=obj.substring(index-1,index);
-	    return obj;
-	}
+      var index=obj.lastIndexOf("\/");
+      obj=obj.substring(index-1,index);
+      return obj;
+  }
 
   //添加删除按钮
   $("#add_cavitys").one('click',function(){
@@ -597,36 +602,36 @@ $(function(){
       }
     }
      } else {
-     	var mould_nums = mould_num - 7;
-     	var x = getCaption($(".mould_material").eq(mould_nums).val());
-     	var x = parseInt(x)+ 1;
-     	for(var i=0;i<mould_num;i++){
-	      switch($(".mould_material").eq(i).val().substr(0,3)) {
-	        case  '型腔/':
-	          var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
-	                   $(".mould_material").eq(i).val(new_mould);
-	          break;
-	        case '型芯/':
-	          var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
-	                   $(".mould_material").eq(i).val(new_mould);
-	          break;
-	        case '滑块/':
-	          var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
-	                   $(".mould_material").eq(i).val(new_mould);
-	          break;
-	        case '斜顶/':
-	          var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
-	                   $(".mould_material").eq(i).val(new_mould);
-	          break;
-	        case '镶件/':
-	          var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
-	                   $(".mould_material").eq(i).val(new_mould);
-	          break;
-	        case '电极/':
-	          var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
-	                   $(".mould_material").eq(i).val(new_mould);
-	          break;
-	      }
+      var mould_nums = mould_num - 7;
+      var x = getCaption($(".mould_material").eq(mould_nums).val());
+      var x = parseInt(x)+ 1;
+      for(var i=0;i<mould_num;i++){
+        switch($(".mould_material").eq(i).val().substr(0,3)) {
+          case  '型腔/':
+            var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
+                     $(".mould_material").eq(i).val(new_mould);
+            break;
+          case '型芯/':
+            var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
+                     $(".mould_material").eq(i).val(new_mould);
+            break;
+          case '滑块/':
+            var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
+                     $(".mould_material").eq(i).val(new_mould);
+            break;
+          case '斜顶/':
+            var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
+                     $(".mould_material").eq(i).val(new_mould);
+            break;
+          case '镶件/':
+            var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
+                     $(".mould_material").eq(i).val(new_mould);
+            break;
+          case '电极/':
+            var new_mould = $(".mould_material").eq(i).val().replace(/\//,x+"/");
+                     $(".mould_material").eq(i).val(new_mould);
+            break;
+        }
     }
      }
      //重新计算合并单元格数
@@ -1748,10 +1753,10 @@ $(function(){
   var standard_supplier = ["LKM","Mold Masters","ynventive","INCOE","GUNTHER","YUDO","HASCO","DME","STAUBLI","MiSUMi","HEB","TAIYD","Parker","VEGA","HPS"];
   //调用函数,实现自动补全
   function autoCom(classnames,arr_name){
-  	var input_num = $(classnames).size();
-  	for(var u = 0; u<input_num;u++){
-  		autocomplete($(classnames)[u],arr_name);
-  	}
+    var input_num = $(classnames).size();
+    for(var u = 0; u<input_num;u++){
+      autocomplete($(classnames)[u],arr_name);
+    }
   }
   /*调用函数传递参数--材料牌号*/
   autoCom('.material_specification',material_spe);
@@ -1900,26 +1905,28 @@ $(function(){
         'async':false,
         'success':function(data){
           var inp = ' <input type="text" name="contacts" value="" id="contacts_name" style="width:125px">';
-          var sel = '<select id="contacts_sel" name="contacts" style="width:125px;height:25px"><option value="">请选择</option></select>'
-      
+          var sel = '<select id="contacts_sel" name="contacts" style="width:125px;height:25px"><option value="0">请选择</option></select>'
+        
           //获取联系人信息
           if(data[0].customer_id == undefined){
-            $('#contacts').children().remove();
-            $('#contacts').append(sel);
-            //有多个联系人,添加到下拉选项框中
-            
-            for(var i in data[0]){
-              var opt = '<option>'+data[0][i]+'</option>';
-              $('#contacts_sel').append(opt);
-            }
-          } else {
-            $('#contacts').children().remove();
-            if($('#contacts').children().size() == 0){
-              $('#contacts').append(inp);
-            }
-            $('#contacts_name').val(data[0].contacts_name);
-            $('#contacts_phone').val(data[0].contacts_phone);
-            $('#contacts_email').val(data[0].contacts_email);
+              $('#contacts').children().remove();
+              $('#contacts').append(sel);
+              //有多个联系人,添加到下拉选项框中
+              for(var i in data[0]){
+                var opt = '<option>'+data[0][i]+'</option>';
+                $('#contacts_sel').append(opt);
+              }
+              //清除原来的电话号码和邮箱
+              $('#contacts_phone').val('');
+              $('#contacts_email').val('');
+           }else{
+              $('#contacts').children().remove();
+              if($('#contacts').children().size() == 0){
+                $('#contacts').append(inp);
+              }
+              $('#contacts_name').val(data[0].contacts_name);
+              $('#contacts_phone').val(data[0].contacts_phone);
+              $('#contacts_email').val(data[0].contacts_email);
           }
         },
         'error':function(){
@@ -1931,24 +1938,28 @@ $(function(){
   //更改联系人时.获取;联系人的信息
   $('#contacts_sel').live('change',function(){
     var sel_name = $(this).val();
-    $.ajax({
-      'url':'../ajax_function/customer_info.php',
-      'data':{customer_id:customer_id,sel_name:sel_name},
-      'type':'post',
-      'dataType':'json',
-      'async':false,
-      //把获取的联系人电话和邮箱填到输入框中
-      'success':function(data){
-        
-        $('#contacts_phone').val(data[0]);
-        $('#contacts_email').val(data[1]);
-      },
-      'error':function(){
-        alert('获取电话失败');
-      }
+    //如果选择了请选择选项，则清空手机号和邮箱
+    if(sel_name == '0'){
+         $('#contacts_phone').val('');
+         $('#contacts_email').val('');
+    } else {
+      $.ajax({
+        'url':'../ajax_function/customer_info.php',
+        'data':{customer_id:customer_id,sel_name:sel_name},
+        'type':'post',
+        'dataType':'json',
+        'async':false,
+        //把获取的联系人电话和邮箱填到输入框中
+        'success':function(data){
+          $('#contacts_phone').val(data[0]);
+          $('#contacts_email').val(data[1]);
+        },
+        'error':function(){
+          alert('获取电话失败');
+        }
 
-    })
-    
+      })
+    }
   })
   //跳转到导出页面
   $("#export_excel").click(function(){
@@ -1956,8 +1967,8 @@ $(function(){
     window.open('mould_excel.php?action=mould_excel&id='+mold_id);
   })
   $('#unapproval_edit').click(function(){
-  	document.mould_data_approval.action = 'mould_datado.php?action=edit';
-  	document.mould_data_approval.submit();
+    document.mould_data_approval.action = 'mould_datado.php?action=edit';
+    document.mould_data_approval.submit();
   })
 })
 </script>
@@ -3280,7 +3291,7 @@ $(function(){
           <?php $i = 0;foreach($arrs_others as $other_key=>$others_value){ ?>
            <tr class="others_trs">
                 <td colspan="4">
-                  <input type="text" name="other_fee_name[]" value=<?php echo  $others_value[0] ?> readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
+                  <input type="text" name="other_fee_name[]" value="<?php echo  $others_value[0] ?>" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
                 </td>
                <td colspan="8">
                 
@@ -4045,7 +4056,7 @@ $(function(){
           <?php $i = 0;foreach($arrs_others as $other_key=>$others_value){ ?>
            <tr class="others_trs">
                 <td colspan="4">
-                  <input type="text" name="other_fee_name[]" value=<?php echo  $others_value[0] ?> readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
+                  <input type="text" name="other_fee_name[]" value="<?php echo  $others_value[0] ?>" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
                 </td>
                <td colspan="8">
                 
@@ -4810,7 +4821,7 @@ $(function(){
           <?php $i = 0;foreach($arrs_others as $other_key=>$others_value){ ?>
            <tr class="others_trs">
                 <td colspan="4">
-                  <input type="text" name="other_fee_name[]" value=<?php echo  $others_value[0] ?> readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
+                  <input type="text" name="other_fee_name[]" value="<?php echo  $others_value[0] ?>" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
                 </td>
                <td colspan="8">
                 

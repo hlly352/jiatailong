@@ -13,7 +13,7 @@
 			//判断查询的客户是否有多个联系人
 			if(strstr($row['contacts_name'],'$$')){
 				$customer_info[] = explode('$$',$row['contacts_name']);
-				$customer_info[] = explode('$$',$row['contacts_tel']);
+				$customer_info[] = explode('$$',$row['contacts_phone']);
 				$customer_info[] = explode('$$',$row['contacts_email']);
 			} else {
 		
@@ -36,7 +36,7 @@
 				}
 			}
 
-			$contacts_info[] = explode('$$',$row['contacts_tel'])[$key];
+			$contacts_info[] = explode('$$',$row['contacts_phone'])[$key];
 			$contacts_info[] = explode('$$',$row['contacts_email'])[$key];
 			
  		}
