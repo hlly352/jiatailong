@@ -26,6 +26,24 @@ while($system_admin = $system_res->fetch_row()){
   $system_info = $system_admin;
 }
 
+//查找客户，管理者可以看所有，操作者只能看自己
+ $sql_employee = "SELECT `employee_name`,`phone`,`email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
+ $result_employee = $db->query($sql_employee);
+ $array_employee = $result_employee->fetch_assoc();
+ if($system_info[0] == 1){
+ 	$sql_customer = "SELECT `customer_name`,`customer_id` FROM `db_customer_info`";
+ 	} else {
+ 	$sql_customer = "SELECT `customer_name`,`customer_id` FROM `db_customer_info` WHERE `adder_id` = '$employeeid'";
+ 	}
+ $result_customer = $db->query($sql_customer);
+ while( $customer_info = $result_customer->fetch_assoc()){
+      $array_customer[] = $customer_info; 
+    }
+
+if(!is_array($array_customer)){
+	$array_customer = [0=>['customer_id'=>'0','customer_name'=>'请先添加客户资料']];
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -150,7 +168,7 @@ $(function(){
     $(tds_name).attr('rowspan',num);
     $(trs_total).attr('rowspan',num-1);
   }
-  
+
   count_tr(".material_trs","#material_first_td","#total_machining");
   count_tr(".heat_trs","#heat_first_td","#total_heats");
   count_tr(".parts_trs","#parts_first_td","#total_standard");
@@ -1885,7 +1903,7 @@ $(function(){
   //提交时判断客户名称是否为空
   $('#submit').click(function(){
     var client_name = $('.client_name').val();
-    if(client_name == ' '){
+    if(client_name == '0'){
       alert('请选择客户名称')
       $('.client_name').focus();
       return false;
@@ -1895,6 +1913,9 @@ $(function(){
   //选择客户名称后,ajax 查询客户的其它信息
   $('#client_name').change(function(){
     customer_id = $('#client_name').val();
+    if(customer_id ==0){
+    	return;
+    }
     //判断选择的值是否为空
          if(customer_id != ' '){
       $.ajax({
@@ -1905,8 +1926,8 @@ $(function(){
         'async':false,
         'success':function(data){
           var inp = ' <input type="text" name="contacts" value="" id="contacts_name" style="width:125px">';
-          var sel = '<select id="contacts_sel" name="contacts" style="width:125px;height:25px"><option value="0">请选择</option></select>'
-        
+          var sel = '<select id="contacts_sel" name="contacts" style="width:125px;height:25px"></select>'
+  
           //获取联系人信息
           if(data[0].customer_id == undefined){
               $('#contacts').children().remove();
@@ -1980,15 +2001,7 @@ $(function(){
 <div id="table_sheet">
   <?php
   if($action == 'add'){
-    $sql_employee = "SELECT `employee_name`,`phone`,`email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
-    $result_employee = $db->query($sql_employee);
-    $array_employee = $result_employee->fetch_assoc();
-    $sql_customer = "SELECT `customer_name`,`customer_id` FROM `db_customer_info`";
-    $result_customer = $db->query($sql_customer);
-    while( $customer_info = $result_customer->fetch_assoc()){
-      $array_customer[] = $customer_info; 
-    }
-   
+
   ?>
   <h4>模具数据添加</h4>
   <!--提交型腔的数量类型-->
@@ -2035,7 +2048,7 @@ $(function(){
        <td style="width:186px;padding-right:20px">客户名称/Customer</td>
            <td style="width:186px;padding-right:0px">
               <select name="client_name" class="client_name" id="client_name"  style="width:125px;height:25px">
-                  <option value=' '>请选择</option>
+                  <option value='0'>请选择</option>
                 <?php foreach($array_customer as $key=>$value){ 
                   echo '<option  value="'.$value['customer_id'].'">'.$value['customer_name'].'</option>';
                 }
@@ -2773,8 +2786,15 @@ $(function(){
                     <p style="font-weight:blod;font-size:30px">JOTYLONG  Tooling Cost Break Down</p>
          </td>
        <td style="width:186px;padding-right:20px">客户名称/Customer</td>
-           <td style="width:186px;padding-right:0px">
-               <input type="text" name="client_name" value="<?php echo $array['client_name'] ?>" style="width:125px;" />
+          <td style="width:186px;padding-right:0px">
+              <select name="client_name" class="client_name" id="client_name"  style="width:125px;height:25px">
+                  <option value='0'>请选择</option>
+                <?php foreach($array_customer as $key=>$value){ ?>
+                  <option <?php echo $array['client_name'] == $value['customer_id'] ?"selected":" "  ?>  value="<?php echo $value['customer_id'] ?>"> <?php echo $value['customer_name'] ?></option>;
+                <?php }   ?>
+      
+        
+              </select>
            </td>  
     </tr>
     <tr>
@@ -2785,20 +2805,20 @@ $(function(){
     </tr>
     <tr>
           <td>联系人/Attention</td>
-          <td>
-            <input type="text" name="contacts" value="<?php echo $array['contacts']; ?>" style="width:125px">
+          <td id="contacts">
+            <input type="text" name="contacts" id="contacts_name" value="<?php echo $array['contacts']; ?>" style="width:125px">
           </td>
            </tr>
            <tr>
           <td>电话/TEL</td>
           <td>
-            <input  type="text" name="tel" value="<?php echo $array['tel']; ?>" style="width:125px"/>
+            <input  type="text" name="tel" id="contacts_phone" value="<?php echo $array['tel']; ?>" style="width:125px"/>
           </td>    
            </tr>
            <tr>
               <td>信箱/E-mail</td>
               <td>
-                 <input type="text" name="email" value="<?php echo $array['email']; ?>" style="width:125px"/>
+                 <input type="text" name="email" id="contacts_email" value="<?php echo $array['email']; ?>" style="width:125px"/>
              </td>  
            </tr>
            <tr>
@@ -3539,9 +3559,16 @@ $(function(){
                     <p style="font-weight:blod;font-size:30px">JOTYLONG  Tooling Cost Break Down</p>
          </td>
        <td style="width:186px;padding-right:20px">客户名称/Customer</td>
-           <td style="width:186px;padding-right:0px">
-               <input type="text" name="client_name" value="<?php echo $array['client_name'] ?>" style="width:125px;" />
-           </td>  
+       <td style="width:186px;padding-right:0px">
+              <select name="client_name" class="client_name" id="client_name"  style="width:125px;height:25px">
+                  <option value='0'>请选择</option>
+                <?php foreach($array_customer as $key=>$value){ ?>
+                  <option <?php echo $array['client_name'] == $value['customer_id']?"selected":" "  ?>  value="<?php echo $value['customer_id'] ?>"> <?php echo $value['customer_name'] ?></option>;
+                <?php }   ?>
+      
+        
+              </select>
+           </td>    
     </tr>
     <tr>
       <td>项目名称/Program</td>
@@ -3551,20 +3578,20 @@ $(function(){
     </tr>
     <tr>
           <td>联系人/Attention</td>
-          <td>
-            <input type="text" name="contacts" value="<?php echo $array['contacts']; ?>" style="width:125px">
+          <td id="contacts">
+            <input type="text" name="contacts" id="contacts_name" value="<?php echo $array['contacts']; ?>" style="width:125px">
           </td>
            </tr>
            <tr>
           <td>电话/TEL</td>
           <td>
-            <input  type="text" name="tel" value="<?php echo $array['tel']; ?>" style="width:125px"/>
+            <input  type="text" name="tel" id="contacts_phone" value="<?php echo $array['tel']; ?>" style="width:125px"/>
           </td>    
            </tr>
            <tr>
               <td>信箱/E-mail</td>
               <td>
-                 <input type="text" name="email" value="<?php echo $array['email']; ?>" style="width:125px"/>
+                 <input type="text" name="email" id="contacts_email" value="<?php echo $array['email']; ?>" style="width:125px"/>
              </td>  
            </tr>
            <tr>
@@ -4304,9 +4331,16 @@ $(function(){
                     <p style="font-weight:blod;font-size:30px">JOTYLONG  Tooling Cost Break Down</p>
          </td>
        <td style="width:186px;padding-right:20px">客户名称/Customer</td>
-           <td style="width:186px;padding-right:0px">
-               <input type="text" name="client_name" value="<?php echo $array['client_name'] ?>" style="width:125px;" />
-           </td>  
+          <td style="width:186px;padding-right:0px">
+              <select name="client_name" class="client_name" id="client_name"  style="width:125px;height:25px">
+                  <option value='0'>请选择</option>
+                <?php foreach($array_customer as $key=>$value){ ?>
+                  <option <?php echo $array['client_name'] == $value['customer_id']?"selected":" "  ?>  value="<?php echo $value['customer_id'] ?>"> <?php echo $value['customer_name'] ?></option>;
+                <?php }   ?>
+      
+        
+              </select>
+           </td>    
     </tr>
     <tr>
       <td>项目名称/Program</td>
@@ -4316,20 +4350,20 @@ $(function(){
     </tr>
     <tr>
           <td>联系人/Attention</td>
-          <td>
-            <input type="text" name="contacts" value="<?php echo $array['contacts']; ?>" style="width:125px">
+          <td id="contacts">
+            <input type="text" name="contacts" id="contacts_name" value="<?php echo $array['contacts']; ?>" style="width:125px">
           </td>
            </tr>
            <tr>
           <td>电话/TEL</td>
           <td>
-            <input  type="text" name="tel" value="<?php echo $array['tel']; ?>" style="width:125px"/>
+            <input  type="text" name="tel" id="contacts_phone" value="<?php echo $array['tel']; ?>" style="width:125px"/>
           </td>    
            </tr>
            <tr>
               <td>信箱/E-mail</td>
               <td>
-                 <input type="text" name="email" value="<?php echo $array['email']; ?>" style="width:125px"/>
+                 <input type="text" name="email" id="contacts_email" value="<?php echo $array['email']; ?>" style="width:125px"/>
              </td>  
            </tr>
            <tr>

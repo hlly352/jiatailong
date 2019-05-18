@@ -404,7 +404,7 @@ $manufacturing_arr = [
 	'P'=>'小计(元)'
 ];
 $manufacturing_key = ['mold_manufacturing','manufacturing_hour','manufacturing_unit_price','manufacturing_price'];
-$other_num = mergeCell($objPHPExcel,$row,$manufacturing_num,$manufacturing_arr,$manufacturing_key,'total_manufacturing','加工费/Manufacturing Cost');
+         $other_num = mergeCell($objPHPExcel,$row,$manufacturing_num,$manufacturing_arr,$manufacturing_key,'total_manufacturing','加工费/Manufacturing Cost');
 $other_arr = [
 	'C'=>['费用名称','E','E'],
 	'F'=>['费用计算说明','M','M'],
@@ -412,7 +412,7 @@ $other_arr = [
 	'P'=>'小计(元)'
 ];
 $other_key = ['other_fee_name','other_fee_instr','other_fee_price'];
-/*$total_num = mergeCell($objPHPExcel,$row,$other_num,$other_arr,$other_key,'total_others','其它费用/Other Fee');
+$total_num = mergeCell($objPHPExcel,$row,$other_num,$other_arr,$other_key,'total_others','其它费用/Other Fee');
 //设置其他费用的最后三列
 for($i = $total_num-2;$i>$total_num-5;$i--){
 	switch($i){
@@ -501,7 +501,7 @@ $objPHPExcel->getActiveSheet()->mergeCells('A'.$last_num.':P'.$last_num);
 $objPHPExcel->getActiveSheet()->setCellValue('A'.$last_num,'如果1*2，长度不变，宽度尺寸为1.6倍；如果是1*4，长度、宽带尺寸为1.6倍');
 $last_num = $last_num + 1;
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$last_num.':P'.$last_num);
-$objPHPExcel->getActiveSheet()->setCellValue('A'.$last_num,'如果1+1，长度不变，宽度尺寸为1.6倍；如果2+2，长度、宽度尺寸是1.6倍');*/
+$objPHPExcel->getActiveSheet()->setCellValue('A'.$last_num,'如果1+1，长度不变，宽度尺寸为1.6倍；如果2+2，长度、宽度尺寸是1.6倍');
 //获取型腔数量
 if(strpos($row['cavity_type'],'$$')){
 		$cavity_nums = str_replace('$$','+',$row['cavity_type']);
@@ -530,7 +530,7 @@ $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(12.75);
 $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(12.75);
 
 //设置表格的字体
-$objPHPExcel->getActiveSheet()->getStyle('A1:P100')->getFont()->setName('宋体')->setSize(5);
+$objPHPExcel->getActiveSheet()->getStyle('A1:P'.$last_num)->getFont()->setName('宋体')->setSize(5);
 //logo文字字体加粗
 $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setName('Arial')->setBold(true);
 $objPHPExcel->getActiveSheet()->getStyle('F1')->getFont()->setName('宋体')->setBold(true);

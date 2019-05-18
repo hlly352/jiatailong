@@ -117,13 +117,21 @@ function getdate(timestamp) {
                 //获取型腔和型芯材料
                 var specification = data[i].material_specification.split('$$');
                 var cavity_core = specification[1]+'/'+specification[2];
-        var tr = '   <tr class="block'+data[i].mold_id+'">        <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+p_size+'</td>        <td>'+m_material+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td>'+cavity_core+'</td>        <td>         <?php 
-            if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
-              echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
-            } else {
-              echo '无';
-            }
-          ?>        </td>        <td>'+data[i].tonnage+'</td>        <td>&yen;'+data[i].mold_price_rmb+'</td>        <td>&yen;'+data[i].mold_with_vat+'</td>             <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->        <td><!--<?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?>--></td>      </tr> ';     
+                //热流道的材料和数量
+                var hot_num = data[i].standard_number.split('$$')[4];
+                var hot_material = data[i].standard_supplier.split('$$')[4];
+                if(hot_num != 0 && hot_material){
+                	var hot_runner = hot_material+'/'+hot_num;
+                } else {
+                	var hot_runner = '无';
+                }
+                //型腔数量
+                if(data[i].cavity_type.indexOf('$$') == -1){
+                	var cavity_nums = '1*'.data[i].cavity_type;
+                } else {
+                	var cavity_nums = data[i].cavity_type.replace('$$','+');
+                }
+        var tr = '   <tr class="show block'+data[i].mold_id+'">        <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td class="show_list"> '+getdat+' </td>        <td class="show_list">'+data[i].client_name+'</td>        <td class="show_list">'+data[i].project_name+'</td>        <td class="show_list">'+data[i].mould_name+'</td>        <td class="show_list">'+part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td class="show_list"><?php echo $image_file ?></td>         <td class="show_list">'+p_size+'</td>        <td class="show_list">'+m_material+'</td>        <td class="show_list">'+cavity_nums+'</td>        <td class="show_list">'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td class="show_list">'+data[i].m_weight+'</td>                <td class="show_list">'+cavity_core+'</td>        <td class="show_list">    '+hot_runner+'    </td>        <td class="show_list">'+data[i].tonnage+'</td>        <td class="show_list">&yen;'+data[i].mold_price_rmb+'</td>        <td class="show_list">&yen;'+data[i].mold_with_vat+'</td>             <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->        <td><!--<?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?>--></td>      </tr> ';     
            $('.but').eq(mold_nu).parent().parent().after(tr);
            $('.but').eq(mold_nu).unbind('click').val('收起').css('background','#ddd').addClass('del');
   
@@ -155,8 +163,6 @@ function getdate(timestamp) {
         'data':{mold_id:mold_id},
         'success':function(data){
           for(var i=0;i<data.length-1;i++){
-            console.log(data[i].time);
-            //console.log(mold_nu);
               if($(".mold_num").eq(mold_nu).text() >1){
                 var getdat = getdate(data[i].time);
                 var part_number = (data[i].part_number).replace('$$','<br>');
@@ -173,14 +179,22 @@ function getdate(timestamp) {
                 //获取型腔和型芯材料
                 var specification = data[i].material_specification.split('$$');
                 var cavity_core = specification[1]+'/'+specification[2];  
-                console.log(data[i].cavity_type);   
-        var tr = '   <tr class="block'+data[i].mold_id+'">         <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td> '+getdat+' </td>        <td>'+data[i].client_name+'</td>        <td>'+data[i].project_name+'</td>        <td>'+data[i].mould_name+'</td>        <td>'+part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td><?php echo $image_file ?></td>         <td>'+p_size+'</td>        <td>'+m_material+'</td>        <td><?php echo $cavity_nu; ?></td>        <td>'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td>'+data[i].m_weight+'</td>                <td>'+cavity_core+'</td>        <td>          <?php 
-            if($arrs_standards[4][1] !=0&&$arrs_standards[4][1] != null){
-              echo $arrs_standards[4][2].'/'.$arrs_standards[4][1];
-            } else {
-              echo '无';
-            }
-          ?>        </td>        <td>'+data[i].tonnage+'</td>        <td>&yen;'+data[i].mold_price_rmb+'</td>        <td>&yen;'+data[i].mold_with_vat+'</td>       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->        <td><!--<?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?>--></td>      </tr> ';     
+                 //热流道的材料和数量
+                var hot_num = data[i].standard_number.split('$$')[4];
+                var hot_material = data[i].standard_supplier.split('$$')[4];
+                if(hot_num != 0 && hot_material){
+                	var hot_runner = hot_material+'/'+hot_num;
+                } else {
+                	var hot_runner = '无';
+                }
+                //型腔数量
+                if(data[i].cavity_type.indexOf('$$') == -1){
+                	var cavity_nums = '1*'.data[i].cavity_type;
+                } else {
+                	var cavity_nums = data[i].cavity_type.replace('$$','+');
+                }
+
+        var tr = '   <tr class="show block'+data[i].mold_id+'">         <td><input type="checkbox" name="id[]" value="'+data[i].mould_dataid+'" /></td>        <td class="show_list"> '+getdat+' </td>        <td class="show_list">'+data[i].client_name+'</td>        <td class="show_list">'+data[i].project_name+'</td>        <td class="show_list">'+data[i].mould_name+'</td>        <td class="show_list">'+part_number+'</td>        <!--<td><a href="mould_photo.php?id=<?php echo $mould_dataid; ?>"><?php echo $image_file; ?></a></td>-->        <td class="show_list"><?php echo $image_file ?></td>         <td class="show_list">'+p_size+'</td>        <td class="show_list">'+m_material+'</td>        <td class="show_list">'+cavity_nums+'</td>        <td class="show_list">'+data[i].m_length+'*'+data[i].m_width+'*'+data[i].m_height+'</td>        <td class="show_list">'+data[i].m_weight+'</td>                <td class="show_list">'+cavity_core+'</td>        <td class="show_list"> '+hot_runner+'    </td>        <td class="show_list">'+data[i].tonnage+'</td>        <td class="show_list">&yen;'+data[i].mold_price_rmb+'</td>        <td class="show_list">&yen;'+data[i].mold_with_vat+'</td>       <!-- <td><a href="mould_quote_list.php?id=<?php echo $mould_dataid; ?>"><img src="../images/system_ico/quote_11_12.png" width="11" height="12" /></a></td> -->        <td><!--<?php if($count == 0){ ?><a href="mould_dataae.php?id=<?php echo $mould_dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?>--></td>      </tr> ';     
            $('.but').eq(mold_nu).parent().parent().after(tr);
            $('.but').eq(mold_nu).unbind('click').val('收起').css('background','#ddd').addClass('del');
   
@@ -196,9 +210,8 @@ function getdate(timestamp) {
             }) ;
       }
     })
-    $('.show_list').click(function(){
+    $('.show_list').live('click',function(){
       var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
-      
       $('.show').each(function(){
         window.open('mould_dataae.php?action=approval_edit&id='+mold_dataid,'_self');
       })
@@ -376,7 +389,7 @@ function getdate(timestamp) {
         <td class="show_list"><?php echo $row['m_length'].'*'.$row['m_width'].'*'.$row['m_height']; ?></td>
         <td class="show_list"><?php echo $row['m_weight']; ?></td>
         <td class="show_list"><?php echo $arrs_materials[1][1].'/'.$arrs_materials[2][1] ?></td>
-        <td>
+        <td class="show_list">
           <?php 
             if($arrs_standards[4][3] !=0&&$arrs_standards[4][2] != null){
               echo $arrs_standards[4][2].'/'.$arrs_standards[4][3];
