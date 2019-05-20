@@ -53,8 +53,8 @@ $array_quote_status = array(0=>'报价',1=>'成交');
 //热处理数据
 $array_mould_heat = array('tempered'=>'调质/Tempered','hardened'=>'淬火/Hardened','nitridation'=>'氮化/Nitridation');
 //材料名称
-$array_mould_material = array('cavity'=>'型腔/Cavity','core'=>'型芯/Core','silde'=>'滑块/Slide&Lifter','lifter'=>'斜顶/Lifter','insert'=>'镶件/Insert','electrode'=>'电极/Electrode');
-$array_mould_materials = array('base'=>'模架/Mode Base','cavity'=>'型腔1/Cavity','cavitys'=>'型腔2/Cavity','core'=>'型芯1/Core','cores'=>'型芯2/Core','silde'=>'滑块/Slide&Lifter','lifter'=>'斜顶/Lifter','inserts'=>'镶件/Insert','electrode'=>'电极/Electrode');
+$array_mould_material = array('cavity'=>'型腔/Cavity','core'=>'型芯/Core','silde'=>'滑块/Slide','lifter'=>'斜顶/Lifter','insert'=>'镶件/Insert','electrode'=>'电极/Electrode');
+$array_mould_materials = array('base'=>'模架/Mode Base','cavity'=>'型腔1/Cavity','cavitys'=>'型腔2/Cavity','core'=>'型芯1/Core','cores'=>'型芯2/Core','silde'=>'滑块/Slide','lifter'=>'斜顶/Lifter','inserts'=>'镶件/Insert','electrode'=>'电极/Electrode');
 //材料牌号
 $array_material_specification = array(0=>'1.2312',1=>'1.2343',2=>'Cu');
 //模具配件数据

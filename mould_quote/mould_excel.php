@@ -5,6 +5,8 @@ require_once 'shell.php';
 $action = $_GET['action'];
 if($action == 'mould_excel'){
 	$mould_dataid = $_GET['id'];
+	$version = $_GET['version'];
+
 	//通过id查询报价信息
 	$sql = "SELECT * FROM `db_mould_data` WHERE `mould_dataid` = '$mould_dataid'";
 	$res = $db->query($sql);
@@ -115,7 +117,6 @@ $objPHPExcel->getActiveSheet()->mergeCells('F12:G12');
 $objPHPExcel->getActiveSheet()->mergeCells('M12:N12');
 $objPHPExcel->getActiveSheet()->mergeCells('O12:P12');
 //设置单元格的值
-$objPHPExcel->getActiveSheet()->setCellValue('A1', 'JoTyLong ');
 $objPHPExcel->getActiveSheet()->getStyle('F1')->getAlignment()->setWrapText(true);
 $objPHPExcel->getActiveSheet()->getStyle('F1')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 $objPHPExcel->getActiveSheet()->getStyle('F1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
@@ -221,7 +222,8 @@ $objPHPExcel->getActiveSheet()->getStyle('A')->getAlignment()->setWrapText(true)
 	$tot_name          小计的类名
 	$first_content     每个项目第一个单元格的内容
  */
-function mergeCell($objPHPExcel,$data,$start_num,$arr_cols,$arr_val,$tot_name,$first_content){
+$tot_string = ' ';
+function mergeCell($objPHPExcel,$data,$start_num,$arr_cols,$arr_val,$tot_name,$first_content,$tot_string = ' '){
 	$tot_nums = $start_num + 1;
 	//设置表头的行高
 	$objPHPExcel->getActiveSheet()->getRowDimension($start_num)->setRowHeight(15);
@@ -287,26 +289,25 @@ function mergeCell($objPHPExcel,$data,$start_num,$arr_cols,$arr_val,$tot_name,$f
 			//设置填充数据的单元格左对齐
 			$objPHPExcel->getActiveSheet()->getStyle($k.$no)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);	
 				if($arr_val[0] == 'mould_material'){
-					//最后三列的金额加上人民币符号
-					 if($i>count($new_arr)-3){
-						$objPHPExcel->getActiveSheet()->setCellValue($k.$no, '￥'.$vals);
-				   	}else{
+				
 						$objPHPExcel->getActiveSheet()->setCellValue('I'.$no,'*');
 						$objPHPExcel->getActiveSheet()->setCellValue('K'.$no,'*');
 						$objPHPExcel->getActiveSheet()->setCellValue($k.$no, $vals);
-					}
+						$objPHPExcel->getActiveSheet()->setCellValue('O'.$no,"=PRODUCT(M".$no.',N'.$no.',G'.$no.")");
 				} elseif($arr_val[0] == 'other_fee_name'){
 					if($i>count($new_arr)-2){
-					     	$objPHPExcel->getActiveSheet()->setCellValue($k.$no, '￥'.$vals);
+					     	$objPHPExcel->getActiveSheet()->setCellValue($k.$no, $vals);
 					} else{
 					    	$objPHPExcel->getActiveSheet()->setCellValue($k.$no, $vals);
 					}
+				} elseif($arr_val[0] == 'mold_standard'){
+					$objPHPExcel->getActiveSheet()->setCellValue($k.$no, $vals);
+					$objPHPExcel->getActiveSheet()->setCellValue('O'.$no,"=PRODUCT(M".$no.':N'.$no.")");
 				} else {
-					if($i>count($new_arr)-3){
-					     	$objPHPExcel->getActiveSheet()->setCellValue($k.$no, '￥'.$vals);
-					} else{
-					    	$objPHPExcel->getActiveSheet()->setCellValue($k.$no, $vals);
-					}
+					
+					     	$objPHPExcel->getActiveSheet()->setCellValue($k.$no, $vals);
+					     	//自动求乘积
+						$objPHPExcel->getActiveSheet()->setCellValue('N'.$no,"=PRODUCT(F".$no.':H'.$no.")");
 				}	
 			
 		}
@@ -342,9 +343,23 @@ function mergeCell($objPHPExcel,$data,$start_num,$arr_cols,$arr_val,$tot_name,$f
 		  $objPHPExcel->getActiveSheet()->getStyle('C'.$start_num.':C'.$no)->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 		
 		//设置小计的值
-		$objPHPExcel->getActiveSheet()->setCellValue('P'.$tot_nums, '￥'.$data[$tot_name]);		
+		$objPHPExcel->getActiveSheet()->setCellValue('P'.$tot_nums, $data[$tot_name]);
+		//设置小计自动求和
+		if($arr_val[0] == 'mould_material' || $arr_val[0] == 'mold_standard'){
+			$objPHPExcel->getActiveSheet()->setCellValue('P'.$tot_nums, '=SUM(O'.$tot_nums.':O'.$no.')');
+		} else{
+			$objPHPExcel->getActiveSheet()->setCellValue('P'.$tot_nums, '=SUM(N'.$tot_nums.':N'.$no.')');
+		}
+		//总价的公式的字符串
+			$tot_string .= 'P'.$tot_nums.',';
+		
+			$nos = $no+2;
+			
+		
 		//返回下一个项目的开始行数
-		return $no+2;
+		return [$nos,$tot_string];
+
+		
 		}
 
 
@@ -357,110 +372,121 @@ $material_arr = [
 	'J'=>' ',  
 	'L'=>' ',
 	'M'=>'总重量/Weight(kg)',
-	'N'=>'单价(元)/Unit Price',
+	'N'=>'单价/Unit Price(RMB)',
 	'O'=>'金额/Price(RMB)',
-	'P'=>'小计(元)'
+	'P'=>'小计/Subtotal(RMB)'
 ];
 $material_key = ['mould_material','material_specification','materials_number','material_length','material_width','material_height','material_weight','material_unit_price','material_price'];
 $heat_num = mergeCell($objPHPExcel,$row,14,$material_arr,$material_key,'total_machining','材料加工费/Machining Materia');
+
 //热处理
 $heat_arr = [
 	'C'=>['热处理名称/Item','E','E'],
 	'F'=>['重量/weight(kg)','G','G'],
 	'H'=>['	单价/Unit Price(RMB)','M','M'],
 	'N'=>['金额/Price(RMB)','O','O'],
-	'P'=>'小计(元)'
+	'P'=>'小计/Subtotal(RMB)'
 ];
 $heat_key = ['mould_heat_name','heat_weight','heat_unit_price','heat_price'];
-$standard_num = mergeCell($objPHPExcel,$row,$heat_num,$heat_arr,$heat_key,'total_heat','热处理/Heat Treatment');
+$standard_num = mergeCell($objPHPExcel,$row,$heat_num[0],$heat_arr,$heat_key,'total_heat','热处理/Heat Treatment',$heat_num[1]);
 //模具配件
 $standard_arr = [
 	'C'=>['装配件/Item','E','E'],
 	'F'=>['规格型号/Specification','G','G'],
 	'H'=>['品牌/Supplier','L','L'],
 	'M'=>'数量/Number',
-	'N'=>'单价(元)/Unit Price',
+	'N'=>'单价/Unit Price(RMB)',
 	'O'=>'金额(RMB)/price',
-	'P'=>'小计(元)'
+	'P'=>'小计/Subtotal(RMB)'
 ];
 $standard_key = ['mold_standard','standard_specification','standard_supplier','standard_number','standard_unit_price','standard_price'];
-$design_num = mergeCell($objPHPExcel,$row,$standard_num,$standard_arr,$standard_key,'total_standard','模具配件/Mold standard parts');
+$design_num = mergeCell($objPHPExcel,$row,$standard_num[0],$standard_arr,$standard_key,'total_standard','模具配件/Mold standard parts',$standard_num[1]);
 //设计费
 $design_arr = [
 	'C'=>['设计名称/Item','E','E'],
 	'F'=>['工时(小时)/Hour','G','G'],
-	'H'=>['单价(元)/Unit Price(RMB)','M','M'],
+	'H'=>['单价/Unit Price(RMB)','M','M'],
 	'N'=>['金额/Price(RMB)','O','O'],
-	'P'=>'小计(元)'
+	'P'=>'小计/Subtotal(RMB)'
 ];
 $design_key = ['mold_design_name','design_hour','design_unit_price','design_price'];
-$manufacturing_num = mergeCell($objPHPExcel,$row,$design_num,$design_arr,$design_key,'total_designs','设计费/Design');
+$manufacturing_num = mergeCell($objPHPExcel,$row,$design_num[0],$design_arr,$design_key,'total_designs','设计费/Design',$design_num[1]);
 //加工费
 $manufacturing_arr = [
 	'C'=>['名称/Item','E','E'],
 	'F'=>['工时(小时)/Hour','G','G'],
-	'H'=>['单价(元)/Unit Price(RMB)','M','M'],
+	'H'=>['单价/Unit Price(RMB)','M','M'],
 	'N'=>['金额/Price(RMB)','O','O'],
-	'P'=>'小计(元)'
+	'P'=>'小计/Subtotal(RMB)'
 ];
 $manufacturing_key = ['mold_manufacturing','manufacturing_hour','manufacturing_unit_price','manufacturing_price'];
-         $other_num = mergeCell($objPHPExcel,$row,$manufacturing_num,$manufacturing_arr,$manufacturing_key,'total_manufacturing','加工费/Manufacturing Cost');
+         $other_num = mergeCell($objPHPExcel,$row,$manufacturing_num[0],$manufacturing_arr,$manufacturing_key,'total_manufacturing','加工费/Manufacturing Cost',$manufacturing_num[1]);
 $other_arr = [
-	'C'=>['费用名称','E','E'],
-	'F'=>['费用计算说明','M','M'],
-	'N'=>['金额(元)','O','O'],
-	'P'=>'小计(元)'
+	'C'=>['费用名称/Item','E','E'],
+	'F'=>['费用计算说明/Description','M','M'],
+	'N'=>['金额/Price(RMB)','O','O'],
+	'P'=>'小计/Subtotal(RMB)'
 ];
 $other_key = ['other_fee_name','other_fee_instr','other_fee_price'];
-$total_num = mergeCell($objPHPExcel,$row,$other_num,$other_arr,$other_key,'total_others','其它费用/Other Fee');
+$total_num = mergeCell($objPHPExcel,$row,$other_num[0],$other_arr,$other_key,'total_others','其它费用/Other Fee',$other_num[1]);
+
 //设置其他费用的最后三列
-for($i = $total_num-2;$i>$total_num-5;$i--){
+for($i = $total_num[0]-2;$i>$total_num[0]-5;$i--){
 	switch($i){
-		case $total_num - 2:
+		case $total_num[0] - 2:
 			$objPHPExcel->getActiveSheet()->mergeCells('C'.$i.':E'.$i);
 			$objPHPExcel->getActiveSheet()->mergeCells('F'.$i.':M'.$i);
 			$objPHPExcel->getActiveSheet()->mergeCells('N'.$i.':O'.$i);
 			$objPHPExcel->getActiveSheet()->setCellValue('C'.$i, '税/VAT TAX(13%)');
 			$objPHPExcel->getActiveSheet()->setCellValue('F'.$i, '13%');
-			$objPHPExcel->getActiveSheet()->setCellValue('N'.$i, '￥'.$row['vat_tax']);
+			$objPHPExcel->getActiveSheet()->setCellValue('N'.$i, $row['vat_tax']);
 			$objPHPExcel->getActiveSheet()->getStyle('N'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
 			break;
-		case $total_num - 3:
+		case $total_num[0] - 3:
 			$objPHPExcel->getActiveSheet()->mergeCells('C'.$i.':E'.$i);
 			$objPHPExcel->getActiveSheet()->mergeCells('F'.$i.':M'.$i);
 			$objPHPExcel->getActiveSheet()->mergeCells('N'.$i.':O'.$i);
 			$objPHPExcel->getActiveSheet()->setCellValue('C'.$i, '利润/Profit');
 			$objPHPExcel->getActiveSheet()->setCellValue('F'.$i, '10%');
-			$objPHPExcel->getActiveSheet()->setCellValue('N'.$i, '￥'.$row['profit']);
+			$objPHPExcel->getActiveSheet()->setCellValue('N'.$i, $row['profit']);
 			$objPHPExcel->getActiveSheet()->getStyle('N'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
 			break;
-		case $total_num - 4:
+		case $total_num[0] - 4:
 			$objPHPExcel->getActiveSheet()->mergeCells('C'.$i.':E'.$i);
 			$objPHPExcel->getActiveSheet()->mergeCells('F'.$i.':M'.$i);
 			$objPHPExcel->getActiveSheet()->mergeCells('N'.$i.':O'.$i);
 			$objPHPExcel->getActiveSheet()->setCellValue('C'.$i, '管理费/Management Fee');
 			$objPHPExcel->getActiveSheet()->setCellValue('F'.$i, '5%');
-			$objPHPExcel->getActiveSheet()->setCellValue('N'.$i, '￥'.$row['management_fee']);
+			$objPHPExcel->getActiveSheet()->setCellValue('N'.$i, $row['management_fee']);
 			$objPHPExcel->getActiveSheet()->getStyle('N'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
 			break;
 
 	}
 }
-//模具总价
-$objPHPExcel->getActiveSheet()->getRowDimension($total_num-1)->setRowHeight(5);	
-$objPHPExcel->getActiveSheet()->mergeCells('A'.$total_num.':E'.$total_num);
-$objPHPExcel->getActiveSheet()->mergeCells('F'.$total_num.':P'.$total_num);
-$objPHPExcel->getActiveSheet()->getStyle('A'.$total_num.':P'.$total_num)->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
-$objPHPExcel->getActiveSheet()->setCellValue('A'.$total_num,'模具价格(元)不含税/Mold Price without VAT(RMB)');
-$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num,'￥'.$row['mold_price_rmb']);
 
-$total_num = $total_num + 2;
+$total_with_vat_str= substr($total_num[1],0,strlen($total_num[1])-1);
+//模具总价
+$objPHPExcel->getActiveSheet()->getRowDimension($total_num[0]-1)->setRowHeight(5);	
+$objPHPExcel->getActiveSheet()->mergeCells('A'.$total_num[0].':E'.$total_num[0]);
+$objPHPExcel->getActiveSheet()->mergeCells('F'.$total_num[0].':P'.$total_num[0]);
+$objPHPExcel->getActiveSheet()->getStyle('A'.$total_num[0].':P'.$total_num[0])->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->setCellValue('A'.$total_num[0],'模具价格不含税/Mold Price without VAT(RMB)');
+$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num[0], $row['mold_price_rmb']);
+$objPHPExcel->getActiveSheet()->getStyle('F'.$total_num[0])->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+//不含税自动公式
+//$totals_nums = $total_num[0] +4;
+//$vat_nums = $total_num[0] - 2;
+//$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num[0],'=SUM(F'.$total_nums.',-N'.$vat_nums.')');
+//$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num[0], '=SUM(F'.$totals_nums.',N'.$vat_nums.')');
+
+$total_num = $total_num[0] + 2;
 $objPHPExcel->getActiveSheet()->getRowDimension($total_num-1)->setRowHeight(5);	
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$total_num.':E'.$total_num);
 $objPHPExcel->getActiveSheet()->mergeCells('F'.$total_num.':P'.$total_num);
 $objPHPExcel->getActiveSheet()->getStyle('A'.$total_num.':P'.$total_num)->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 $objPHPExcel->getActiveSheet()->setCellValue('A'.$total_num,'模具价格(USD)/Mold Price(USD) Rate=6.5');
-$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num,'$'.$row['mold_price_usd']);
+$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num,$row['mold_price_usd']);
+$objPHPExcel->getActiveSheet()->getStyle('F'.$total_num)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
 
 $total_num = $total_num + 2;
 $objPHPExcel->getActiveSheet()->getRowDimension($total_num-1)->setRowHeight(5);	
@@ -468,7 +494,11 @@ $objPHPExcel->getActiveSheet()->mergeCells('A'.$total_num.':E'.$total_num);
 $objPHPExcel->getActiveSheet()->mergeCells('F'.$total_num.':P'.$total_num);
 $objPHPExcel->getActiveSheet()->getStyle('A'.$total_num.':P'.$total_num)->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 $objPHPExcel->getActiveSheet()->setCellValue('A'.$total_num,'模具价格(元)含13%增值税/Mold with VAT(RMB)');
-$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num,'￥'.$row['mold_with_vat']);
+$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num, $row['mold_with_vat']);
+$objPHPExcel->getActiveSheet()->setCellValue('F'.$total_num,'=SUM('.$total_with_vat_str.')');
+
+$objPHPExcel->getActiveSheet()->getStyle('F'.$total_num)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+
 
 //说明文字
 $instr_num = $total_num + 2;
@@ -495,13 +525,9 @@ $objPHPExcel->getActiveSheet()->getStyle('A'.$footer_num.':P'.$footer_num)->getB
 $objPHPExcel->getActiveSheet()->getStyle('A'.$footer_num.':P'.$footer_num)->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 $objPHPExcel->getActiveSheet()->getStyle('P'.$footer_num)->getBorders()->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 
-//最后的文字
+
 $last_num = $footer_num + 2;
-$objPHPExcel->getActiveSheet()->mergeCells('A'.$last_num.':P'.$last_num);
-$objPHPExcel->getActiveSheet()->setCellValue('A'.$last_num,'如果1*2，长度不变，宽度尺寸为1.6倍；如果是1*4，长度、宽带尺寸为1.6倍');
-$last_num = $last_num + 1;
-$objPHPExcel->getActiveSheet()->mergeCells('A'.$last_num.':P'.$last_num);
-$objPHPExcel->getActiveSheet()->setCellValue('A'.$last_num,'如果1+1，长度不变，宽度尺寸为1.6倍；如果2+2，长度、宽度尺寸是1.6倍');
+
 //获取型腔数量
 if(strpos($row['cavity_type'],'$$')){
 		$cavity_nums = str_replace('$$','+',$row['cavity_type']);
@@ -526,14 +552,14 @@ $objPHPExcel->getActiveSheet()->getColumnDimension('K')->setWidth(1);
 $objPHPExcel->getActiveSheet()->getColumnDimension('L')->setWidth(6.75);
 $objPHPExcel->getActiveSheet()->getColumnDimension('M')->setWidth(6.75);
 $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setWidth(6.75);
-$objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(12.75);
-$objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(12.75);
+$objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(12);
+$objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(12);
 
 //设置表格的字体
-$objPHPExcel->getActiveSheet()->getStyle('A1:P'.$last_num)->getFont()->setName('宋体')->setSize(5);
+$objPHPExcel->getActiveSheet()->getStyle('A1:P'.$last_num)->getFont()->setName('Arial')->setSize(5);
 //logo文字字体加粗
 $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setName('Arial')->setBold(true);
-$objPHPExcel->getActiveSheet()->getStyle('F1')->getFont()->setName('宋体')->setBold(true);
+$objPHPExcel->getActiveSheet()->getStyle('F1')->getFont()->setName('Arial')->setSize(10)->setBold(true);
 
 
 //添加图片
@@ -547,20 +573,20 @@ $objDrawing->setHeight(50);
 /*设置图片要插入的单元格*/
 $objDrawing->setCoordinates('B1');
 /*设置图片所在单元格的格式*/
-$objDrawing->setOffsetX(10);
+$objDrawing->setOffsetX(-10);
 $objDrawing->setOffsetY(10);
 $objDrawing->setRotation(0);
 $objDrawing->getShadow()->setVisible(true);
 $objDrawing->getShadow()->setDirection(50);
 $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
-
-
 //设置时间格式
 $now_time = date('Ymd',time());
+$titles = $row['project_name']."-CBD-V".$version."-".$now_time.".xls";
+
 // 输出Excel表格到浏览器下载
  ob_end_clean();
 header('Content-Type: application/vnd.ms-excel');
-header('Content-Disposition: attachment;filename="'.$row['project_name'].'-CBD-'.$now_time.'.xls"');
+header('Content-Disposition: attachment;filename='.$titles);
 header('Cache-Control: max-age=0');
 // If you're serving to IE 9, then the following may be needed
 header('Cache-Control: max-age=1');

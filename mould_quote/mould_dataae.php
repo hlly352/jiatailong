@@ -1985,7 +1985,7 @@ $(function(){
   //跳转到导出页面
   $("#export_excel").click(function(){
     var mold_id = $(this).prev().val();
-    window.open('mould_excel.php?action=mould_excel&id='+mold_id);
+    window.open('mould_excel.php?version=<?php echo $_GET['version'] ?>&action=mould_excel&id='+mold_id);
   })
   $('#unapproval_edit').click(function(){
     document.mould_data_approval.action = 'mould_datado.php?action=edit';
@@ -2250,9 +2250,9 @@ $(function(){
                <td>数量/Number</td>
                <td colspan="5">尺寸/Size(mm*mm*mm)</td>
                <td style="width:93px">总重量/Weight(kg)</td>
-               <td style="width:93px">单价(元)/Unit Price</td>
+               <td style="width:93px">单价/Unit Price(RMB)</td>
                <td>金额/Price(RMB)</td>
-               <td>小计(元)</td>
+               <td>小计/Subtotal(RMB)</td>
            </tr>
   <tr class="material_trs even">
                <td colspan="4">
@@ -2346,7 +2346,7 @@ $(function(){
              <td colspan="2">重量/weight(kg)</td>
              <td colspan="6">单价/Unit Price(RMB)</td>
              <td colspan="2">金额/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
            <?php
         $i = 0;
@@ -2390,9 +2390,9 @@ $(function(){
         <td colspan="2">规格型号/Specification</td>
         <td colspan="5">品牌/Supplier</td>
         <td>数量/Number</td>
-        <td>单价(元)/Unit Price</td>
-          <td>金额(RMB)/price</td>
-          <td>小计(元)</td>
+        <td>单价/Unit Price(RMB)</td>
+          <td>金额/Price(RMB)</td>
+          <td>小计/Subtotal(RMB)</td>
       </tr>
       <?php
         $i = 0;
@@ -2447,9 +2447,9 @@ $(function(){
              <td id="design_first_td" rowspan="6">设计费/Design</td>
              <td colspan="4">设计名称/Item</td>
              <td colspan="2">工时(小时)/Hour</td>
-             <td colspan="6">单价(元)/Unit Price(RMB)</td>
-             <td colspan="2">金额(元)/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td colspan="6">单价/Unit Price(RMB)</td>
+             <td colspan="2">金额/Price(RMB)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
            <?php 
             $i = 0;
@@ -2492,9 +2492,9 @@ $(function(){
              <td id="manus_first_td" rowspan="12">加工费/Manufacturing Cost</td>
              <td colspan="4">名称/Item</td>
              <td colspan="2">工时(小时)/Hour</td>
-             <td colspan="6">单价(元)/Unit Price(RMB)</td>
-             <td colspan="2">金额(元)/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td colspan="6">单价/Unit Price(RMB)</td>
+             <td colspan="2">金额/Price(RMB)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
           <?php 
           $i = 0;
@@ -2535,10 +2535,10 @@ $(function(){
           <!--其它费用-->
           <tr>
                <td id="others_first_td" rowspan="7">其它费用/Other Fee</td>
-               <td colspan="4">费用名称</td>
-               <td colspan="8">费用计算说明</td>
-               <td colspan="2">金额(元)</td>
-               <td>小计(元)</td>
+               <td colspan="4">费用名称/Item</td>
+               <td colspan="8">费用计算说明/Description</td>
+               <td colspan="2">金额/Price(RMB)</td>
+               <td>小计/Subtotal(RMB)</td>
           </tr>
           <tr class="others_trs">
                 <td colspan="4">
@@ -2776,6 +2776,7 @@ $(function(){
     <input type="hidden" name="mold_id" value="<?php echo $array['mold_id'] ?>" >
     <input type="hidden" name="id" value="<?php echo $mould_dataid ?>">
     <input type="hidden" name="upload_final_path" value="<?php echo $array['upload_final_path'] ?>">
+
     <!--基本信息-->
     <tr>
          <td colspan="5" rowspan="5" style="text-align:center">
@@ -3020,9 +3021,9 @@ $(function(){
                <td>数量/Number</td>
                <td colspan="5">尺寸/Size(mm*mm*mm)</td>
                <td style="width:93px">总重量/Weight(kg)</td>
-               <td style="width:93px">单价(元)/Unit Price</td>
+               <td style="width:93px">单价/Unit Price(RMB)</td>
                <td>金额/Price(RMB)</td>
-               <td>小计(元)</td>
+               <td>小计/Subtotal(RMB)</td>
            </tr>
   <tr class="material_trs even">
                <td colspan="4">
@@ -3113,7 +3114,7 @@ $(function(){
              <td colspan="2">重量/weight(kg)</td>
              <td colspan="6">单价/Unit Price(RMB)</td>
              <td colspan="2">金额/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
            <?php
         $i = 0;
@@ -3157,9 +3158,9 @@ $(function(){
         <td colspan="2">规格型号/Specification</td>
         <td colspan="5">品牌/Supplier</td>
         <td>数量/Number</td>
-        <td>单价(元)/Unit Price</td>
-          <td>金额(RMB)/price</td>
-          <td>小计(元)</td>
+        <td>单价/Unit Price(RMB)</td>
+          <td>金额/Price(RMB)</td>
+          <td>小计/Subtotal(RMB)</td>
       </tr>
       <?php
         $i = 0;
@@ -3215,9 +3216,9 @@ $(function(){
              <td id="design_first_td" rowspan="6">设计费/Design</td>
              <td colspan="4">设计名称/Item</td>
              <td colspan="2">工时(小时)/Hour</td>
-             <td colspan="6">单价(元)/Unit Price(RMB)</td>
-             <td colspan="2">金额(元)/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td colspan="6">单价/Unit Price(RMB)</td>
+             <td colspan="2">金额/Price(RMB)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
            <?php 
             $i = 0;
@@ -3261,8 +3262,8 @@ $(function(){
              <td colspan="4">名称/Item</td>
              <td colspan="2">工时(小时)/Hour</td>
              <td colspan="6">单价(元)/Unit Price(RMB)</td>
-             <td colspan="2">金额(元)/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td colspan="2">金额/Price(RMB)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
           <?php 
           $i = 0;
@@ -3303,10 +3304,10 @@ $(function(){
           <!--其它费用-->
           <tr>
                <td id="others_first_td" rowspan="7">其它费用/Other Fee</td>
-               <td colspan="4">费用名称</td>
-               <td colspan="8">费用计算说明</td>
-               <td colspan="2">金额(元)</td>
-               <td>小计(元)</td>
+               <td colspan="4">费用名称/Item</td>
+               <td colspan="8">费用计算说明/Description</td>
+               <td colspan="2">金额/Price(RMB)</td>
+               <td>小计/Subtotal(RMB)</td>
           </tr>
           <?php $i = 0;foreach($arrs_others as $other_key=>$others_value){ ?>
            <tr class="others_trs">
@@ -3793,9 +3794,9 @@ $(function(){
                <td>数量/Number</td>
                <td colspan="5">尺寸/Size(mm*mm*mm)</td>
                <td style="width:93px">总重量/Weight(kg)</td>
-               <td style="width:93px">单价(元)/Unit Price</td>
+               <td style="width:93px">单价/Unit Price(RMB)</td>
                <td>金额/Price(RMB)</td>
-               <td>小计(元)</td>
+               <td>小计/Subtotal(RMB)</td>
            </tr>
   <tr class="material_trs even">
                <td colspan="4">
@@ -3886,7 +3887,7 @@ $(function(){
              <td colspan="2">重量/weight(kg)</td>
              <td colspan="6">单价/Unit Price(RMB)</td>
              <td colspan="2">金额/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
            <?php
         $i = 0;
@@ -3930,9 +3931,9 @@ $(function(){
         <td colspan="2">规格型号/Specification</td>
         <td colspan="5">品牌/Supplier</td>
         <td>数量/Number</td>
-        <td>单价(元)/Unit Price</td>
-          <td>金额(RMB)/price</td>
-          <td>小计(元)</td>
+        <td>单价/Unit Price(RMB)</td>
+          <td>金额/Price(RMB)</td>
+          <td>小计/Subtotal(RMB)</td>
       </tr>
       <?php
         $i = 0;
@@ -3987,9 +3988,9 @@ $(function(){
              <td id="design_first_td" rowspan="6">设计费/Design</td>
              <td colspan="4">设计名称/Item</td>
              <td colspan="2">工时(小时)/Hour</td>
-             <td colspan="6">单价(元)/Unit Price(RMB)</td>
-             <td colspan="2">金额(元)/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td colspan="6">单价/Unit Price(RMB)</td>
+             <td colspan="2">金额/Price(RMB)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
            <?php 
             $i = 0;
@@ -4032,9 +4033,9 @@ $(function(){
              <td id="manus_first_td" rowspan="12">加工费/Manufacturing Cost</td>
              <td colspan="4">名称/Item</td>
              <td colspan="2">工时(小时)/Hour</td>
-             <td colspan="6">单价(元)/Unit Price(RMB)</td>
-             <td colspan="2">金额(元)/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td colspan="6">单价/Unit Price(RMB)</td>
+             <td colspan="2">金额/Price(RMB)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
           <?php 
           $i = 0;
@@ -4075,10 +4076,10 @@ $(function(){
           <!--其它费用-->
           <tr>
                <td id="others_first_td" rowspan="7">其它费用/Other Fee</td>
-               <td colspan="4">费用名称</td>
-               <td colspan="8">费用计算说明</td>
-               <td colspan="2">金额(元)</td>
-               <td>小计(元)</td>
+               <td colspan="4">费用名称/Item</td>
+               <td colspan="8">费用计算说明/Description</td>
+               <td colspan="2">金额/Price(RMB)</td>
+               <td>小计/Subtotal(RMB)</td>
           </tr>
           <?php $i = 0;foreach($arrs_others as $other_key=>$others_value){ ?>
            <tr class="others_trs">
@@ -4565,9 +4566,9 @@ $(function(){
                <td>数量/Number</td>
                <td colspan="5">尺寸/Size(mm*mm*mm)</td>
                <td style="width:93px">总重量/Weight(kg)</td>
-               <td style="width:93px">单价(元)/Unit Price</td>
+               <td style="width:93px">单价/Unit Price(RMB)</td>
                <td>金额/Price(RMB)</td>
-               <td>小计(元)</td>
+               <td>小计/Subtotal(RMB)</td>
            </tr>
   <tr class="material_trs even">
                <td colspan="4">
@@ -4658,7 +4659,7 @@ $(function(){
              <td colspan="2">重量/weight(kg)</td>
              <td colspan="6">单价/Unit Price(RMB)</td>
              <td colspan="2">金额/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
            <?php
         $i = 0;
@@ -4702,9 +4703,9 @@ $(function(){
         <td colspan="2">规格型号/Specification</td>
         <td colspan="5">品牌/Supplier</td>
         <td>数量/Number</td>
-        <td>单价(元)/Unit Price</td>
-          <td>金额(RMB)/price</td>
-          <td>小计(元)</td>
+        <td>单价/Unit Price(RMB)</td>
+          <td>金额/price</td>
+          <td>小计/Subtotal(RMB)</td>
       </tr>
       <?php
         $i = 0;
@@ -4759,9 +4760,9 @@ $(function(){
              <td id="design_first_td" rowspan="6">设计费/Design</td>
              <td colspan="4">设计名称/Item</td>
              <td colspan="2">工时(小时)/Hour</td>
-             <td colspan="6">单价(元)/Unit Price(RMB)</td>
-             <td colspan="2">金额(元)/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td colspan="6">单价/Unit Price(RMB)</td>
+             <td colspan="2">金额/Price(RMB)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
            <?php 
             $i = 0;
@@ -4804,9 +4805,9 @@ $(function(){
              <td id="manus_first_td" rowspan="12">加工费/Manufacturing Cost</td>
              <td colspan="4">名称/Item</td>
              <td colspan="2">工时(小时)/Hour</td>
-             <td colspan="6">单价(元)/Unit Price(RMB)</td>
-             <td colspan="2">金额(元)/Price(RMB)</td>
-             <td>小计(元)</td>
+             <td colspan="6">单价/Unit Price(RMB)</td>
+             <td colspan="2">金额/Price(RMB)</td>
+             <td>小计/Subtotal(RMB)</td>
            </tr>
           <?php 
           $i = 0;
@@ -4847,10 +4848,10 @@ $(function(){
           <!--其它费用-->
           <tr>
                <td id="others_first_td" rowspan="7">其它费用/Other Fee</td>
-               <td colspan="4">费用名称</td>
-               <td colspan="8">费用计算说明</td>
-               <td colspan="2">金额(元)</td>
-               <td>小计(元)</td>
+               <td colspan="4">费用名称/Item</td>
+               <td colspan="8">费用计算说明/Description</td>
+               <td colspan="2">金额/Price(RMB)</td>
+               <td>小计/Subtotal(RMB)</td>
           </tr>
           <?php $i = 0;foreach($arrs_others as $other_key=>$others_value){ ?>
            <tr class="others_trs">
