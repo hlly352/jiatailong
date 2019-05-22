@@ -8,9 +8,13 @@ require_once 'shell.php';
 
 	$action = $_GET['action'];
 
-	if($action == 'add' || $action == 'edit' || $action == 'approval' || $action == 'approval_edit'){
+	if($action == 'add' || $action == 'edit' || $action == 'approval' || $action == 'approval_edit'|| $action=='mould_deal'){
 		//接受数据		
 		$data = $_POST;
+		if($action == 'approval_edit'){
+			unset($data['mold_deal_price']);
+			unset($data['mold_indoor_price']);
+		}
 		$mould_dataid = $_POST['id'];
 		unset($data['id']);
 		$new_data = array();
@@ -198,6 +202,41 @@ require_once 'shell.php';
 		if($db->insert_id){
 			$id = $db->insert_id;		
 			header("location:mould_data_approval.php");
+		}
+	}elseif($action == 'mould_deal'){
+		//接受数据
+		$id = $_GET['id'];
+		$deal_price = $_GET['deal_price'];
+		$indoor_price = $_GET['indoor_price'];
+		//拼接sql语句
+		$deal_sql = "UPDATE `db_mould_data` SET `deal_price`='$deal_price',`indoor_price`='$indoor_price',`is_deal`='1' WHERE `mould_dataid` =".$id;
+
+		$result = $db->query($deal_sql);
+		if($db->affected_rows){
+			//查找其他版本
+			$sql = "SELECT `mould_dataid` FROM `db_mould_data` WHERE `is_deal`='0' AND `mold_id`=(SELECT a.`mold_id` FROM `db_mould_data` as a WHERE a.`mould_dataid` =$id )";
+			$res = $db->query($sql);
+
+			if($res->num_rows !=0){
+				
+				$array_dataid = [];
+				while($row = $res->fetch_row()[0]){
+					$array_dataid[] = $row;
+				}
+				
+				//把id的数组转换为字符串
+				$str_dataid = implode(',',$array_dataid);
+				//删除其他版本
+				$del_sql = "DELETE FROM `db_mould_data` WHERE `mould_dataid` IN($str_dataid)";
+				$del_res = $db->query($del_sql);
+				if($db->affected_rows){
+				 	header('location:quote_list.php');	
+				}
+			} else {
+
+				header('location:quote_list.php');
+			}
+			
 		}
 	}elseif($action == 'del'){
 		$array_mould_dataid = fun_convert_checkbox($_POST['id']);

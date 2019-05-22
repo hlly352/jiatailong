@@ -41,14 +41,14 @@ if($system_info[0] == 1){
   WHERE time in (
   SELECT max(a.`time`)
   FROM `db_mould_data` a
-  GROUP BY `mold_id`)".$sqlwhere."AND `is_approval` = '1'";
+  GROUP BY `mold_id`)".$sqlwhere."AND `is_approval` = '1' AND `is_deal` = '0'";
   } else {
   $sql = "SELECT * FROM `db_mould_data` 
   WHERE time in (
   SELECT max(a.`time`)
   FROM `db_mould_data` a
   WHERE a.`employeeid` = '$employeeid'
-  GROUP BY `mold_id`)".$sqlwhere."AND `is_approval` = '1'"; 
+  GROUP BY `mold_id`)".$sqlwhere."AND `is_approval` = '1' AND `is_deal` = '0'"; 
   }
 
 $result = $db->query($sql);

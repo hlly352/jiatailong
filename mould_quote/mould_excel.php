@@ -13,7 +13,12 @@ if($action == 'mould_excel'){
 	if($res->num_rows){
 		$row = $res->fetch_assoc();
 	}
-
+//通过客户id查询客户名
+$sql_client = "SELECT `customer_name` FROM `db_customer_info` WHERE `customer_id` = {$row['client_name']}";
+$client_info = $db->query($sql_client);
+if($client_info->num_rows){
+	$row['client_name'] = $client_info->fetch_row()[0];
+}
 //从网络上获取图片
 function http_get_data($url) {  
       
@@ -324,6 +329,8 @@ function mergeCell($objPHPExcel,$data,$start_num,$arr_cols,$arr_val,$tot_name,$f
 		//设置边框
 		$objPHPExcel->getActiveSheet()->getStyle('A'.$start_num.':P'.$no)->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
 		//第一部分
+		$objPHPExcel->getActiveSheet()->getStyle('A1:A5')->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
+		
 		$objPHPExcel->getActiveSheet()->getStyle('F1:P5')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
 		$objPHPExcel->getActiveSheet()->getStyle('A5:P5')->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 		$objPHPExcel->getActiveSheet()->getStyle('P1:P5')->getBorders()->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
@@ -335,12 +342,10 @@ function mergeCell($objPHPExcel,$data,$start_num,$arr_cols,$arr_val,$tot_name,$f
 		
 		//设置最外面的粗边框
 		 $objPHPExcel->getActiveSheet()->getStyle('A'.$start_num.':P'.$start_num)->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
-		  $objPHPExcel->getActiveSheet()->getStyle('A'.$start_num.':P'.$start_num)->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 		  $objPHPExcel->getActiveSheet()->getStyle('A'.$no.':P'.$no)->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 		  $start_nums = $start_num + 1;
-		  $objPHPExcel->getActiveSheet()->getStyle('P'.$start_num.':P'.$no)->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 		  $objPHPExcel->getActiveSheet()->getStyle('P'.$start_num.':P'.$no)->getBorders()->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
-		  $objPHPExcel->getActiveSheet()->getStyle('C'.$start_num.':C'.$no)->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
+		  $objPHPExcel->getActiveSheet()->getStyle('A'.$start_num.':A'.$no)->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 		
 		//设置小计的值
 		$objPHPExcel->getActiveSheet()->setCellValue('P'.$tot_nums, $data[$tot_name]);
@@ -515,17 +520,18 @@ $objPHPExcel->getActiveSheet()->getRowDimension($footer_num-1)->setRowHeight(5);
 $objPHPExcel->getActiveSheet()->getRowDimension($footer_num)->setRowHeight(20);
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$footer_num.':M'.$footer_num);
 $objPHPExcel->getActiveSheet()->mergeCells('N'.$footer_num.':P'.$footer_num);
-$objPHPExcel->getActiveSheet()->setCellValue('A'.$footer_num,'供应商/Supplier：');
-$objPHPExcel->getActiveSheet()->setCellValue('N'.$footer_num,'签字/Signature：');
+$objPHPExcel->getActiveSheet()->setCellValue('A'.$footer_num,'供应商/Supplier： 苏州嘉泰隆实业有限公司'.PHP_EOL.'                              Suzhou JoTyLong Industrial Co.,LTD');
+$objPHPExcel->getActiveSheet()->setCellValue('N'.$footer_num,'签字/Signature:');
 $objPHPExcel->getActiveSheet()->getStyle('A'.$footer_num)->getFont()->setBold(true);
 $objPHPExcel->getActiveSheet()->getStyle('N'.$footer_num)->getFont()->setBold(true);
 $objPHPExcel->getActiveSheet()->getStyle('A'.$footer_num)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
 $objPHPExcel->getActiveSheet()->getStyle('N'.$footer_num)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
+$objPHPExcel->getActiveSheet()->getStyle('A'.$footer_num)->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 $objPHPExcel->getActiveSheet()->getStyle('A'.$footer_num.':P'.$footer_num)->getBorders()->getTOP()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 $objPHPExcel->getActiveSheet()->getStyle('A'.$footer_num.':P'.$footer_num)->getBorders()->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 $objPHPExcel->getActiveSheet()->getStyle('P'.$footer_num)->getBorders()->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
-
-
+$objPHPExcel->getActiveSheet()->getStyle('A1:P1')->getBorders()->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A7:A12')->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THICK);
 $last_num = $footer_num + 2;
 
 //获取型腔数量
@@ -560,15 +566,20 @@ $objPHPExcel->getActiveSheet()->getStyle('A1:P'.$last_num)->getFont()->setName('
 //logo文字字体加粗
 $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setName('Arial')->setBold(true);
 $objPHPExcel->getActiveSheet()->getStyle('F1')->getFont()->setName('Arial')->setSize(10)->setBold(true);
-
+ //页边距,phpexcel 中是按英寸来计算的,所以这里换算了一下
+$margin = 1/ 2.54; 
+$objPHPExcel->getActiveSheet()->getPageMargins()->setRight($margin);
+$objPHPExcel->getActiveSheet()->getPageMargins()->setLeft($margin);
+//水平居中
+$objPHPExcel->getActiveSheet()->getPageSetup()->setHorizontalCentered(true);
 
 //添加图片
 /*实例化插入图片类*/
 $objDrawing = new PHPExcel_Worksheet_Drawing();
 /*设置图片路径 切记：只能是本地图片*/
-$objDrawing->setPath('../jtl.png');
+$objDrawing->setPath('./jtl.png');
 /*设置图片高度*/
-$objDrawing->setWidth(100);
+$objDrawing->setWidth(85);
 $objDrawing->setHeight(50);
 /*设置图片要插入的单元格*/
 $objDrawing->setCoordinates('B1');

@@ -174,7 +174,7 @@ $(function(){
   count_tr(".parts_trs","#parts_first_td","#total_standard");
   count_tr(".design_trs","#design_first_td","#total_designs");
   count_tr(".manus_trs","#manus_first_td","#total_manufacturing");
-  count_tr(".others_trs","#others_first_td","#tot_others");
+  count_tr(".others_trs","#others_first_td","#total_others");
   //统计第一列需要合并的单元格个数
   function count_tr(trs_name,tds_name,trs_total){
     //判断型腔数对合并行的影响
@@ -892,7 +892,7 @@ $(function(){
       var cavity_style_width  = $(".cavity_style_width").eq(cavity_nu).val();
       //通过获取的值计算型腔的长和宽
       ////删除原来的型腔排位宽的选项
-      $(".first_width").eq(cavity_nu).siblings().remove();
+   /*   $(".first_width").eq(cavity_nu).siblings().remove();
       var opt_length = (parseInt( $('.material_length').eq(cavity_nu*6+1).val()))*cavity_style_length;
       
       var opt_width  = (parseInt($('.material_width').eq(cavity_nu*6+1).val()))*cavity_style_width;
@@ -901,25 +901,25 @@ $(function(){
       
       //判断选择的是否是长
       if(cavity_length_val == opt_length){
-        var cavity_zero = '<option selected value="0">0</option>';
+        var cavity_zero = '<option value="0">0</option>';
          $(".cavity_width").eq(cavity_nu).append(cavity_zero);
-         var  cavity_style_widths  = '<option selected value='+opt_width+'>'+opt_width+'</option>';
+         var  cavity_style_widths  = '<option value='+opt_width+'>'+opt_width+'</option>';
          $(".cavity_width").eq(cavity_nu).append(cavity_style_widths);  
       
       } else if(cavity_length_val == opt_width) {
-        var cavity_zero = '<option selected value="0">0</option>';
+        var cavity_zero = '<option value="0">0</option>';
          $(".cavity_width").eq(cavity_nu).append(cavity_zero);
-        var  cavity_style_lengths  = '<option selected value='+opt_length+'>'+opt_length+'</option>';
+        var  cavity_style_lengths  = '<option value='+opt_length+'>'+opt_length+'</option>';
          $(".cavity_width").eq(cavity_nu).append(cavity_style_lengths); 
       } else {
-        var cavity_zero = '<option selected value="0">0</option>';
+        var cavity_zero = '<option value="0">0</option>';
          $(".cavity_width").eq(cavity_nu).append(cavity_zero);
-         var  cavity_style_widths  = '<option selected value='+opt_width+'>'+opt_width+'</option>';
+         var  cavity_style_widths  = '<option  value='+opt_width+'>'+opt_width+'</option>';
          $(".cavity_width").eq(cavity_nu).append(cavity_style_widths);  
-         var  cavity_style_lengths  = '<option selected value='+opt_length+'>'+opt_length+'</option>';
+         var  cavity_style_lengths  = '<option value='+opt_length+'>'+opt_length+'</option>';
          $(".cavity_width").eq(cavity_nu).append(cavity_style_lengths); 
       
-      }
+      }*/
     
     //如果型腔长度都已经选中,计算型腔的长度和
     var cavity_nus = $(".cavity_length").size();
@@ -927,22 +927,23 @@ $(function(){
     var cavity_length_sum = 0;
     var cavity_width_sum = 0;
     for(var a = 0; a < cavity_nus ;a++){
-      a1 = a +1;
-       max_height = ($(".p_height").eq(a).val()) < ($(".p_height").eq(a1).val()) ? ($(".p_height").eq(a1).val())  : max_height;
+      
+      if(a>0){
+      	var a1 = a -1;
+       	max_height = ($(".p_height").eq(a1).val()) < ($(".p_height").eq(a).val()) ? ($(".p_height").eq(a).val())  : max_height;
+       }
       cavity_length_sum += parseInt($(".cavity_length").eq(a).val());
       cavity_width_sum += parseInt($(".cavity_width").eq(a).val());
     
     
     }
     //获取最高的型腔高度
-    
     if(!isNaN(cavity_length_sum)){
       $("#style_length_sum").val(cavity_length_sum);
       $("#style_width_sum").val(cavity_width_sum);
       //ajax 求模架的尺寸
       $.post('../ajax_function/mould_base_size.php',{cavity_length_sum:cavity_length_sum,cavity_width_sum:cavity_width_sum,max_height:max_height},function(data){
         var arr = data.split('#');
-        
         $("#base_length").val(arr[0]);
         $("#base_width").val(arr[1]);  
         $("#base_height").val(arr[2]);
@@ -1059,7 +1060,7 @@ $(function(){
       var cavity_style_width  = $(".cavity_style_width").eq(cavity_nu).val();
       //通过获取的值计算型腔的长和宽
       ////删除原来的型腔排位宽的选项
-      $(".first_length").eq(cavity_nu).siblings().remove();
+     /* $(".first_length").eq(cavity_nu).siblings().remove();
       var opt_length = (parseInt($('.material_length').eq(cavity_nu*6+1).val()))*cavity_style_length;
       
       var opt_width  = (parseInt($('.material_length').eq(cavity_nu*6+1).val()))*cavity_style_width;
@@ -1068,47 +1069,48 @@ $(function(){
       
       //判断选择的是否是长
       if(cavity_width_val == opt_width){
-        var cavity_zero = '<option selected value="0">0</option>';
+        var cavity_zero = '<option  value="0">0</option>';
          $(".cavity_length").eq(cavity_nu).append(cavity_zero);
-         var  cavity_style_widths  = '<option selected value='+opt_length+'>'+opt_length+'</option>';
+         var  cavity_style_widths  = '<option value='+opt_length+'>'+opt_length+'</option>';
          $(".cavity_length").eq(cavity_nu).append(cavity_style_widths); 
       
       } else if(cavity_width_val == opt_length) {
-        var cavity_zero = '<option selected value="0">0</option>';
+        var cavity_zero = '<option value="0">0</option>';
          $(".cavity_length").eq(cavity_nu).append(cavity_zero);
-        var  cavity_style_lengths  = '<option selected value='+opt_width +'>'+opt_width +'</option>';
+        var  cavity_style_lengths  = '<option value='+opt_width +'>'+opt_width +'</option>';
          $(".cavity_length").eq(cavity_nu).append(cavity_style_lengths);  
       } else {
-        var cavity_zero = '<option selected value="0">0</option>';
+        var cavity_zero = '<option value="0">0</option>';
          $(".cavity_length").eq(cavity_nu).append(cavity_zero);
-        var  cavity_style_widths  = '<option selected value='+opt_length+'>'+opt_length+'</option>';
+        var  cavity_style_widths  = '<option value='+opt_length+'>'+opt_length+'</option>';
          $(".cavity_length").eq(cavity_nu).append(cavity_style_widths); 
-         var  cavity_style_lengths  = '<option selected value='+opt_width +'>'+opt_width +'</option>';
+         var  cavity_style_lengths  = '<option value='+opt_width +'>'+opt_width +'</option>';
          $(".cavity_length").eq(cavity_nu).append(cavity_style_lengths);  
       } 
-    
+    */
     //如果型腔长度都已经选中,计算型腔的长度和
     var cavity_nus = $(".cavity_length").size();
     var max_height = $(".p_height").eq(0).val();
     var cavity_length_sum = 0;
     var cavity_width_sum = 0;
     for(var a = 0; a < cavity_nus ;a++){
-      a1 = a +1;
-       max_height = ($(".p_height").eq(a).val()) < ($(".p_height").eq(a1).val()) ? ($(".p_height").eq(a1).val())  : max_height;
+      
+      if(a>0){
+      	var a1 = a - 1;
+      	 max_height = ($(".p_height").eq(a1).val()) < ($(".p_height").eq(a).val()) ? ($(".p_height").eq(a).val())  : max_height;
+      	}
       cavity_length_sum += parseInt($(".cavity_length").eq(a).val());
       cavity_width_sum += parseInt($(".cavity_width").eq(a).val());
     
     
     }
     //获取最高的型腔高度
-    max_height = max_height +100;
     if(!isNaN(cavity_length_sum)){
       $("#style_length_sum").val(cavity_length_sum);
       $("#style_width_sum").val(cavity_width_sum);
       //ajax 求模架的尺寸
-      $.post('../ajax_function/mould_base_size.php',{cavity_length_sum:cavity_length_sum,cavity_width_sum:cavity_width_sum,max_length:max_height},function(data){
+      $.post('../ajax_function/mould_base_size.php',{cavity_length_sum:cavity_length_sum,cavity_width_sum:cavity_width_sum,max_height:max_height},function(data){
         var arr = data.split('#');
-        
         $("#base_length").val(arr[0]);
         $("#base_width").val(arr[1]);  
         $("#base_height").val(arr[2]);
@@ -1987,6 +1989,41 @@ $(function(){
     var mold_id = $(this).prev().val();
     window.open('mould_excel.php?version=<?php echo $_GET['version'] ?>&action=mould_excel&id='+mold_id);
   })
+  //成交
+  $('#mould_deal').click(function(){
+  	var mold_deal_price = $.trim($('#mold_deal_price').val());
+  	if(!mold_deal_price){
+  		alert('请输入成交价格');
+  		$('#mold_deal_price').focus();
+  		return false;
+  	}else{
+  		
+  		var info = /\d+/.test(mold_deal_price);
+  		if(!info){
+  			alert('请输入数字');
+  			$('#mold_deal_price').focus();
+  			return false;
+  		}
+  	}
+  	var mold_indoor_price= $.trim($('#mold_indoor_price').val());
+  	if(!mold_indoor_price){
+  		alert('请输入内部价格');
+  		$('#mold_indoor_price').focus();
+  		return false;
+  	}else{
+  		var infos = /\d+/.test(mold_indoor_price);
+  		if(!infos){
+  			alert('请输入数字');
+  			$('#mold_indoor_price').focus();
+  			return false;
+  		}
+  	}
+  	var mold_deal_price = $('#mold_deal_price').val();
+  	var mold_indoor_price = $('#mold_indoor_price').val();
+  	var mold_id = $(this).prev().val();
+  	window.open('mould_datado.php?action=mould_deal&deal_price='+mold_deal_price+'&indoor_price='+mold_indoor_price+'&id='+mold_id);
+  })
+  //未审批时修改
   $('#unapproval_edit').click(function(){
     document.mould_data_approval.action = 'mould_datado.php?action=edit';
     document.mould_data_approval.submit();
@@ -3379,19 +3416,19 @@ $(function(){
           <tr>
                 <td colspan="5">模具价格(元)不含税/Mold Price without VAT(RMB)</td>
                 <td colspan="11">
-                   <input type="text" name="mold_price_rmb" id="mold_price_rmb" value=<?php echo $array['mold_price_rmb'] ?>>
+                   <input type="text" name="mold_price_rmb" id="mold_price_rmb" value="<?php echo $array['mold_price_rmb'] ?>">
                 </td>
             </tr>
             <tr>
                 <td colspan="5">模具价格(USD)/Mold Price(USD) Rate=6.5</td>
                 <td colspan="11">
-                   <input type="text" name="mold_price_usd" id="mold_price_usd" value=<?php echo $array['mold_price_usd'] ?>>
+                   <input type="text" name="mold_price_usd" id="mold_price_usd" value="<?php echo $array['mold_price_usd'] ?>">
                 </td>
             </tr>
             <tr>
                 <td colspan="5">模具价格(元)含13%增值税/Mold with VAT(RMB)</td>
                 <td colspan="11">
-                  <input type="text" name="mold_with_vat" id="mold_with_vat" value=<?php echo $array['mold_with_vat'] ?>>
+                  <input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['mold_with_vat'] ?>">
                 </td>
           </tr>
           <tr height="20"></tr>
@@ -3404,8 +3441,27 @@ $(function(){
               <input type="submit" name="button" id="submit" value="修改" class="button" />
               &nbsp;&nbsp;
               <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-       
+              
            </tr>
+           <tr height="20"></tr>
+              <tr>
+                <td colspan="5">成交价格(RMB)</td>
+                <td colspan="11">
+                  <input type="text" name="mold_deal_price" id="mold_deal_price" value="">
+                </td>
+          </tr>
+           <tr>
+                <td colspan="5">内部价格(RMB)</td>
+                <td colspan="11">
+                  <input type="text" name="mold_indoor_price" id="mold_indoor_price" value="">
+                </td>
+          </tr>
+          <tr align="center">
+          		<td colspan="16">
+          			<input id="id" name="id" type="hidden" value="<?php echo $_GET['id'] ?>">
+       	  	          <span id="mould_deal" style="width:100px;height:31px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #0066CC);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:26px;">成交</span>
+          		</td>
+          </tr>
    </table>
   </form>
   <?php

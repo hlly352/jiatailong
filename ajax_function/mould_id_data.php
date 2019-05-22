@@ -4,7 +4,7 @@
 
 
 	$mold_id = trim($_POST['mold_id']);
-	$sql = "SELECT * FROM `db_mould_data` WHERE `mold_id` = '$mold_id'";
+	$sql = "SELECT * FROM `db_mould_data` WHERE `mold_id` = '$mold_id' ORDER BY `time` ASC";
 
 	$res = $db->query($sql);
 	$info = [];

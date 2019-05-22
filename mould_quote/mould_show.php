@@ -30,7 +30,12 @@ $(function(){
  		$(tds_name).attr('rowspan',num);
  		$(trs_total).attr('rowspan',num-1);
 	}
-	count_tr(".material_trs","#material_first_td","#total_machining");
+  count_tr(".material_trs","#material_first_td","#total_machining");
+  count_tr(".heat_trs","#heat_first_td","#total_heats");
+  count_tr(".parts_trs","#parts_first_td","#total_standard");
+  count_tr(".design_trs","#design_first_td","#total_designs");
+  count_tr(".manus_trs","#manus_first_td","#total_manufacturing");
+  count_tr(".others_trs","#others_first_td","#total_others");
 	//统计第一列需要合并的单元格个数
 	function count_tr(trs_name,tds_name,trs_total){
 		//判断型腔数对合并行的影响
@@ -1788,9 +1793,9 @@ $(function(){
    	<input type="hidden" name="upload_final_path" value="<?php echo $array['upload_final_path'] ?>">
    	<!--基本信息-->
    	<tr>
-   	     <td colspan="5" rowspan="5">
-   	     	<img src="" alt="logo">
-   	     </td>
+   	     <td colspan="5" rowspan="5" style="text-align:center">
+          		<img src="../jtl.png" width="150" height="80" alt="logo">
+        	     </td>
    	     <td colspan="9" rowspan="5" style="width:661px" >
    	     	 <p style="font-weight:blod;font-size:30px">模具费用分解表</p>
       	            <p style="font-weight:blod;font-size:30px">Tooling Cost Break Down</p>
@@ -2007,15 +2012,15 @@ $(function(){
                    <input type="text" name="materials_number[]" class="materials_number" id="materials_number" value=<?php echo $mould_material_value[2] ?>>
              </td>
              <td style="width:93px">
-                   <input name="material_length[]" class="material_length" id="material_length" type="text" placeholder="长" value=<?php echo $mould_material_value[3] ?>>
+                   <input name="material_length[]" class="material_length" id="material_length" type="text"  value=<?php echo $mould_material_value[3] ?>>
              </td>
              <td>*</td>
              <td style="width:93px">
-                 <input name="material_width[]" class="material_width" id="material_width" type="text" placeholder="宽" value=<?php echo $mould_material_value[4] ?>>
+                 <input name="material_width[]" class="material_width" id="material_width" type="text"  value=<?php echo $mould_material_value[4] ?>>
              </td>
              <td>*</td>
              <td style="width:93px">
-                  <input name="material_height[]" class="material_height" id="material_height" type="text" placeholder="高" value=<?php echo $mould_material_value[5] ?>>
+                  <input name="material_height[]" class="material_height" id="material_height" type="text" value=<?php echo $mould_material_value[5] ?>>
              </td>
              <td>
                  <input type="text" name="material_weight[]" id="material_weight" class="material_weight" value=<?php echo $mould_material_value[6] ?>>
@@ -2207,14 +2212,14 @@ $(function(){
          	<?php $i = 0;foreach($arrs_others as $other_key=>$others_value){ ?>
            <tr class="others_trs">
           	    <td colspan="4">
-          	    	<input type="text" name="other_fee_name[]" value=<?php echo  $others_value[0] ?> readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
+          	    	<input type="text" name="other_fee_name[]" value="<?php echo  $others_value[0] ?>" readonly style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" /> 
           	    </td>
           	   <td colspan="8">
           	   	
 		<input type="text" name="other_fee_instr[]" value="<?php echo $others_value[1] ?>" readonly style="width:500px">
 	   </td>
           	   <td colspan="2">
-          	       <input type="text" name="other_fee_price[]" class="other_fee fixed_fee" id="freight_fee" value=<?php echo $others_value[2] ?>>
+          	       <input type="text" name="other_fee_price[]" class="other_fee fixed_fee" id="freight_fee" value="<?php echo $others_value[2] ?>">
           	   </td>
           	    <?php 
 
@@ -2247,19 +2252,19 @@ $(function(){
 		<input type="text" name="" readonly value="10%" placeholder="">
           	   </td>
           	   <td colspan="2">
-          	   	<input type="text" name="profit" class="other_fee" id="profit" value=<?php echo $array['profit'] ?>>
+          	   	<input type="text" name="profit" class="other_fee" id="profit" value="<?php echo $array['profit'] ?>">
           	   </td>
           
           </tr>
            <tr class="others_trs">
           	    <td colspan="4">
-		<input type="text" name="" value="税/VAT TAX(16%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
+		<input type="text" name="" value="税/VAT TAX(13%)" style="border-style:none;color:black;font-weight:150;font-size:13px;width:163px" readonly /> 
           	    </td>
           	   <td colspan="8">
-		<input type="text" name="" readonly value="16%" placeholder="">
+		<input type="text" name="" readonly value="13%" placeholder="">
           	   </td>
           	   <td colspan="2">
-          	        <input type="text" name="vat_tax" class="other_fee" id="vat_tax" value=<?php echo $array['vat_tax'] ?>
+          	        <input type="text" name="vat_tax" class="other_fee" id="vat_tax" value="<?php echo $array['vat_tax'] ?>">
           	   </td>
          
           </tr>
@@ -2268,35 +2273,33 @@ $(function(){
           <tr>
           	    <td colspan="5">模具价格(元)不含税/Mold Price without VAT(RMB)</td>
           	    <td colspan="11">
-          	    	 <input type="text" name="mold_price_rmb" id="mold_price_rmb" value=<?php echo $array['mold_price_rmb'] ?>>
+          	    	 <input type="text" name="mold_price_rmb" id="mold_price_rmb" value="<?php echo $array['mold_price_rmb'] ?>">
           	    </td>
           	</tr>
           	<tr>
           	    <td colspan="5">模具价格(USD)/Mold Price(USD) Rate=6.5</td>
           	    <td colspan="11">
-          	    	 <input type="text" name="mold_price_usd" id="mold_price_usd" value=<?php echo $array['mold_price_usd'] ?>>
+          	    	 <input type="text" name="mold_price_usd" id="mold_price_usd" value="<?php echo $array['mold_price_usd'] ?>">
           	    </td>
           	</tr>
           	<tr>
-          	    <td colspan="5">模具价格(元)含17%增值税/Mold with VAT(RMB)</td>
+          	    <td colspan="5">模具价格(元)含13%增值税/Mold with VAT(RMB)</td>
           	    <td colspan="11">
-          	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value=<?php echo $array['mold_with_vat'] ?>>
+          	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['mold_with_vat'] ?>">
           	    </td>
           </tr>
-          <tr height="20"></tr>
-           <form action="mould_excel.php" name="mould_data" method="get">
           <tr>
-          	   
-          	     	<input id="id" name="id[]" type="hidden" value="<?php echo $_GET['id'] ?>">
-          	     	<input id="act" name="action" type="hidden" value="mould_excel">
-     <td class="submit" style="border-style:none" colspan="16" align="center"><input type="submit" name="submit" id="submit" value="导出" class="button" />
-             
-        	    &nbsp;&nbsp;
-            <!--  <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-              <input type="hidden" name="action" value="<?php //echo $action; ?>" />--></td>
-              
-           </tr>
-           </form>
+          	    <td colspan="5">成交价格(RMB)</td>
+          	    <td colspan="11">
+          	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['deal_price'] ?>">
+          	    </td>
+          </tr>
+          <tr>
+          	    <td colspan="5">内部价格(RMB)</td>
+          	    <td colspan="11">
+          	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['indoor_price'] ?>">
+          	    </td>
+          </tr>
    </table>
   
   <?php
