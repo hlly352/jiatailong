@@ -2289,13 +2289,23 @@ $(function(){
           	    </td>
           </tr>
           <tr>
-          	    <td colspan="5">成交价格(RMB)</td>
+          	    <td colspan="5">合同金额(RMB)</td>
+          	    <td colspan="4">
+          	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['agreement_price'] ?>">
+          	    </td>
+          	    <td colspan="2">币种</td>
+          	    <td colspan="5">
+          	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array_currency[$array['currency']] ?>">
+          	    </td>
+          </tr>
+          <tr>
+          	    <td colspan="5">人民币未税价格(RMB)</td>
           	    <td colspan="11">
           	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['deal_price'] ?>">
           	    </td>
           </tr>
           <tr>
-          	    <td colspan="5">内部价格(RMB)</td>
+          	    <td colspan="5">内部拟定价格(RMB)</td>
           	    <td colspan="11">
           	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['indoor_price'] ?>">
           	    </td>

@@ -206,11 +206,16 @@ require_once 'shell.php';
 	}elseif($action == 'mould_deal'){
 		//接受数据
 		$id = $_GET['id'];
-		$deal_price = $_GET['deal_price'];
-		$indoor_price = $_GET['indoor_price'];
-		//拼接sql语句
-		$deal_sql = "UPDATE `db_mould_data` SET `deal_price`='$deal_price',`indoor_price`='$indoor_price',`is_deal`='1' WHERE `mould_dataid` =".$id;
+		unset($_GET['id']);
+		unset($_GET['action']);
+		$sql_str = ' ';
+		foreach($_GET as $k=>$v){
+			$sql_str .= '`'.$k.'`="'.$v.'",';
+		}
+		$sql_str .= '`is_deal`="1",`deal_time`='.time();
 
+		//拼接sql语句
+		$deal_sql = "UPDATE `db_mould_data` SET ".$sql_str." WHERE `mould_dataid` =".$id;
 		$result = $db->query($deal_sql);
 		if($db->affected_rows){
 			//查找其他版本

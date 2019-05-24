@@ -16,6 +16,7 @@ if($_POST['submit']){
 		$data->read($filepath); //读取临时文件
 		error_reporting(E_ALL ^ E_NOTICE);
 		$array_material = $data->sheets[0]['cells']; //获取Excel文件数据
+		var_dump($array_material);exit;
 		if(is_array($array_material)){ //如果文件有数据
 			foreach($array_material as $value){ //循环读取
 				$material_list_number = trim($value[1]);

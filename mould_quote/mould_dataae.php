@@ -283,8 +283,9 @@ $(function(){
       $("#tot_others").val(tot_others);
       //计算模具的价格
       var price_with_vat = tot_others+min_tot;
-      $("#mold_price_rmb").val(price_with_vat - parseInt(sum_except_others*0.13));
-      $("#mold_price_usd").val(parseInt(price_with_vat/6.5));
+      $("#mold_price_rmb").val(parseInt(price_with_vat - parseInt(sum_except_others*0.13)));
+      var mold_price_usds = parseInt($('#mold_price_rmb').val()/6.5);
+      $("#mold_price_usd").val(mold_price_usds);
       $("#mold_with_vat").val(price_with_vat);
   }
   //删除材料加工时重新计算总金额
@@ -1407,9 +1408,9 @@ $(function(){
     //判断是第几个输入框
     var no = $(this).prevAll().size();
     var no1 = no+1;
-    var p_length = $("#length_no").children().eq(no).val();
-    var p_width = $("#width_no").children().eq(no).val();
-    var p_height = $("#height_no").children().eq(no).val();
+    var p_length = parseInt($("#length_no").children().eq(no).val());
+    var p_width =  parseInt($("#width_no").children().eq(no).val());
+    var p_height = parseInt($("#height_no").children().eq(no).val());
     var mould_num = $(".mould_material").size();
     var total_machining = 0;
     if($.trim(p_length) && $.trim(p_width) && $.trim(p_height)){
@@ -1466,15 +1467,15 @@ $(function(){
             }
           } else if(p_width >= 500){
             if(p_height > 0 && p_height< 30){
-              $('.material_width').eq(i).val(parseInt(p_length+120));
+              $('.material_width').eq(i).val(parseInt(p_width+120));
             } else if(p_height >= 30 && p_height< 60) {
-              $('.material_width').eq(i).val(parseInt(p_length+130));
+              $('.material_width').eq(i).val(parseInt(p_width+130));
             } else if(p_height >= 60 && p_height<90) {
-              $('.material_width').eq(i).val(parseInt(p_length+140));
+              $('.material_width').eq(i).val(parseInt(p_width+140));
             } else if(p_height >= 90 && p_height<120) {
-              $('.material_width').eq(i).val(parseInt(p_length+150));
+              $('.material_width').eq(i).val(parseInt(p_width+150));
             } else if(p_height >=120) {
-              $('.material_width').eq(i).val(parseInt(p_length+160));
+              $('.material_width').eq(i).val(parseInt(p_width+160));
             } 
           }
           $('.material_height').eq(i).val(parseInt(p_height * 1.2 +40));
@@ -1496,7 +1497,7 @@ $(function(){
         }
         //输入产品大小后计算材料费的金额
         var prices  = (parseInt($(".material_weight").eq(i).val()))*(parseInt($(".materials_number").eq(i).val()))*(parseInt($(".material_unit_price").eq(i).val()));
-        
+        prices = prices?prices:0;
         $(".material_price").eq(i).val(prices);
         total_machining += parseInt($(".material_price").eq(i).val());
         }
@@ -1559,6 +1560,7 @@ $(function(){
     if(weight_g > 0 && weight_g != ' '){  
     $("#weight_no").children().eq(no).val(weight_g);
       }
+      change($(this));
       //产品大小输入后计算其它费用
       if($.trim(p_length) && $.trim(p_width) && $.trim(p_height)){
         //计算其它费用及模具价格
@@ -1989,11 +1991,54 @@ $(function(){
     var mold_id = $(this).prev().val();
     window.open('mould_excel.php?version=<?php echo $_GET['version'] ?>&action=mould_excel&id='+mold_id);
   })
+
+  //自动计算人民币价格
+  $('#mold_agreement_price,#mold_rate,#currency').live('change',function(){
+  	var mold_agreement_price= $.trim($('#mold_agreement_price').val());
+  	var mold_rate= $.trim($('#mold_rate').val());
+  	var currency = $('#currency').val();
+  	
+  	if(mold_agreement_price && mold_rate){
+  		if(currency !='rmb_vat'){
+  		var mold_rmb = parseInt(mold_agreement_price * mold_rate);
+  		$('#mold_deal_price').val(mold_rmb);
+  		}
+  	}
+  })
   //成交
   $('#mould_deal').click(function(){
+  	  //合同金额
+  	var mold_agreement_price= $.trim($('#mold_agreement_price').val());
+  	if(!mold_agreement_price){
+  		alert('请输入合同金额');
+  		$('#mold_agreement_price').focus();
+  		return false;
+  	}else{
+  		var infos = /\d+/.test(mold_agreement_price);
+  		if(!infos){
+  			alert('请输入数字');
+  			$('#mold_agreement_price').focus();
+  			return false;
+  		}
+  	}
+  	//汇率
+  	var mold_rate= $.trim($('#mold_rate').val());
+  	if(!mold_rate){
+  		alert('请输入汇率');
+  		$('#mold_rate').focus();
+  		return false;
+  	}else{
+  		var infos = /\d+/.test(mold_rate);
+  		if(!infos){
+  			alert('请输入数字');
+  			$('#mold_rate').focus();
+  			return false;
+  		}
+  	}
+  	//成交价格
   	var mold_deal_price = $.trim($('#mold_deal_price').val());
   	if(!mold_deal_price){
-  		alert('请输入成交价格');
+  		alert('请输入人民币未税价格');
   		$('#mold_deal_price').focus();
   		return false;
   	}else{
@@ -2005,9 +2050,10 @@ $(function(){
   			return false;
   		}
   	}
+  	//内部价格
   	var mold_indoor_price= $.trim($('#mold_indoor_price').val());
   	if(!mold_indoor_price){
-  		alert('请输入内部价格');
+  		alert('请输入内部拟定价格');
   		$('#mold_indoor_price').focus();
   		return false;
   	}else{
@@ -2018,10 +2064,14 @@ $(function(){
   			return false;
   		}
   	}
+  	
   	var mold_deal_price = $('#mold_deal_price').val();
   	var mold_indoor_price = $('#mold_indoor_price').val();
+  	var mold_agreement_price = $('#mold_agreement_price').val();
+  	var mold_rate = $('#mold_rate').val();
+  	var currency = $('#currency').val();
   	var mold_id = $(this).prev().val();
-  	window.open('mould_datado.php?action=mould_deal&deal_price='+mold_deal_price+'&indoor_price='+mold_indoor_price+'&id='+mold_id);
+  	window.open('mould_datado.php?action=mould_deal&deal_price='+mold_deal_price+'&agreement_price='+mold_agreement_price+'&mold_rate='+mold_rate+'&currency='+currency+'&indoor_price='+mold_indoor_price+'&id='+mold_id);
   })
   //未审批时修改
   $('#unapproval_edit').click(function(){
@@ -3445,13 +3495,31 @@ $(function(){
            </tr>
            <tr height="20"></tr>
               <tr>
-                <td colspan="5">成交价格(RMB)</td>
+                <td colspan="5">合同金额</td>
+                <td>
+                  <input type="text" name="" id="mold_agreement_price" value="">
+                </td>
+                <td colspan="5">
+                	<select name=" " id="currency">
+                		<?php foreach($array_currency as $k=>$v){
+                			echo '<option value="'.$k.'">'.$v.'</option>';
+                		}?>
+                	</select>
+                </td>
+                 <td>汇率</td>
+                 <td colspan="5">
+                 	<input type="text" name="" id="mold_rate" value="" placeholder="">
+                 </td>
+                   
+          </tr>
+              <tr>
+                <td colspan="5">人民币未税价格(RMB)</td>
                 <td colspan="11">
                   <input type="text" name="mold_deal_price" id="mold_deal_price" value="">
                 </td>
           </tr>
            <tr>
-                <td colspan="5">内部价格(RMB)</td>
+                <td colspan="5">内部拟定价格(RMB)</td>
                 <td colspan="11">
                   <input type="text" name="mold_indoor_price" id="mold_indoor_price" value="">
                 </td>

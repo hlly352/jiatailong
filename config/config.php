@@ -68,4 +68,6 @@ $array_standard_supplier = array('品牌一','品牌二','品牌三','品牌四'
 //客户管理
 //客户等级
 $array_customer_grade = array(0=>'一般',1=>'重要',2=>'关键');
+//报价汇总币种
+$array_currency = array('rmb_vat'=>'人民币(含税)','rmb'=>'人民币(未税)','usd'=>'美元','eur'=>'欧元','jpy'=>'日元');
 ?>

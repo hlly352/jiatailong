@@ -18,12 +18,13 @@ if($action == 'add'){
 		$sql_key .= '`'.$key.'`,';
 		$sql_value .= '"'.$value.'",';
 	}
-	 $sql_key .= '`employeeid`';
-	 $sql_value .= '"'.$employeeid.'"';
-	$task_sql = "INSERT INTO `db_mould_task`($sql_key) VALUES($sql_value)";
-	$result = $db->query($task_sql);
+	 $sql_key .= '`employeeid`,`add_time`';
+	 $sql_value .= '"'.$employeeid.'",'.time();
+	$pay_sql = "INSERT INTO `db_order_pay`($sql_key) VALUES($sql_value)";
+
+	$result = $db->query($pay_sql);
 	if($db->affected_rows){
-		header('location:mould_task.php');
+		header('location:order_pay.php');
 	}
 
 }
