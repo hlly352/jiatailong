@@ -96,32 +96,51 @@ $result_id = $db->query($sqllist);
         
     ?>
       <tr>
-        <th style="">ID</th>
-        <th style="">日期</th>
-        <th style="">客户代码</th>
-        <th style="">客户名称</th>
-        <th style="">客户订单号</th>
-        <th style="">项目名称</th>
-        <th style="">模具编号</th>
-        <th style="">零件图片</th>
-        <th style="">合同金额</th>
-        <th style="">币别</th>
-        <th style="">汇率</th>
-        <th style="">未税金额</th>
-        <th style="">订单人民币金额</th>
-        <th style="">税金</th>
-        <th style="">价税合计</th>
-        <th style="">收款进度</th>
-        <th style="">发票进度</th>
-        <th style="">付款进度</th>
-        <th style="">完工比</th>
-        <th style="">材料成本</th>
-        <th style="">制造费用</th>
-        <th style="">盈亏</th>
-        <th style="">盈亏比</th>
+        <th  rowspan="2">ID</th>
+        <th  rowspan="2">日期</th>
+        <th  rowspan="2">客户代码</th>
+        <th  rowspan="2">客户名称</th>
+        <th  rowspan="2">客户订单号</th>
+        <th  rowspan="2">项目名称</th>
+        <th  rowspan="2">模具编号</th>
+        <th  rowspan="2">零件图片</th>
+        <th  colspan="3">合同金额</th>
+        <th  colspan="3">人民币计价</th>
+        <th  rowspan="2">收款比</th>
+        <th  rowspan="2">发票比</th>
+        <th  rowspan="2">付款比</th>
+        <th  rowspan="2">完工比</th>
+        <th  rowspan="2">材料成本</th>
+        <th  rowspan="2">制造费用</th>
+        <th  colspan="2">盈亏</th>
+        <th  rowspan="2">状态</th>
+      </tr>
+      <tr>
+        <th>金额</th>
+        <th>币别</th>
+        <th>汇率</th>
+        <th>未税金额</th>
+        <th>税金</th>
+        <th>价税合计</th>
+        <th>金额</th>
+        <th>盈亏比</th>
       </tr>
       <?php 
           while($row = $result->fetch_assoc()){
+          //查询收款计划
+        
+         $pay_sql = "SELECT * FROM `db_order_pay` WHERE `mould_id` =".$row['mould_dataid'];
+         $res = $db->query($pay_sql);
+         $paylist = [];
+         if($res->num_rows){
+            $paylist = $res->fetch_assoc();
+            }
+          //计算收款进度
+        $total_pay = intval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
+        if($row['agreement_price'] != 0){
+          $pay_percent = $total_pay / $row['agreement_price'] * 100;
+        }
+        $pay_percent = number_format($pay_percent,2).'%';
           //获取图片地址
           $src = $row['upload_final_path'];
           $src = strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src;
@@ -136,6 +155,7 @@ $result_id = $db->query($sqllist);
               $order_vat = 0;
               $order_rmb = $row['agreement_price'] * $row['mold_rate'];
           }
+
       ?>
      <tr class="show">
          <td><input type="checkbox" name="id[]" value="<?php echo $row['mould_dataid']; ?>" style="width:20px"/></td>
@@ -150,9 +170,9 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $array_currency[$row['currency']]?></td>
         <td class="show_list"><?php echo $row['mold_rate']?></td>
         <td class="show_list"><?php echo $money_vat?></td>
-        <td class="show_list"><?php echo $order_rmb ?></td>
         <td class="show_list"><?php echo $order_vat ?></td>
         <td class="show_list"><?php echo $order_rmb?></td>
+        <td class="show_list"><?php echo $pay_percent ?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
@@ -160,7 +180,7 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
+        <td class="show_list"><span>待启动</span></td>
       </tr> 
 
       <?php } ?>

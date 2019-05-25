@@ -12,16 +12,16 @@ $action = $_GET['action'];
 if($action == 'add'){
 	$data = $_POST;
 	//判断是添加还是修改
-	if($data['payid']){
-		$payid = $data['payid'];
-		unset($data['payid']);
+	if($data['bill_id']){
+		$bill_id = $data['bill_id'];
+		unset($data['bill_id']);
 		//拼接更新sql 语句
-		$pay_str = ' ';
+		$bill_str = ' ';
 		foreach($data as $k=>$v){
-			$pay_str .='`'.$k.'`="'.$v.'",'; 
+			$bill_str .='`'.$k.'`="'.$v.'",'; 
 		}
-		$pay_str .='`add_time`="'.time().'"';
-		$pay_sql = "UPDATE `db_order_pay` SET ".$pay_str." WHERE `pay_id` =".$payid;
+		$bill_str .='`add_time`="'.time().'"';
+		$bill_sql = "UPDATE `db_order_bill` SET ".$bill_str." WHERE `bill_id` =".$bill_id;
 	} else {
 	//拼接插入的sql 语句
 	$sql_key = ' ';
@@ -32,11 +32,11 @@ if($action == 'add'){
 	}
 	 $sql_key .= '`employeeid`,`add_time`';
 	 $sql_value .= '"'.$employeeid.'",'.time();
-	$pay_sql = "INSERT INTO `db_order_pay`($sql_key) VALUES($sql_value)";
+	$pay_sql = "INSERT INTO `db_order_bill`($sql_key) VALUES($sql_value)";
 		}
 	$result = $db->query($pay_sql);
 	if($db->affected_rows){
-		header('location:order_pay.php');
+		header('location:order_bill.php');
 		}
 	
 }

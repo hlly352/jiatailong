@@ -56,7 +56,7 @@ $result_id = $db->query($sqllist);
 	 	  var mold_id = $(this).parent().children('.mold_id').text();
 	 	  //跳转页面，填写信息
      		 $('.show').each(function(){
-    	           window.open('order_add_pay.php?mold_id='+mold_id+'&id='+mold_dataid,'_self');
+    	           window.open('order_add_bill.php?mold_id='+mold_id+'&id='+mold_dataid,'_self');
     	      			})
 	})
     })
@@ -112,11 +112,11 @@ $result_id = $db->query($sqllist);
         <th colspan="3">合同金额</th>
         <th colspan="3">人民币计价</th>
         <th rowspan="3">收款比</th>
-        <th colspan="4">一期</th>
-        <th colspan="4">二期</th>
-        <th colspan="4">三期</th>
-        <th colspan="4">四期</th>
-        <th colspan="6">小计</th>
+        <th colspan="12">开票合计</th>
+        <th rowspan="3">开票合计</th>
+        <th rowspan="3">未开票</th>
+        <th rowspan="3">开票未收</th>
+        <th rowspan="3">开票比</th>
       </tr>
       <tr>
       	<th rowspan="2">金额</th>
@@ -125,41 +125,24 @@ $result_id = $db->query($sqllist);
       	<th rowspan="2">未税金额</th>
       	<th rowspan="2">税金</th>
       	<th rowspan="2">税价合计</th>
-      	<th colspan="2">计划</th>
-      	<th colspan="2">实际</th>
-      	<th colspan="2">计划</th>
-      	<th colspan="2">实际</th>
-      	<th colspan="2">计划</th>
-      	<th colspan="2">实际</th>
-      	<th colspan="2">计划</th>
-      	<th colspan="2">实际</th>
-      	<th colspan="2">计划</th>
-      	<th colspan="2">实际</th>
-      	<th colspan="2">实际人民币计价</th>
+      	<th colspan="3">一期</th>
+      	<th colspan="3">二期</th>
+      	<th colspan="3">三期</th>
+      	<th colspan="3">四期</th>
       </tr>
       <tr>
       	<th>日期</th>
       	<th>金额</th>
+      	<th>发票号码</th>
+           <th>日期</th>
+      	<th>金额</th>
+      	<th>发票号码</th>
       	<th>日期</th>
       	<th>金额</th>
-      	<th>日期</th>
+      	<th>发票号码</th>
+           <th>日期</th>
       	<th>金额</th>
-      	<th>日期</th>
-      	<th>金额</th>
-      	<th>日期</th>
-      	<th>金额</th>
-      	<th>日期</th>
-      	<th>金额</th>
-      	<th>日期</th>
-      	<th>金额</th>
-      	<th>日期</th>
-      	<th>金额</th>
-      	<th>已收</th>
-      	<th>未收</th>
-      	<th>已收</th>
-      	<th>未收</th>
-      	<th>已收</th>
-      	<th>未收</th>
+      	<th>发票号码</th>
       	
       </tr>
       <?php 
@@ -206,13 +189,13 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $order_rmb ?></td>
         <td class="show_list"><?php echo $order_vat ?></td>
         <td class="show_list"><?php echo $pay_percent ?></td>
-        <td class="show_list"><?php echo $paylist['one_plan_date']?></td>
-        <td class="show_list"><?php echo $paylist['one_plan_amount']?></td>
-        <td class="show_list"><?php echo $paylist['one_reality_date']?></td>
-        <td class="show_list"><?php echo $paylist['one_reality_amount']?></td>
-         <td class="show_list"><?php echo $paylist['two_plan_date']?></td>
-        <td class="show_list"><?php echo $paylist['two_plan_amount']?></td>
-        <td class="show_list"><?php echo $paylist['two_reality_date']?></td>
+        <td class="show_list"><?php echo $paylist['one_date']?></td>
+        <td class="show_list"><?php echo $paylist['one_amount']?></td>
+        <td class="show_list"><?php echo $paylist['one_no']?></td>
+        <td class="show_list"><?php echo $paylist['two_date']?></td>
+         <td class="show_list"><?php echo $paylist['two_amount']?></td>
+        <td class="show_list"><?php echo $paylist['two_no']?></td>
+        <td class="show_list"><?php echo $paylist['']?></td>
         <td class="show_list"><?php echo $paylist['two_reality_amount']?></td>
          <td class="show_list"><?php echo $paylist['three_plan_date']?></td>
         <td class="show_list"><?php echo $paylist['three_plan_amount']?></td>
@@ -222,12 +205,6 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $paylist['four_plan_amount']?></td>
         <td class="show_list"><?php echo $paylist['four_reality_date']?></td>
         <td class="show_list"><?php echo $paylist['four_reality_amount']?></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
       </tr> 
 
       <?php } ?>
