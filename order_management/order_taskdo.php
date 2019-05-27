@@ -11,7 +11,9 @@ $action = $_GET['action'];
 //执行添加操作
 if($action == 'add'){
 	$data = $_POST;
-	unset($data['task_time']);
+	//去除客户代码
+	$customer_code = $data['customer_code'];
+	unset($data['customer_code']);
 	//拼接插入的sql 语句
 	$sql_key = ' ';
 	$sql_value = ' ';
@@ -19,12 +21,19 @@ if($action == 'add'){
 		$sql_key .= '`'.$key.'`,';
 		$sql_value .= '"'.$value.'",';
 	}
-	 $sql_key .= '`employeeid`,`task_time`';
-	 $sql_value .= '"'.$employeeid.'",'.time();
-	$task_sql = "INSERT INTO `db_order_task`($sql_key) VALUES($sql_value)";
+	 $sql_key .= '`employeeid`,`deal_time`,`is_approval`,`is_deal`';
+	 $sql_value .= '"'.$employeeid.'","'.time().'","1","1"';
+	$task_sql = "INSERT INTO `db_mould_data`($sql_key) VALUES($sql_value)";
+
 	$result = $db->query($task_sql);
+	echo $db->affected_rows;
 	if($db->affected_rows){
-		header('location:order_task.php');
+		//插入客户代码
+		$customer_sql = "UPDATE `db_customer_info` SET `customer_code`=\"{$customer_code}\" WHERE `customer_id`=".$data['client_name'];
+
+		header('location:order_gather.php');
+	
+		
 	}
 
 }

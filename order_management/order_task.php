@@ -53,6 +53,7 @@ $result_id = $db->query($sqllist);
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
+    	/*
 	var new_task = ' <tr class="task">              <td class="show_list"><input type="text" name="task_time" value="<?php echo date('Y-m-d',time()) ?>"></td>              <td class="show_list"><select name="customer_name" class="customer_names" style="width:120px">    <option value="0">--选择客户--</option>          		<?php foreach($customer_list as $k=>$v){?>              		<option value="<?php echo $v['customer_id']?>"><?php echo strstr($v['customer_name'],'$$')?substr($v['customer_name'],strrpos($v['customer_name'],'$$')+2):$v['customer_name'] ?> </option>              			<?php }?>              	</select></td>              <td class="show_list"><input type="text" name="customer_code" class="customer_codes"></td>              <td class="show_list"><input type="text" name="mould_no"></td>              <td class="show_list"><input type="text" name="mould_name"></td>              <td class="show_list"><input type="text" name="size"></td>              <td class="show_list"><input type="text" name="material"></td>              <td class="show_list"><input type="text" name="number"></td>              <td class="show_list"><input type="text" name="unit_price"></td>              <td class="show_list"><input type="text" name="price"></td>              <td class="show_list"><input type="text" name="notes"></td>          </tr>';
 	var is_add = true;
 	$('#add_task').live('click',function(){
@@ -74,7 +75,7 @@ $result_id = $db->query($sqllist);
 			var price = parseInt(number*unit_price);
 		}
 		$('input[name=price]').val(price);
-	})
+	})*/
 	//选择客户后自动获取客户代码
 	$('.customer_names').live('change',function(){
 		var customer_id = $(this).val();
@@ -84,34 +85,16 @@ $result_id = $db->query($sqllist);
 	})
 	//点击保存时验证数据
 	$('input:submit').live('click',function(){
-    //客户名称
-    var customer_name = $.trim($(this).parent().parent().prev('.task').children().children('.customer_names').val());
-    if(customer_name =='0'){
-      alert('请选择客户');
-      $(this).parent().parent().prev('.task').children().children('.customer_names').focus();
-      return false;
-    }
-		//判断是否有添加项
-    if($(this).prev().attr('id') == 'add_task'){
-		if($(this).parent().parent().prev('.task').length == 0){
-			alert('请先点击新建临时任务');
-			return false;
-        }
-		}
-		//数量
-		var number = $.trim($(this).parent().parent().prev('.task').children().children('input[name=number]').val());
-		if(!number){
-			alert('请输入数量');
-			$('input[name=number]').focus();
-			return false;
-		}else{
-			var info = /\d+/.test(number);
-			if(!info){
-				alert('请输入数字');
-				$('input[name=number]').focus();
-				return false;
-			}
-		}
+	    //客户名称
+	   var customer_name = $.trim($(this).parent().parent().prev('.task').children().children('.customer_names').val());
+	    if(customer_name =='0'){
+	      alert('请选择客户');
+	      $(this).parent().parent().prev('.task').children().children('.customer_names').focus();
+	      return false;
+	    }
+
+
+		
 		//单价
 		var unit_price = $.trim($(this).parent().parent().prev('.task').children().children('input[name=unit_price]').val());
 
@@ -127,20 +110,53 @@ $result_id = $db->query($sqllist);
 				return false;
 			}
 		}
-		//金额
-		var price = $(this).parent().parent().prev('.task').children().children('input[name=price]').val();
+		//数量
+		var number = $.trim($(this).parent().parent().prev('.task').children().children('input[name=number]').val());
 		if(!number){
 			alert('请输入数量');
-			$('input[name=price]').focus();
+			$('input[name=number]').focus();
+			return false;
+		}else{
+			var infos = /\d+/.test(number);
+			if(!infos){
+				alert('请输入数字');
+				$('input[name=number]').focus();
+				return false;
+			}
+		}
+	
+		//金额
+		var price = $(this).parent().parent().prev('.task').children().children('input[name=deal_price]').val();
+
+		if(!price){
+			alert('请输入金额');
+			$('input[name=deal_price]').focus();
 			return false;
 		}else{
 			var info = /\d+/.test(price);
 			if(!info){
 				alert('请输入数字');
-				$('input[name=price]').focus();
+				$('input[name=deal_price]').focus();
 				return false;
 			}
 		}	
+	})
+	//自动计算金额
+	$("#unit_price,#number,#mold_rate,#currency").live('change',function(){
+		var number = $('#number').val();
+		var unit_price = $('#unit_price').val();
+		var mold_rate = $('#mold_rate').val();
+		var currency = $('#currency').val();
+		if(number && unit_price && mold_rate){
+			$('#agreement_price').val(parseInt(parseInt(number) * parseInt(unit_price)));
+			if(currency == 'rmb_vat'){
+				var rmb_vat = parseFloat(parseInt(number) * parseInt(unit_price) * parseInt(mold_rate));
+				var rmb_without_vat = parseInt(rmb_vat/1.13);
+				$('#deal_price').val(rmb_without_vat);
+			}else{
+				$('#deal_price').val(parseInt(parseInt(number) * parseInt(unit_price) * parseInt(mold_rate)));
+			}
+		}
 	})
     })
 </script>
@@ -148,97 +164,34 @@ $result_id = $db->query($sqllist);
 
 <body>
 <?php include "header.php"; ?>
-<div id="table_search">
+
   <h4 style="padding-left:10px">
      
   </h4>
-  <form action="order_taskdo.php" name="search" method="get">
-    <table >
 
-      <tr>
-   
-       </tr>
-       <tr>
-       <td>客户名称</td>
-       <td><input type="text" name="client_name" class="input_txt" /></td>
-       <td></td>
-       <td>项目名称</td>
-       <td><input type="text" name="project_name" class="input_txt"></td>
-       <td></td>
-        <td>客户代码</td>
-        <td><input type="text" name="mould_name" class="input_txt" /></td>
-        <td>日期</td>
-        <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
-          --
-          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
-        <td><input type="submit" name="submit" value="查找" class="button" />
-      </tr>
-    </table>
-  </form>
-</div>
 <div id="table_list">
   <form action="order_taskdo.php?action=add" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
-        <th style="">时间</th>
-        <th style="">客户名称</th>
+        <th style="">日期</th>
         <th style="">客户代码</th>
-        <th style="">模号</th>
-        <th style="">模具名称</th>
-        <th style="">规格</th>
-        <th style="">材质</th>
+        <th style="">客户名称</th>
+        <th style="">项目名称</th>
+        <th style="">模具编号</th>
+        <th style="">任务内容</th>
         <th style="">数量</th>
-        <th style="">单价(RMB)</th>
-        <th style="">金额(RMB)</th>
-        <th style="">备注</th>
-      <?php
+        <th style="">单价</th>
+        <th style="">币别</th>
+        <th style="">汇率</th>
+        <th style="">金额</th>
+        <th style="">人民币未税价格</th>
+     </tr>
 
-       if($result->num_rows !=0){
-          while($row = $result->fetch_assoc()){
-      
-    ?>
-     <tr class="show">
-        <td class="show_list"><?php echo date('Y-m-d',$row['task_time'])?></td>
-        <td class="show_list"><?php echo $row['customer_name'] ?></td>
-        <td class="show_list"><?php echo $row['customer_code']?></td>
-        <td class="show_list"><?php echo $row['mould_no']?></td>
-        <td class="show_list"><?php echo $row['mould_name']?></td>
-        <td class="show_list"><?php echo $row['size']?></td>
-        <td class="show_list"><?php echo $row['material']?></td>
-        <td class="show_list"><?php echo $row['number']?></td>
-        <td class="show_list"><?php echo $row['unit_price']?></td>
-        <td class="show_list"><?php echo $row['price']?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
-
-      </tr> 
-
-      <?php } ?>
-      <tr>
-              <td colspan="11" style="align:center">
-              	<span id="add_task">新建临时任务</span>
-              	&nbsp;&nbsp;
-              	<input type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">
-              </td>
-          </tr>
-       </table>
-    <!--<div id="checkall">
-      <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
-      <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
-      <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
-      <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" disabled="disabled" />
-      <input type="hidden" name="action" value="del" />
-    </div>
- 
-  <div id="page">
-    <?php $pages->getPage();?>
-  </div>-->
-  <?php
-  }else{?>
-      
-           <tr class="task">
-              <td class="show_list"><input type="text" name="task_time" value="<?php echo date('Y-m-d',time()) ?>"></td>
+     <tr class="task">
+              <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>
+              <td class="show_list"><input type="text" name="customer_code" class="customer_codes"></td>
               <td class="show_list">
-              	<select name="customer_name" class="customer_names" style="width:120px">  
+              	<select name="client_name" class="customer_names" style="width:120px">  
               		 <option value="0">--选择客户--</option>          	
               			<?php foreach($customer_list as $k=>$v){?>              	
               		<option value="<?php echo $v['customer_id']?>">
@@ -247,24 +200,30 @@ $result_id = $db->query($sqllist);
               		<?php }?>
                    	</select>
               </td>
-              <td class="show_list"><input type="text" name="customer_code" class="customer_codes"></td>
-              <td class="show_list"><input type="text" name="mould_no"></td>
-              <td class="show_list"><input type="text" name="mould_name"></td>
-              <td class="show_list"><input type="text" name="size"></td>
-              <td class="show_list"><input type="text" name="material"></td>
-              <td class="show_list"><input type="text" name="number"></td>
-              <td class="show_list"><input type="text" name="unit_price"></td>
-              <td class="show_list"><input type="text" name="price"></td>
-              <td class="show_list"><input type="text" name="notes"></td>
+              
+              <td class="show_list"><input type="text" name="project_name"></td>
+              <td class="show_list"><input type="text" name="mold_id"></td>
+              <td class="show_list"><input type="text" name="upload_final_path"/></td>
+              <td class="show_list"><input type="text" name="number" id="number"></td>
+              <td class="show_list"><input type="text" name="unit_price" id="unit_price"></td>
+              <td class="show_list">
+              	<select name="currency" id="currency" style="width:120px;height:20px">
+                		<?php foreach($array_currency as $k=>$v){
+                			echo '<option value="'.$k.'">'.$v.'</option>';
+                		}?>
+                	</select>
+              </td>
+              <td class="show_list"><input type="text" name="mold_rate" id="mold_rate"></td>
+              <td class="show_list"><input type="text" name="agreement_price" id="agreement_price"/></td>
+              <td class="show_list"><input type="text" name="deal_price" id="deal_price"></td>
           </tr>
           <tr>
-              <td colspan="11" style="align:center">
+              <td colspan="12" style="align:center">
               	<input type="submit" value="保存" style="margin-top:5px;height:29px;width:80px">
               </td>
           </tr>
     </form>
   </table>
-<?php    }  ?>
 </div>
  <?php include "../footer.php"; ?>
 </body>

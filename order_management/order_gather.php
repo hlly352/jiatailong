@@ -30,6 +30,7 @@ $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `deal_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -52,7 +53,12 @@ $result_id = $db->query($sqllist);
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
-	
+	//点击每一行跳转到启动项目
+      $('.show_list').live('click',function(){
+        $('.show').each(function(){
+          window.open('order_start.php','_self');
+        })
+      })
     })
 </script>
 </head>
@@ -104,24 +110,28 @@ $result_id = $db->query($sqllist);
         <th  rowspan="2">项目名称</th>
         <th  rowspan="2">模具编号</th>
         <th  rowspan="2">零件图片</th>
-        <th  colspan="3">合同金额</th>
+        <th  colspan="5">合同内容</th>
         <th  colspan="3">人民币计价</th>
-        <th  rowspan="2">收款比</th>
-        <th  rowspan="2">发票比</th>
-        <th  rowspan="2">付款比</th>
-        <th  rowspan="2">完工比</th>
-        <th  rowspan="2">材料成本</th>
-        <th  rowspan="2">制造费用</th>
-        <th  colspan="2">盈亏</th>
-        <th  rowspan="2">状态</th>
+        <th  colspan="4">进 度</th>
+        <th  colspan="2">成 本</th>
+        <th  colspan="2">盈 亏</th>
+        <th  rowspan="2">状 态</th>
       </tr>
       <tr>
-        <th>金额</th>
+        <th>数量</th>
+         <th>单价</th>
         <th>币别</th>
         <th>汇率</th>
+        <th>金额</th>
         <th>未税金额</th>
         <th>税金</th>
         <th>价税合计</th>
+        <th>收款比</th>
+        <th>发票比</th>
+        <th>付款比</th>
+        <th>完工比</th>
+        <th>材料成本</th>
+        <th>制造费用</th>
         <th>金额</th>
         <th>盈亏比</th>
       </tr>
@@ -135,7 +145,21 @@ $result_id = $db->query($sqllist);
          if($res->num_rows){
             $paylist = $res->fetch_assoc();
             }
-          //计算收款进度
+        //查询发票情况
+        
+         $bill_sql = "SELECT * FROM `db_order_bill` WHERE `mould_id` =".$row['mould_dataid'];
+         $res = $db->query($bill_sql);
+         $bill_list = [];
+         if($res->num_rows){
+            $bill_list = $res->fetch_assoc();
+            }
+        //计算发票比
+        $total_bill = intval($bill_list['one_amount']) + intval($bill_list['two_amount']) + intval($bill_list['three_amount']) + intval($bill_list['four_amount']);
+        if($row['agreement_price'] != 0){
+          $bill_percent = floatval($total_bill / $row['agreement_price']) * 100;
+          $bill_percent = number_format($bill_percent,2).'%';
+        }
+        //计算收款进度
         $total_pay = intval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
         if($row['agreement_price'] != 0){
           $pay_percent = $total_pay / $row['agreement_price'] * 100;
@@ -143,18 +167,15 @@ $result_id = $db->query($sqllist);
         $pay_percent = number_format($pay_percent,2).'%';
           //获取图片地址
           $src = $row['upload_final_path'];
-          $src = strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src;
-          //获取未税金额
+          $src = $src?strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src:' ';
+          //获取税金
           if($row['currency'] == 'rmb_vat'){
-              $money_vat = $row['agreement_price']*0.87;
-              $order_vat = $row['agreement_price'] * 0.13;
-              $order_rmb = $row['agreement_price'] * $row['mold_rate'];
-               
-          } else {
-              $money_vat = $row['agreement_price'];
-              $order_vat = 0;
-              $order_rmb = $row['agreement_price'] * $row['mold_rate'];
+                $order_vat = intval($row['deal_price'] * 0.13);
+          }else{
+                $order_vat = 0;
           }
+          //计算价税合计
+          $order_total_rmb = intval(intval($row['deal_price']) + intval($order_vat));
 
       ?>
      <tr class="show">
@@ -163,17 +184,19 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo strstr($row['customer_code'],'$$')?substr($row['customer_code'],strrpos($row['customer_code'],'$$')+2):$row['customer_code']?></td>
         <td class="show_list"><?php echo strstr($row['customer_name'],'$$')?substr($row['customer_name'],strrpos($row['customer_name'],'$$')+2):$row['customer_name']?></td>
         <td class="show_list"></td>
-        <td class="show_list"><?php echo $row['project_name']?></td>        
+        <td class="show_list"><?php echo $row['project_name']?></td>  
         <td class="show_list"><?php echo 'JTL'.$row['mold_id']?></td>
-        <td class="show_list"><img src="<?php echo $src ?>" width="50" height="35"/></td>
-        <td class="show_list"><?php echo $row['agreement_price']?></td>
+        <td class="show_list"><?php echo $src != ' '?'<img src='.$src.' width="50" height="35"/>':' '?></td>
+        <td class="show_list"><?php echo $row['number']?$row['number']:1 ?></td>
+        <td class="show_list"><?php echo $row['unit_price'] == 0?$row['agreement_price']:$row['unit_price']?></td>
         <td class="show_list"><?php echo $array_currency[$row['currency']]?></td>
         <td class="show_list"><?php echo $row['mold_rate']?></td>
-        <td class="show_list"><?php echo $money_vat?></td>
+        <td class="show_list"><?php echo $row['agreement_price']?></td>
+        <td class="show_list"><?php echo $row['deal_price']?></td>
         <td class="show_list"><?php echo $order_vat ?></td>
-        <td class="show_list"><?php echo $order_rmb?></td>
+        <td class="show_list"><?php echo $order_total_rmb?></td>
         <td class="show_list"><?php echo $pay_percent ?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
+        <td class="show_list"><?php echo $bill_percent?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>

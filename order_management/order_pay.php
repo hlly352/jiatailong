@@ -109,7 +109,7 @@ $result_id = $db->query($sqllist);
         <th rowspan="3">客户订单号</th>
         <th rowspan="3">项目名称</th>
         <th rowspan="3">模具编号</th>
-        <th colspan="3">合同金额</th>
+        <th colspan="5">合同内容</th>
         <th colspan="3">人民币计价</th>
         <th rowspan="3">收款比</th>
         <th colspan="4">一期</th>
@@ -119,9 +119,11 @@ $result_id = $db->query($sqllist);
         <th colspan="6">小计</th>
       </tr>
       <tr>
-      	<th rowspan="2">金额</th>
+      	<th rowspan="2">单价</th>
+      	<th rowspan="2">数量</th>
       	<th rowspan="2">币别</th>
       	<th rowspan="2">汇率</th>
+      	<th rowspan="2">金额</th>
       	<th rowspan="2">未税金额</th>
       	<th rowspan="2">税金</th>
       	<th rowspan="2">税价合计</th>
@@ -183,7 +185,7 @@ $result_id = $db->query($sqllist);
          if($res->num_rows){
          		$paylist = $res->fetch_assoc();
        		  }
-       	//计算收款进度
+       	//计算收款比
        	$total_pay = intval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
        	if($row['agreement_price'] != 0){
    	    	$pay_percent = $total_pay / $row['agreement_price'] * 100;
@@ -199,9 +201,11 @@ $result_id = $db->query($sqllist);
         <td class="show_list"></td>
         <td class="show_list"><?php echo $row['project_name']?></td>        
         <td class="show_list mold_id"><?php echo 'JTL'.$row['mold_id']?></td>
-        <td class="show_list"><?php echo $row['agreement_price']?></td>
+        <td class="show_list"></td>
+        <td class="show_list"></td>
         <td class="show_list"><?php echo $array_currency[$row['currency']]?></td>
         <td class="show_list"><?php echo $row['mold_rate']?></td>
+        <td class="show_list"><?php echo $row['agreement_price']?></td>
         <td class="show_list"><?php echo $money_vat?></td>
         <td class="show_list"><?php echo $order_rmb ?></td>
         <td class="show_list"><?php echo $order_vat ?></td>

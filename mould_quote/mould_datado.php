@@ -216,6 +216,7 @@ require_once 'shell.php';
 
 		//拼接sql语句
 		$deal_sql = "UPDATE `db_mould_data` SET ".$sql_str." WHERE `mould_dataid` =".$id;
+		
 		$result = $db->query($deal_sql);
 		if($db->affected_rows){
 			//查找其他版本

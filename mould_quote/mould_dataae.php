@@ -285,7 +285,9 @@ $(function(){
       var price_with_vat = tot_others+min_tot;
       $("#mold_price_rmb").val(parseInt(price_with_vat - parseInt(sum_except_others*0.13)));
       var mold_price_usds = parseInt($('#mold_price_rmb').val()/6.5);
+      var mold_price_eurs = parseInt($('#mold_price_rmb').val()/7);
       $("#mold_price_usd").val(mold_price_usds);
+      $("#mold_price_eur").val(mold_price_eurs);
       $("#mold_with_vat").val(price_with_vat);
   }
   //删除材料加工时重新计算总金额
@@ -1993,15 +1995,19 @@ $(function(){
   })
 
   //自动计算人民币价格
-  $('#mold_agreement_price,#mold_rate,#currency').live('change',function(){
+  $('#mold_agreement_price,#mold_rate,#currency,#mold_rate').live('change',function(){
   	var mold_agreement_price= $.trim($('#mold_agreement_price').val());
   	var mold_rate= $.trim($('#mold_rate').val());
   	var currency = $('#currency').val();
   	
   	if(mold_agreement_price && mold_rate){
-  		if(currency !='rmb_vat'){
-  		var mold_rmb = parseInt(mold_agreement_price * mold_rate);
-  		$('#mold_deal_price').val(mold_rmb);
+  		$('#mold_deal_price').val(' ');
+  		if(currency =='rmb_vat'){
+  			var mold_price = parseInt(mold_agreement_price * mold_rate /1.13);
+  			$('#mold_deal_price').val(mold_price);
+  		}else{
+	  		var mold_rmb = parseInt(mold_agreement_price * mold_rate);
+	  		$('#mold_deal_price').val(mold_rmb);
   		}
   	}
   })
@@ -2071,7 +2077,7 @@ $(function(){
   	var mold_rate = $('#mold_rate').val();
   	var currency = $('#currency').val();
   	var mold_id = $(this).prev().val();
-  	window.open('mould_datado.php?action=mould_deal&deal_price='+mold_deal_price+'&agreement_price='+mold_agreement_price+'&mold_rate='+mold_rate+'&currency='+currency+'&indoor_price='+mold_indoor_price+'&id='+mold_id);
+  	window.open('mould_datado.php?action=mould_deal&deal_price='+mold_deal_price+'&agreement_price='+mold_agreement_price+'&mold_rate='+mold_rate+'&currency='+currency+'&indoor_price='+mold_indoor_price+'&id='+mold_id,'_self');
   })
   //未审批时修改
   $('#unapproval_edit').click(function(){
@@ -2706,6 +2712,12 @@ $(function(){
                 <td colspan="5">模具价格(USD)/Mold Price(USD) Rate=6.5</td>
                 <td colspan="11">
                    <input type="text" name="mold_price_usd" id="mold_price_usd" value="0">
+                </td>
+            </tr>
+              <tr>
+                <td colspan="5">模具价格(EUR)/Mold Price(EUR) Rate=7</td>
+                <td colspan="11">
+                   <input type="text" name="mold_price_eur" id="mold_price_eur" value="0">
                 </td>
             </tr>
             <tr>
@@ -3473,6 +3485,12 @@ $(function(){
                 <td colspan="5">模具价格(USD)/Mold Price(USD) Rate=6.5</td>
                 <td colspan="11">
                    <input type="text" name="mold_price_usd" id="mold_price_usd" value="<?php echo $array['mold_price_usd'] ?>">
+                </td>
+            </tr>
+               <tr>
+                <td colspan="5">模具价格(EUR)/Mold Price(EUR) Rate=7</td>
+                <td colspan="11">
+                   <input type="text" name="mold_price_eur" id="mold_price_eur" value="<?php echo $array['mold_price_eur'] ?>">
                 </td>
             </tr>
             <tr>
@@ -4284,6 +4302,12 @@ $(function(){
                    <input type="text" name="mold_price_usd" id="mold_price_usd" value=<?php echo $array['mold_price_usd'] ?>>
                 </td>
             </tr>
+              <tr>
+                <td colspan="5">模具价格(EUR)/Mold Price(EUR) Rate=7</td>
+                <td colspan="11">
+                   <input type="text" name="mold_price_eur" id="mold_price_eur" value="<?php echo $array['mold_price_eur'] ?>">
+                </td>
+            </tr>
             <tr>
                 <td colspan="5">模具价格(元)含13%增值税/Mold with VAT(RMB)</td>
                 <td colspan="11">
@@ -5054,6 +5078,12 @@ $(function(){
                 <td colspan="5">模具价格(USD)/Mold Price(USD) Rate=6.5</td>
                 <td colspan="11">
                    <input type="text" name="mold_price_usd" id="mold_price_usd" value=<?php echo $array['mold_price_usd'] ?>>
+                </td>
+            </tr>
+              <tr>
+                <td colspan="5">模具价格(EUR)/Mold Price(EUR) Rate=7</td>
+                <td colspan="11">
+                   <input type="text" name="mold_price_eur" id="mold_price_eur" value="<?php echo $array['mold_price_eur'] ?>">
                 </td>
             </tr>
             <tr>

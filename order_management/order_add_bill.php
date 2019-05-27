@@ -42,7 +42,7 @@ if($res->num_rows){
  
 </div>
 <div id="table_list">
-  <form action="order_paydo.php?action=add" name="list" method="post">
+  <form action="order_billdo.php?action=add" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
       	<td colspan="12">
@@ -76,18 +76,18 @@ if($res->num_rows){
      	}
      ?>
      <tr class="show">
-         <td class="show_list"><input type="text" name="one_plan_date" value="<?php echo $bill_info['one_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})" ></td>
-         <td class="show_list"><input type="text" name="one_plan_amount" value="<?php echo $bill_info['one_amount'] ?>"></td>
-        <td class="show_list"><input type="text" name="one_reality_date" value="<?php echo $bill_info['one_no'] ?>" ></td>        
-        <td class="show_list"><input type="text" name="one_reality_amount" value="<?php echo $bill_info['two_date'] ?>"  onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})"></td>
-        <td class="show_list"><input type="text" name="two_plan_date"  value="<?php echo $bill_info['two_amount'] ?>" ></td>
-        <td class="show_list"><input type="text" name="two_plan_amount" value="<?php echo $bill_info['two_no'] ?>"></td>
-        <td class="show_list"><input type="text" name="two_reality_date" value="<?php echo $bill_info['three_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})" ></td>
-        <td class="show_list"><input type="text" name="two_reality_amount" value="<?php echo $bill_info['three_amount'] ?>"></td>
-        <td class="show_list"><input type="text" name="two_reality_amount" value="<?php echo $bill_info['three_no'] ?>"></td>
-        <td class="show_list"><input type="text" name="three_plan_date" value="<?php echo $bill_info['four_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})" ></td>
-        <td class="show_list"><input type="text" name="three_plan_amount" value="<?php echo $bill_info['four_amount'] ?>"></td>
-        <td class="show_list"><input type="text" name="three_reality_date" value="<?php echo $bill_info['four_no'] ?>"  ></td>
+         <td class="show_list"><input type="text" name="one_date" value="<?php echo $bill_info['one_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})" ></td>
+         <td class="show_list"><input type="text" name="one_amount" value="<?php echo $bill_info['one_amount'] ?>"></td>
+        <td class="show_list"><input type="text" name="one_no" value="<?php echo $bill_info['one_no'] ?>" ></td>        
+        <td class="show_list"><input type="text" name="two_date" value="<?php echo $bill_info['two_date']?>"  onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})"></td>
+        <td class="show_list"><input type="text" name="two_amount"  value="<?php echo $bill_info['two_amount'] ?>" ></td>
+        <td class="show_list"><input type="text" name="two_no" value="<?php echo $bill_info['two_no'] ?>"></td>
+        <td class="show_list"><input type="text" name="three_date" value="<?php echo $bill_info['three_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})" ></td>
+        <td class="show_list"><input type="text" name="three_amount" value="<?php echo $bill_info['three_amount'] ?>"></td>
+        <td class="show_list"><input type="text" name="three_no" value="<?php echo $bill_info['three_no'] ?>"></td>
+        <td class="show_list"><input type="text" name="four_date" value="<?php echo $bill_info['four_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})" ></td>
+        <td class="show_list"><input type="text" name="four_amount" value="<?php echo $bill_info['four_amount'] ?>"></td>
+        <td class="show_list"><input type="text" name="four_no" value="<?php echo $bill_info['four_no'] ?>"  ></td>
       </tr> 
       <tr>
       	<td colspan="12">

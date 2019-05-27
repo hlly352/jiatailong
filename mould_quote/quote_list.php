@@ -53,7 +53,7 @@ if($system_info[0] == 1){
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `mould_dataid` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `deal_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
 ?>
