@@ -59,6 +59,31 @@ $result_id = $db->query($sqllist);
     	           window.open('order_add_bill.php?mold_id='+mold_id+'&id='+mold_dataid,'_self');
     	      			})
 	})
+	//计算合计
+	function getSubtotal(className,subName){
+		var number = $(className).size();
+		var subtotal = 0;
+		for(var i=0;i<number;i++){
+			if($(className).eq(i).text()){
+			subtotal += parseFloat($(className).eq(i).text());
+			}
+		
+		}
+		
+		subtotal = subtotal.toFixed(2);
+		$(subName).text(subtotal);
+	}
+	getSubtotal('.agreement_price','#agreement_price');
+	getSubtotal('.deal_price','#deal_price');
+	getSubtotal('.order_vat','#order_vat');
+      	getSubtotal('.order_total_rmb','#order_total_rmb');
+      	getSubtotal('.one_amount','#one_amount');
+      	getSubtotal('.two_amount','#two_amount');
+      	getSubtotal('.three_amount','#three_amount');
+      	getSubtotal('.four_amount','#four_amount');
+      	getSubtotal('.total_bill','#total_bill');
+      	getSubtotal('.no_bill','#no_bill');
+      	getSubtotal('.bill_no_pay','#bill_no_pay');
     })
 </script>
 </head>
@@ -73,7 +98,7 @@ $result_id = $db->query($sqllist);
     <table >
 
       <tr>
-   
+   	
        </tr>
        <tr>
        <td>客户名称</td>
@@ -111,22 +136,24 @@ $result_id = $db->query($sqllist);
         <th rowspan="3">模具编号</th>
         <th colspan="5">合同内容</th>
         <th colspan="3">人民币计价</th>
-        <th rowspan="3">收款比</th>
+        <th colspan="2">进 度</th>
         <th colspan="12">开票合计</th>
         <th rowspan="3">开票合计</th>
         <th rowspan="3">未开票</th>
         <th rowspan="3">开票未收</th>
-        <th rowspan="3">开票比</th>
+        <th rowspan="3">损益/扣款</th>
       </tr>
       <tr>
+          <th rowspan="2">数量</th>
       	<th rowspan="2">单价</th>
-      	<th rowspan="2">数量</th>
       	<th rowspan="2">币别</th>
       	<th rowspan="2">汇率</th>
       	<th rowspan="2">金额</th>
       	<th rowspan="2">未税金额</th>
-      	<th rowspan="2">税金</th>
+      	<th rowspan="2">税金<br>(13%)</th>
       	<th rowspan="2">税价合计</th>
+      	<th rowspan="2">收款比</th>
+           <th rowspan="2">开票比</th>
       	<th colspan="3">一期</th>
       	<th colspan="3">二期</th>
       	<th colspan="3">三期</th>
@@ -156,17 +183,19 @@ $result_id = $db->query($sqllist);
          if($res->num_rows){
          		$paylist = $res->fetch_assoc();
        		  }
-          //获取未税金额
+           //获取税金
           if($row['currency'] == 'rmb_vat'){
-              $money_vat = $row['agreement_price']*0.87;
-              $order_vat = $row['agreement_price'] * 0.13;
-              $order_rmb = $row['agreement_price'] * $row['mold_rate'];
-               
-          } else {
-              $money_vat = $row['agreement_price'];
-              $order_vat = 0;
-              $order_rmb = $row['agreement_price'] * $row['mold_rate'];
+                $order_vat = Floatval($row['deal_price'] /1.13 * 0.13);
+                $order_vat = number_format($order_number,2,'.','');
+  
+          }else{
+                $order_vat = $row['deal_price'] * 0.13;
+                $order_vat = number_format($order_vat,2,'.','');
+                
           }
+          //计算价税合计
+           $order_total_rmb = $row['deal_price'] + $order_vat;
+            $order_total_rmb = number_format($order_total_rmb,2,'.','');
          //查询发票情况
         
          $bill_sql = "SELECT * FROM `db_order_bill` WHERE `mould_id` =".$row['mould_dataid'];
@@ -180,56 +209,87 @@ $result_id = $db->query($sqllist);
        	if($row['agreement_price'] != 0){
    	    	$pay_percent = floatval($total_pay / $row['agreement_price']) * 100;
    	    }
-   	    $pay_percent = number_format($pay_percent,2).'%';
+   	    $pay_percent = number_format($pay_percent,2,'.','').'%';
    	//计算开票合计
-   	$total_bill = intval($bill_list['one_amount']) + intval($bill_list['two_amount']) + intval($bill_list['three_amount']) + intval($bill_list['four_amount']);
+   	$total_bill = Floatval($bill_list['one_amount'] + $bill_list['two_amount'] + $bill_list['three_amount'] + $bill_list['four_amount']);
+   	$total_bill = number_format($total_bill,2,'.','');
    	//计算未开票
-   	$no_bill = intval($row['agreement_price']) - $total_bill;
+   	$no_bill = Floatval($row['agreement_price']) - $total_bill;
+   	$no_bill = number_format($no_bill,2,'.','');
+   	$no_bill = $no_bill<=0?0:$no_bill;
        	//计算开票比
        	if($row['agreement_price'] != 0){
        		$bill_percent = floatval($total_bill / $row['agreement_price']) * 100;
-       		$bill_percent = number_format($bill_percent,2).'%';
+       		$bill_percent = number_format($bill_percent,2,'.','').'%';
        	}
        	//计算开票未收
-       	$bill_no_pay = intval($total_bill - $total_pay);
+       	$bill_no_pay = Floatval($total_bill - $total_pay);
+       	$bill_no_pay = number_format($bill_no_pay,2,'.','');
        	$bill_no_pay = $bill_no_pay <=0?0:$bill_no_pay;
+
       ?>
      <tr class="show">
-         <td><input type="checkbox" name="id[]" value="<?php echo $row['mould_dataid']; ?>" style="width:20px"/></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $row['mould_dataid']; ?>" style="width:20px"/></td>
         <td class="show_list"><?php echo date('Y-m-d',$row['deal_time']) ?></td>
         <td class="show_list"><?php echo strstr($row['customer_code'],'$$')?substr($row['customer_code'],strrpos($row['customer_code'],'$$')+2):$row['customer_code']?></td>
         <td class="show_list customer_name"><?php echo strstr($row['customer_name'],'$$')?substr($row['customer_name'],strrpos($row['customer_name'],'$$')+2):$row['customer_name']?></td>
         <td class="show_list"></td>
         <td class="show_list"><?php echo $row['project_name']?></td>        
         <td class="show_list mold_id"><?php echo 'JTL'.$row['mold_id']?></td>
-        <td class="show_list"><?php echo $row['agreement_price'] ?></td>
         <td class="show_list"><?php echo $row['number']?$row['number']:1 ?></td>
+        <td class="show_list"><?php echo $row['unit_price'] == 0?$row['agreement_price']:$row['unit_price']?></td>
         <td class="show_list"><?php echo $array_currency[$row['currency']]?></td>
-        <td class="show_list"><?php echo $row['mold_rate']?></td>
-        <td class="show_list"><?php echo $row['agreement_price']?></td>
-        <td class="show_list"><?php echo $money_vat?></td>
-        <td class="show_list"><?php echo $order_vat ?></td>
-        <td class="show_list"><?php echo $row['agreement_price'] ?></td>
+        <td class="show_list mold_rate"><?php echo $row['mold_rate']?></td>
+        <td class="show_list agreement_price"><?php echo number_format($row['agreement_price'],2,'.','')?></td>
+        <td class="show_list deal_price"><?php echo $row['deal_price']?></td>
+        <td class="show_list order_vat"><?php echo $order_vat ?></td>
+        <td class="show_list order_total_rmb"><?php echo $order_total_rmb ?></td>
         <td class="show_list"><?php echo $pay_percent ?></td>
+         <td class="show_list"><?php echo $bill_percent ?></td>
         <td class="show_list"><?php echo $bill_list['one_date']?></td>
-        <td class="show_list"><?php echo $bill_list['one_amount']?></td>
+        <td class="show_list one_amount"><?php echo $bill_list['one_amount']?></td>
         <td class="show_list"><?php echo $bill_list['one_no']?></td>
         <td class="show_list"><?php echo $bill_list['two_date']?></td>
-        <td class="show_list"><?php echo $bill_list['two_amount']?></td>
+        <td class="show_list two_amount"><?php echo $bill_list['two_amount']?></td>
         <td class="show_list"><?php echo $bill_list['two_no']?></td>
         <td class="show_list"><?php echo $bill_list['three_date']?></td>
-        <td class="show_list"><?php echo $bill_list['three_amount']?></td>
+        <td class="show_list three_amount"><?php echo $bill_list['three_amount']?></td>
         <td class="show_list"><?php echo $bill_list['three_no']?></td>
         <td class="show_list"><?php echo $bill_list['four_date']?></td>
-        <td class="show_list"><?php echo $bill_list['four_amount']?></td>
+        <td class="show_list four_reality_amount"><?php echo $bill_list['four_amount']?></td>
         <td class="show_list"><?php echo $bill_list['four_no']?></td>
-        <td class="show_list"><?php echo $total_bill ?></td>
-        <td class="show_list"><?php echo $no_bill ?></td>
-        <td class="show_list"><?php echo $bill_no_pay ?></td>
-        <td class="show_list"><?php echo $bill_percent ?></td>
+        <td class="show_list total_bill"><?php echo $total_bill ?></td>
+        <td class="show_list no_bill"><?php echo $no_bill ?></td>
+        <td class="show_list bill_no_pay"><?php echo $bill_no_pay ?></td>
+        <td class="show_list"></td>
       </tr> 
 
       <?php } ?>
+      <tr>
+      	<td colspan="11">合计</td>
+      	<td id="agreement_price"></td>
+      	<td id="deal_price"></td>
+      	<td id="order_vat"></td>
+      	<td id="order_total_rmb"></td>
+      	<td></td>
+      	<td></td>
+      	<td></td>
+      	<td id="one_amount"></td>
+      	<td></td>
+      	<td></td>
+      	<td id="two_amount"></td>
+      	<td></td>
+      	<td></td>
+      	<td id="three_amount"></td>
+      	<td></td>
+      	<td></td>
+      	<td id="four_amount"></td>
+      	<td></td>
+      	<td id="total_bill"></td>
+      	<td id="no_bill"></td>
+      	<td id="bill_no_pay"></td>
+      	<td></td>
+      </tr>
        </table>
     <!--<div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />

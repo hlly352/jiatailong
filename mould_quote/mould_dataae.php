@@ -2003,10 +2003,12 @@ $(function(){
   	if(mold_agreement_price && mold_rate){
   		$('#mold_deal_price').val(' ');
   		if(currency =='rmb_vat'){
-  			var mold_price = parseInt(mold_agreement_price * mold_rate /1.13);
+  			var mold_price = parseFloat(mold_agreement_price * mold_rate /1.13);
+  			mold_price = mold_price.toFixed(2);
   			$('#mold_deal_price').val(mold_price);
   		}else{
-	  		var mold_rmb = parseInt(mold_agreement_price * mold_rate);
+	  		var mold_rmb = parseFloat(mold_agreement_price * mold_rate);
+	  		mold_rmb = mold_price.toFixed(2);
 	  		$('#mold_deal_price').val(mold_rmb);
   		}
   	}

@@ -14,7 +14,40 @@ if($action == 'add'){
 	//去除客户代码
 	$customer_code = $data['customer_code'];
 	unset($data['customer_code']);
-	//拼接插入的sql 语句
+	//遍历得到的结果
+	$sql_key = ' ';
+	
+	$arr = [];
+	foreach($data as $key=>$value){
+		$sql_key .= '`'.$key.'`,';
+		foreach($value as $k=>$v){
+			$sql_value .= '"'.$v.'",';
+			$arr[$k][] = $v;
+			
+		}
+		//$sql_value .= '"'.$employeeid.'","'.time().'","1","1"';
+	 	
+	//$task_sql = "INSERT INTO `db_mould_data`($sql_key) VALUES($sql_value)";
+	
+	}
+	 $sql_key .= '`employeeid`,`deal_time`,`is_approval`,`is_deal`';
+	 //拼接插入的值
+	 $sql_value = ' ';
+	foreach($arr as $k=>$v){
+		$sql_value .='(';
+		foreach($v as $key=>$value){
+			$sql_value .= '"'.$value.'",';
+		}
+		
+		$sql_value .= '"'.$employeeid.'","'.time().'","1","1"),';
+		
+		
+	}
+	//去除最后一个逗号
+	$sql_value = substr($sql_value,0,strlen($sql_value)-1);
+	 $task_sql = "INSERT INTO `db_mould_data`($sql_key) VALUES".$sql_value;	
+
+	/*//拼接插入的sql 语句
 	$sql_key = ' ';
 	$sql_value = ' ';
 	foreach($data as $key=>$value){
@@ -24,7 +57,7 @@ if($action == 'add'){
 	 $sql_key .= '`employeeid`,`deal_time`,`is_approval`,`is_deal`';
 	 $sql_value .= '"'.$employeeid.'","'.time().'","1","1"';
 	$task_sql = "INSERT INTO `db_mould_data`($sql_key) VALUES($sql_value)";
-
+	*/
 	$result = $db->query($task_sql);
 	echo $db->affected_rows;
 	if($db->affected_rows){

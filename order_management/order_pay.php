@@ -59,6 +59,38 @@ $result_id = $db->query($sqllist);
     	           window.open('order_add_pay.php?mold_id='+mold_id+'&id='+mold_dataid,'_self');
     	      			})
 	})
+	//计算合计
+	function getSubtotal(className,subName){
+		var number = $(className).size();
+		var subtotal = 0;
+		for(var i=0;i<number;i++){
+			if($(className).eq(i).text()){
+			subtotal += parseFloat($(className).eq(i).text());
+			}
+		
+		}
+		
+		subtotal = subtotal.toFixed(2);
+		$(subName).text(subtotal);
+	}
+	getSubtotal('.agreement_price','#agreement_price');
+	getSubtotal('.deal_price','#deal_price');
+	getSubtotal('.order_vat','#order_vat');
+      	getSubtotal('.order_total_rmb','#order_total_rmb');
+      	getSubtotal('.one_plan_amount','#one_plan_amount')
+	getSubtotal('.one_reality_amount','#one_reality_amount')
+	getSubtotal('.two_plan_amount','#two_plan_amount')
+	getSubtotal('.two_reality_amount','#two_reality_amount')
+	getSubtotal('.three_plan_amount','#three_plan_amount')
+	getSubtotal('.three_reality_amount','#three_reality_amount')
+	getSubtotal('.four_plan_amount','#four_plan_amount')
+	getSubtotal('.four_reality_amount','#four_reality_amount')
+	getSubtotal('.plan_pay','#plan_pay')
+	getSubtotal('.plan_no_pay','#plan_no_pay')
+	getSubtotal('.reality_pay','#reality_pay')
+	getSubtotal('.reality_no_pay','#reality_no_pay')
+	getSubtotal('.reality_pay_rmb','#reality_pay_rmb')
+	getSubtotal('.reality_no_pay_rmb','#reality_no_pay_rmb')
     })
 </script>
 </head>
@@ -117,15 +149,16 @@ $result_id = $db->query($sqllist);
         <th colspan="4">三期</th>
         <th colspan="4">四期</th>
         <th colspan="6">小计</th>
+        <th rowspan="3">损益 /<br>扣款</th>
       </tr>
       <tr>
-      	<th rowspan="2">单价</th>
       	<th rowspan="2">数量</th>
+      	<th rowspan="2">单价</th>	
       	<th rowspan="2">币别</th>
       	<th rowspan="2">汇率</th>
       	<th rowspan="2">金额</th>
       	<th rowspan="2">未税金额</th>
-      	<th rowspan="2">税金</th>
+      	<th rowspan="2">税金<br>(13%)</th>
       	<th rowspan="2">税价合计</th>
       	<th colspan="2">计划</th>
       	<th colspan="2">实际</th>
@@ -166,17 +199,19 @@ $result_id = $db->query($sqllist);
       </tr>
       <?php 
           while($row = $result->fetch_assoc()){
-          //获取未税金额
+            //获取税金
           if($row['currency'] == 'rmb_vat'){
-              $money_vat = $row['agreement_price']*0.87;
-              $order_vat = $row['agreement_price'] * 0.13;
-              $order_rmb = $row['agreement_price'] * $row['mold_rate'];
-               
-          } else {
-              $money_vat = $row['agreement_price'];
-              $order_vat = 0;
-              $order_rmb = $row['agreement_price'] * $row['mold_rate'];
+                $order_vat = Floatval($row['deal_price'] /1.13 * 0.13);
+                $order_vat = number_format($order_number,2,'.','');
+  
+          }else{
+                $order_vat = $row['deal_price'] * 0.13;
+                $order_vat = number_format($order_vat,2,'.','');
+                
           }
+          //计算价税合计
+           $order_total_rmb = $row['deal_price'] + $order_vat;
+            $order_total_rmb = number_format($order_total_rmb,2,'.','');
          //查询收款计划
         
          $pay_sql = "SELECT * FROM `db_order_pay` WHERE `mould_id` =".$row['mould_dataid'];
@@ -190,8 +225,29 @@ $result_id = $db->query($sqllist);
        	if($row['agreement_price'] != 0){
    	    	$pay_percent = $total_pay / $row['agreement_price'] * 100;
    	    }
-   	    $pay_percent = number_format($pay_percent,2).'%';
+   	    $pay_percent = number_format($pay_percent,2,'.','').'%';
+       	//计算计划已收
+       	$plan_pay = Floatval($paylist['one_plan_amount'] + $paylist['two_plan_amount'] + $paylist['three_plan_amount'] + $paylist['four_plan_amount']);
+       	$plan_pay = number_format($plan_pay,2,'.','');
+       	//计划未收
+       	$plan_no_pay = Floatval($row['agreement_price'] - $plan_pay);
+       	$plan_no_pay = number_format($plan_no_pay,2,'.','');
+       	//实际已收
+       	$reality_pay = Floatval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount']);
+       	$reality_pay = number_format($reality_pay,2,'.','');
        	
+       	//人民币计价
+       	$reality_pay_rmb = Floatval($reality_pay * $row['mold_rate']);
+       	$reality_pay_rmb = number_format($reality_pay_rmb,2,'.','');
+       	//实际未收
+       	$reality_no_pay = Floatval($row['agreement_price'] - $reality_pay);
+       	$reality_no_pay = number_format($reality_no_pay,2,'.','');
+       	
+       	//人民币计价
+       	$reality_no_pay_rmb = Floatval($reality_no_pay * $row['mold_rate']);
+       	
+       	$reality_no_pay_rmb = number_format($reality_no_pay_rmb,2,'.','');
+
       ?>
      <tr class="show">
          <td><input type="checkbox" name="id[]" value="<?php echo $row['mould_dataid']; ?>" style="width:20px"/></td>
@@ -201,40 +257,73 @@ $result_id = $db->query($sqllist);
         <td class="show_list"></td>
         <td class="show_list"><?php echo $row['project_name']?></td>        
         <td class="show_list mold_id"><?php echo 'JTL'.$row['mold_id']?></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
+        <td class="show_list"><?php echo $row['number']?$row['number']:1 ?></td>
+        <td class="show_list"><?php echo $row['unit_price'] == 0?$row['agreement_price']:$row['unit_price']?></td>
         <td class="show_list"><?php echo $array_currency[$row['currency']]?></td>
         <td class="show_list"><?php echo $row['mold_rate']?></td>
-        <td class="show_list"><?php echo $row['agreement_price']?></td>
-        <td class="show_list"><?php echo $money_vat?></td>
-        <td class="show_list"><?php echo $order_rmb ?></td>
-        <td class="show_list"><?php echo $order_vat ?></td>
+        <td class="show_list agreement_price"><?php echo $row['agreement_price']?></td>
+        <td class="show_list deal_price"><?php echo $row['deal_price']?></td>
+        <td class="show_list order_vat"><?php echo $order_vat ?></td>
+        <td class="show_list order_total_rmb"><?php echo $order_total_rmb ?></td>
         <td class="show_list"><?php echo $pay_percent ?></td>
         <td class="show_list"><?php echo $paylist['one_plan_date']?></td>
-        <td class="show_list"><?php echo $paylist['one_plan_amount']?></td>
+        <td class="show_list one_plan_amount"><?php echo $paylist['one_plan_amount']?></td>
         <td class="show_list"><?php echo $paylist['one_reality_date']?></td>
-        <td class="show_list"><?php echo $paylist['one_reality_amount']?></td>
+        <td class="show_list one_reality_amount"><?php echo $paylist['one_reality_amount']?></td>
          <td class="show_list"><?php echo $paylist['two_plan_date']?></td>
-        <td class="show_list"><?php echo $paylist['two_plan_amount']?></td>
+        <td class="show_list two_plan_amount"><?php echo $paylist['two_plan_amount']?></td>
         <td class="show_list"><?php echo $paylist['two_reality_date']?></td>
-        <td class="show_list"><?php echo $paylist['two_reality_amount']?></td>
+        <td class="show_list two_reality_amount"><?php echo $paylist['two_reality_amount']?></td>
          <td class="show_list"><?php echo $paylist['three_plan_date']?></td>
-        <td class="show_list"><?php echo $paylist['three_plan_amount']?></td>
+        <td class="show_list three_plan_amount"><?php echo $paylist['three_plan_amount']?></td>
         <td class="show_list"><?php echo $paylist['three_reality_date']?></td>
-        <td class="show_list"><?php echo $paylist['three_reality_amount']?></td>
+        <td class="show_list three_reality_amount"><?php echo $paylist['three_reality_amount']?></td>
          <td class="show_list"><?php echo $paylist['four_plan_date']?></td>
-        <td class="show_list"><?php echo $paylist['four_plan_amount']?></td>
+        <td class="show_list four_plan_amount"><?php echo $paylist['four_plan_amount']?></td>
         <td class="show_list"><?php echo $paylist['four_reality_date']?></td>
-        <td class="show_list"><?php echo $paylist['four_reality_amount']?></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
-        <td class="show_list"></td>
+        <td class="show_list four_reality_amount"><?php echo $paylist['four_reality_amount']?></td>
+        <td class="show_list plan_pay"><?php echo $plan_pay?></td>
+        <td class="show_list plan_no_pay"><?php echo $plan_no_pay?></td>
+        <td class="show_list reality_pay"><?php echo $reality_pay?></td>
+        <td class="show_list reality_no_pay"><?php echo $reality_no_pay?></td>
+        <td class="show_list reality_pay_rmb"><?php echo $reality_pay_rmb?></td>
+        <td class="show_list reality_no_pay_rmb"><?php echo $reality_no_pay_rmb?></td>
         <td class="show_list"></td>
       </tr> 
 
       <?php } ?>
+        <tr>
+      	<td colspan="11">合计</td>
+      	<td id="agreement_price"></td>
+      	<td id="deal_price"></td>
+      	<td id="order_vat"></td>
+      	<td id="order_total_rmb"></td>
+      	<td></td>
+      	<td></td>
+      	<td id="one_plan_amount"></td>
+      	<td></td>
+      	<td id="one_reality_amount"></td>
+      	<td></td>
+      	<td id="two_plan_amount"></td>
+      	<td></td>
+      	<td id="two_reality_amount"></td>
+      	<td></td>
+      	<td id="three_plan_amount"></td>
+      	<td></td>
+      	<td id="three_reality_amount"></td>
+      	<td></td>
+      	<td id="four_plan_amount"></td>
+      	<td></td>
+      	<td id="four_reality_amount"></td>
+      	<td id="plan_pay"></td>
+      	<td id="plan_no_pay"></td>
+      	<td id="reality_pay"></td>
+      	<td id="reality_no_pay"></td>
+      	<td id="reality_pay_rmb"></td>
+      	<td id="reality_no_pay_rmb"></td>
+      	<td></td>
+
+      </tr>
        </table>
     <!--<div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />

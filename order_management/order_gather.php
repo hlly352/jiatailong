@@ -45,7 +45,7 @@ $result_id = $db->query($sqllist);
 
 <title>订单管理-嘉泰隆</title>
 <style type="text/css">
-  #main{table-layout:fixed;width:1350px;}
+  #main{table-layout:fixed;width:100%}
   #main tr td{word-wrap:break-word;word-break:break-all;}
   #main tr td input{width:120px;}
   #add_task{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;}
@@ -59,6 +59,24 @@ $result_id = $db->query($sqllist);
           window.open('order_start.php','_self');
         })
       })
+      //计算合计
+        function getSubtotal(className,subName){
+          var number = $(className).size();
+          var subtotal = 0;
+          for(var i=0;i<number;i++){
+            if($(className).eq(i).text()){
+            subtotal += parseFloat($(className).eq(i).text());
+            }
+          
+          }
+          
+          subtotal = subtotal.toFixed(2);
+          $(subName).text(subtotal);
+        }
+        getSubtotal('.agreement_price','#agreement_price');
+        getSubtotal('.deal_price','#deal_price');
+        getSubtotal('.order_vat','#order_vat');
+        getSubtotal('.order_total_rmb','#order_total_rmb');
     })
 </script>
 </head>
@@ -102,7 +120,7 @@ $result_id = $db->query($sqllist);
         
     ?>
       <tr>
-        <th  rowspan="2">ID</th>
+        <th style="width:20px"  rowspan="2">ID</th>
         <th  rowspan="2">日期</th>
         <th  rowspan="2">客户代码</th>
         <th  rowspan="2">客户名称</th>
@@ -115,6 +133,7 @@ $result_id = $db->query($sqllist);
         <th  colspan="4">进 度</th>
         <th  colspan="2">成 本</th>
         <th  colspan="2">盈 亏</th>
+        <th  rowspan="2">损益/扣款</th>
         <th  rowspan="2">状 态</th>
       </tr>
       <tr>
@@ -124,7 +143,7 @@ $result_id = $db->query($sqllist);
         <th>汇率</th>
         <th>金额</th>
         <th>未税金额</th>
-        <th>税金</th>
+        <th>税金<br>(13%)</th>
         <th>价税合计</th>
         <th>收款比</th>
         <th>发票比</th>
@@ -157,25 +176,31 @@ $result_id = $db->query($sqllist);
         $total_bill = intval($bill_list['one_amount']) + intval($bill_list['two_amount']) + intval($bill_list['three_amount']) + intval($bill_list['four_amount']);
         if($row['agreement_price'] != 0){
           $bill_percent = floatval($total_bill / $row['agreement_price']) * 100;
-          $bill_percent = number_format($bill_percent,2).'%';
+          $bill_percent = number_format($bill_percent,2,'.','').'%';
         }
         //计算收款进度
         $total_pay = intval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
         if($row['agreement_price'] != 0){
           $pay_percent = $total_pay / $row['agreement_price'] * 100;
         }
-        $pay_percent = number_format($pay_percent,2).'%';
+        $pay_percent = number_format($pay_percent,2,'.','').'%';
           //获取图片地址
           $src = $row['upload_final_path'];
           $src = $src?strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src:' ';
           //获取税金
-          if($row['currency'] == 'rmb_vat'){
-                $order_vat = intval($row['deal_price'] * 0.13);
-          }else{
-                $order_vat = 0;
-          }
+          $order_vat = Floatval($row['deal_price'] * 0.13);
+          $order_vat = number_format($order_vat,2,'.','');
           //计算价税合计
-          $order_total_rmb = intval(intval($row['deal_price']) + intval($order_vat));
+          if($row['currency'] == 'rmb_vat'){
+                
+              $order_total_rmb = $row['agreement_price'];
+          }else{
+              $order_total_rmb = $row['deal_price'] + $order_vat;
+              $order_total_rmb = number_format($order_total_rmb,2,'.','');
+                
+          }
+          
+           
 
       ?>
      <tr class="show">
@@ -186,15 +211,15 @@ $result_id = $db->query($sqllist);
         <td class="show_list"></td>
         <td class="show_list"><?php echo $row['project_name']?></td>  
         <td class="show_list"><?php echo 'JTL'.$row['mold_id']?></td>
-        <td class="show_list"><?php echo $src != ' '?'<img src='.$src.' width="50" height="35"/>':' '?></td>
+        <td class="show_list"><?php echo strstr($src,'/')?'<img src='.$src.' width="50" height="35"/>': $src ?></td>
         <td class="show_list"><?php echo $row['number']?$row['number']:1 ?></td>
         <td class="show_list"><?php echo $row['unit_price'] == 0?$row['agreement_price']:$row['unit_price']?></td>
         <td class="show_list"><?php echo $array_currency[$row['currency']]?></td>
         <td class="show_list"><?php echo $row['mold_rate']?></td>
-        <td class="show_list"><?php echo $row['agreement_price']?></td>
-        <td class="show_list"><?php echo $row['deal_price']?></td>
-        <td class="show_list"><?php echo $order_vat ?></td>
-        <td class="show_list"><?php echo $order_total_rmb?></td>
+        <td class="show_list agreement_price"><?php echo $row['agreement_price']?></td>
+        <td class="show_list deal_price"><?php echo number_format($row['deal_price'],2,'.','')?></td>
+        <td class="show_list order_vat"><?php echo $order_vat ?></td>
+        <td class="show_list order_total_rmb"><?php echo $order_total_rmb?></td>
         <td class="show_list"><?php echo $pay_percent ?></td>
         <td class="show_list"><?php echo $bill_percent?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
@@ -203,10 +228,29 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
+        <td class="show_list"></td>
         <td class="show_list"><span>待启动</span></td>
       </tr> 
 
       <?php } ?>
+       <tr>
+        <td colspan="12">合计</td>
+        <td id="agreement_price"></td>
+        <td id="deal_price"></td>
+        <td id="order_vat"></td>
+        <td id="order_total_rmb"></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+       </table>
        </table>
     <!--<div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
