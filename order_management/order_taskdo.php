@@ -59,14 +59,23 @@ if($action == 'add'){
 	$task_sql = "INSERT INTO `db_mould_data`($sql_key) VALUES($sql_value)";
 	*/
 	$result = $db->query($task_sql);
-	echo $db->affected_rows;
+	$i = 0;
 	if($db->affected_rows){
 		//插入客户代码
-		$customer_sql = "UPDATE `db_customer_info` SET `customer_code`=\"{$customer_code}\" WHERE `customer_id`=".$data['client_name'];
-
-		header('location:order_gather.php');
-	
-		
+		foreach($customer_code as $k=>$v){
+			//sql语句
+			$customer_sql = "UPDATE `db_customer_info` SET `customer_code`=\"{$v}\" WHERE `customer_id`=".$data['client_name'][$k];
+			$db->query($customer_sql);
+			if(!$db->affected_rows){
+				$i++;
+			}
+		}
+		//判断sql语句是否执行成功
+		if($i == 0){
+			header('location:order_gather.php');
+		} else {
+			header('location:order_gather.php');
+		}
 	}
 
 }

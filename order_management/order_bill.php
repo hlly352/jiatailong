@@ -24,9 +24,9 @@ if($_GET['submit']){
 }
 
 //sql语句
-$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `is_deal` = '1'".$sqlwhere;
+$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `is_deal` = '1' AND `currency` IN('rmb_vat','rmb')".$sqlwhere;
 $result = $db->query($sql);
-$pages = new page($result->num_rows,15);
+$pages = new page($result->num_rows,30);
 $sqllist = $sql . " ORDER BY `deal_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
@@ -44,10 +44,11 @@ $result_id = $db->query($sqllist);
 
 <title>订单管理-嘉泰隆</title>
 <style type="text/css">
-  #main{table-layout:fixed;width:1350px;}
+/* #main{table-layout:fixed;width:1350px;}*/
   #main tr td{word-wrap:break-word;word-break:break-all;}
   #main tr td input{width:120px;}
   #main .show .show_list{font-size:1px;}
+  .deal_price,.order_vat,.order_total_rmb,.rmb_tot{background:#ddd;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
@@ -129,7 +130,7 @@ $result_id = $db->query($sqllist);
       <tr>
         <th rowspan="3">ID</th>
         <th rowspan="3">日期</th>
-        <th rowspan="3">客户代码</th>
+        <th rowspan="3" width="25">客户代码</th>
         <th rowspan="3" width="60">客户名称</th>
         <th rowspan="3">客户订单号</th>
         <th rowspan="3">项目名称</th>
@@ -146,8 +147,8 @@ $result_id = $db->query($sqllist);
       <tr>
           <th rowspan="2">数量</th>
       	<th rowspan="2">单价</th>
-      	<th rowspan="2">币别</th>
-      	<th rowspan="2">汇率</th>
+      	<th rowspan="2" width="45">币别</th>
+      	<th rowspan="2" width="20">汇率</th>
       	<th rowspan="2">金额</th>
       	<th rowspan="2">未税金额</th>
       	<th rowspan="2">税金<br>(13%)</th>
@@ -175,6 +176,12 @@ $result_id = $db->query($sqllist);
       	
       </tr>
       <?php 
+      	//处理时间格式
+      	function getTime($time){
+      		if($time != null){
+      			echo date('y/m',strtotime($time));
+      		}
+      	}
           while($row = $result->fetch_assoc()){
           //查询收款计划
          $pay_sql = "SELECT * FROM `db_order_pay` WHERE `mould_id` =".$row['mould_dataid'];
@@ -183,19 +190,24 @@ $result_id = $db->query($sqllist);
          if($res->num_rows){
          		$paylist = $res->fetch_assoc();
        		  }
-           //获取税金
+        //获取税金
+          if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
+               $order_vat = Floatval($row['deal_price'] * 0.13);
+               $order_vat = number_format($order_vat,2,'.','');
+            }else{
+              $order_vat = 0;
+            }
+         
+          //计算价税合计
           if($row['currency'] == 'rmb_vat'){
-                $order_vat = Floatval($row['deal_price'] /1.13 * 0.13);
-                $order_vat = number_format($order_number,2,'.','');
-  
+                
+              $order_total_rmb = $row['agreement_price']*$row['mold_rate'];
           }else{
-                $order_vat = $row['deal_price'] * 0.13;
-                $order_vat = number_format($order_vat,2,'.','');
+              $order_total_rmb = $row['deal_price'] + $order_vat;
+              $order_total_rmb = number_format($order_total_rmb,2,'.','');
                 
           }
-          //计算价税合计
-           $order_total_rmb = $row['deal_price'] + $order_vat;
-            $order_total_rmb = number_format($order_total_rmb,2,'.','');
+          
          //查询发票情况
         
          $bill_sql = "SELECT * FROM `db_order_bill` WHERE `mould_id` =".$row['mould_dataid'];
@@ -214,12 +226,12 @@ $result_id = $db->query($sqllist);
    	$total_bill = Floatval($bill_list['one_amount'] + $bill_list['two_amount'] + $bill_list['three_amount'] + $bill_list['four_amount']);
    	$total_bill = number_format($total_bill,2,'.','');
    	//计算未开票
-   	$no_bill = Floatval($row['agreement_price']) - $total_bill;
+   	$no_bill = Floatval($order_total_rmb) - $total_bill;
    	$no_bill = number_format($no_bill,2,'.','');
    	$no_bill = $no_bill<=0?0:$no_bill;
        	//计算开票比
-       	if($row['agreement_price'] != 0){
-       		$bill_percent = floatval($total_bill / $row['agreement_price']) * 100;
+       	if($order_total_rmb != 0){
+       		$bill_percent = floatval($total_bill / $order_total_rmb) * 100;
        		$bill_percent = number_format($bill_percent,2,'.','').'%';
        	}
        	//计算开票未收
@@ -246,16 +258,16 @@ $result_id = $db->query($sqllist);
         <td class="show_list order_total_rmb"><?php echo $order_total_rmb ?></td>
         <td class="show_list"><?php echo $pay_percent ?></td>
          <td class="show_list"><?php echo $bill_percent ?></td>
-        <td class="show_list"><?php echo $bill_list['one_date']?></td>
+        <td class="show_list"><?php echo getTime($bill_list['one_date'])?></td>
         <td class="show_list one_amount"><?php echo $bill_list['one_amount']?></td>
         <td class="show_list"><?php echo $bill_list['one_no']?></td>
-        <td class="show_list"><?php echo $bill_list['two_date']?></td>
+        <td class="show_list"><?php echo getTime($bill_list['two_date'])?></td>
         <td class="show_list two_amount"><?php echo $bill_list['two_amount']?></td>
         <td class="show_list"><?php echo $bill_list['two_no']?></td>
-        <td class="show_list"><?php echo $bill_list['three_date']?></td>
+        <td class="show_list"><?php echo getTime($bill_list['three_date'])?></td>
         <td class="show_list three_amount"><?php echo $bill_list['three_amount']?></td>
         <td class="show_list"><?php echo $bill_list['three_no']?></td>
-        <td class="show_list"><?php echo $bill_list['four_date']?></td>
+        <td class="show_list"><?php echo getTime($bill_list['four_date'])?></td>
         <td class="show_list four_reality_amount"><?php echo $bill_list['four_amount']?></td>
         <td class="show_list"><?php echo $bill_list['four_no']?></td>
         <td class="show_list total_bill"><?php echo $total_bill ?></td>
@@ -266,11 +278,15 @@ $result_id = $db->query($sqllist);
 
       <?php } ?>
       <tr>
-      	<td colspan="11">合计</td>
+      	<td colspan="7">合 计</td>
+      	<td></td>
+      	<td></td>
+      	<td></td>
+      	<td></td>
       	<td id="agreement_price"></td>
-      	<td id="deal_price"></td>
-      	<td id="order_vat"></td>
-      	<td id="order_total_rmb"></td>
+      	<td id="deal_price" class="rmb_tot"></td>
+      	<td id="order_vat" class="rmb_tot"></td>
+      	<td id="order_total_rmb" class="rmb_tot"></td>
       	<td></td>
       	<td></td>
       	<td></td>

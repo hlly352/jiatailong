@@ -22,7 +22,39 @@ if($res->num_rows){
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
+<script type="text/javascript" charset="utf-8">
+	$(function(){
+		//获取url中传递的价格信息
+		var url = window.location.search;
+		var obj = new Object();
+		if(url.indexOf('?') != -1){
+			var str = url.substr(1);
+			var strs = str.split('&');
+			for(k in strs){
+				obj[strs[k].split('=')[0]] = strs[k].split('=')[1];
+			}
+			var agreement_price = obj.agreement_price;
 
+		}
+		$('#save_pay').click(function(){
+			var num = $('input[name$=plan_amount]').size();
+			var plan_total = 0;
+			for(var i=0;i<num;i++){
+				var plan_val = parseFloat($('input[name$=plan_amount]').eq(i).val());
+				if(plan_val){
+					plan_total += plan_val;	
+				}
+				
+			}
+			//判断计划是否达到总收款数
+			if(plan_total != agreement_price){
+				alert('计划收款总数必须和应收款总数相等');
+				return false;
+			}
+			
+		})
+	})
+</script>
 <title>订单管理-嘉泰隆</title>
 <style type="text/css">
   #main{table-layout:fixed;width:1350px;}

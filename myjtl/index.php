@@ -89,6 +89,9 @@ $(function(){
 	  $result_express_receive = $db->query($sql_express_receive);
 	  //待试模审批
 	  $sql_mould_try_approve = "SELECT `db_mould_try`.`tryid`,`db_mould`.`mould_number`,`db_employee`.`employee_name` FROM `db_mould_try` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_try`.`mouldid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_mould_try`.`employeeid` WHERE `db_mould_try`.`approve_status` = 'A' AND `db_mould_try`.`try_status` = 1 AND `db_mould_try`.`approver` = '$employeeid'";
+	  //带审批报价
+	  $sql_mould_quote_approve = "SELECT `db_mould_data`.`mould_dataid` FROM `db_mould_data` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = '5020'  INNER JOIN `db_system_employee` ON `db_system_employee`.`employeeid` = `db_employee`.`employeeid` WHERE `db_system_employee`.`systemid` = '19' AND `db_system_employee`.`isadmin`='1' AND `db_mould_data`.`is_approval`='0'";
+	  echo $sql_mould_quote_approve;
 	  $result_mould_try_approve = $db->query($sql_mould_try_approve);
 	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows;
 	  //计划任务
