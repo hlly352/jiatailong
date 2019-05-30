@@ -72,13 +72,43 @@ if($action == 'add'){
 		}
 		//判断sql语句是否执行成功
 		if($i == 0){
-			header('location:order_gather.php');
+			header('location:order_approval.php');
 		} else {
+			header('location:order_approval.php');
+			}
+		}
+
+	}elseif($action == 'order_approval_edit'){
+		//获取id
+		$data = $_POST;
+		$mould_id = $data['mould_id'];
+		unset($data['mould_id']);
+		//更改订单信息
+		$sql_value = ' ';
+		foreach($data as $k=>$v){
+			$sql_value .= '`'.$k.'`="'.$v.'",';
+		}
+		$sql_value = substr($sql_value,0,strlen($sql_value)-1);
+		//拼接sql 语句
+		$sql = "UPDATE `db_mould_data` SET {$sql_value} WHERE `mould_dataid` =".$mould_id;
+		$db->query($sql);
+		if($db->affected_rows){
+			header('location:order_approval_show.php?mould_id='.$mould_id);
+		} else {
+			header('location:order_approval_show.php?mould_id='.$mould_id);
+		}
+	}elseif($action == 'order_approval'){
+		//获取id
+		$mould_id = $_GET['mould_id'];
+		//审批订单
+		$sql = "UPDATE `db_mould_data` SET `order_approval`='1',`order_approval_time`=".time()." WHERE `mould_dataid`=".$mould_id;
+		$db->query($sql);
+		if($db->affected_rows){
 			header('location:order_gather.php');
+		}else{
+			header('location:order_approval.php');
 		}
 	}
-
-}
 
 
 ?>

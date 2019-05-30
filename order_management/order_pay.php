@@ -24,10 +24,10 @@ if($_GET['submit']){
 }
 
 //sql语句
-$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `is_deal` = '1'".$sqlwhere;
+$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `order_approval`='1' AND `is_deal` = '1'".$sqlwhere;
 $result = $db->query($sql);
 $pages = new page($result->num_rows,30);
-$sqllist = $sql . " ORDER BY `deal_time` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `order_approval_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
 ?>
@@ -47,7 +47,7 @@ $result_id = $db->query($sqllist);
   /*#main{table-layout:fixed;width:1350px;}*/
   #main tr td{word-wrap:break-word;word-break:break-all;}
   #main tr td input{width:120px;}
-  #main .show .show_list{font-size:1px;}
+  #main .show .show_list{font-size:0.2px;}
   .deal_price,.order_vat,.order_total_rmb,.rmb_tot,.reality_pay,.reality_no_pay{background:#ddd;}
 </style>
 <script type="text/javascript" charset="utf-8">
@@ -55,10 +55,10 @@ $result_id = $db->query($sqllist);
 	$('.show_list').live('click',function(){
 	 	  var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
 	 	  var agreement_price = $(this).siblings('.agreement_price').text();
-	 	  var mold_id = $(this).parent().children('.mold_id').text();
+	 	  var mould_no = $(this).parent().children('.mould_no').text();
 	 	  //跳转页面，填写信息
      		 $('.show').each(function(){
-    	           window.open('order_add_pay.php?mold_id='+mold_id+'&id='+mold_dataid+'&agreement_price='+agreement_price,'_self');
+    	           window.open('order_add_pay.php?mould_no='+mould_no+'&id='+mold_dataid+'&agreement_price='+agreement_price,'_self');
     	      			})
 	})
 	//计算合计
@@ -262,9 +262,9 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo date('y-m-d',$row['deal_time']) ?></td>
         <td class="show_list"><?php echo strstr($row['customer_code'],'$$')?substr($row['customer_code'],strrpos($row['customer_code'],'$$')+2):$row['customer_code']?></td>
         <td class="show_list customer_name"><?php echo strstr($row['customer_name'],'$$')?substr($row['customer_name'],strrpos($row['customer_name'],'$$')+2):$row['customer_name']?></td>
-        <td class="show_list"></td>
+        <td class="show_list"><?php echo $row['customer_order_no'] ?></td>
         <td class="show_list"><?php echo $row['project_name']?></td>        
-        <td class="show_list mold_id"><?php echo 'JTL'.$row['mold_id']?></td>
+        <td class="show_list mould_no"><?php echo 'JTL'.$row['mould_no']?></td>
         <td class="show_list"><?php echo $row['number']?$row['number']:1 ?></td>
         <td class="show_list"><?php echo $row['unit_price'] == 0?$row['agreement_price']:$row['unit_price']?></td>
         <td class="show_list"><?php echo $array_currency[$row['currency']]?></td>
@@ -294,7 +294,7 @@ $result_id = $db->query($sqllist);
         <td class="show_list reality_no_pay"><?php echo $reality_no_pay?></td>
         <td class="show_list reality_pay_rmb"><?php echo $reality_pay_rmb?></td>
         <td class="show_list reality_no_pay_rmb"><?php echo $reality_no_pay_rmb?></td>
-        <td class="show_list"></td>
+        <td class="show_list"><?php echo $paylist['deducation'] ?></td>
       </tr> 
 
       <?php } ?>

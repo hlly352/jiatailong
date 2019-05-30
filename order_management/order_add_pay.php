@@ -57,9 +57,9 @@ if($res->num_rows){
 </script>
 <title>订单管理-嘉泰隆</title>
 <style type="text/css">
-  #main{table-layout:fixed;width:1350px;}
+  #main{table-layout:fixed;width:100%;}
   #main tr td{word-wrap:break-word;word-break:break-all;}
-  #main tr td input{width:80px;}
+  #main tr td input{width:65px;}
   #save_pay{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;margin-top:20px;}
 </style>
 
@@ -77,8 +77,8 @@ if($res->num_rows){
   <form action="order_paydo.php?action=add" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
-      	<td colspan="16">
-      		<?php echo $_GET['mold_id'] ?>
+      	<td colspan="17">
+      		<?php echo $_GET['mould_no'] ?>
       		<input type="hidden" name="mould_id" value="<?php echo $_GET['id'] ?>" />	
       	</td>
       </tr>
@@ -87,6 +87,7 @@ if($res->num_rows){
         <th colspan="4">二期</th>
         <th colspan="4">三期</th>
         <th colspan="4">四期</th>
+        <th rowspan="3" style="width:20px">损益<br>/扣款</th>
       </tr>
       <tr>
       	<th colspan="2">计划</th>
@@ -139,9 +140,10 @@ if($res->num_rows){
         <td class="show_list"><input type="text" name="four_plan_amount" value="<?php echo $pay_info['four_plan_amount'] ?>" ></td>
         <td class="show_list"><input type="text" name="four_reality_date" value="<?php echo $pay_info['four_reality_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM',isShowClear:false,readOnly:true})" ></td>
         <td class="show_list"><input type="text" name="four_reality_amount" value="<?php echo $pay_info['four_reality_amount'] ?>"></td>
+        <td class="show_list"><input type="text" name="deducation" value="<?php echo $pay_info['deducation'] ?>"></td>
       </tr> 
       <tr>
-      	<td colspan="16">
+      	<td colspan="17">
       		<input id="save_pay" type="submit" value="保存">
       	</td>
       </tr>

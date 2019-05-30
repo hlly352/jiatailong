@@ -2283,13 +2283,19 @@ $(function(){
           	    </td>
           	</tr>
           	<tr>
+          	    <td colspan="5">模具价格(EUR)/Mold Price(EUR) Rate=7</td>
+          	    <td colspan="11">
+          	    	 <input type="text" name="mold_price_eur" id="mold_price_eur" value="<?php echo $array['mold_price_eur'] ?>">
+          	    </td>
+          	</tr>
+          	<tr>
           	    <td colspan="5">模具价格(元)含13%增值税/Mold with VAT(RMB)</td>
           	    <td colspan="11">
           	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['mold_with_vat'] ?>">
           	    </td>
           </tr>
           <tr>
-          	    <td colspan="5">合同金额(RMB)</td>
+          	    <td colspan="5">合同金额</td>
           	    <td colspan="4">
           	    	<input type="text" name="mold_with_vat" id="mold_with_vat" value="<?php echo $array['agreement_price'] ?>">
           	    </td>

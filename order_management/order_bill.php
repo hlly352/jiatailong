@@ -24,10 +24,10 @@ if($_GET['submit']){
 }
 
 //sql语句
-$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `is_deal` = '1' AND `currency` IN('rmb_vat','rmb')".$sqlwhere;
+$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `order_approval`='1' AND `is_deal` = '1' AND `currency` IN('rmb_vat','rmb')".$sqlwhere;
 $result = $db->query($sql);
 $pages = new page($result->num_rows,30);
-$sqllist = $sql . " ORDER BY `deal_time` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `order_approval_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
 ?>
@@ -47,17 +47,17 @@ $result_id = $db->query($sqllist);
 /* #main{table-layout:fixed;width:1350px;}*/
   #main tr td{word-wrap:break-word;word-break:break-all;}
   #main tr td input{width:120px;}
-  #main .show .show_list{font-size:1px;}
+  #main .show .show_list{font-size:0.1px;}
   .deal_price,.order_vat,.order_total_rmb,.rmb_tot{background:#ddd;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
 	$('.show_list').live('click',function(){
 	 	  var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
-	 	  var mold_id = $(this).parent().children('.mold_id').text();
+	 	  var mould_no = $(this).parent().children('.mould_no').text();
 	 	  //跳转页面，填写信息
      		 $('.show').each(function(){
-    	           window.open('order_add_bill.php?mold_id='+mold_id+'&id='+mold_dataid,'_self');
+    	           window.open('order_add_bill.php?mold_mould='+mould_no+'&id='+mold_dataid,'_self');
     	      			})
 	})
 	//计算合计
@@ -245,9 +245,9 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo date('Y-m-d',$row['deal_time']) ?></td>
         <td class="show_list"><?php echo strstr($row['customer_code'],'$$')?substr($row['customer_code'],strrpos($row['customer_code'],'$$')+2):$row['customer_code']?></td>
         <td class="show_list customer_name"><?php echo strstr($row['customer_name'],'$$')?substr($row['customer_name'],strrpos($row['customer_name'],'$$')+2):$row['customer_name']?></td>
-        <td class="show_list"></td>
+        <td class="show_list"><?php echo $row['customer_order_no'] ?></td>
         <td class="show_list"><?php echo $row['project_name']?></td>        
-        <td class="show_list mold_id"><?php echo 'JTL'.$row['mold_id']?></td>
+        <td class="show_list mould_no"><?php echo 'JTL'.$row['mould_no']?></td>
         <td class="show_list"><?php echo $row['number']?$row['number']:1 ?></td>
         <td class="show_list"><?php echo $row['unit_price'] == 0?$row['agreement_price']:$row['unit_price']?></td>
         <td class="show_list"><?php echo $array_currency[$row['currency']]?></td>

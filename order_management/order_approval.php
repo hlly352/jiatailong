@@ -24,10 +24,10 @@ if($_GET['submit']){
 }
 
 //sql语句
-$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `order_approval`='1' AND `is_deal` = '1'".$sqlwhere;
+$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `order_approval`='0' AND `is_deal` = '1'".$sqlwhere;
 $result = $db->query($sql);
 $pages = new page($result->num_rows,30);
-$sqllist = $sql . " ORDER BY `order_approval_time` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `deal_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
 
@@ -56,8 +56,10 @@ $result_id = $db->query($sqllist);
     $(function(){
 	//点击每一行跳转到启动项目
       $('.show_list').live('click',function(){
+        var mould_id = $(this).parent().children().children('input:checkbox').val();
+
         $('.show').each(function(){
-          window.open('order_start.php','_self');
+          window.open('order_approval_show.php?mould_id='+mould_id,'_self');
         })
       })
       //计算合计
@@ -121,9 +123,9 @@ $result_id = $db->query($sqllist);
         
     ?>
       <tr>
-        <th  rowspan="2" width="18">ID</th>
+        <th  rowspan="2" width="30">ID</th>
         <th  rowspan="2">日期</th>
-        <th  rowspan="2" width="25">客户代码</th>
+        <th  rowspan="2">客户代码</th>
         <th  rowspan="2">客户名称</th>
         <th  rowspan="2">客户订单号</th>
         <th  rowspan="2">项目名称</th>
@@ -132,29 +134,16 @@ $result_id = $db->query($sqllist);
         <th  rowspan="2">零件图片</th>
         <th  colspan="5">合同内容</th>
         <th  colspan="3">人民币计价</th>
-        <th  colspan="4">进 度</th>
-        <th  colspan="2">成 本</th>
-        <th  colspan="2">盈 亏</th>
-        <th  rowspan="2">损益/扣款</th>
-        <th  rowspan="2">状 态</th>
       </tr>
       <tr>
-        <th width="18">数量</th>
+        <th>数量</th>
          <th>单价</th>
-        <th width="45">币别</th>
+        <th>币别</th>
         <th>汇率</th>
         <th>金额</th>
         <th>未税金额</th>
         <th>税金<br>(13%)</th>
         <th>价税合计</th>
-        <th>收款比</th>
-        <th>发票比</th>
-        <th>付款比</th>
-        <th>完工比</th>
-        <th>材料成本</th>
-        <th>制造费用</th>
-        <th>金额</th>
-        <th>盈亏比</th>
       </tr>
       <?php 
           while($row = $result->fetch_assoc()){
@@ -228,41 +217,11 @@ $result_id = $db->query($sqllist);
         <td class="show_list deal_price"><?php echo number_format($row['deal_price'],2,'.','')?></td>
         <td class="show_list order_vat"><?php echo $order_vat ?></td>
         <td class="show_list order_total_rmb"><?php echo $order_total_rmb?></td>
-        <td class="show_list"><?php echo $pay_percent ?></td>
-        <td class="show_list"><?php echo $bill_percent?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
-        <td class="show_list"><?php echo $row['notes']?></td>
-        <td class="show_list"></td>
-        <td class="show_list"><span>待启动</span></td>
+        
       </tr> 
 
       <?php } ?>
-       <tr>
-        <td colspan="8">合 计</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td id="agreement_price" ></td>
-        <td id="deal_price" class="rmb_tot"></td>
-        <td id="order_vat" class="rmb_tot"></td>
-        <td id="order_total_rmb" class="rmb_tot"></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
+    
        </table>
        </table>
     <!--<div id="checkall">

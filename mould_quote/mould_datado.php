@@ -212,7 +212,7 @@ require_once 'shell.php';
 		foreach($_GET as $k=>$v){
 			$sql_str .= '`'.$k.'`="'.$v.'",';
 		}
-		$sql_str .= '`is_deal`="1",`deal_time`='.time();
+		$sql_str .= '`number`=1,`is_deal`="1",`deal_time`='.time();
 
 		//拼接sql语句
 		$deal_sql = "UPDATE `db_mould_data` SET ".$sql_str." WHERE `mould_dataid` =".$id;

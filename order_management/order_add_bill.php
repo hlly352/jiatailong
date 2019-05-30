@@ -46,7 +46,7 @@ if($res->num_rows){
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
       	<td colspan="12">
-      		<?php echo $_GET['mold_id'] ?>
+      		<?php echo $_GET['mould_no'] ?>
       		<input type="hidden" name="mould_id" value="<?php echo $_GET['id'] ?>" />	
       	</td>
       </tr>

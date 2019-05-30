@@ -33,7 +33,9 @@ if($action == 'add'){
 	 $sql_key .= '`employeeid`,`add_time`';
 	 $sql_value .= '"'.$employeeid.'",'.time();
 	$pay_sql = "INSERT INTO `db_order_pay`($sql_key) VALUES($sql_value)";
+
 		}
+
 	$result = $db->query($pay_sql);
 	if($db->affected_rows){
 		header('location:order_pay.php');

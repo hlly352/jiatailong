@@ -63,7 +63,7 @@ $(function(){
       
       //求模架的重量
     
-      var base_weight = ($("#base_length").val()/1000)*($("#base_width").val()/1000)*($("#base_height").val()/1000)*7800;
+      var base_weight = ($("#base_length").val()/1000)*($("#base_width").val()/1000)*($("#base_height").val()*parseInt($('.materials_number').eq(0).val())/1000)*7800;
       base_weight = parseInt(base_weight);
       
       $("#base_weight").val(base_weight);
@@ -88,7 +88,11 @@ $(function(){
       $('.heat_weight').eq(1).val(heat_weight);
       var mould_num = $(".mould_material").size();
       for(var i = 0;i < mould_num; i++){
-
+      //求出模架尺寸后计算材料的重量
+     // var weights=  (parseInt($(".materials_number").eq(i).val()))*(parseInt($(".material_length").eq(i).val()))*(parseInt($(".material_width").eq(i).val()*(parseInt($(".material_height").eq(i).val()))));
+     // if(!isNaN(weights)){
+      //	$(".material_weight").eq(i).val(weights);
+   //   }
       //求出模架尺寸后计算材料费的金额
        var prices  = (parseInt($(".material_weight").eq(i).val()))*(parseInt($(".materials_number").eq(i).val()))*(parseInt($(".material_unit_price").eq(i).val()));
       if(!isNaN(prices)){
@@ -1626,7 +1630,7 @@ $(function(){
     $("#style_width_sum").val(0);
   })
   //更改材料尺寸后重新计算金额
-  $(".material_length,.material_width,.material_height").live('blur',function(){
+  $(".material_length,.material_width,.material_height,.materials_number").live('blur',function(){
     //重新计算材料费的金额
     var no = $(this).prevAll().size();
     var no2 = no+1;
@@ -1636,32 +1640,33 @@ $(function(){
       no2 = '';
 
       }
-    if(($.trim($(this).parent().parent().children().find('.material_length').val())) && ($.trim($(this).parent().parent().children().find('.material_width').val()))  && ($.trim($(this).parent().parent().children().find('.material_height').val())) ){
+    if(($.trim($(this).parent().parent().children().find('.material_length').val())) && ($.trim($(this).parent().parent().children().find('.material_width').val()))  && ($.trim($(this).parent().parent().children().find('.materials_number').val()))&&($.trim($(this).parent().parent().children().find('.material_height').val()))  ){
       for(var t=0;t<mould_num;t++){
         var material_len = $(".material_length").eq(t).val()?$(".material_length").eq(t).val():0;
         var material_wid = $(".material_width").eq(t).val()?$(".material_width").eq(t).val():0;
         var material_hei = $(".material_height").eq(t).val()?$(".material_height").eq(t).val():0;
+        var material_num = $(".materials_number").eq(t).val()?$(".materials_number").eq(t).val():0;
         if($(".mould_material").eq(t).val() == '型腔'+no2+'/Cavity' || $(".mould_material").eq(t).val() == '型芯'+no2+'/Core' ){
             //计算型腔和型芯的重量
-            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*7800/1000000000;
+            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*7800/1000000000;
             wei = Math.round(wei);
             $('.material_weight').eq(t).val(wei);
             
           } else if($(".mould_material").eq(t).val() == '电极'+no2+'/Electrode'){
              
             //计算电极的重量
-            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*8900/1000000000;
+            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*8900/1000000000;
             wei = Math.round(wei);
             $('.material_weight').eq(t).val(wei);
           } else if($(".mould_material").eq(t).val() == "模架/Mould Base") {
             //计算模架的重量
-            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*7800/1000000000;
+            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*7800/1000000000;
             wei = Math.round(wei);
             $('.material_weight').eq(t).val(wei);
             $("#m_weight").val(wei);
           } else {
             //计算其它的重量
-            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*8900/1000000000;
+            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*8900/1000000000;
             wei = Math.round(wei);
             $('.material_weight').eq(t).val(wei);
           }
@@ -1678,7 +1683,7 @@ $(function(){
     sum_other_fee();
   })
   //更改材料重量和单价后重新计算金额
-  $(".material_weight,.material_unit_price,.materials_number").live('change',function(){
+  $(".material_weight,.material_unit_price").live('change',function(){
     change($(this));
 
   })
@@ -2008,7 +2013,7 @@ $(function(){
   			$('#mold_deal_price').val(mold_price);
   		}else{
 	  		var mold_rmb = parseFloat(mold_agreement_price * mold_rate);
-	  		mold_rmb = mold_price.toFixed(2);
+	  		mold_rmb = mold_rmb.toFixed(2);
 	  		$('#mold_deal_price').val(mold_rmb);
   		}
   	}
@@ -2079,7 +2084,7 @@ $(function(){
   	var mold_rate = $('#mold_rate').val();
   	var currency = $('#currency').val();
   	var mold_id = $(this).prev().val();
-  	window.open('mould_datado.php?action=mould_deal&deal_price='+mold_deal_price+'&agreement_price='+mold_agreement_price+'&mold_rate='+mold_rate+'&currency='+currency+'&indoor_price='+mold_indoor_price+'&id='+mold_id,'_self');
+  	window.open('mould_datado.php?action=mould_deal&unit_price='+mold_agreement_price+'&deal_price='+mold_deal_price+'&agreement_price='+mold_agreement_price+'&mold_rate='+mold_rate+'&currency='+currency+'&indoor_price='+mold_indoor_price+'&id='+mold_id,'_self');
   })
   //未审批时修改
   $('#unapproval_edit').click(function(){
@@ -2178,7 +2183,7 @@ $(function(){
              </td>  
            </tr>
            <tr>
-               <td colspan="5" >模具名称/Mold Specification</td>
+               <td colspan="5" >零件名称/Spare parts</td>
                <td colspan="2">型腔数量/Cav. Number</td>
                <td colspan="5" rowspan="6">
                 <input type="file" name="file[]" id="file" class="input_file" multiple style="width:200px"/><br/>
@@ -2924,7 +2929,7 @@ $(function(){
              </td>  
            </tr>
            <tr>
-               <td colspan="5" >模具名称/Mold Specification</td>
+               <td colspan="5" >零件名称/Spare parts</td>
                <td colspan="2">型腔数量/Cav. Number</td>
                <td colspan="5" rowspan="6">
                   <?php $image_filepath = $array['upload_final_path'];
@@ -3740,7 +3745,7 @@ $(function(){
              </td>  
            </tr>
            <tr>
-               <td colspan="5" >模具名称/Mold Specification</td>
+               <td colspan="5" >零件名称/Spare parts</td>
                <td colspan="2">型腔数量/Cav. Number</td>
                <td colspan="5" rowspan="6">
                   <?php $image_filepath = $array['upload_final_path'];
@@ -4518,7 +4523,7 @@ $(function(){
              </td>  
            </tr>
            <tr>
-               <td colspan="5" >模具名称/Mold Specification</td>
+               <td colspan="5" >零件名称/Spare parts</td>
                <td colspan="2">型腔数量/Cav. Number</td>
                <td colspan="5" rowspan="6">
                   <?php $image_filepath = $array['upload_final_path'];
