@@ -179,7 +179,7 @@ $result_id = $db->query($sqllist);
       	//处理时间格式
       	function getTime($time){
       		if($time != null){
-      			echo date('y/m',strtotime($time));
+      			echo date('Y-m',strtotime($time));
       		}
       	}
           while($row = $result->fetch_assoc()){

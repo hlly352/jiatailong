@@ -49,16 +49,20 @@ require_once 'shell.php';
 <div id="help_info">
   <dl>
     <dt>订单管理模块操作说明</dt>
-    <dd class="tag"> </dd>
-    <dd class="content"></dd>
-    <dd class="content"></dd>
-    <dd class="content"></dd>
-  </dl>
-  <p class="p1"></p>
-<p class="p2">
- 
+    <dd class="tag"> 订单管理>>2019-05-31</dd>
+    <dd class="content">1.临时任务：新建不通过正常报价流程的临时性任务，例如：打样，试模...... 特别提示：正常流程的订单，请到模具报价模块中的报价汇总发起。</dd>
+    <dd class="content">2.订单审核：成交的订单经由财务人员审核，市场人员和财务人员可对未审核的订单进行修正。</dd>
+    <dd class="content">3.报价汇总：查看所有经过审核的订单及启动该订单的项目。</dd>
+    <dd class="content">4.收款管理：市场人员和财务人员对订单的收款情况进行跟踪和管理。</dd>
+    <dd class="content">5.发票管理：财务人员对收款的发票情况进行跟踪和管理。</dd>
+      <p class="p1">特别说明 :</p>
+  <p class="p2">
+    本系统资料属我司最重要商业秘密须保密。未经我方明确许可，不得传递，复制，使用或泄露其内容。保留所有权利，特别是申请知识产权保护之权利。
+
   </p>
+  </dl>
 </div>
+ 
 <?php
 $sql = "SELECT `db_system_help`.`helpid`,`db_system_help`.`help_title`,DATE_FORMAT(`db_system_help`.`dotime`,'%Y-%m-%d') AS `dodate`,DATEDIFF(CURDATE(),`db_system_help`.`dotime`) AS `diff_date` FROM `db_system_help` INNER JOIN `db_system` ON `db_system`.`systemid` = `db_system_help`.`systemid` WHERE `db_system_help`.`help_status` = 1 AND `db_system`.`system_dir` = '$system_dir' ORDER BY `db_system_help`.`dotime` DESC";
 $result = $db->query($sql);

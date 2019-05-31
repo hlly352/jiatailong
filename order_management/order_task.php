@@ -47,13 +47,13 @@ $result_id = $db->query($sqllist);
 <style type="text/css">
   #main{table-layout:fixed;width:1350px;}
   #main tr td{word-wrap:break-word;word-break:break-all;}
-  #main tr td input{width:100px;}
+  #main tr td input{width:90%}
   #add_task,#del_task{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
   #save_task{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
-	var new_task = '  <tr class="task">              <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>              <td class="show_list"><input type="text" name="customer_code[]" class="customer_codes"></td>              <td class="show_list">              	<select name="client_name[]" class="customer_names" style="width:100px">                		 <option value="0">--选择客户--</option>          	              			<?php foreach($customer_list as $k=>$v){?>              	              		<option value="<?php echo $v['customer_id']?>">              			<?php echo strstr($v['customer_name'],'$$')?substr($v['customer_name'],strrpos($v['customer_name'],'$$')+2):$v['customer_name'] ?>               		</option>              			              		<?php }?>                   	</select>              </td>         <td><input type="text" name="customer_order_no[]" /></td>                   <td class="show_list"><input type="text" name="project_name[]"></td>              <td class="show_list"><input type="text" name="mould_no[]"></td>              <td class="show_list"><input type="text" name="upload_final_path[]"/></td>              <td class="show_list"><input type="text" name="number[]" id="number" class="number"></td>              <td class="show_list"><input type="text" name="unit_price[]" id="unit_price" class="unit_price"></td>              <td class="show_list">              	<select name="currency[]" id="currency" style="width:100px;height:20px" class="currency">                		<?php foreach($array_currency as $k=>$v){
+	var new_task = '  <tr class="task">              <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>              <td class="show_list"><input type="text" name="customer_code[]" class="customer_codes"></td>              <td class="show_list">              	<select name="client_name[]" class="customer_names" style="width:90%">                		 <option value="0">--选择客户--</option>          	              			<?php foreach($customer_list as $k=>$v){?>              	              		<option value="<?php echo $v['customer_id']?>">              			<?php echo strstr($v['customer_name'],'$$')?substr($v['customer_name'],strrpos($v['customer_name'],'$$')+2):$v['customer_name'] ?>               		</option>              			              		<?php }?>                   	</select>              </td>         <td><input type="text" name="customer_order_no[]" /></td>                   <td class="show_list"><input type="text" name="project_name[]"></td>              <td class="show_list"><input type="text" name="mould_no[]"></td>     <td ckass="show_list"><input type="text" name="mould_name[]"></td>         <td class="show_list"><input type="text" name="upload_final_path[]"/></td>              <td class="show_list"><input type="text" name="number[]" id="number" class="number"></td>              <td class="show_list"><input type="text" name="unit_price[]" id="unit_price" class="unit_price"></td>              <td class="show_list">              	<select name="currency[]" id="currency" style="width:90%;height:20px" class="currency">                		<?php foreach($array_currency as $k=>$v){
                 			echo '<option value="'.$k.'">'.$v.'</option>';
                 		}?>                	</select>              </td>              <td class="show_list"><input type="text" name="mold_rate[]" class="mold_rate" id="mold_rate" value="1"></td>              <td class="show_list"><input type="text" name="agreement_price[]" class="agreement_price" id="agreement_price"/></td>              <td class="show_list"><input type="text" name="deal_price[]" class="deal_price" id="deal_price"></td>          </tr>';
 	var del_but = '&nbsp;<span id="del_task">撤 销</span>';
@@ -209,6 +209,7 @@ $result_id = $db->query($sqllist);
         <th style="">客户订单编号</th>
         <th style="">项目名称</th>
         <th style="">模具编号</th>
+        <th style="">零件名称</th>
         <th style="">任务内容</th>
         <th style="">数量</th>
         <th style="">单价</th>
@@ -222,7 +223,7 @@ $result_id = $db->query($sqllist);
               <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>
               <td class="show_list"><input type="text" name="customer_code[]" class="customer_codes"></td>
               <td class="show_list">
-              	<select name="client_name[]" class="customer_names" style="width:100px">  
+              	<select name="client_name[]" class="customer_names" style="width:90%">  
               		 <option value="0">--选择客户--</option>          	
               			<?php foreach($customer_list as $k=>$v){?>              	
               		<option value="<?php echo $v['customer_id']?>">
@@ -234,11 +235,12 @@ $result_id = $db->query($sqllist);
               <td><input type="text" name="customer_order_no[]" /></td>
               <td class="show_list"><input type="text" name="project_name[]"></td>
               <td class="show_list"><input type="text" name="mould_no[]"></td>
+              <td ckass="show_list"><input type="text" name="mould_name[]"></td>
               <td class="show_list"><input type="text" name="upload_final_path[]"/></td>
               <td class="show_list"><input type="text" name="number[]" class="number" id="number"></td>
               <td class="show_list"><input type="text" name="unit_price[]" class="unit_price" id="unit_price"></td>
               <td class="show_list">
-              	<select name="currency[]" id="currency" class="currency" style="width:100px;height:20px">
+              	<select name="currency[]" id="currency" class="currency" style="width:90%;height:20px">
                 		<?php foreach($array_currency as $k=>$v){
                 			echo '<option value="'.$k.'">'.$v.'</option>';
                 		}?>
@@ -249,7 +251,7 @@ $result_id = $db->query($sqllist);
               <td class="show_list"><input type="text" name="deal_price[]" id="deal_price" class="deal_price"></td>
           </tr>
           <tr>
-              <td colspan="13" style="align:center">
+              <td colspan="14" style="align:center">
              	 <span id="add_task">新 建</span>
               	&nbsp;&nbsp;
               	<input id="save_task" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">

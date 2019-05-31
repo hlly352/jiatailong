@@ -20,8 +20,7 @@ if($res->num_rows){
       //获取图片地址
           $src = $mouldinfo['upload_final_path'];
           $src = $src?strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src:' ';
-
-
+var_dump($system_id);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -227,9 +226,9 @@ if($res->num_rows){
           </tr>
           <tr>
               <td colspan="13" style="align:center">
-             	 <span id="order_approval">审 核</span>
-              	&nbsp;&nbsp;
+             	 
               	<input id="edit" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">
+              	<span id="order_approval">审 核</span>
              
               	<span id="back" onclick="window.history.go(-1)">返 回</span>
               </td>

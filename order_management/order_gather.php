@@ -26,10 +26,27 @@ if($_GET['submit']){
 //sql语句
 $sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `order_approval`='1' AND `is_deal` = '1'".$sqlwhere;
 $result = $db->query($sql);
+//获取合计金额
+if($result->num_rows){
+    while($rows = $result->fetch_assoc()){
+       $tot_agreement += $rows['agreement_price'];
+       $tot_deal += $rows['deal_price'];
+        //获取税金
+          if($rows['currency'] == 'rmb_vat' || $rows['currency'] == 'rmb'){
+               $tot_vat += number_format(Floatval($rows['deal_price'] * 0.13),2,'.','');
+            }
+
+    }
+
+    //税价合计
+    $tot_all = $tot_deal + $tot_vat;
+}
+
 $pages = new page($result->num_rows,30);
 $sqllist = $sql . " ORDER BY `order_approval_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
+
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -60,7 +77,7 @@ $result_id = $db->query($sqllist);
           window.open('order_start.php','_self');
         })
       })
-      //计算合计
+      /*//计算合计
         function getSubtotal(className,subName){
           var number = $(className).size();
           var subtotal = 0;
@@ -77,7 +94,7 @@ $result_id = $db->query($sqllist);
         getSubtotal('.agreement_price','#agreement_price');
         getSubtotal('.deal_price','#deal_price');
         getSubtotal('.order_vat','#order_vat');
-        getSubtotal('.order_total_rmb','#order_total_rmb');
+        getSubtotal('.order_total_rmb','#order_total_rmb');*/
     })
 </script>
 </head>
@@ -124,7 +141,7 @@ $result_id = $db->query($sqllist);
         <th  rowspan="2" width="18">ID</th>
         <th  rowspan="2">日期</th>
         <th  rowspan="2" width="25">客户代码</th>
-        <th  rowspan="2">客户名称</th>
+        <th  rowspan="2" width="60">客户名称</th>
         <th  rowspan="2">客户订单号</th>
         <th  rowspan="2">项目名称</th>
         <th  rowspan="2">模具编号</th>
@@ -248,10 +265,10 @@ $result_id = $db->query($sqllist);
         <td></td>
         <td></td>
         <td></td>
-        <td id="agreement_price" ></td>
-        <td id="deal_price" class="rmb_tot"></td>
-        <td id="order_vat" class="rmb_tot"></td>
-        <td id="order_total_rmb" class="rmb_tot"></td>
+        <td id="agreement_price" ><?php echo $tot_agreement ?></td>
+        <td id="deal_price" class="rmb_tot"><?php echo $tot_deal ?></td>
+        <td id="order_vat" class="rmb_tot"><?php echo $tot_vat ?></td>
+        <td id="order_total_rmb" class="rmb_tot"><?php echo $tot_all ?></td>
         <td></td>
         <td></td>
         <td></td>
