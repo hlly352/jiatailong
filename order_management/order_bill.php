@@ -6,6 +6,8 @@ require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+$sdate_time = strtotime($sdate);
+$edate_time = strtotime($edate);
 //查找客户信息
 $customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info`";
 $res = $db->query($customer_sql);
@@ -15,17 +17,67 @@ if($res->num_rows){
 		$customer_list[] = $customer; 
 	}
 }
-
+$sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='1' AND a.`is_deal` = '1'".$sqlwhere;
+//接受搜索条件
 if($_GET['submit']){
-  $mould_name = trim($_GET['mould_name']);
-  $client_name = trim($_GET['client_name']);
+  $customer_code = trim($_GET['customer_code']);
+  $client_name = trim($_GET['customer_name']);
+  $customer_order_no = trim($_GET['customer_order_no'])?"AND a.`customer_order_no` LIKE '%".$_GET['customer_order_no']."%'":' ';
   $project_name = trim($_GET['project_name']);
-  $sqlwhere = "  AND `client_name` LIKE '%$client_name%' AND `mould_name` LIKE '%$mould_name%' AND `project_name` LIKE '%$project_name%'";
+  $mould_no = trim($_GET['mould_no'])?"AND a.`mould_no` LIKE '%".$_GET['mould_no']."%'":' ';;
+  $mould_name = trim($_GET['mould_name']);
+  $currency = trim($_GET['currency']);
+//拼接搜索条件
+  $sqlwhere = "AND b.`customer_code` LIKE '%$customer_code%' AND b.`customer_name` LIKE '%$customer_name%' ".$customer_order_no."AND a.`project_name` LIKE '%$project_name%' ".$mould_no." AND a.`mould_name` LIKE '%$mould_name%' AND a.`currency` LIKE '%$currency%' AND (a.`deal_time` BETWEEN '$sdate_time' AND '$edate_time')";
 }
-
 //sql语句
-$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `order_approval`='1' AND `is_deal` = '1' AND `currency` IN('rmb_vat','rmb')".$sqlwhere;
+if($system_info[0] == '1'){
+		$sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='1' AND a.`is_deal` = '1' AND a.`currency` IN('rmb_vat','rmb')".$sqlwhere;
+	} else {
+		$sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='1' AND a.`is_deal` = '1' AND a.`employeeid` = '$employeeid' AND a.`currency` IN('rmb_vat','rmb')".$sqlwhere;
+	}
 $result = $db->query($sql);
+if($result->num_rows){
+	//计算金额合计
+	while($info = $result->fetch_assoc()){
+		$tot_agreement += $info['agreement_price'];
+		$tot_deal += $info['deal_price'];
+		if($info['currency'] == 'rmb' || $info['currency'] == 'rmb_vat'){
+			$tot_vat += number_format(Floatval($info['deal_price']) * 0.13,2,'.','');
+		}
+		//计算发票的合计
+		$bill_sql = "SELECT * FROM `db_order_bill` WHERE `mould_id`=".$info['mould_dataid'];
+		$res = $db->query($bill_sql);
+		if($res->num_rows){
+			while($rows = $res->fetch_assoc()){
+				$tot_one_bill += number_format(Floatval($rows['one_amount']),2,'.','');
+				$tot_two_bill += number_format(Floatval($rows['two_amount']),2,'.','');
+				$tot_three_bill += number_format(Floatval($rows['three_amount']),2,'.','');
+				$tot_four_bill += number_format(Floatval($rows['four_amount']),2,'.','');
+			}
+		}
+		//查找所有实际已收
+		$pay_sql ="SELECT * FROM `db_order_pay` WHERE `mould_id`=".$info['mould_dataid'];
+		$respay = $db->query($pay_sql);
+		if($respay->num_rows){
+			while($payinfo = $respay->fetch_assoc()){
+			$tot_one_reality += number_format(Floatval($payinfo['one_reality_amount']),2,'.','');
+			$tot_two_reality += number_format(Floatval($payinfo['two_reality_amount']),2,'.','');
+			$tot_three_reality += number_format(Floatval($payinfo['three_reality_amount']),2,'.','');
+			$tot_four_reality += number_format(Floatval($payinfo['four_reality_amount']),2,'.','');
+			}
+		}
+	}
+	//计算价税合计
+	$tot_all = $tot_deal + $tot_vat;
+	//开票合计
+	$tot_bill_all = $tot_one_bill + $tot_two_bill + $tot_three_bill + $tot_four_bill;
+	//未开票合计
+	$tot_no_bill_all = $tot_all - $tot_bill_all;
+	//开票未收合计
+	$bill_no_pay_all = $tot_bill_all - $tot_one_reality - $tot_two_reality - $tot_three_reality - $tot_four_reality;
+	
+}
 $pages = new page($result->num_rows,30);
 $sqllist = $sql . " ORDER BY `order_approval_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
@@ -49,6 +101,7 @@ $result_id = $db->query($sqllist);
   #main tr td input{width:120px;}
   #main .show .show_list{font-size:0.1px;}
   .deal_price,.order_vat,.order_total_rmb,.rmb_tot{background:#ddd;}
+  .input_tx{width:80px;margin-right:10px;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
@@ -61,7 +114,7 @@ $result_id = $db->query($sqllist);
     	      			})
 	})
 	//计算合计
-	function getSubtotal(className,subName){
+	/*function getSubtotal(className,subName){
 		var number = $(className).size();
 		var subtotal = 0;
 		for(var i=0;i<number;i++){
@@ -85,6 +138,7 @@ $result_id = $db->query($sqllist);
       	getSubtotal('.total_bill','#total_bill');
       	getSubtotal('.no_bill','#no_bill');
       	getSubtotal('.bill_no_pay','#bill_no_pay');
+      	*/
     })
 </script>
 </head>
@@ -95,30 +149,47 @@ $result_id = $db->query($sqllist);
   <h4 style="padding-left:10px">
      
   </h4>
-  <form action="order_taskdo.php" name="search" method="get">
+  <form action="" name="search" method="get">
     <table >
-
-      <tr>
-   	
-       </tr>
        <tr>
+       <td>客户代码</td>
+       <td><input type="text" name="customer_code" class="input_tx" /></td>
+       <td></td>
        <td>客户名称</td>
-       <td><input type="text" name="client_name" class="input_txt" /></td>
+       <td><input type="text" name="customer_name" class="input_tx"></td>
        <td></td>
-       <td>项目名称</td>
-       <td><input type="text" name="project_name" class="input_txt"></td>
-       <td></td>
-        <td>客户代码</td>
-        <td><input type="text" name="mould_name" class="input_txt" /></td>
+        <td>客户订单号</td>
+        <td><input type="text" name="customer_order_no" class="input_tx" /></td>
+        <td></td>
+        <td>项目名称</td>
+        <td><input type="text" name="project_name" class="input_tx" /></td>
+        <td></td>
+        <td>模具编号</td>
+        <td><input type="text" name="mould_no" class="input_tx" /></td>
+        <td></td>
+        <td>零件名称</td>
+        <td><input type="text" name="mould_name" class="input_tx" /></td>
+        <td></td>
+        <td>币别</td>
+         <td>
+             <select class="input_tx input_txt" style="height:25px" name="currency">
+                 <option value="">所有</option>
+
+                 <?php foreach($array_currency as $k=>$v){ 
+                     echo '<option value="'.$k.'">'.$v.'</option>';
+                }?>
+      </select>
+        </td>
         <td>日期</td>
-        <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
+        <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_tx" />
           --
-          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
+          &nbsp;&nbsp;
+          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_tx" /></td>
         <td><input type="submit" name="submit" value="查找" class="button" />
       </tr>
     </table>
   </form>
-</div>
+  </div>
 <div id="table_list">
   <form action="order_taskdo.php?action=add" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
@@ -283,27 +354,27 @@ $result_id = $db->query($sqllist);
       	<td></td>
       	<td></td>
       	<td></td>
-      	<td id="agreement_price"></td>
-      	<td id="deal_price" class="rmb_tot"></td>
-      	<td id="order_vat" class="rmb_tot"></td>
-      	<td id="order_total_rmb" class="rmb_tot"></td>
+      	<td id="agreement_price"><?php echo $tot_agreement ?></td>
+      	<td id="deal_price" class="rmb_tot"><?php echo $tot_deal ?></td>
+      	<td id="order_vat" class="rmb_tot"><?php echo $tot_vat ?></td>
+      	<td id="order_total_rmb" class="rmb_tot"><?php echo $tot_all ?></td>
       	<td></td>
       	<td></td>
       	<td></td>
-      	<td id="one_amount"></td>
+      	<td id="one_amount"><?php echo $tot_one_bill ?></td>
       	<td></td>
       	<td></td>
-      	<td id="two_amount"></td>
+      	<td id="two_amount"><?php echo $tot_two_bill ?></td>
       	<td></td>
       	<td></td>
-      	<td id="three_amount"></td>
+      	<td id="three_amount"><?php echo $tot_three_bill ?></td>
       	<td></td>
       	<td></td>
-      	<td id="four_amount"></td>
+      	<td id="four_amount"><?php echo $tot_four_bill ?></td>
       	<td></td>
-      	<td id="total_bill"></td>
-      	<td id="no_bill"></td>
-      	<td id="bill_no_pay"></td>
+      	<td id="total_bill"><?php echo $tot_bill_all ?></td>
+      	<td id="no_bill"><?php echo $tot_no_bill_all ?></td>
+      	<td id="bill_no_pay"><?php echo $bill_no_pay_all ?></td>
       	<td></td>
       </tr>
        </table>

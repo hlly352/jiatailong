@@ -6,8 +6,33 @@ require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+//获取当前页面的路径
+$system_url =  dirname(__FILE__);
+
+$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+$system_url = substr($system_url,$system_pos);
+//通过路径查询对应的模块id
+$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+$system_id_res = $db->query($system_id_sql);
+$system_id = $system_id_res->fetch_row()[0];
+if($system_id ==' '){
+  header('location:../myjtl/index.php');
+}
+//查询登录用户是否是客户管理的管理员
+$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+$system_res = $db->query($system_sql);
+
+$system_info = [];
+while($system_admin = $system_res->fetch_row()){
+  $system_info = $system_admin;
+}
 //查找客户信息
-$customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info`";
+if($system_info[0] =='1'){
+		$customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info`";
+	} else {
+		$customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info` WHERE `adder_id`='$employeeid'";
+	}
+
 $res = $db->query($customer_sql);
 if($res->num_rows){
 	$customer_list = [];
@@ -15,7 +40,9 @@ if($res->num_rows){
 		$customer_list[] = $customer; 
 	}
 }
-
+if(is_null($customer_list)){
+	$customer_list[0] = ['customer_id'=>'0','customer_name'=>'请到客户管理中添加客户信息'];
+}
 if($_GET['submit']){
   $mould_name = trim($_GET['mould_name']);
   $client_name = trim($_GET['client_name']);
@@ -210,7 +237,7 @@ $result_id = $db->query($sqllist);
         <th style="">项目名称</th>
         <th style="">模具编号</th>
         <th style="">零件名称</th>
-        <th style="">任务内容</th>
+        <th style="">订单内容</th>
         <th style="">数量</th>
         <th style="">单价</th>
         <th style="">币别</th>

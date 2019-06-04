@@ -6,11 +6,13 @@ require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+$before_date = strtotime($sdate);
+$after_date  = strtotime($edate);
 if($_GET['submit']){
   $mould_name = trim($_GET['mould_name']);
   $client_name = trim($_GET['client_name']);
   $project_name = trim($_GET['project_name']);
-  $sqlwhere = "  AND `client_name` LIKE '%$client_name%' AND `mould_name` LIKE '%$mould_name%' AND `project_name` LIKE '%$project_name%'";
+  $sqlwhere = "  AND `client_name` LIKE '%$client_name%' AND `mould_name` LIKE '%$mould_name%' AND `project_name` LIKE '%$project_name%' AND (`time` BETWEEN '$before_date' AND '$after_date')";
 }
 //获取当前页面的路径
 $system_url =  dirname(__FILE__);
@@ -153,7 +155,7 @@ function getdate(timestamp) {
        <td>项目名称</td>
        <td><input type="text" name="project_name" class="input_txt"></td>
        <td></td>
-        <td>模具名称</td>
+        <td>零件名称</td>
         <td><input type="text" name="mould_name" class="input_txt" /></td>
         <td>报价日期</td>
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
@@ -190,7 +192,7 @@ function getdate(timestamp) {
         <th style="width:82px">报价时间</th>
         <th style="width:82px">客户名称</th>
         <th style="width:82px">项目名称</th>
-        <th style="width:82px">模具名称</th>
+        <th style="width:82px">零件名称</th>
         <th style="width:82px">零件编号</th>
         <th style="width:82px">零件图片</th>
         <th style="width:82px">产品尺寸</th>

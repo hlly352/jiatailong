@@ -247,7 +247,7 @@ function getdate(timestamp) {
        <td>项目名称</td>
        <td><input type="text" name="project_name" class="input_txt"></td>
        <td></td>
-        <td>模具名称</td>
+        <td>零件名称</td>
         <td><input type="text" name="mould_name" class="input_txt" /></td>
         <td>报价日期</td>
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
@@ -286,7 +286,7 @@ function getdate(timestamp) {
         <th width="">报价时间</th>
         <th width="">客户名称</th>
         <th width="">项目名称</th>
-        <th width="">模具名称</th>
+        <th width="">零件名称</th>
         <th width="">零件编号</th>
         <th width="">零件图片</th>
         <th width="">产品尺寸</th>

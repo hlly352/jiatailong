@@ -193,27 +193,6 @@ function arr_merge($arr1,$arr2){
 					echo $data;
 				}
 			}
-//查看当前用户是否是管理员
-//获取当前页面的路径
-function getAdmin(){
-	$system_url =  dirname(__FILE__);
 
-	$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
-	$system_url = substr($system_url,$system_pos);
-	//通过路径查询对应的模块id
-	$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
-	$system_id_res = $db->query($system_id_sql);
-	$system_id = $system_id_res->fetch_row()[0];
-	if($system_id ==' '){
-	  header('location:../myjtl/index.php');
-	}
-	//查询登录用户是否是客户管理的管理员
-	$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
-	$system_res = $db->query($system_sql);
 
-	$system_info = [];
-	while($system_admin = $system_res->fetch_row()){
-	  $system_info = $system_admin;
-	}
-}
 ?>

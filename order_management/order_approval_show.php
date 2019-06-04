@@ -3,6 +3,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
@@ -20,7 +21,29 @@ if($res->num_rows){
       //获取图片地址
           $src = $mouldinfo['upload_final_path'];
           $src = $src?strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src:' ';
-var_dump($system_id);
+//查看当前用户是否是管理员
+//获取当前页面的路径
+
+	$system_url =  dirname(__FILE__);
+
+	$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+	$system_url = substr($system_url,$system_pos);
+	//通过路径查询对应的模块id
+	$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+	$system_id_res = $db->query($system_id_sql);
+	$system_id = $system_id_res->fetch_row()[0];
+	if($system_id ==' '){
+	  header('location:../myjtl/index.php');
+	}
+	//查询登录用户是否是客户管理的管理员
+	$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+	$system_res = $db->query($system_sql);
+
+	$system_info = [];
+	while($system_admin = $system_res->fetch_row()){
+	  $system_info = $system_admin;
+	}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -170,7 +193,8 @@ var_dump($system_id);
   #main{table-layout:fixed;width:1350px;}
   #main tr td{word-wrap:break-word;word-break:break-all;}
   #main tr td input{width:100px;}
-  #order_approval,#back{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
+  #order_approval,#back,#no_approval{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
+  #no_approval{background:grey;}
   #edit{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;}
 </style>
 </head>
@@ -228,7 +252,8 @@ var_dump($system_id);
               <td colspan="13" style="align:center">
              	 
               	<input id="edit" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">
-              	<span id="order_approval">审 核</span>
+
+              	<span id="<?php echo $system_info[0]=='1'?'order_approval':'no_approval' ?>">审 核</span>
              
               	<span id="back" onclick="window.history.go(-1)">返 回</span>
               </td>

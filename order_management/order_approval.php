@@ -6,6 +6,8 @@ require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+$sdate_time = strtotime($sdate);
+$edate_time = strtotime($edate);
 //查找客户信息
 $customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info`";
 $res = $db->query($customer_sql);
@@ -15,16 +17,48 @@ if($res->num_rows){
 		$customer_list[] = $customer; 
 	}
 }
+//获取当前页面的路径
+$system_url =  dirname(__FILE__);
 
+$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+$system_url = substr($system_url,$system_pos);
+//通过路径查询对应的模块id
+$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+$system_id_res = $db->query($system_id_sql);
+$system_id = $system_id_res->fetch_row()[0];
+if($system_id ==' '){
+  header('location:../myjtl/index.php');
+}
+//查询登录用户是否是客户管理的管理员
+$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+$system_res = $db->query($system_sql);
+
+$system_info = [];
+while($system_admin = $system_res->fetch_row()){
+  $system_info = $system_admin;
+}
+
+//接受搜索条件
 if($_GET['submit']){
-  $mould_name = trim($_GET['mould_name']);
-  $client_name = trim($_GET['client_name']);
+  $customer_code = trim($_GET['customer_code']);
+  $client_name = trim($_GET['customer_name']);
+  $customer_order_no = trim($_GET['customer_order_no'])?"AND a.`customer_order_no` LIKE '%".$_GET['customer_order_no']."%'":' ';
   $project_name = trim($_GET['project_name']);
-  $sqlwhere = "  AND `client_name` LIKE '%$client_name%' AND `mould_name` LIKE '%$mould_name%' AND `project_name` LIKE '%$project_name%'";
+  $mould_no = trim($_GET['mould_no'])?"AND a.`mould_no` LIKE '%".$_GET['mould_no']."%'":' ';;
+  $mould_name = trim($_GET['mould_name']);
+  $currency = trim($_GET['currency']);
+//拼接搜索条件
+  $sqlwhere = "AND b.`customer_code` LIKE '%$customer_code%' AND b.`customer_name` LIKE '%$customer_name%' ".$customer_order_no."AND a.`project_name` LIKE '%$project_name%' ".$mould_no." AND a.`mould_name` LIKE '%$mould_name%' AND a.`currency` LIKE '%$currency%' AND (a.`deal_time` BETWEEN '$sdate_time' AND '$edate_time')";
 }
 
 //sql语句
-$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` as b ON `db_mould_data`.`client_name`=b.`customer_id` WHERE `is_approval` = '1' AND `order_approval`='0' AND `is_deal` = '1'".$sqlwhere;
+//判断是否是管理者
+if($system_info[0] == '1'){
+      $sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='0' AND a.`is_deal` = '1'".$sqlwhere;
+} else {
+        $sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='0' AND a.`is_deal` = '1' AND a.`employeeid`='$employeeid'".$sqlwhere;
+}
+
 $result = $db->query($sql);
 $pages = new page($result->num_rows,30);
 $sqllist = $sql . " ORDER BY `deal_time` DESC" . $pages->limitsql;
@@ -51,6 +85,7 @@ $result_id = $db->query($sqllist);
   #add_task{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;}
   #add_task+input{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;}
   .deal_price,.order_vat,.order_total_rmb,.rmb_tot{background:#ddd;}
+  .input_tx{width:80px;margin-right:10px;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
@@ -90,25 +125,42 @@ $result_id = $db->query($sqllist);
   <h4 style="padding-left:10px">
      
   </h4>
-  <form action="order_taskdo.php" name="search" method="get">
+  <form action="" name="search" method="get">
     <table >
-
-      <tr>
-   
-       </tr>
        <tr>
+       <td>客户代码</td>
+       <td><input type="text" name="customer_code" class="input_tx" /></td>
+       <td></td>
        <td>客户名称</td>
-       <td><input type="text" name="client_name" class="input_txt" /></td>
+       <td><input type="text" name="customer_name" class="input_tx"></td>
        <td></td>
-       <td>项目名称</td>
-       <td><input type="text" name="project_name" class="input_txt"></td>
-       <td></td>
-        <td>客户代码</td>
-        <td><input type="text" name="mould_name" class="input_txt" /></td>
+        <td>客户订单号</td>
+        <td><input type="text" name="customer_order_no" class="input_tx" /></td>
+        <td></td>
+        <td>项目名称</td>
+        <td><input type="text" name="project_name" class="input_tx" /></td>
+        <td></td>
+        <td>模具编号</td>
+        <td><input type="text" name="mould_no" class="input_tx" /></td>
+        <td></td>
+        <td>零件名称</td>
+        <td><input type="text" name="mould_name" class="input_tx" /></td>
+        <td></td>
+        <td>币别</td>
+         <td>
+             <select class="input_tx input_txt" style="height:25px" name="currency">
+                 <option value="">所有</option>
+
+                 <?php foreach($array_currency as $k=>$v){ 
+                     echo '<option value="'.$k.'">'.$v.'</option>';
+                }?>
+      </select>
+        </td>
         <td>日期</td>
-        <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
+        <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_tx" />
           --
-          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
+          &nbsp;&nbsp;
+          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_tx" /></td>
         <td><input type="submit" name="submit" value="查找" class="button" />
       </tr>
     </table>
