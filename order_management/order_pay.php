@@ -14,26 +14,26 @@ $edate_time = strtotime($edate);
   //新数组用来接收横坐标
   $x_arr = [];
   // //获取当前时间的前一年时间
-  for($i=0;$i<12;$i++){	
-  	$before_month --;
-  	if($before_month==0){
-  		$before_month = 12;
-  		$before_year--;
-  	}
-  	$before_month = $before_month<10?'0'.$before_month:$before_month;
-  	array_unshift($x_arr,$before_year.'-'.$before_month);
+  for($i=0;$i<12;$i++){ 
+    $before_month --;
+    if($before_month==0){
+      $before_month = 12;
+      $before_year--;
+    }
+    $before_month = $before_month<10?'0'.$before_month:$before_month;
+    array_unshift($x_arr,$before_year.'-'.$before_month);
   }
   //插入当前月
   $x_arr[] = date('Y').'-'.date('m');
   //获取当前时间后一年半的时间
   for($j=0;$j<18;$j++){
-  	$after_month ++;
-  	if($after_month == 13){
-  		$after_month = 1;
-  		$after_year ++;
-  	}
-  	$after_month = $after_month<10?'0'.$after_month:$after_month;
-  	$x_arr[] = $after_year.'-'.$after_month;
+    $after_month ++;
+    if($after_month == 13){
+      $after_month = 1;
+      $after_year ++;
+    }
+    $after_month = $after_month<10?'0'.$after_month:$after_month;
+    $x_arr[] = $after_year.'-'.$after_month;
   }
 //  var_dump($x_arr);
 //查找客户信息
@@ -106,6 +106,7 @@ if($result->num_rows){
          if($tot_res->num_rows){
               
                while($rows = $tot_res->fetch_assoc()){
+                
            $tot_one_plan += number_format(Floatval($rows['one_plan_amount']),2,'.','');
            $tot_one_reality += number_format(Floatval($rows['one_reality_amount']),2,'.','');
            $tot_two_plan += number_format(Floatval($rows['two_plan_amount']),2,'.','');
@@ -123,60 +124,62 @@ if($result->num_rows){
            
            $reality_no = $reality_no_rmb?$reality_no_rmb:0; 
            $tot_no_rmb += $reality_no * $info['mold_rate'];
-  	//抓取折线图所需数据
-  	
-  	foreach($x_arr as $k=>$v){
-  		//计划金额
-  		switch($v){
-  			case $rows['one_plan_date']:
-  				$y_plan_arr[$v] += $rows['one_plan_amount'] * $info['mold_rate'];
-  	
-  			break;
-  			case $rows['two_plan_date']:
-  				$y_plan_arr[$v] += $rows['two_plan_amount'] * $info['mold_rate'];
-  	
-  			break;
-  			case $rows['three_plan_date']:
-  				$y_plan_arr[$v] += $rows['three_plan_amount'] * $info['mold_rate'];
-  	
-  			break;
-  			case $rows['four_plan_date']:
-  				$y_plan_arr[$v] += $rows['four_plan_amount'] * $info['mold_rate'];
-  	
-  			break;
-  			
-  			default:
-  				$y_plan_arr[$v] += 0;
-  				
-  		}
-  		switch($v){
-  			case $rows['one_reality_date']:
-  				$y_reality_arr[$v] += $rows['one_reality_amount'] * $info['mold_rate'];
-  	
-  			break;
-  			case $rows['two_reality_date']:
-  				$y_reality_arr[$v] += $rows['two_reality_amount'] * $info['mold_rate'];
-  	
-  			break;
-  			case $rows['three_reality_date']:
-  				$y_reality_arr[$v] += $rows['three_reality_amount'] * $info['mold_rate'];
-  	
-  			break;
-  			case $rows['four_plan_date']:
-  				$y_reality_arr[$v] += $rows['four_reality_amount'] * $info['mold_rate'];
-  	
-  			break;
-  			default:
-  				$y_reality_arr[$v] += 0;
-  		}
-      
-      		 }
-      		
-  	}
-      		//实际已收和未收
-        		$tot_reality_pay = $tot_one_reality + $tot_two_reality + $tot_three_reality + $tot_four_reality;
+    //抓取折线图所需数据
 
-     	    } else {
+    foreach($x_arr as $k=>$v){
+
+      //计划金额
+      switch($v){
+        case $rows['one_plan_date']:
+          $y_plan_arr[$v] += $rows['one_plan_amount'] * $info['mold_rate'];
+    
+        break;
+        case $rows['two_plan_date']:
+          $y_plan_arr[$v] += $rows['two_plan_amount'] * $info['mold_rate'];
+    
+        break;
+        case $rows['three_plan_date']:
+          $y_plan_arr[$v] += $rows['three_plan_amount'] * $info['mold_rate'];
+    
+        break;
+        case $rows['four_plan_date']:
+          $y_plan_arr[$v] += $rows['four_plan_amount'] * $info['mold_rate'];
+    
+        break;
+        
+        default:
+          $y_plan_arr[$v] += 0;
+          
+      }
+      //实际金额
+      switch($v){
+        case $rows['one_reality_date']:
+          $y_reality_arr[$v] += $rows['one_reality_amount'] * $info['mold_rate'];
+    
+        break;
+        case $rows['two_reality_date']:
+         $y_reality_arr[$v] += $rows['two_reality_amount'] * $info['mold_rate'];
+    
+        break;
+        case $rows['three_reality_date']:
+          $y_reality_arr[$v] += $rows['three_reality_amount'] * $info['mold_rate'];
+    
+        break;
+        case $rows['four_reality_date']:
+          $y_reality_arr[$v] += $rows['four_reality_amount'] * $info['mold_rate'];
+    
+        break;
+        default:
+          $y_reality_arr[$v] += 0;
+      }
+      
+           }
+          
+    }
+          //实际已收和未收
+            $tot_reality_pay = $tot_one_reality + $tot_two_reality + $tot_three_reality + $tot_four_reality;
+
+          } else {
             //没有查询到结果，直接赋值为合同金额
             $tot_no_rmb += $info['agreement_price'];
          }
@@ -188,18 +191,18 @@ if($result->num_rows){
     $tot_all = $tot_deal + $tot_vat;
 
 }
-//var_dump($y_plan_arr);
+
 //var_dump($y_reality_arr);
 $plan_arr = [];
 $reality_arr = [];
 foreach($y_plan_arr as $v){
-	$plan_arr[] = $v;
+  $plan_arr[] = $v;
 }
 foreach($y_reality_arr as $v){
-	$reality_arr[] = 0;
+  $reality_arr[] = $v;
 }
 
-$pages = new page($result->num_rows,8);
+$pages = new page($result->num_rows,30);
 $sqllist = $sql . " ORDER BY `order_approval_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 $result_id = $db->query($sqllist);
@@ -238,19 +241,23 @@ $result_id = $db->query($sqllist);
         for(var j=0;j<plan_num;j++){
           //获取计划的日期
           var plan_date_str = $('.mould_no').eq(i).siblings('.plan_date').eq(j).text();
+
           //获取月份
           if(plan_date_str){
-            var plan_date_mon = plan_date_str.substr(plan_date_str.indexOf('-')+1);
+            var plan_date_mon = plan_date_str.replace('-','');
+
             //获取当前月份
             var now_date = new Date()
+            var now_year = now_date.getFullYear();
             var now_mon = now_date.getMonth() + 1;
-            
-            var offset_mon = now_mon - parseInt(plan_date_mon);
+            now_mon = now_mon<10?'0'+now_mon:now_mon;
+            now_date = parseInt(now_year+''+now_mon);
+            var offset_mon = now_date - parseInt(plan_date_mon);
               //判断是否有内容，无内容且超期的为黄色背景
               var reality_date = $('.mould_no').eq(i).siblings('.plan_date').eq(j).next().next().text();
               if(reality_date){
                   //获取填写的月份
-                  var reality_date_mon = reality_date.substr(reality_date.indexOf('-')+1);
+                  var reality_date_mon = reality_date.replace('-','');
                   var reality_offset_mon = reality_date_mon - parseInt(plan_date_mon);
                   if(reality_offset_mon >0){
                     $('.mould_no').eq(i).siblings('.plan_date').eq(j).next().next().css('color','orange');
@@ -318,30 +325,30 @@ $result_id = $db->query($sqllist);
   //新数组用来接收横坐标
   var x_arr = [];
   // //获取当前时间的前一年时间
-  for(var i=0;i<11;i++){	
-  	before_month --;
-  	if(before_month==0){
-  		before_month = 12;
-  		before_year--;
-  	}
-  	before_month = before_month<10?'0'+before_month:before_month;
-  	x_arr.unshift(before_year+'/'+before_month);
+  for(var i=0;i<11;i++){  
+    before_month --;
+    if(before_month==0){
+      before_month = 12;
+      before_year--;
+    }
+    before_month = before_month<10?'0'+before_month:before_month;
+    x_arr.unshift(before_year+'/'+before_month);
   }
   //插入当前月
   x_arr.push(now_year+'/'+now_month);
   //获取当前时间后一年半的时间
   for(var j=0;j<19;j++){
-  	after_month ++;
-  	if(after_month == 13){
-  		after_month = 1;
-  		after_year ++;
-  	}
-  	after_month = after_month<10?'0'+after_month:after_month;
-  	x_arr.push(after_year+'/'+after_month);
+    after_month ++;
+    if(after_month == 13){
+      after_month = 1;
+      after_year ++;
+    }
+    after_month = after_month<10?'0'+after_month:after_month;
+    x_arr.push(after_year+'/'+after_month);
   }
   //通过ajax 获取折线图的数据
 /*  $.post('../ajax_function/getChartsDate.php',{arr:x_arr},function(data,status){
-  	console.log(data);
+    console.log(data);
   },'json')*/
   //把php 数组转换为js 数组
   var plan_str =  eval(<?php echo json_encode($plan_arr);?>);
@@ -358,7 +365,7 @@ $result_id = $db->query($sqllist);
            };
            var yAxis = {
               title: {
-                 text: '金额'
+                 text: '金额（元）'
               },
               plotLines: [{
                  value: 0,

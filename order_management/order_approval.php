@@ -12,10 +12,10 @@ $edate_time = strtotime($edate);
 $customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info`";
 $res = $db->query($customer_sql);
 if($res->num_rows){
-	$customer_list = [];
-	while($customer = $res->fetch_assoc()){
-		$customer_list[] = $customer; 
-	}
+  $customer_list = [];
+  while($customer = $res->fetch_assoc()){
+    $customer_list[] = $customer; 
+  }
 }
 //获取当前页面的路径
 $system_url =  dirname(__FILE__);
@@ -89,7 +89,7 @@ $result_id = $db->query($sqllist);
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
-	//点击每一行跳转到启动项目
+  //点击每一行跳转到启动项目
       $('.show_list').live('click',function(){
         var mould_id = $(this).parent().children().children('input:checkbox').val();
 

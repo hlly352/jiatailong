@@ -28,20 +28,20 @@ while($system_admin = $system_res->fetch_row()){
 }
 //查找客户信息
 if($system_info[0] =='1'){
-		$customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info`";
-	} else {
-		$customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info` WHERE `adder_id`='$employeeid'";
-	}
+    $customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info`";
+  } else {
+    $customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info` WHERE `adder_id`='$employeeid'";
+  }
 
 $res = $db->query($customer_sql);
 if($res->num_rows){
-	$customer_list = [];
-	while($customer = $res->fetch_assoc()){
-		$customer_list[] = $customer; 
-	}
+  $customer_list = [];
+  while($customer = $res->fetch_assoc()){
+    $customer_list[] = $customer; 
+  }
 }
 if(is_null($customer_list)){
-	$customer_list[0] = ['customer_id'=>'0','customer_name'=>'请到客户管理中添加客户信息'];
+  $customer_list[0] = ['customer_id'=>'0','customer_name'=>'请到客户管理中添加客户信息'];
 }
 if($_GET['submit']){
   $mould_name = trim($_GET['mould_name']);
@@ -80,141 +80,141 @@ $result_id = $db->query($sqllist);
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
-	var new_task = '  <tr class="task">              <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>              <td class="show_list"><input type="text" name="customer_code[]" class="customer_codes"></td>              <td class="show_list">              	<select name="client_name[]" class="customer_names" style="width:90%">                		 <option value="0">--选择客户--</option>          	              			<?php foreach($customer_list as $k=>$v){?>              	              		<option value="<?php echo $v['customer_id']?>">              			<?php echo strstr($v['customer_name'],'$$')?substr($v['customer_name'],strrpos($v['customer_name'],'$$')+2):$v['customer_name'] ?>               		</option>              			              		<?php }?>                   	</select>              </td>         <td><input type="text" name="customer_order_no[]" /></td>                   <td class="show_list"><input type="text" name="project_name[]"></td>              <td class="show_list"><input type="text" name="mould_no[]"></td>     <td ckass="show_list"><input type="text" name="mould_name[]"></td>         <td class="show_list"><input type="text" name="upload_final_path[]"/></td>              <td class="show_list"><input type="text" name="number[]" id="number" class="number"></td>              <td class="show_list"><input type="text" name="unit_price[]" id="unit_price" class="unit_price"></td>              <td class="show_list">              	<select name="currency[]" id="currency" style="width:90%;height:20px" class="currency">                		<?php foreach($array_currency as $k=>$v){
-                			echo '<option value="'.$k.'">'.$v.'</option>';
-                		}?>                	</select>              </td>              <td class="show_list"><input type="text" name="mold_rate[]" class="mold_rate" id="mold_rate" value="1"></td>              <td class="show_list"><input type="text" name="agreement_price[]" class="agreement_price" id="agreement_price"/></td>              <td class="show_list"><input type="text" name="deal_price[]" class="deal_price" id="deal_price"></td>          </tr>';
-	var del_but = '&nbsp;<span id="del_task">撤 销</span>';
-	//添加新临时任务
-	$('#add_task').live('click',function(){
-		$(this).parent().parent().before(new_task);
-		var tr_num = $(this).parent().parent().prevAll().size();
-		if(tr_num == 3){
-			$(this).after(del_but);
-		}
-		
-	})
-	//撤除新临时任务
-	$('#del_task').live('click',function(){
-		$(this).parent().parent().prev('.task').remove();
-		var tr_num = $(this).parent().parent().prevAll().size();
-		if(tr_num <3){
-			$(this).remove();
-		}
-	})
-	//选择客户后自动获取客户代码
-	$('.customer_names').live('change',function(){
-		var num = $('.customer_names').index(this);
-		var customer_id = $(this).val();
-		$.post('../ajax_function/order_customer_code.php',{customer_id:customer_id},function(data){
-			$('.customer_codes').eq(num).val(data);
-		})
-	})
-	//点击保存时验证数据
-	$('input:submit').live('click',function(){
-	    //客户名称
-	    var num = $('.customer_names').size();
-	    for(var i=0;i<num;i++){
-	    	var customer_name = $.trim($('.customer_names').eq(i).val());
-	    	if(customer_name =='0'){
-	     	 alert('请选择客户');
-	     	 $('.customer_names').eq(i).focus();
-	    	  return false;
-	    }
+  var new_task = '  <tr class="task">              <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>              <td class="show_list"><input type="text" name="customer_code[]" class="customer_codes"></td>              <td class="show_list">                <select name="client_name[]" class="customer_names" style="width:90%">                     <option value="0">--选择客户--</option>                                <?php foreach($customer_list as $k=>$v){?>                                  <option value="<?php echo $v['customer_id']?>">                   <?php echo strstr($v['customer_name'],'$$')?substr($v['customer_name'],strrpos($v['customer_name'],'$$')+2):$v['customer_name'] ?>                  </option>                                     <?php }?>                     </select>              </td>         <td><input type="text" name="customer_order_no[]" /></td>                   <td class="show_list"><input type="text" name="project_name[]"></td>              <td class="show_list"><input type="text" name="mould_no[]"></td>     <td ckass="show_list"><input type="text" name="mould_name[]"></td>         <td class="show_list"><input type="text" name="upload_final_path[]"/></td>              <td class="show_list"><input type="text" name="number[]" id="number" class="number"></td>              <td class="show_list"><input type="text" name="unit_price[]" id="unit_price" class="unit_price"></td>              <td class="show_list">               <select name="currency[]" id="currency" style="width:90%;height:20px" class="currency">                   <?php foreach($array_currency as $k=>$v){
+                      echo '<option value="'.$k.'">'.$v.'</option>';
+                    }?>                 </select>              </td>              <td class="show_list"><input type="text" name="mold_rate[]" class="mold_rate" id="mold_rate" value="1"></td>              <td class="show_list"><input type="text" name="agreement_price[]" class="agreement_price" id="agreement_price"/></td>              <td class="show_list"><input type="text" name="deal_price[]" class="deal_price" id="deal_price"></td>          </tr>';
+  var del_but = '&nbsp;<span id="del_task">撤 销</span>';
+  //添加新临时任务
+  $('#add_task').live('click',function(){
+    $(this).parent().parent().before(new_task);
+    var tr_num = $(this).parent().parent().prevAll().size();
+    if(tr_num == 3){
+      $(this).after(del_but);
+    }
+    
+  })
+  //撤除新临时任务
+  $('#del_task').live('click',function(){
+    $(this).parent().parent().prev('.task').remove();
+    var tr_num = $(this).parent().parent().prevAll().size();
+    if(tr_num <3){
+      $(this).remove();
+    }
+  })
+  //选择客户后自动获取客户代码
+  $('.customer_names').live('change',function(){
+    var num = $('.customer_names').index(this);
+    var customer_id = $(this).val();
+    $.post('../ajax_function/order_customer_code.php',{customer_id:customer_id},function(data){
+      $('.customer_codes').eq(num).val(data);
+    })
+  })
+  //点击保存时验证数据
+  $('input:submit').live('click',function(){
+      //客户名称
+      var num = $('.customer_names').size();
+      for(var i=0;i<num;i++){
+        var customer_name = $.trim($('.customer_names').eq(i).val());
+        if(customer_name =='0'){
+         alert('请选择客户');
+         $('.customer_names').eq(i).focus();
+          return false;
+      }
 
-	    }
-	   
-	 
-	//数量
-	var number_num = $('.number').size();
-	for(var i=0;i<number_num;i++){
-			var number = $.trim($('.number').eq(i).val());
-		if(!number){
-			alert('请输入数量');
-			$('.number').eq(i).focus();
-			return false;
-		}else{
-			var infos = /\d+/.test(number);
-			if(!infos){
-				alert('请输入数字');
-				$('.number').eq(i).focus();
-				return false;
-			}
-		}
-	}
-	//单价
-	var unit_price_num = $('.unit_price').size();
-	for(var i=0;i<unit_price_num;i++){
-			var unit_price = $.trim($('.unit_price').eq(i).val());
-		if(!unit_price){
-			alert('请输入单价');
-			$('.unit_price').eq(i).focus();
-			return false;
-		}else{
-			var infos = /\d+/.test(unit_price);
-			if(!infos){
-				alert('请输入数字');
-				$('.unit_price').eq(i).focus();
-				return false;
-			}
-		}
-	}
-	   
-	//金额
-	var deal_price_num = $('.deal_price').size();
-	for(var i=0;i<deal_price_num;i++){
-			var deal_price = $.trim($('.deal_price').eq(i).val());
-		if(!deal_price){
-			alert('请输入金额');
-			$('.deal_price').eq(i).focus();
-			return false;
-		}else{
-			var infos = /\d+/.test(deal_price);
-			if(!infos){
-				alert('请输入数字');
-				$('.deal_price').eq(i).focus();
-				return false;
-			}
-		}
-	}
-		
-	
-		
-			
-	})
-	//自动切换汇率
-	$('.currency').live('change',function(){
-		var num = $('.currency').index(this);
-		var currency = $('.currency').eq(num).val();
-		//人民币汇率为 1
-		if(currency.indexOf('rmb') != -1){
-			$('.mold_rate').eq(num).val('1');
-		} else {
-			$('.mold_rate').eq(num).val(' ');
-		}
-	})
-	//自动计算金额
-	$(".unit_price,.number,.mold_rate,.currency").live('change',function(){
-		var num = $(this).parent().parent().prevAll().size() -1;
-		var number = $('.number').eq(num).val();
-		var unit_price = $('.unit_price').eq(num).val();
-		var mold_rate = $('.mold_rate').eq(num).val();
-		var currency = $('.currency').eq(num).val();
-		
-		if(number && unit_price && mold_rate){
-			var agreement_price = parseFloat(number * unit_price);
-			agreement_price = agreement_price.toFixed(2);
-			$('.agreement_price').eq(num).val(agreement_price);
-			if(currency == 'rmb_vat'){
-				var rmb_vat = parseFloat(number * unit_price * mold_rate/1.13);
-				var rmb_without_vat = rmb_vat.toFixed(2);
-				$('.deal_price').eq(num).val(rmb_without_vat);
-			}else{
-				var deal_price = parseFloat(number * unit_price * mold_rate);
-				deal_price = deal_price.toFixed(2);
-				$('.deal_price').eq(num).val(deal_price);
-			}
-		}
-	})
+      }
+     
+   
+  //数量
+  var number_num = $('.number').size();
+  for(var i=0;i<number_num;i++){
+      var number = $.trim($('.number').eq(i).val());
+    if(!number){
+      alert('请输入数量');
+      $('.number').eq(i).focus();
+      return false;
+    }else{
+      var infos = /\d+/.test(number);
+      if(!infos){
+        alert('请输入数字');
+        $('.number').eq(i).focus();
+        return false;
+      }
+    }
+  }
+  //单价
+  var unit_price_num = $('.unit_price').size();
+  for(var i=0;i<unit_price_num;i++){
+      var unit_price = $.trim($('.unit_price').eq(i).val());
+    if(!unit_price){
+      alert('请输入单价');
+      $('.unit_price').eq(i).focus();
+      return false;
+    }else{
+      var infos = /\d+/.test(unit_price);
+      if(!infos){
+        alert('请输入数字');
+        $('.unit_price').eq(i).focus();
+        return false;
+      }
+    }
+  }
+     
+  //金额
+  var deal_price_num = $('.deal_price').size();
+  for(var i=0;i<deal_price_num;i++){
+      var deal_price = $.trim($('.deal_price').eq(i).val());
+    if(!deal_price){
+      alert('请输入金额');
+      $('.deal_price').eq(i).focus();
+      return false;
+    }else{
+      var infos = /\d+/.test(deal_price);
+      if(!infos){
+        alert('请输入数字');
+        $('.deal_price').eq(i).focus();
+        return false;
+      }
+    }
+  }
+    
+  
+    
+      
+  })
+  //自动切换汇率
+  $('.currency').live('change',function(){
+    var num = $('.currency').index(this);
+    var currency = $('.currency').eq(num).val();
+    //人民币汇率为 1
+    if(currency.indexOf('rmb') != -1){
+      $('.mold_rate').eq(num).val('1');
+    } else {
+      $('.mold_rate').eq(num).val(' ');
+    }
+  })
+  //自动计算金额
+  $(".unit_price,.number,.mold_rate,.currency").live('change',function(){
+    var num = $(this).parent().parent().prevAll().size() -1;
+    var number = $('.number').eq(num).val();
+    var unit_price = $('.unit_price').eq(num).val();
+    var mold_rate = $('.mold_rate').eq(num).val();
+    var currency = $('.currency').eq(num).val();
+    
+    if(number && unit_price && mold_rate){
+      var agreement_price = parseFloat(number * unit_price);
+      agreement_price = agreement_price.toFixed(2);
+      $('.agreement_price').eq(num).val(agreement_price);
+      if(currency == 'rmb_vat'){
+        var rmb_vat = parseFloat(number * unit_price * mold_rate/1.13);
+        var rmb_without_vat = rmb_vat.toFixed(2);
+        $('.deal_price').eq(num).val(rmb_without_vat);
+      }else{
+        var deal_price = parseFloat(number * unit_price * mold_rate);
+        deal_price = deal_price.toFixed(2);
+        $('.deal_price').eq(num).val(deal_price);
+      }
+    }
+  })
     })
 </script>
 </head>
@@ -250,14 +250,14 @@ $result_id = $db->query($sqllist);
               <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>
               <td class="show_list"><input type="text" name="customer_code[]" class="customer_codes"></td>
               <td class="show_list">
-              	<select name="client_name[]" class="customer_names" style="width:90%">  
-              		 <option value="0">--选择客户--</option>          	
-              			<?php foreach($customer_list as $k=>$v){?>              	
-              		<option value="<?php echo $v['customer_id']?>">
-              			<?php echo strstr($v['customer_name'],'$$')?substr($v['customer_name'],strrpos($v['customer_name'],'$$')+2):$v['customer_name'] ?> 
-              		</option>              			
-              		<?php }?>
-                   	</select>
+                <select name="client_name[]" class="customer_names" style="width:90%">  
+                   <option value="0">--选择客户--</option>            
+                    <?php foreach($customer_list as $k=>$v){?>                
+                  <option value="<?php echo $v['customer_id']?>">
+                    <?php echo strstr($v['customer_name'],'$$')?substr($v['customer_name'],strrpos($v['customer_name'],'$$')+2):$v['customer_name'] ?> 
+                  </option>                   
+                  <?php }?>
+                    </select>
               </td>
               <td><input type="text" name="customer_order_no[]" /></td>
               <td class="show_list"><input type="text" name="project_name[]"></td>
@@ -267,11 +267,11 @@ $result_id = $db->query($sqllist);
               <td class="show_list"><input type="text" name="number[]" class="number" id="number"></td>
               <td class="show_list"><input type="text" name="unit_price[]" class="unit_price" id="unit_price"></td>
               <td class="show_list">
-              	<select name="currency[]" id="currency" class="currency" style="width:90%;height:20px">
-                		<?php foreach($array_currency as $k=>$v){
-                			echo '<option value="'.$k.'">'.$v.'</option>';
-                		}?>
-                	</select>
+                <select name="currency[]" id="currency" class="currency" style="width:90%;height:20px">
+                    <?php foreach($array_currency as $k=>$v){
+                      echo '<option value="'.$k.'">'.$v.'</option>';
+                    }?>
+                  </select>
               </td>
               <td class="show_list"><input type="text" name="mold_rate[]" id="mold_rate" value="1" class="mold_rate"></td>
               <td class="show_list"><input type="text" name="agreement_price[]" id="agreement_price" class="agreement_price"/></td>
@@ -279,9 +279,9 @@ $result_id = $db->query($sqllist);
           </tr>
           <tr>
               <td colspan="14" style="align:center">
-             	 <span id="add_task">新 建</span>
-              	&nbsp;&nbsp;
-              	<input id="save_task" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">
+               <span id="add_task">新 建</span>
+                &nbsp;&nbsp;
+                <input id="save_task" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">
               </td>
           </tr>
     </form>

@@ -12,10 +12,30 @@ $edate_time = strtotime($edate);
 $customer_sql ="SELECT `customer_id`,`customer_code`,`customer_name` FROM `db_customer_info`";
 $res = $db->query($customer_sql);
 if($res->num_rows){
-	$customer_list = [];
-	while($customer = $res->fetch_assoc()){
-		$customer_list[] = $customer; 
-	}
+  $customer_list = [];
+  while($customer = $res->fetch_assoc()){
+    $customer_list[] = $customer; 
+  }
+}
+//获取当前页面的路径
+$system_url =  dirname(__FILE__);
+
+$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+$system_url = substr($system_url,$system_pos);
+//通过路径查询对应的模块id
+$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+$system_id_res = $db->query($system_id_sql);
+$system_id = $system_id_res->fetch_row()[0];
+if($system_id ==' '){
+  header('location:../myjtl/index.php');
+}
+//查询登录用户是否是客户管理的管理员
+$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+$system_res = $db->query($system_sql);
+
+$system_info = [];
+while($system_admin = $system_res->fetch_row()){
+  $system_info = $system_admin;
 }
 $sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='1' AND a.`is_deal` = '1'".$sqlwhere;
 //接受搜索条件
@@ -32,51 +52,51 @@ if($_GET['submit']){
 }
 //sql语句
 if($system_info[0] == '1'){
-		$sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='1' AND a.`is_deal` = '1' AND a.`currency` IN('rmb_vat','rmb')".$sqlwhere;
-	} else {
-		$sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='1' AND a.`is_deal` = '1' AND a.`employeeid` = '$employeeid' AND a.`currency` IN('rmb_vat','rmb')".$sqlwhere;
-	}
+    $sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='1' AND a.`is_deal` = '1' AND a.`currency` IN('rmb_vat','rmb')".$sqlwhere;
+  } else {
+    $sql = "SELECT * FROM `db_mould_data` as a INNER JOIN `db_customer_info` as b ON a.`client_name`=b.`customer_id` WHERE a.`is_approval` = '1' AND a.`order_approval`='1' AND a.`is_deal` = '1' AND a.`employeeid` = '$employeeid' AND a.`currency` IN('rmb_vat','rmb')".$sqlwhere;
+  }
 $result = $db->query($sql);
 if($result->num_rows){
-	//计算金额合计
-	while($info = $result->fetch_assoc()){
-		$tot_agreement += $info['agreement_price'];
-		$tot_deal += $info['deal_price'];
-		if($info['currency'] == 'rmb' || $info['currency'] == 'rmb_vat'){
-			$tot_vat += number_format(Floatval($info['deal_price']) * 0.13,2,'.','');
-		}
-		//计算发票的合计
-		$bill_sql = "SELECT * FROM `db_order_bill` WHERE `mould_id`=".$info['mould_dataid'];
-		$res = $db->query($bill_sql);
-		if($res->num_rows){
-			while($rows = $res->fetch_assoc()){
-				$tot_one_bill += number_format(Floatval($rows['one_amount']),2,'.','');
-				$tot_two_bill += number_format(Floatval($rows['two_amount']),2,'.','');
-				$tot_three_bill += number_format(Floatval($rows['three_amount']),2,'.','');
-				$tot_four_bill += number_format(Floatval($rows['four_amount']),2,'.','');
-			}
-		}
-		//查找所有实际已收
-		$pay_sql ="SELECT * FROM `db_order_pay` WHERE `mould_id`=".$info['mould_dataid'];
-		$respay = $db->query($pay_sql);
-		if($respay->num_rows){
-			while($payinfo = $respay->fetch_assoc()){
-			$tot_one_reality += number_format(Floatval($payinfo['one_reality_amount']),2,'.','');
-			$tot_two_reality += number_format(Floatval($payinfo['two_reality_amount']),2,'.','');
-			$tot_three_reality += number_format(Floatval($payinfo['three_reality_amount']),2,'.','');
-			$tot_four_reality += number_format(Floatval($payinfo['four_reality_amount']),2,'.','');
-			}
-		}
-	}
-	//计算价税合计
-	$tot_all = $tot_deal + $tot_vat;
-	//开票合计
-	$tot_bill_all = $tot_one_bill + $tot_two_bill + $tot_three_bill + $tot_four_bill;
-	//未开票合计
-	$tot_no_bill_all = $tot_all - $tot_bill_all;
-	//开票未收合计
-	$bill_no_pay_all = $tot_bill_all - $tot_one_reality - $tot_two_reality - $tot_three_reality - $tot_four_reality;
-	
+  //计算金额合计
+  while($info = $result->fetch_assoc()){
+    $tot_agreement += $info['agreement_price'];
+    $tot_deal += $info['deal_price'];
+    if($info['currency'] == 'rmb' || $info['currency'] == 'rmb_vat'){
+      $tot_vat += number_format(Floatval($info['deal_price']) * 0.13,2,'.','');
+    }
+    //计算发票的合计
+    $bill_sql = "SELECT * FROM `db_order_bill` WHERE `mould_id`=".$info['mould_dataid'];
+    $res = $db->query($bill_sql);
+    if($res->num_rows){
+      while($rows = $res->fetch_assoc()){
+        $tot_one_bill += number_format(Floatval($rows['one_amount']),2,'.','');
+        $tot_two_bill += number_format(Floatval($rows['two_amount']),2,'.','');
+        $tot_three_bill += number_format(Floatval($rows['three_amount']),2,'.','');
+        $tot_four_bill += number_format(Floatval($rows['four_amount']),2,'.','');
+      }
+    }
+    //查找所有实际已收
+    $pay_sql ="SELECT * FROM `db_order_pay` WHERE `mould_id`=".$info['mould_dataid'];
+    $respay = $db->query($pay_sql);
+    if($respay->num_rows){
+      while($payinfo = $respay->fetch_assoc()){
+      $tot_one_reality += number_format(Floatval($payinfo['one_reality_amount']),2,'.','');
+      $tot_two_reality += number_format(Floatval($payinfo['two_reality_amount']),2,'.','');
+      $tot_three_reality += number_format(Floatval($payinfo['three_reality_amount']),2,'.','');
+      $tot_four_reality += number_format(Floatval($payinfo['four_reality_amount']),2,'.','');
+      }
+    }
+  }
+  //计算价税合计
+  $tot_all = $tot_deal + $tot_vat;
+  //开票合计
+  $tot_bill_all = $tot_one_bill + $tot_two_bill + $tot_three_bill + $tot_four_bill;
+  //未开票合计
+  $tot_no_bill_all = $tot_all - $tot_bill_all;
+  //开票未收合计
+  $bill_no_pay_all = $tot_bill_all - $tot_one_reality - $tot_two_reality - $tot_three_reality - $tot_four_reality;
+  
 }
 $pages = new page($result->num_rows,30);
 $sqllist = $sql . " ORDER BY `order_approval_time` DESC" . $pages->limitsql;
@@ -105,40 +125,40 @@ $result_id = $db->query($sqllist);
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
-	$('.show_list').live('click',function(){
-	 	  var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
-	 	  var mould_no = $(this).parent().children('.mould_no').text();
-	 	  //跳转页面，填写信息
-     		 $('.show').each(function(){
-    	           window.open('order_add_bill.php?mold_mould='+mould_no+'&id='+mold_dataid,'_self');
-    	      			})
-	})
-	//计算合计
-	/*function getSubtotal(className,subName){
-		var number = $(className).size();
-		var subtotal = 0;
-		for(var i=0;i<number;i++){
-			if($(className).eq(i).text()){
-			subtotal += parseFloat($(className).eq(i).text());
-			}
-		
-		}
-		
-		subtotal = subtotal.toFixed(2);
-		$(subName).text(subtotal);
-	}
-	getSubtotal('.agreement_price','#agreement_price');
-	getSubtotal('.deal_price','#deal_price');
-	getSubtotal('.order_vat','#order_vat');
-      	getSubtotal('.order_total_rmb','#order_total_rmb');
-      	getSubtotal('.one_amount','#one_amount');
-      	getSubtotal('.two_amount','#two_amount');
-      	getSubtotal('.three_amount','#three_amount');
-      	getSubtotal('.four_amount','#four_amount');
-      	getSubtotal('.total_bill','#total_bill');
-      	getSubtotal('.no_bill','#no_bill');
-      	getSubtotal('.bill_no_pay','#bill_no_pay');
-      	*/
+  $('.show_list').live('click',function(){
+      var mold_dataid = $(this).parent().children().children('[name^=id]:checkbox').val();
+      var mould_no = $(this).parent().children('.mould_no').text();
+      //跳转页面，填写信息
+         $('.show').each(function(){
+                 window.open('order_add_bill.php?mold_mould='+mould_no+'&id='+mold_dataid,'_self');
+                  })
+  })
+  //计算合计
+  /*function getSubtotal(className,subName){
+    var number = $(className).size();
+    var subtotal = 0;
+    for(var i=0;i<number;i++){
+      if($(className).eq(i).text()){
+      subtotal += parseFloat($(className).eq(i).text());
+      }
+    
+    }
+    
+    subtotal = subtotal.toFixed(2);
+    $(subName).text(subtotal);
+  }
+  getSubtotal('.agreement_price','#agreement_price');
+  getSubtotal('.deal_price','#deal_price');
+  getSubtotal('.order_vat','#order_vat');
+        getSubtotal('.order_total_rmb','#order_total_rmb');
+        getSubtotal('.one_amount','#one_amount');
+        getSubtotal('.two_amount','#two_amount');
+        getSubtotal('.three_amount','#three_amount');
+        getSubtotal('.four_amount','#four_amount');
+        getSubtotal('.total_bill','#total_bill');
+        getSubtotal('.no_bill','#no_bill');
+        getSubtotal('.bill_no_pay','#bill_no_pay');
+        */
     })
 </script>
 </head>
@@ -213,54 +233,54 @@ $result_id = $db->query($sqllist);
         <th rowspan="3">开票合计</th>
         <th rowspan="3">未开票</th>
         <th rowspan="3">开票未收</th>
-        <th rowspan="3">损益/扣款</th>
+        
       </tr>
       <tr>
           <th rowspan="2">数量</th>
-      	<th rowspan="2">单价</th>
-      	<th rowspan="2" width="45">币别</th>
-      	<th rowspan="2" width="20">汇率</th>
-      	<th rowspan="2">金额</th>
-      	<th rowspan="2">未税金额</th>
-      	<th rowspan="2">税金<br>(13%)</th>
-      	<th rowspan="2">税价合计</th>
-      	<th rowspan="2">收款比</th>
+        <th rowspan="2">单价</th>
+        <th rowspan="2" width="45">币别</th>
+        <th rowspan="2" width="20">汇率</th>
+        <th rowspan="2">金额</th>
+        <th rowspan="2">未税金额</th>
+        <th rowspan="2">税金<br>(13%)</th>
+        <th rowspan="2">税价合计</th>
+        <th rowspan="2">收款比</th>
            <th rowspan="2">开票比</th>
-      	<th colspan="3">一期</th>
-      	<th colspan="3">二期</th>
-      	<th colspan="3">三期</th>
-      	<th colspan="3">四期</th>
+        <th colspan="3">一期</th>
+        <th colspan="3">二期</th>
+        <th colspan="3">三期</th>
+        <th colspan="3">四期</th>
       </tr>
       <tr>
-      	<th>日期</th>
-      	<th>金额</th>
-      	<th>发票号码</th>
+        <th>日期</th>
+        <th>金额</th>
+        <th>发票号码</th>
            <th>日期</th>
-      	<th>金额</th>
-      	<th>发票号码</th>
-      	<th>日期</th>
-      	<th>金额</th>
-      	<th>发票号码</th>
+        <th>金额</th>
+        <th>发票号码</th>
+        <th>日期</th>
+        <th>金额</th>
+        <th>发票号码</th>
            <th>日期</th>
-      	<th>金额</th>
-      	<th>发票号码</th>
-      	
+        <th>金额</th>
+        <th>发票号码</th>
+        
       </tr>
       <?php 
-      	//处理时间格式
-      	function getTime($time){
-      		if($time != null){
-      			echo date('Y-m',strtotime($time));
-      		}
-      	}
+        //处理时间格式
+        function getTime($time){
+          if($time != null){
+            echo date('Y-m',strtotime($time));
+          }
+        }
           while($row = $result->fetch_assoc()){
           //查询收款计划
          $pay_sql = "SELECT * FROM `db_order_pay` WHERE `mould_id` =".$row['mould_dataid'];
          $res = $db->query($pay_sql);
          $paylist = [];
          if($res->num_rows){
-         		$paylist = $res->fetch_assoc();
-       		  }
+            $paylist = $res->fetch_assoc();
+            }
         //获取税金
           if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
                $order_vat = Floatval($row['deal_price'] * 0.13);
@@ -285,30 +305,31 @@ $result_id = $db->query($sqllist);
          $res = $db->query($bill_sql);
          $bill_list = [];
          if($res->num_rows){
-         		$bill_list = $res->fetch_assoc();
-       		  }
-       	//计算收款比
-       	$total_pay = intval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
-       	if($row['agreement_price'] != 0){
-   	    	$pay_percent = floatval($total_pay / $row['agreement_price']) * 100;
-   	    }
-   	    $pay_percent = number_format($pay_percent,2,'.','').'%';
-   	//计算开票合计
-   	$total_bill = Floatval($bill_list['one_amount'] + $bill_list['two_amount'] + $bill_list['three_amount'] + $bill_list['four_amount']);
-   	$total_bill = number_format($total_bill,2,'.','');
-   	//计算未开票
-   	$no_bill = Floatval($order_total_rmb) - $total_bill;
-   	$no_bill = number_format($no_bill,2,'.','');
-   	$no_bill = $no_bill<=0?0:$no_bill;
-       	//计算开票比
-       	if($order_total_rmb != 0){
-       		$bill_percent = floatval($total_bill / $order_total_rmb) * 100;
-       		$bill_percent = number_format($bill_percent,2,'.','').'%';
-       	}
-       	//计算开票未收
-       	$bill_no_pay = Floatval($total_bill - $total_pay);
-       	$bill_no_pay = number_format($bill_no_pay,2,'.','');
-       	$bill_no_pay = $bill_no_pay <=0?0:$bill_no_pay;
+            $bill_list = $res->fetch_assoc();
+            }
+        //计算收款比
+        $total_pay = Floatval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
+        if($row['agreement_price'] != 0){
+          $pay_percent = floatval($total_pay / $row['agreement_price']) * 100;
+        }
+        $pay_percent = number_format($pay_percent,2,'.','').'%';
+    //计算开票合计
+    $total_bill = Floatval($bill_list['one_amount'] + $bill_list['two_amount'] + $bill_list['three_amount'] + $bill_list['four_amount']);
+    $total_bill = number_format($total_bill,2,'.','');
+    //计算未开票
+    $no_bill = Floatval($order_total_rmb) - $total_bill;
+    $no_bill = number_format($no_bill,2,'.','');
+    $no_bill = $no_bill<=0?0:$no_bill;
+        //计算开票比
+        if($order_total_rmb != 0){
+          $bill_percent = floatval($total_bill / $order_total_rmb) * 100;
+          $bill_percent = number_format($bill_percent,2,'.','').'%';
+        }
+        //计算开票未收
+        $bill_no_pay = $total_bill - $total_pay;
+        
+        $bill_no_pay = number_format($bill_no_pay,2,'.','');
+       
 
       ?>
      <tr class="show">
@@ -349,33 +370,33 @@ $result_id = $db->query($sqllist);
 
       <?php } ?>
       <tr>
-      	<td colspan="7">合 计</td>
-      	<td></td>
-      	<td></td>
-      	<td></td>
-      	<td></td>
-      	<td id="agreement_price"><?php echo $tot_agreement ?></td>
-      	<td id="deal_price" class="rmb_tot"><?php echo $tot_deal ?></td>
-      	<td id="order_vat" class="rmb_tot"><?php echo $tot_vat ?></td>
-      	<td id="order_total_rmb" class="rmb_tot"><?php echo $tot_all ?></td>
-      	<td></td>
-      	<td></td>
-      	<td></td>
-      	<td id="one_amount"><?php echo $tot_one_bill ?></td>
-      	<td></td>
-      	<td></td>
-      	<td id="two_amount"><?php echo $tot_two_bill ?></td>
-      	<td></td>
-      	<td></td>
-      	<td id="three_amount"><?php echo $tot_three_bill ?></td>
-      	<td></td>
-      	<td></td>
-      	<td id="four_amount"><?php echo $tot_four_bill ?></td>
-      	<td></td>
-      	<td id="total_bill"><?php echo $tot_bill_all ?></td>
-      	<td id="no_bill"><?php echo $tot_no_bill_all ?></td>
-      	<td id="bill_no_pay"><?php echo $bill_no_pay_all ?></td>
-      	<td></td>
+        <td colspan="7">合 计</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td id="agreement_price"><?php echo $tot_agreement ?></td>
+        <td id="deal_price" class="rmb_tot"><?php echo $tot_deal ?></td>
+        <td id="order_vat" class="rmb_tot"><?php echo $tot_vat ?></td>
+        <td id="order_total_rmb" class="rmb_tot"><?php echo $tot_all ?></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td id="one_amount"><?php echo $tot_one_bill ?></td>
+        <td></td>
+        <td></td>
+        <td id="two_amount"><?php echo $tot_two_bill ?></td>
+        <td></td>
+        <td></td>
+        <td id="three_amount"><?php echo $tot_three_bill ?></td>
+        <td></td>
+        <td></td>
+        <td id="four_amount"><?php echo $tot_four_bill ?></td>
+        <td></td>
+        <td id="total_bill"><?php echo $tot_bill_all ?></td>
+        <td id="no_bill"><?php echo $tot_no_bill_all ?></td>
+        <td id="bill_no_pay"><?php echo $bill_no_pay_all ?></td>
+       
       </tr>
        </table>
     <!--<div id="checkall">
