@@ -283,22 +283,12 @@ $result_id = $db->query($sqllist);
             }
         //获取税金
           if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
-               $order_vat = Floatval($row['deal_price'] * 0.13);
+               $order_vat = $row['order_vat']?$row['order_vat']:Floatval($row['deal_price'] * 0.13);
                $order_vat = number_format($order_vat,2,'.','');
             }else{
-              $order_vat = 0;
+              $order_vat = $row['order_vat']?$row['order_vat']:0;
             }
-         
-          //计算价税合计
-          if($row['currency'] == 'rmb_vat'){
-                
-              $order_total_rmb = $row['agreement_price']*$row['mold_rate'];
-          }else{
-              $order_total_rmb = $row['deal_price'] + $order_vat;
-              $order_total_rmb = number_format($order_total_rmb,2,'.','');
-                
-          }
-          
+
          //查询发票情况
         
          $bill_sql = "SELECT * FROM `db_order_bill` WHERE `mould_id` =".$row['mould_dataid'];
@@ -307,24 +297,47 @@ $result_id = $db->query($sqllist);
          if($res->num_rows){
             $bill_list = $res->fetch_assoc();
             }
-        //计算收款比
-        $total_pay = Floatval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
-        if($row['agreement_price'] != 0){
-          $pay_percent = floatval($total_pay / $row['agreement_price']) * 100;
-        }
-        $pay_percent = number_format($pay_percent,2,'.','').'%';
+
     //计算开票合计
     $total_bill = Floatval($bill_list['one_amount'] + $bill_list['two_amount'] + $bill_list['three_amount'] + $bill_list['four_amount']);
     $total_bill = number_format($total_bill,2,'.','');
-    //计算未开票
-    $no_bill = Floatval($order_total_rmb) - $total_bill;
-    $no_bill = number_format($no_bill,2,'.','');
-    $no_bill = $no_bill<=0?0:$no_bill;
-        //计算开票比
+
+            //计算价税合计
+          if($row['currency'] != 'rmb'){
+                
+              $order_total_rmb = $row['agreement_price']*$row['mold_rate'];
+          }else{
+              $order_total_rmb = $row['deal_price'] + $order_vat;
+                           
+          }
+            $order_total_rmb = number_format($order_total_rmb,2,'.','');
+             //计算未开票
+	    $no_bill = Floatval($order_total_rmb) - $total_bill;
+	    $no_bill = number_format($no_bill,2,'.','');
+	    $no_bill = $no_bill<=0?0:$no_bill;
+        //计算收款进度
+        $total_pay = Floatval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
+        if($row['agreement_price'] != 0){
+          if($row['currency'] == 'rmb'){
+              $pay_percent = $total_pay / ($row['agreement_price'] + $order_vat) * 100;
+          }else{
+              $pay_percent = $total_pay / $row['agreement_price'] * 100;
+          }
+             $pay_percent = number_format($pay_percent,2,'.','').'%';   
+        }
+     
+        //计算发票比
+        $total_bill = intval($bill_list['one_amount']) + intval($bill_list['two_amount']) + intval($bill_list['three_amount']) + intval($bill_list['four_amount']);
         if($order_total_rmb != 0){
-          $bill_percent = floatval($total_bill / $order_total_rmb) * 100;
+          if($row['currency'] == 'rmb'){
+              $bill_percent =  floatval($total_bill / ($order_total_rmb + $order_vat)) * 100;
+           } else{
+             $bill_percent = floatval($total_bill / $order_total_rmb) * 100;
+           }
+         
           $bill_percent = number_format($bill_percent,2,'.','').'%';
         }
+           
         //计算开票未收
         $bill_no_pay = $total_bill - $total_pay;
         

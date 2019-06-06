@@ -3537,6 +3537,7 @@ $(function(){
                 </td>
           </tr>
           <tr height="20"></tr>
+          <?php if($_GET['version']){ ?>
           <tr>
             
               <td style="border-style:none" colspan="16" align="center">
@@ -3548,7 +3549,7 @@ $(function(){
               <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
               
            </tr>
-           <tr height="20"></tr>
+           <?php }else { ?>
               <tr>
                 <td colspan="5">合同金额</td>
                 <td>
@@ -3585,6 +3586,7 @@ $(function(){
                       <span id="mould_deal" style="width:100px;height:31px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #0066CC);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:26px;">成交</span>
               </td>
           </tr>
+          <?php } ?>
    </table>
   </form>
   <?php

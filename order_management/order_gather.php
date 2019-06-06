@@ -102,14 +102,43 @@ $result_id = $db->query($sqllist);
   #add_task+input{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;}
   .deal_price,.order_vat,.order_total_rmb,.rmb_tot{background:#ddd;}
   .input_tx{width:80px;margin-right:10px;}
+  .edit_vat{cursor:pointer;}
+  #btn1,#btn2{width:70px;height:23px;display: block;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:23px;margin-top:4px;cursor:pointer;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
   //点击每一行跳转到启动项目
-      $('.show_list').live('click',function(){
-        $('.show').each(function(){
-          window.open('order_start.php','_self');
-        })
+    /*  $('.show_list').live('click',function(){
+        var mould_id = $(this).parent().children().children('input[name^=id]').val();
+         $('.show').each(function(){
+             window.open('order_start.php?mould_id='+mould_id,'_self');
+          })
+       })*/
+          //更改税金
+          $('.edit_vat').live('dblclick',function(){
+            //获取当前的值
+            var current_vat = $(this).text();
+            var inp = '<input type="text" style="width:80px" class="vat_val" name="vat" value='+current_vat+'>';
+            $(this).empty().append(inp);
+            $(this).children().focus();
+
+          })
+          //失焦后把新税金填入单元格中
+          $('.edit_vat').live('blur',function(){
+            var mould_id = $(this).parent().children().children('input[name^=id]').val();
+            var new_vat = $(this).children('.vat_val').val();
+            $(this).empty().text(new_vat);
+           //通过ajax把新的税金存储到数据库
+            $.ajax({
+              'url':'../ajax_function/changeVat.php',
+              'data':{new_vat:new_vat,mould_id:mould_id},
+              'type':'post',
+              'asycn':true,
+              'success':function(data,status){
+                  window.location.reload();
+              }
+            })
+        
       })
       /*//计算合计
         function getSubtotal(className,subName){
@@ -204,7 +233,7 @@ $result_id = $db->query($sqllist);
         <th  colspan="2">成 本</th>
         <th  colspan="2">盈 亏</th>
         <th  rowspan="2">损益/扣款</th>
-        <th  rowspan="2">状 态</th>
+        <th  rowspan="2">发起项目</th>
       </tr>
       <tr>
         <th width="18">数量</th>
@@ -242,36 +271,47 @@ $result_id = $db->query($sqllist);
             $bill_list = $res->fetch_assoc();
             }
      
-        //计算收款进度
-        $total_pay = intval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
-        if($row['agreement_price'] != 0){
-          $pay_percent = $total_pay / $row['agreement_price'] * 100;
-        }
-        $pay_percent = number_format($pay_percent,2,'.','').'%';
+       
           //获取图片地址
           $src = $row['upload_final_path'];
           $src = $src?strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src:' ';
           //获取税金
           if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
-               $order_vat = Floatval($row['deal_price'] * 0.13);
+               $order_vat = $row['order_vat']?$row['order_vat']:Floatval($row['deal_price'] * 0.13);
                $order_vat = number_format($order_vat,2,'.','');
             }else{
-              $order_vat = 0;
+              $order_vat =  $row['order_vat']?$row['order_vat']:0;
             }
          
           //计算价税合计
-          if($row['currency'] == 'rmb_vat'){
+          if($row['currency'] != 'rmb'){
                 
               $order_total_rmb = $row['agreement_price']*$row['mold_rate'];
           }else{
               $order_total_rmb = $row['deal_price'] + $order_vat;
-              $order_total_rmb = number_format($order_total_rmb,2,'.','');
-                
+                           
           }
+            $order_total_rmb = number_format($order_total_rmb,2,'.','');
+        //计算收款进度
+        $total_pay = Floatval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
+        if($row['agreement_price'] != 0){
+          if($row['currency'] == 'rmb'){
+              $pay_percent = $total_pay / ($row['agreement_price'] + $order_vat) * 100;
+          }else{
+              $pay_percent = $total_pay / $row['agreement_price'] * 100;
+          }
+             $pay_percent = number_format($pay_percent,2,'.','').'%';   
+        }
+     
         //计算发票比
         $total_bill = intval($bill_list['one_amount']) + intval($bill_list['two_amount']) + intval($bill_list['three_amount']) + intval($bill_list['four_amount']);
         if($order_total_rmb != 0){
-          $bill_percent = floatval($total_bill / $order_total_rmb) * 100;
+          if($row['currency'] == 'rmb'){
+              $bill_percent =  floatval($total_bill / ($order_total_rmb + $order_vat)) * 100;
+           } else{
+             $bill_percent = floatval($total_bill / $order_total_rmb) * 100;
+           }
+         
           $bill_percent = number_format($bill_percent,2,'.','').'%';
         }
            
@@ -293,7 +333,7 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $row['mold_rate']?></td>
         <td class="show_list agreement_price"><?php echo number_format($row['agreement_price'],2,'.','')?></td>
         <td class="show_list deal_price"><?php echo number_format($row['deal_price'],2,'.','')?></td>
-        <td class="show_list order_vat"><?php echo $order_vat ?></td>
+        <td class="edit_vat order_vat"><?php echo $order_vat ?></td>
         <td class="show_list order_total_rmb"><?php echo $order_total_rmb?></td>
         <td class="show_list"><?php echo $pay_percent ?></td>
         <td class="show_list"><?php echo $bill_percent?></td>
@@ -304,7 +344,10 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"></td>
-        <td class="show_list"><span>待启动</span></td>
+        <td class="show_list">
+          <a id="btn1" style="color:black" href="order_start.php?mould_type=task&mould_id=<?php echo $row['mould_dataid'] ?>">简易任务</a>
+          <a id="btn2" style="color:black" href="order_start.php?mould_type=normal&mould_id=<?php echo $row['mould_dataid'] ?>">模具规格书</a>
+        </td>
       </tr> 
 
       <?php } ?>

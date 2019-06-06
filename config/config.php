@@ -70,4 +70,29 @@ $array_standard_supplier = array('品牌一','品牌二','品牌三','品牌四'
 $array_customer_grade = array(0=>'一般',1=>'重要',2=>'关键');
 //报价汇总币种
 $array_currency = array('rmb_vat'=>'人民币(含税)','rmb'=>'人民币(未税)','usd'=>'美元','eur'=>'欧元','jpy'=>'日元');
+//订单启动
+//图纸类型
+$array_drawing_type = array('2d'=>'2D','3d'=>'3D','other'=>'样品');
+//重点要求
+$array_require = array('关键尺寸','外观要求','后处理');
+//装夹方式
+$array_install_way = array('自动装夹','螺孔、螺丝','码仔');
+//唧嘴SR
+$array_ji_sr = array('平面','90度','SR');
+//模具要求
+$array_mould_require = array('实验模','生产模');
+//模具类型
+$array_mould_type = array('标准','气辅','低压','高温','包胶','多色','高光','多腔');
+//模具形式
+$array_mould_way = array('2板','3板','3板简化版','2板倒装');
+//型腔/型芯方式
+$array_cavity_mode = array('原生/镶件','原生/原生','镶件/原生','镶件/镶件');
+//组合互换
+$array_mould_group = array('无','共用模架','共用热流道','共用配件','互换镶件');
+//图纸标准
+$array_drawing_standard = array('公制','英制','美制');
+//难度系数
+$array_difficulty_degree = array('0.6','0.7','0.8','0.9','1.0','1.1','1.2','1.3');
+//质量等级
+$array_quality_degree = array('A+','A','B','C');
 ?>

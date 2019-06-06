@@ -119,8 +119,28 @@ if($result->num_rows){
            $reality_rmb = (number_format(Floatval($rows['one_reality_amount']),2,'.','') + number_format(Floatval($rows['two_reality_amount']),2,'.','') +  number_format(Floatval($rows['three_reality_amount']),2,'.','') +  number_format(Floatval($rows['four_reality_amount']),2,'.','')) * $info['mold_rate'];
            $tot_reality_rmb += $reality_rmb;
            //实际未收人民币计价
-
-           $reality_no_rmb = (number_format($info['agreement_price'],2,'.','') - number_format(Floatval($rows['one_reality_amount']),2,'.','') - number_format(Floatval($rows['two_reality_amount']),2,'.','') -  number_format(Floatval($rows['three_reality_amount']),2,'.','') -  number_format(Floatval($rows['four_reality_amount']),2,'.','')) ;
+          //获取税金
+          if($info['currency'] == 'rmb_vat' || $info['currency'] == 'rmb'){
+               $order_vat = $info['order_vat']?$info['order_vat']:Floatval($info['deal_price'] * 0.13);
+               $order_vat = number_format($order_vat,2,'.','');
+            }else{
+              $order_vat = $info['order_vat']?$info['order_vat']:0;
+            }
+        //计算价税合计
+          if($info['currency'] != 'rmb'){
+                
+              $order_total_rmb = $info['agreement_price']*$info['mold_rate'];
+          }else{
+              $order_total_rmb = $info['deal_price'] + $order_vat;
+                           
+          }
+            $order_total_rmb = number_format($order_total_rmb,2,'.','');
+          if($info['currency']=='rmb'){
+              $rmb_tot = $order_total_rmb;
+            }else{
+              $rmb_tot = $info['agreement_price'];
+            }
+           $reality_no_rmb = (number_format($rmb_tot,2,'.','') - number_format(Floatval($rows['one_reality_amount']),2,'.','') - number_format(Floatval($rows['two_reality_amount']),2,'.','') -  number_format(Floatval($rows['three_reality_amount']),2,'.','') -  number_format(Floatval($rows['four_reality_amount']),2,'.','')) ;
            
            $reality_no = $reality_no_rmb?$reality_no_rmb:0; 
            $tot_no_rmb += $reality_no * $info['mold_rate'];
@@ -186,9 +206,11 @@ if($result->num_rows){
 
     }
         
-        $tot_reality_no_pay = $tot_agreement - $tot_reality_pay;
+       
     //税价合计
     $tot_all = $tot_deal + $tot_vat;
+    //实际未收
+    $tot_reality_no_pay = $tot_all - $tot_reality_pay;
 
 }
 
@@ -230,6 +252,7 @@ $result_id = $db->query($sqllist);
   #main .show .show_list{font-size:0.2px;}
   .deal_price,.order_vat,.order_total_rmb,.rmb_tot,.reality_pay,.reality_no_pay{background:#ddd;}
    .input_tx{width:80px;margin-right:10px;}
+   .edit_vat{cursor:pointer;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
@@ -346,10 +369,7 @@ $result_id = $db->query($sqllist);
     after_month = after_month<10?'0'+after_month:after_month;
     x_arr.push(after_year+'/'+after_month);
   }
-  //通过ajax 获取折线图的数据
-/*  $.post('../ajax_function/getChartsDate.php',{arr:x_arr},function(data,status){
-    console.log(data);
-  },'json')*/
+
   //把php 数组转换为js 数组
   var plan_str =  eval(<?php echo json_encode($plan_arr);?>);
   var reality_str = eval(<?php echo json_encode($reality_arr); ?>);
@@ -540,22 +560,13 @@ $result_id = $db->query($sqllist);
           while($row = $result->fetch_assoc()){
           //获取税金
           if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
-               $order_vat = Floatval($row['deal_price'] * 0.13);
+               $order_vat = $row['order_vat']?$row['order_vat']:Floatval($row['deal_price'] * 0.13);
                $order_vat = number_format($order_vat,2,'.','');
             }else{
-              $order_vat = 0;
+              $order_vat = $row['order_vat']?$row['order_vat']:0;
             }
          
-          //计算价税合计
-          if($row['currency'] == 'rmb_vat'){
-                
-              $order_total_rmb = $row['agreement_price']*$row['mold_rate'];
-          }else{
-              $order_total_rmb = $row['deal_price'] + $order_vat;
-              $order_total_rmb = number_format($order_total_rmb,2,'.','');
-                
-          }
-          
+    
          //查询收款计划
                 
          $pay_sql = "SELECT * FROM `db_order_pay` WHERE `mould_id` =".$row['mould_dataid'];
@@ -566,17 +577,37 @@ $result_id = $db->query($sqllist);
             $paylist = $res->fetch_assoc();
             }
 
-        //计算收款比
-        $total_pay = intval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
+        //计算价税合计
+          if($row['currency'] != 'rmb'){
+                
+              $order_total_rmb = $row['agreement_price']*$row['mold_rate'];
+          }else{
+              $order_total_rmb = $row['deal_price'] + $order_vat;
+                           
+          }
+            $order_total_rmb = number_format($order_total_rmb,2,'.','');
+        //计算收款进度
+        $total_pay = Floatval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount'] + $paylist['five_reality_amount']);
         if($row['agreement_price'] != 0){
-          $pay_percent = $total_pay / $row['agreement_price'] * 100;
+          if($row['currency'] == 'rmb'){
+              $pay_percent = $total_pay / ($row['agreement_price'] + $order_vat) * 100;
+          }else{
+              $pay_percent = $total_pay / $row['agreement_price'] * 100;
+          }
+             $pay_percent = number_format($pay_percent,2,'.','').'%';   
         }
-        $pay_percent = number_format($pay_percent,2,'.','').'%';
+     
+              
         //计算计划已收
         $plan_pay = Floatval($paylist['one_plan_amount'] + $paylist['two_plan_amount'] + $paylist['three_plan_amount'] + $paylist['four_plan_amount']);
         $plan_pay = number_format($plan_pay,2,'.','');
         //计划未收
-        $plan_no_pay = Floatval($row['agreement_price'] - $plan_pay);
+        if($row['currency'] == 'rmb'){
+          $plan_no_pay = Floatval($order_total_rmb - $plan_pay);
+        } else {
+          $plan_no_pay = Floatval($row['agreement_price'] - $plan_pay);
+        }
+         
         $plan_no_pay = number_format($plan_no_pay,2,'.','');
         //实际已收
         $reality_pay = Floatval($paylist['one_reality_amount'] + $paylist['two_reality_amount'] + $paylist['three_reality_amount'] + $paylist['four_reality_amount']);
@@ -586,7 +617,11 @@ $result_id = $db->query($sqllist);
         $reality_pay_rmb = Floatval($reality_pay * $row['mold_rate']);
         $reality_pay_rmb = number_format($reality_pay_rmb,2,'.','');
         //实际未收
-        $reality_no_pay = Floatval($row['agreement_price'] - $reality_pay);
+          if($row['currency'] == 'rmb'){
+          $reality_no_pay = Floatval($order_total_rmb - $reality_pay);
+        } else {
+          $reality_no_pay = Floatval($row['agreement_price'] - $reality_pay);
+      }
         $reality_no_pay = number_format($reality_no_pay,2,'.','');
         
         //人民币计价
