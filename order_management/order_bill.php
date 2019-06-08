@@ -62,18 +62,18 @@ if($result->num_rows){
   while($info = $result->fetch_assoc()){
     $tot_agreement += $info['agreement_price'];
     $tot_deal += $info['deal_price'];
-    if($info['currency'] == 'rmb' || $info['currency'] == 'rmb_vat'){
-      $tot_vat += number_format(Floatval($info['deal_price']) * 0.13,2,'.','');
-    }
+    //税收合计
+      $tot_vat += Floatval($info['order_vat']);
+    
     //计算发票的合计
     $bill_sql = "SELECT * FROM `db_order_bill` WHERE `mould_id`=".$info['mould_dataid'];
     $res = $db->query($bill_sql);
     if($res->num_rows){
       while($rows = $res->fetch_assoc()){
-        $tot_one_bill += number_format(Floatval($rows['one_amount']),2,'.','');
-        $tot_two_bill += number_format(Floatval($rows['two_amount']),2,'.','');
-        $tot_three_bill += number_format(Floatval($rows['three_amount']),2,'.','');
-        $tot_four_bill += number_format(Floatval($rows['four_amount']),2,'.','');
+        $tot_one_bill += Floatval($rows['one_amount']);
+        $tot_two_bill += Floatval($rows['two_amount']);
+        $tot_three_bill += Floatval($rows['three_amount']);
+        $tot_four_bill += Floatval($rows['four_amount']);
       }
     }
     //查找所有实际已收
@@ -242,8 +242,8 @@ $result_id = $db->query($sqllist);
         <th rowspan="2" width="20">汇率</th>
         <th rowspan="2">金额</th>
         <th rowspan="2">未税金额</th>
-        <th rowspan="2">税金<br>(13%)</th>
-        <th rowspan="2">税价合计</th>
+        <th rowspan="2">税金</th>
+        <th rowspan="2">价税合计</th>
         <th rowspan="2">收款比</th>
            <th rowspan="2">开票比</th>
         <th colspan="3">一期</th>
@@ -283,7 +283,7 @@ $result_id = $db->query($sqllist);
             }
         //获取税金
           if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
-               $order_vat = $row['order_vat']?$row['order_vat']:Floatval($row['deal_price'] * 0.13);
+               $order_vat = $row['order_vat'];
                $order_vat = number_format($order_vat,2,'.','');
             }else{
               $order_vat = $row['order_vat']?$row['order_vat']:0;
@@ -388,27 +388,27 @@ $result_id = $db->query($sqllist);
         <td></td>
         <td></td>
         <td></td>
-        <td id="agreement_price"><?php echo $tot_agreement ?></td>
-        <td id="deal_price" class="rmb_tot"><?php echo $tot_deal ?></td>
-        <td id="order_vat" class="rmb_tot"><?php echo $tot_vat ?></td>
-        <td id="order_total_rmb" class="rmb_tot"><?php echo $tot_all ?></td>
+        <td id="agreement_price"><?php echo number_format($tot_agreement,2,'.','') ?></td>
+        <td id="deal_price" class="rmb_tot"><?php echo number_format($tot_deal,2,'.','') ?></td>
+        <td id="order_vat" class="rmb_tot"><?php echo number_format($tot_vat,2,'.','') ?></td>
+        <td id="order_total_rmb" class="rmb_tot"><?php echo number_format($tot_all,2,'.','') ?></td>
         <td></td>
         <td></td>
         <td></td>
-        <td id="one_amount"><?php echo $tot_one_bill ?></td>
+        <td id="one_amount"><?php echo number_format($tot_one_bill,2,'.','') ?></td>
         <td></td>
         <td></td>
-        <td id="two_amount"><?php echo $tot_two_bill ?></td>
+        <td id="two_amount"><?php echo number_format($tot_two_bill,2,'.','') ?></td>
         <td></td>
         <td></td>
-        <td id="three_amount"><?php echo $tot_three_bill ?></td>
+        <td id="three_amount"><?php echo number_format($tot_three_bill,2,'.','') ?></td>
         <td></td>
         <td></td>
-        <td id="four_amount"><?php echo $tot_four_bill ?></td>
+        <td id="four_amount"><?php echo number_format($tot_four_bill,2,'.','') ?></td>
         <td></td>
-        <td id="total_bill"><?php echo $tot_bill_all ?></td>
-        <td id="no_bill"><?php echo $tot_no_bill_all ?></td>
-        <td id="bill_no_pay"><?php echo $bill_no_pay_all ?></td>
+        <td id="total_bill"><?php echo number_format($tot_bill_all,2,'.','') ?></td>
+        <td id="no_bill"><?php echo number_format($tot_no_bill_all,2,'.','') ?></td>
+        <td id="bill_no_pay"><?php echo number_format($bill_no_pay_all,2,'.','') ?></td>
        
       </tr>
        </table>

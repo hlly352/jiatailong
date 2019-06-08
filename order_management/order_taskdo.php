@@ -18,6 +18,7 @@ if($action == 'add'){
 	$sql_key = ' ';
 	
 	$arr = [];
+
 	foreach($data as $key=>$value){
 		$sql_key .= '`'.$key.'`,';
 		foreach($value as $k=>$v){
@@ -91,6 +92,7 @@ if($action == 'add'){
 		$sql_value = substr($sql_value,0,strlen($sql_value)-1);
 		//拼接sql 语句
 		$sql = "UPDATE `db_mould_data` SET {$sql_value} WHERE `mould_dataid` =".$mould_id;
+		echo $sql;exit;
 		$db->query($sql);
 		if($db->affected_rows){
 			header('location:order_approval_show.php?mould_id='.$mould_id);

@@ -97,9 +97,8 @@ if($result->num_rows){
        $tot_deal += $info['deal_price'];
        
         //获取税金
-          if($info['currency'] == 'rmb_vat' || $info['currency'] == 'rmb'){
-               $tot_vat += number_format(Floatval($info['deal_price'] * 0.13),2,'.','');
-            }
+  
+          $tot_vat += Floatval($info['order_vat']);
           //获取计划金额和实际金额的合计
           $pay_sql = "SELECT * FROM `db_order_pay` WHERE `mould_id` =".$info['mould_dataid'];
          $tot_res = $db->query($pay_sql);
@@ -107,21 +106,22 @@ if($result->num_rows){
               
                while($rows = $tot_res->fetch_assoc()){
                 
-           $tot_one_plan += number_format(Floatval($rows['one_plan_amount']),2,'.','');
-           $tot_one_reality += number_format(Floatval($rows['one_reality_amount']),2,'.','');
-           $tot_two_plan += number_format(Floatval($rows['two_plan_amount']),2,'.','');
-           $tot_two_reality += number_format(Floatval($rows['two_reality_amount']),2,'.','');
-           $tot_three_plan += number_format(Floatval($rows['three_plan_amount']),2,'.','');
-           $tot_three_reality += number_format(Floatval($rows['three_reality_amount']),2,'.','');
-           $tot_four_plan += number_format(Floatval($rows['four_plan_amount']),2,'.','');
-           $tot_four_reality += number_format(Floatval($rows['four_reality_amount']),2,'.','');
+           $tot_one_plan += Floatval($rows['one_plan_amount']);
+           $tot_one_reality += Floatval($rows['one_reality_amount']);
+           $tot_two_plan += Floatval($rows['two_plan_amount']);
+           $tot_two_reality += Floatval($rows['two_reality_amount']);
+           $tot_three_plan += Floatval($rows['three_plan_amount']);
+           $tot_three_reality += Floatval($rows['three_reality_amount']);
+           $tot_four_plan += Floatval($rows['four_plan_amount']);
+           $tot_four_reality += Floatval($rows['four_reality_amount']);
            //实际已收人民币计价
            $reality_rmb = (number_format(Floatval($rows['one_reality_amount']),2,'.','') + number_format(Floatval($rows['two_reality_amount']),2,'.','') +  number_format(Floatval($rows['three_reality_amount']),2,'.','') +  number_format(Floatval($rows['four_reality_amount']),2,'.','')) * $info['mold_rate'];
            $tot_reality_rmb += $reality_rmb;
+
            //实际未收人民币计价
           //获取税金
           if($info['currency'] == 'rmb_vat' || $info['currency'] == 'rmb'){
-               $order_vat = $info['order_vat']?$info['order_vat']:Floatval($info['deal_price'] * 0.13);
+               $order_vat = $info['order_vat'];
                $order_vat = number_format($order_vat,2,'.','');
             }else{
               $order_vat = $info['order_vat']?$info['order_vat']:0;
@@ -514,8 +514,8 @@ $result_id = $db->query($sqllist);
         <th rowspan="2" width="25">汇率</th>
         <th rowspan="2">金额</th>
         <th rowspan="2">未税金额</th>
-        <th rowspan="2">税金<br>(13%)</th>
-        <th rowspan="2">税价合计</th>
+        <th rowspan="2">税金</th>
+        <th rowspan="2">价税合计</th>
         <th colspan="2">计划</th>
         <th colspan="2">实际</th>
         <th colspan="2">计划</th>
@@ -560,7 +560,7 @@ $result_id = $db->query($sqllist);
           while($row = $result->fetch_assoc()){
           //获取税金
           if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
-               $order_vat = $row['order_vat']?$row['order_vat']:Floatval($row['deal_price'] * 0.13);
+               $order_vat = $row['order_vat'];
                $order_vat = number_format($order_vat,2,'.','');
             }else{
               $order_vat = $row['order_vat']?$row['order_vat']:0;
@@ -678,30 +678,30 @@ $result_id = $db->query($sqllist);
         <td></td>
         <td></td>
         <td></td>
-        <td id="agreement_price"><?php echo $tot_agreement ?></td>
+        <td id="agreement_price"><?php echo number_format($tot_agreement,2,'.','') ?></td>
         <td id="deal_price" class="rmb_tot"><?php echo $tot_deal ?></td>
-        <td id="order_vat" class="rmb_tot"><?php echo $tot_vat ?></td>
+        <td id="order_vat" class="rmb_tot"><?php echo number_format($tot_vat,2,'.','') ?></td>
         <td id="order_total_rmb" class="rmb_tot"><?php echo $tot_all ?></td>
         <td></td>
         <td></td>
-        <td id="one_plan_amount"><?php echo $tot_one_plan ?></td>
+        <td id="one_plan_amount"><?php echo number_format($tot_one_plan,2,'.','') ?></td>
         <td></td>
-        <td id="one_reality_amount"><?php echo $tot_one_reality ?></td>
+        <td id="one_reality_amount"><?php echo number_format($tot_one_reality,2,'.','') ?></td>
         <td></td>
-        <td id="two_plan_amount"><?php echo $tot_two_plan ?></td>
+        <td id="two_plan_amount"><?php echo number_format($tot_two_plan,2,'.','') ?></td>
         <td></td>
-        <td id="two_reality_amount"><?php echo $tot_two_reality ?></td>
+        <td id="two_reality_amount"><?php echo number_format($tot_two_reality,2,'.','') ?></td>
         <td></td>
-        <td id="three_plan_amount"><?php echo $tot_three_plan ?></td>
+        <td id="three_plan_amount"><?php echo number_format($tot_three_plan,2,'.','') ?></td>
         <td></td>
-        <td id="three_reality_amount"><?php echo $tot_three_reality ?></td>
+        <td id="three_reality_amount"><?php echo number_format($tot_three_reality,2,'.','') ?></td>
         <td></td>
-        <td id="four_plan_amount"><?php echo $tot_four_plan ?></td>
+        <td id="four_plan_amount"><?php echo number_format($tot_four_plan,2,'.','') ?></td>
         <td></td>
-        <td id="four_reality_amount" ><?php echo $tot_four_reality ?></td>
+        <td id="four_reality_amount" ><?php echo number_format($tot_four_reality,2,'.','') ?></td>
         <td id="reality_pay" class="rmb_tot"><?php echo $tot_reality_pay ?></td>
         <td id="reality_no_pay" class="rmb_tot"><?php echo $tot_reality_no_pay ?></td>
-        <td id="reality_pay_rmb"><?php echo $tot_reality_rmb ?></td>
+        <td id="reality_pay_rmb"><?php echo number_format($tot_reality_rmb,2,'.','') ?></td>
         <td id="reality_no_pay_rmb"><?php echo $tot_no_rmb ?></td>
         <td></td>
 

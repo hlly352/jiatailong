@@ -95,4 +95,21 @@ $array_drawing_standard = array('公制','英制','美制');
 $array_difficulty_degree = array('0.6','0.7','0.8','0.9','1.0','1.1','1.2','1.3');
 //质量等级
 $array_quality_degree = array('A+','A','B','C');
+//浇口类型
+$array_injection_type = array('点浇口','直接浇口','侧浇口','潜水口','热流道点浇口','热流道大水口','热流道阀浇口');
+//阀针类型
+$array_needle_type = array('无','气阀','油阀');
+//流道类型
+$array_runner_type = array('冷流道','热流道');
+//热流道品牌
+$array_hot_runner_supplier = array('Yudo','Synvative','Moldmaster');
+//冷却加热介质
+$array_cool_medium = array('冰水','温水','热水','热油');
+//特殊冷却加热
+$array_sepcial_cool = array('铍铜','3D打印','冷却棒','加热棒','急冷急热');
+//顶出系统
+$array_ejection_system = array('顶针','司筒','顶块','直顶','斜顶','推板','气顶','二次顶出','油压顶出
+');
+//取件方式
+$array_pickup_way = array('自动掉落','机械手','手工');
 ?>

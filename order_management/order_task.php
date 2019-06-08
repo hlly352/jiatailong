@@ -82,7 +82,7 @@ $result_id = $db->query($sqllist);
     $(function(){
   var new_task = '  <tr class="task">              <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>              <td class="show_list"><input type="text" name="customer_code[]" class="customer_codes"></td>              <td class="show_list">                <select name="client_name[]" class="customer_names" style="width:90%">                     <option value="0">--选择客户--</option>                                <?php foreach($customer_list as $k=>$v){?>                                  <option value="<?php echo $v['customer_id']?>">                   <?php echo strstr($v['customer_name'],'$$')?substr($v['customer_name'],strrpos($v['customer_name'],'$$')+2):$v['customer_name'] ?>                  </option>                                     <?php }?>                     </select>              </td>         <td><input type="text" name="customer_order_no[]" /></td>                   <td class="show_list"><input type="text" name="project_name[]"></td>              <td class="show_list"><input type="text" name="mould_no[]"></td>     <td ckass="show_list"><input type="text" name="mould_name[]"></td>         <td class="show_list"><input type="text" name="upload_final_path[]"/></td>              <td class="show_list"><input type="text" name="number[]" id="number" class="number"></td>              <td class="show_list"><input type="text" name="unit_price[]" id="unit_price" class="unit_price"></td>              <td class="show_list">               <select name="currency[]" id="currency" style="width:90%;height:20px" class="currency">                   <?php foreach($array_currency as $k=>$v){
                       echo '<option value="'.$k.'">'.$v.'</option>';
-                    }?>                 </select>              </td>              <td class="show_list"><input type="text" name="mold_rate[]" class="mold_rate" id="mold_rate" value="1"></td>              <td class="show_list"><input type="text" name="agreement_price[]" class="agreement_price" id="agreement_price"/></td>              <td class="show_list"><input type="text" name="deal_price[]" class="deal_price" id="deal_price"></td>          </tr>';
+                    }?>                 </select>              </td>              <td class="show_list"><input type="text" name="mold_rate[]" class="mold_rate" id="mold_rate" value="1"></td>              <td class="show_list"><input type="text" name="agreement_price[]" class="agreement_price" id="agreement_price"/></td>              <td class="show_list"><input type="text" name="deal_price[]" class="deal_price" id="deal_price"></td> <td><input type="text" name="order_vat[]" id="order_vat" class="order_vat"></td>         </tr>';
   var del_but = '&nbsp;<span id="del_task">撤 销</span>';
   //添加新临时任务
   $('#add_task').live('click',function(){
@@ -208,11 +208,24 @@ $result_id = $db->query($sqllist);
         var rmb_vat = parseFloat(number * unit_price * mold_rate/1.13);
         var rmb_without_vat = rmb_vat.toFixed(2);
         $('.deal_price').eq(num).val(rmb_without_vat);
+        //计算税金
+        var order_vat = parseFloat(number * unit_price * mold_rate / 1.13 * 0.13);
+ 
       }else{
         var deal_price = parseFloat(number * unit_price * mold_rate);
         deal_price = deal_price.toFixed(2);
         $('.deal_price').eq(num).val(deal_price);
+        //判断是否是人民币未税
+	        if(currency == 'rmb'){
+	        	var order_vat = parseFloat(number * unit_price * mold_rate * 0.13);
+	        } else {
+	        	var order_vat = 0;
+	        }
+	 
       }
+      //格式化税金
+      order_vat = order_vat.toFixed(2);
+      $('.order_vat').eq(num).val(order_vat);
     }
   })
     })
@@ -244,6 +257,7 @@ $result_id = $db->query($sqllist);
         <th style="">汇率</th>
         <th style="">金额</th>
         <th style="">人民币未税价格</th>
+        <th style="">税金</th>
      </tr>
 
      <tr class="task">
@@ -276,9 +290,10 @@ $result_id = $db->query($sqllist);
               <td class="show_list"><input type="text" name="mold_rate[]" id="mold_rate" value="1" class="mold_rate"></td>
               <td class="show_list"><input type="text" name="agreement_price[]" id="agreement_price" class="agreement_price"/></td>
               <td class="show_list"><input type="text" name="deal_price[]" id="deal_price" class="deal_price"></td>
+              <td class="show_list"><input type="text" name="order_vat[]" id="order_vat" class="order_vat"></td>
           </tr>
           <tr>
-              <td colspan="14" style="align:center">
+              <td colspan="15" style="align:center">
                <span id="add_task">新 建</span>
                 &nbsp;&nbsp;
                 <input id="save_task" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">

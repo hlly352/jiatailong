@@ -1998,7 +1998,15 @@ $(function(){
     var mold_id = $(this).prev().val();
     window.open('mould_excel.php?version=<?php echo $_GET['version'] ?>&action=mould_excel&id='+mold_id);
   })
-
+  //设置人民币默认汇率
+  $('#currency').live('change',function(){
+  	var current_currency = $(this).val();
+  	if(current_currency == 'rmb' || current_currency == 'rmb_vat'){
+  		$('#mold_rate').val('1');
+  	} else {
+  		$('#mold_rate').val('');
+ 	} 
+  })
   //自动计算人民币价格
   $('#mold_agreement_price,#mold_rate,#currency,#mold_rate').live('change',function(){
     var mold_agreement_price= $.trim($('#mold_agreement_price').val());
@@ -2007,15 +2015,28 @@ $(function(){
     
     if(mold_agreement_price && mold_rate){
       $('#mold_deal_price').val(' ');
+      //人民币含税
       if(currency =='rmb_vat'){
         var mold_price = parseFloat(mold_agreement_price * mold_rate /1.13);
         mold_price = mold_price.toFixed(2);
         $('#mold_deal_price').val(mold_price);
+        //计算税收
+        var order_vat = parseFloat(mold_agreement_price * mold_rate  /1.13 * 0.13);
+        order_vat = order_vat.toFixed(2);
+      
       }else{
         var mold_rmb = parseFloat(mold_agreement_price * mold_rate);
         mold_rmb = mold_rmb.toFixed(2);
         $('#mold_deal_price').val(mold_rmb);
+        //计算税收
+	        if(currency == 'rmb'){
+	        	var order_vat = mold_agreement_price * mold_rate * 0.13;
+	        	order_vat = order_vat.toFixed(2);
+	        } else {
+	          var order_vat = 0;
+	        }
       }
+        $('#order_vat').val(order_vat);
     }
   })
   //成交
@@ -2083,8 +2104,9 @@ $(function(){
     var mold_agreement_price = $('#mold_agreement_price').val();
     var mold_rate = $('#mold_rate').val();
     var currency = $('#currency').val();
+    var order_vat = $('#order_vat').val();
     var mold_id = $(this).prev().val();
-    window.open('mould_datado.php?action=mould_deal&unit_price='+mold_agreement_price+'&deal_price='+mold_deal_price+'&agreement_price='+mold_agreement_price+'&mold_rate='+mold_rate+'&currency='+currency+'&indoor_price='+mold_indoor_price+'&id='+mold_id,'_self');
+    window.open('mould_datado.php?action=mould_deal&unit_price='+mold_agreement_price+'&deal_price='+mold_deal_price+'&agreement_price='+mold_agreement_price+'&mold_rate='+mold_rate+'&currency='+currency+'&indoor_price='+mold_indoor_price+'&id='+mold_id+'&order_vat='+order_vat,'_self');
   })
   //未审批时修改
   $('#unapproval_edit').click(function(){
@@ -2829,8 +2851,25 @@ $(function(){
     .dels{display:inline;float:right;width:45px;height:3px;line-height:5px;border:1px solid grey;background:rgb(221,221,221);cursor:pointer}
     .adder{width:100px;height:30px;line-height:30px;text-align:center;display:block;border:1px solid grey;background-color:rgb(221,221,221);margin:2px auto;cursor:pointer;font-size:15px;}
     .autocomplete-items{position:absolute;z-index:22;background-color:grey;width:84px;}
+
+ left:0;
+ bottom:0;
+ width:100%;
+ height:120px;}
   </style>
+  
+ <?php if(!$_GET['version']){ ?>
   <script type="text/javascript" charset="utf-8">
+  	$(document).ready(function(){
+  		$('.cavity_length,.cavity_width,.cavity_style_length,.cavity_style_width').prop('disabled',true);
+  		$('input').not('#mold_agreement_price,#mold_indoor_price,#mold_deal_price,#mold_rate,#order_vat').prop('disabled',true);
+      $('.adder').unbind('click');
+  		window.scrollTo(0,document.body.scrollHeight);
+  	})
+</script>
+  
+  <?php } ?>
+  <script>
    /* $(function(){
       //判断型腔数如果大于1,增加删除按钮
       var cavity_num = $(".cavity_type").size();
@@ -2906,7 +2945,7 @@ $(function(){
     
               }
     })*/
-  </script>
+</script>
    <table id="main_table" style="word-wrap: break-word; word-break: break-all;">
     <input type="hidden" name="employeeid" value="<?php echo $employeeid ?>" />
     <input type="hidden" name="mold_id" value="<?php echo $array['mold_id'] ?>" >
@@ -3564,14 +3603,18 @@ $(function(){
                 </td>
                  <td>汇率</td>
                  <td colspan="5">
-                  <input type="text" name="" id="mold_rate" value="" placeholder="">
+                  <input type="text" name="" id="mold_rate" value="1" placeholder="">
                  </td>
                    
           </tr>
               <tr>
                 <td colspan="5">人民币未税价格(RMB)</td>
-                <td colspan="11">
+                <td colspan="6">
                   <input type="text" name="mold_deal_price" id="mold_deal_price" value="">
+                </td>
+                <td>税金</td>
+                <td colspan="5">
+                	<input type="text" id="order_vat">
                 </td>
           </tr>
            <tr>
@@ -3580,7 +3623,7 @@ $(function(){
                   <input type="text" name="mold_indoor_price" id="mold_indoor_price" value="">
                 </td>
           </tr>
-          <tr align="center">
+          <tr align="center" id="footers">
               <td colspan="16">
                 <input id="id" name="id" type="hidden" value="<?php echo $_GET['id'] ?>">
                       <span id="mould_deal" style="width:100px;height:31px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #0066CC);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:26px;">成交</span>

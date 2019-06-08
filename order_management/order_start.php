@@ -35,6 +35,7 @@ $result = $db->query($sql);
       .distance{height:10px;}
       table tr td{border:1px solid grey;font-size:11px;display:table-cell;text-align:center;}
       .submit{width:80px;height:25px;}
+      select{width:155px;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
@@ -437,10 +438,13 @@ $result = $db->query($sql);
       <tr>
        <td>模具是否出口</td>
        <td>
-       	<label><input type="radio" name="is_export"   
+       	<label><input type="radio" name="is_export"> 是</label>
+        <label><input type="radio" name="is_export"> 否</label>  
        </td>
        <td>成型周期</td>
-       <td></td>
+       <td>
+         <input type="text" name="molding_cycle">
+       </td>
        <td></td>
        <td></td>
       </tr>
@@ -448,25 +452,105 @@ $result = $db->query($sql);
       <tr>
        <td rowspan="3">进胶、冷却加热、顶出</td>
        <td>浇口类型INJECTION GATE</td>
-       <td></td>
+       <td>
+         <select name="injection_type">
+                    <?php
+                       echo '<option value="">--请选择--</option>';
+                        foreach($array_injection_type as $k=>$v){
+
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                     ?>
+            </select>
+       </td>
        <td>阀针类型</td>
-       <td></td>
+       <td>
+         <select name="needle_type">
+                    <?php
+         
+                        foreach($array_needle_type as $k=>$v){
+
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                     ?>
+            </select>
+       </td>
        <td>流道类型</td>
-       <td></td>
+       <td>
+         <select name="runner_type">
+                    <?php
+                       echo '<option value="">--请选择--</option>';
+                        foreach($array_runner_type as $k=>$v){
+
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                     ?>
+            </select>
+       </td>
       </tr>
       <tr>
        <td>热流道品牌</td>
-       <td></td>
+       <td>
+         <select name="hot_runner_supplier">
+                    <?php
+                       echo '<option value="">--请选择--</option>';
+                        foreach($array_hot_runner_supplier as $k=>$v){
+
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                     ?>
+            </select>
+       </td>
        <td>冷却加热介质</td>
-       <td></td>
+       <td>
+         <select name="cool_medium">
+                    <?php
+                       echo '<option value="">--请选择--</option>';
+                        foreach($array_cool_medium as $k=>$v){
+
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                     ?>
+            </select>
+       </td>
        <td>特殊冷却加热</td>
-       <td></td>
+       <td>
+         <select name="sepcial_cool">
+                    <?php
+                       echo '<option value="">--请选择--</option>';
+                        foreach($array_sepcial_cool as $k=>$v){
+
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                     ?>
+            </select>
+       </td>
       </tr>
       <tr>
        <td>顶出系统EJECTION SYSTEM</td>
-       <td></td>
+       <td>
+         <select name="ejection_system">
+                    <?php
+                       echo '<option value="">--请选择--</option>';
+                        foreach($array_ejection_system as $k=>$v){
+
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                     ?>
+            </select>
+       </td>
        <td>取件方式</td>
-       <td></td>
+       <td>
+         <select name="pickup_way">
+                    <?php
+                       echo '<option value="">--请选择--</option>';
+                        foreach($array_pickup_way as $k=>$v){
+
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                     ?>
+            </select>
+       </td>
        <td></td>
        <td></td>
       </tr>

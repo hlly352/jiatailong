@@ -179,11 +179,24 @@ if($res->num_rows){
 				var rmb_vat = parseFloat(number * unit_price * mold_rate/1.13);
 				var rmb_without_vat = rmb_vat.toFixed(2);
 				$('.deal_price').eq(num).val(rmb_without_vat);
-			}else{
-				var deal_price = parseFloat(number * unit_price * mold_rate);
-				deal_price = deal_price.toFixed(2);
-				$('.deal_price').eq(num).val(deal_price);
-			}
+			  //计算税金
+	        var order_vat = parseFloat(number * unit_price * mold_rate / 1.13 * 0.13);
+	 
+	      }else{
+	        var deal_price = parseFloat(number * unit_price * mold_rate);
+	        deal_price = deal_price.toFixed(2);
+	        $('.deal_price').val(deal_price);
+	        //判断是否是人民币未税
+		        if(currency == 'rmb'){
+		        	var order_vat = parseFloat(number * unit_price * mold_rate * 0.13);
+		        } else {
+		        	var order_vat = 0;
+		        }
+		 
+	      }
+	      //格式化税金
+	      order_vat = order_vat.toFixed(2);
+	      $('.order_vat').val(order_vat);
 		}
 	})
 	})
@@ -192,7 +205,7 @@ if($res->num_rows){
 <style type="text/css">
   #main{table-layout:fixed;width:1350px;}
   #main tr td{word-wrap:break-word;word-break:break-all;}
-  #main tr td input{width:100px;}
+  #main tr td input{width:90%;}
   #order_approval,#back,#no_approval{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
   #no_approval{background:grey;}
   #edit{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;}
@@ -223,6 +236,7 @@ if($res->num_rows){
         <th style="">汇率</th>
         <th style="">金额</th>
         <th style="">人民币未税价格</th>
+        <th style="">税金</th>
      </tr>
 
      <tr class="task">
@@ -237,7 +251,7 @@ if($res->num_rows){
               <td class="show_list"><input type="text" name="number" class="number" id="number" value="<?php echo $mouldinfo['number'] ?>"></td>
               <td class="show_list"><input type="text" name="unit_price" class="unit_price" id="unit_price" value="<?php echo $mouldinfo['unit_price'] ?>"></td>
               <td class="show_list">
-              	<select name="currency" id="currency" class="currency" style="width:100px;height:20px">
+              	<select name="currency" id="currency" class="currency" style="width:90%;height:20px">
                 		<?php foreach($array_currency as $k=>$v){ ?>
                 			<option <?php echo $k==$mouldinfo['currency']?'selected':' ' ?> value="<?php echo $k ?>"><?php echo $v ?></option>
                 		<?php }?>
@@ -247,9 +261,10 @@ if($res->num_rows){
               <td class="show_list"><input type="text" name="agreement_price" id="agreement_price" value="<?php echo $mouldinfo['agreement_price'] ?>" class="agreement_price"/></td>
               <td class="show_list"><input type="text" name="deal_price" value="<?php echo $mouldinfo['deal_price'] ?>" id="deal_price" class="deal_price"></td>
               <input type="hidden" name="mould_id" value="<?php echo $_GET['mould_id'] ?>">
+              <td class="show_list"><input type="text" class="order_vat" id="order_vat" name="order_vat" value="<?php echo $mouldinfo['order_vat'] ?>"></td>
           </tr>
           <tr>
-              <td colspan="13" style="align:center">
+              <td colspan="14" style="align:center">
              	 
               	<input id="edit" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">
 

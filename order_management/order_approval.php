@@ -194,7 +194,7 @@ $result_id = $db->query($sqllist);
         <th>汇率</th>
         <th>金额</th>
         <th>未税金额</th>
-        <th>税金<br>(13%)</th>
+        <th>税金</th>
         <th>价税合计</th>
       </tr>
       <?php 
@@ -227,7 +227,7 @@ $result_id = $db->query($sqllist);
           $src = $src?strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src:' ';
           //获取税金
           if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
-               $order_vat = Floatval($row['deal_price'] * 0.13);
+               $order_vat = Floatval($row['order_vat']);
                $order_vat = number_format($order_vat,2,'.','');
             }else{
               $order_vat = 0;

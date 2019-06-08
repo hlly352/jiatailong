@@ -10,4 +10,5 @@ if($result->num_rows){
 }else{
 	echo "<img src=\"../images/system_ico/error_10_10.png\" width=\"10\" height=\"10\" /> 密码错误";
 }
+
 ?>

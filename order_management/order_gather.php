@@ -65,9 +65,9 @@ if($result->num_rows){
        $tot_agreement += $rows['agreement_price'];
        $tot_deal += $rows['deal_price'];
         //获取税金
-          if($rows['currency'] == 'rmb_vat' || $rows['currency'] == 'rmb'){
-               $tot_vat += number_format(Floatval($rows['deal_price'] * 0.13),2,'.','');
-            }
+
+          $tot_vat += Floatval($rows['order_vat']);
+
 
     }
 
@@ -102,8 +102,7 @@ $result_id = $db->query($sqllist);
   #add_task+input{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;}
   .deal_price,.order_vat,.order_total_rmb,.rmb_tot{background:#ddd;}
   .input_tx{width:80px;margin-right:10px;}
-  .edit_vat{cursor:pointer;}
-  #btn1,#btn2{width:70px;height:23px;display: block;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:23px;margin-top:4px;cursor:pointer;}
+  #btn1,#btn2{font-size:5px;display:block;padding-top:5px;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
@@ -115,7 +114,7 @@ $result_id = $db->query($sqllist);
           })
        })*/
           //更改税金
-          $('.edit_vat').live('dblclick',function(){
+        /*  $('.edit_vat').live('dblclick',function(){
             //获取当前的值
             var current_vat = $(this).text();
             var inp = '<input type="text" style="width:80px" class="vat_val" name="vat" value='+current_vat+'>';
@@ -140,7 +139,7 @@ $result_id = $db->query($sqllist);
             })
         
       })
-      /*//计算合计
+      //计算合计
         function getSubtotal(className,subName){
           var number = $(className).size();
           var subtotal = 0;
@@ -242,7 +241,7 @@ $result_id = $db->query($sqllist);
         <th>汇率</th>
         <th>金额</th>
         <th>未税金额</th>
-        <th>税金<br>(13%)</th>
+        <th>税金</th>
         <th>价税合计</th>
         <th>收款比</th>
         <th>发票比</th>
@@ -277,7 +276,7 @@ $result_id = $db->query($sqllist);
           $src = $src?strstr($src,'$$')?substr($src,strpos($src,'$$')+2):$src:' ';
           //获取税金
           if($row['currency'] == 'rmb_vat' || $row['currency'] == 'rmb'){
-               $order_vat = $row['order_vat']?$row['order_vat']:Floatval($row['deal_price'] * 0.13);
+               $order_vat = $row['order_vat'];
                $order_vat = number_format($order_vat,2,'.','');
             }else{
               $order_vat =  $row['order_vat']?$row['order_vat']:0;
@@ -333,7 +332,7 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $row['mold_rate']?></td>
         <td class="show_list agreement_price"><?php echo number_format($row['agreement_price'],2,'.','')?></td>
         <td class="show_list deal_price"><?php echo number_format($row['deal_price'],2,'.','')?></td>
-        <td class="edit_vat order_vat"><?php echo $order_vat ?></td>
+        <td class="show_list order_vat"><?php echo $order_vat ?></td>
         <td class="show_list order_total_rmb"><?php echo $order_total_rmb?></td>
         <td class="show_list"><?php echo $pay_percent ?></td>
         <td class="show_list"><?php echo $bill_percent?></td>
@@ -344,9 +343,9 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"></td>
-        <td class="show_list">
-          <a id="btn1" style="color:black" href="order_start.php?mould_type=task&mould_id=<?php echo $row['mould_dataid'] ?>">简易任务</a>
-          <a id="btn2" style="color:black" href="order_start.php?mould_type=normal&mould_id=<?php echo $row['mould_dataid'] ?>">模具规格书</a>
+        <td class="show_list" width="60">
+          <a id="btn1" href="order_start.php?mould_type=task&mould_id=<?php echo $row['mould_dataid'] ?>">简易任务</a>
+          <a id="btn2" href="order_start.php?mould_type=normal&mould_id=<?php echo $row['mould_dataid'] ?>">模具规格书</a>
         </td>
       </tr> 
 
@@ -358,9 +357,9 @@ $result_id = $db->query($sqllist);
         <td></td>
         <td></td>
         <td></td>
-        <td id="agreement_price" ><?php echo $tot_agreement ?></td>
+        <td id="agreement_price" ><?php echo number_format($tot_agreement,2,'.','') ?></td>
         <td id="deal_price" class="rmb_tot"><?php echo $tot_deal ?></td>
-        <td id="order_vat" class="rmb_tot"><?php echo $tot_vat ?></td>
+        <td id="order_vat" class="rmb_tot"><?php echo number_format($tot_vat,2,'.','') ?></td>
         <td id="order_total_rmb" class="rmb_tot"><?php echo $tot_all ?></td>
         <td></td>
         <td></td>
