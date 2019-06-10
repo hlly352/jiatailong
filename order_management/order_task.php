@@ -194,7 +194,7 @@ $result_id = $db->query($sqllist);
   })
   //自动计算金额
   $(".unit_price,.number,.mold_rate,.currency").live('change',function(){
-    var num = $(this).parent().parent().prevAll().size() -1;
+    var num = $(this).parent().parent().prevAll().size() -2;
     var number = $('.number').eq(num).val();
     var unit_price = $('.unit_price').eq(num).val();
     var mold_rate = $('.mold_rate').eq(num).val();
@@ -216,16 +216,28 @@ $result_id = $db->query($sqllist);
         deal_price = deal_price.toFixed(2);
         $('.deal_price').eq(num).val(deal_price);
         //判断是否是人民币未税
-	        if(currency == 'rmb'){
-	        	var order_vat = parseFloat(number * unit_price * mold_rate * 0.13);
-	        } else {
-	        	var order_vat = 0;
-	        }
-	 
+          if(currency == 'rmb'){
+            var order_vat = parseFloat(number * unit_price * mold_rate * 0.13);
+          } else {
+            var order_vat = 0;
+          }
+   
       }
       //格式化税金
       order_vat = order_vat.toFixed(2);
       $('.order_vat').eq(num).val(order_vat);
+      //计算价税合计
+      
+      if(currency == 'rmb'){
+
+        var order_total_rmb = parseFloat($('.deal_price').eq(num).val()) + parseFloat(order_vat);
+      } else {
+        var order_total_rmb = agreement_price * mold_rate;
+      }
+      //格式化价税合计
+ 
+      order_total_rmb = parseFloat(order_total_rmb).toFixed(2);
+      $('.order_total_rmb').eq(num).val(order_total_rmb);
     }
   })
     })
@@ -243,23 +255,28 @@ $result_id = $db->query($sqllist);
   <form action="order_taskdo.php?action=add" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
-        <th style="">日期</th>
-        <th style="">客户代码</th>
-        <th style="">客户名称</th>
-        <th style="">客户订单编号</th>
-        <th style="">项目名称</th>
-        <th style="">模具编号</th>
-        <th style="">零件名称</th>
-        <th style="">订单内容</th>
-        <th style="">数量</th>
-        <th style="">单价</th>
-        <th style="">币别</th>
-        <th style="">汇率</th>
-        <th style="">金额</th>
-        <th style="">人民币未税价格</th>
-        <th style="">税金</th>
+        <th rowspan="2" style="">日期</th>
+        <th rowspan="2" style="">客户代码</th>
+        <th rowspan="2" style="">客户名称</th>
+        <th rowspan="2" style="">客户订单编号</th>
+        <th rowspan="2" style="">项目名称</th>
+        <th rowspan="2" style="">模具编号</th>
+        <th rowspan="2" style="">零件名称</th>
+        <th rowspan="2" style="">订单内容</th>
+        <th colspan="5">合同内容</th>
+        <th colspan="3">人民币计价</th>
+       
      </tr>
-
+     <tr>
+          <th style="">数量</th>
+          <th style="">单价</th>
+          <th style="">币别</th>
+          <th style="">汇率</th>
+          <th style="">金额</th>
+          <th style="">人民币未税价格</th>
+          <th style="">税金</th>
+          <th style="">价税合计</th>
+      </tr>
      <tr class="task">
               <td class="show_list"><input type="text" name="" value="<?php echo date('Y-m-d',time()) ?>"></td>
               <td class="show_list"><input type="text" name="customer_code[]" class="customer_codes"></td>
@@ -291,9 +308,10 @@ $result_id = $db->query($sqllist);
               <td class="show_list"><input type="text" name="agreement_price[]" id="agreement_price" class="agreement_price"/></td>
               <td class="show_list"><input type="text" name="deal_price[]" id="deal_price" class="deal_price"></td>
               <td class="show_list"><input type="text" name="order_vat[]" id="order_vat" class="order_vat"></td>
+              <td class="show_list"><input type="text" id="order_total_rmb" class="order_total_rmb"></td>
           </tr>
           <tr>
-              <td colspan="15" style="align:center">
+              <td colspan="16" style="align:center">
                <span id="add_task">新 建</span>
                 &nbsp;&nbsp;
                 <input id="save_task" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">

@@ -112,4 +112,31 @@ $array_ejection_system = array('顶针','司筒','顶块','直顶','斜顶','推
 ');
 //取件方式
 $array_pickup_way = array('自动掉落','机械手','手工');
+//项目名称
+$array_project_name = array('模架','模架A板','模架B板','模架顶针板','型腔','型芯','滑块','斜顶','镶件');
+//材料硬度
+$array_material_hard = array('HRC18-28','HRC28-32','HRC38-42','HRC48-52');
+//特殊处理
+$array_special_handle = array('无','氮化','涂层','热处理+氮化','热处理+涂层');
+//其它
+$array_other = array('HASCO标准','DME标准','LKM标准');
+//表面要求
+$array_surface_require = array('刀纹','去刀纹','省模','抛光','火花纹','蚀纹');
+//打样胶料
+$array_draw_material = array('自购','客供');
+//寄样方式
+$array_draw_post = array('国内快递','国际快递','客户自提
+');
+//包装方式
+$array_pack_method = array('木箱','铁架','踏板
+');
+//运输方式
+$array_mould_transport = array('海运','空运','汽运','火车
+');
+//交付地点
+$array_hand_over = array('本厂','国内','国外
+');
+//结算方式
+$array_settle_way = array('EXW','FOB/CIF','DDP
+');
 ?>

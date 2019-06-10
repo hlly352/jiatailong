@@ -102,7 +102,7 @@ $result_id = $db->query($sqllist);
   #add_task+input{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;}
   .deal_price,.order_vat,.order_total_rmb,.rmb_tot{background:#ddd;}
   .input_tx{width:80px;margin-right:10px;}
-  #btn1,#btn2{font-size:5px;display:block;padding-top:5px;}
+  #btn1,#btn2{margin:0 auto;padding-left:7px;display:block;padding-top:2px;width:60px;font-size:10px;-webkit-transform-origin-x: 0;-webkit-transform: scale(0.80)}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
@@ -343,9 +343,14 @@ $result_id = $db->query($sqllist);
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"><?php echo $row['notes']?></td>
         <td class="show_list"></td>
-        <td class="show_list" width="60">
-          <a id="btn1" href="order_start.php?mould_type=task&mould_id=<?php echo $row['mould_dataid'] ?>">简易任务</a>
-          <a id="btn2" href="order_start.php?mould_type=normal&mould_id=<?php echo $row['mould_dataid'] ?>">模具规格书</a>
+        <td class="show_list" width="70">
+          <?php if($row['is_start'] == '1'){ ?>
+            已启动
+          <?php }else{ ?>
+            <a id="btn1" href="order_start.php?mould_type=task&mould_id=<?php echo $row['mould_dataid'] ?>">
+            简易项目</a>
+            <a id="btn2" href="order_start.php?mould_type=normal&mould_id=<?php echo $row['mould_dataid'] ?>">模具规格书</a>
+          <?php } ?>
         </td>
       </tr> 
 
