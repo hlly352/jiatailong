@@ -36,7 +36,6 @@ $result = $db->query($sql);
       table tr td{border:1px solid grey;font-size:11px;display:table-cell;}
       .submit{width:80px;height:25px;}
       select{width:75%;}
-      #table_list table tr .noborder{border:0;}
 </style>
 <script type="text/javascript" charset="utf-8">
     $(function(){
@@ -52,7 +51,7 @@ $result = $db->query($sql);
 
 <?php 
 	//判断显示哪一个页面
-	if($mould_type == 'task'){
+	if( $mould_type){
 
 
 ?>
@@ -171,14 +170,14 @@ $result = $db->query($sql);
         <tr class="distance"></tr>
         <tr>
       	<td colspan="7">
-      		<input type="submit" class="submit" value="发起项目">
+      		<input type="submit" class="submit" value="保存">
       	</td>
       </tr>
     </table>
   </form>
   </div>
   <?php } 
-  	elseif($mould_type == 'normal'){
+  	else{
   ?>
   <h4 style="padding-left:10px">
       发起模具规格书
@@ -187,15 +186,14 @@ $result = $db->query($sql);
   <form action="order_start_do.php?action=add" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
-          <td class="noborder title">基本信息</td>
-          <td colspan="3" class="noborder"></td>
-          <td class="noborder">客户合同编号</td>
-          <td class="noborder">
+          <td colspan="6" style="text-align:right;padding-right:20px">客户合同编号</td>
+          <td>
               <input type="hidden" name="mould_id" value="<?php echo $_GET['mould_id'] ?>">
               <input type="text" name="customer_order_no" value="<?php echo $info['customer_order_no'] ?>" >
           </td>
         </tr>
       <tr>
+       <td rowspan="4">基本资料</td>
        <td>客户代码</td>
        <td>
          <input type="text" name="customer_code" value="<?php echo $info['customer_code'] ?>">
@@ -267,11 +265,9 @@ $result = $db->query($sql);
          <input type="text" name="finish_time">
        </td>
       </tr>
+      <tr class="distance"></tr>
       <tr>
-        <td class="noborder title">注塑机及周边匹配信息</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
+       <td rowspan="4">注塑机及周边匹配信息</td>
        <td>机器品牌</td>
        <td>
          <input type="text" name="machine_supplier">
@@ -320,35 +316,30 @@ $result = $db->query($sql);
        <td>
          <input type="text" name="catchment">
        </td>
-       <td>电子阀接头规格</td>
+       <td>集油块接头规格</td>
        <td>
-         <input type="text" name="electron_valve">
+         <input type="text" name="oil_collection">
        </td>
-       
        <td>气阀接头规格</td>
        <td>
          <input type="text" name="air_valve">
        </td>
       </tr>
-      <tr>
-       <td>集油块接头规格</td>
+        <tr>
+       <td>电子阀接头规格</td>
        <td>
-         <input type="text" name="oil_collection">
+         <input type="text" name="electron_valve">
        </td>
        <td>热流道温控箱接头规格</td>
        <td>
          <input type="text" name="temperature_control">
        </td>
-       <td>其它要求</td>
-       <td>
-         <input type="text" name="other_require">
-       </td>
+       <td></td>
+       <td></td>
       </tr>
+      <tr class="distance"></tr>
       <tr>
-        <td class="noborder title">模具布局</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
+       <td rowspan="4">模具布局</td>
        <td>模具要求</td>
        <td>
             <select name="mould_require">
@@ -456,29 +447,19 @@ $result = $db->query($sql);
       <tr>
        <td>模具是否出口</td>
        <td>
-       	<label>
-          <input type="radio" name="is_export" vlaue="1">
-          是
-        </label>
-        <label>
-          <input type="radio" name="is_export" vlaue="0">
-          否
-        </label>  
-       </td>
-       <td>是否备模或类似参考</td>
-       <td>
-         <input type="text" name="is_reference">
+       	<label><input type="radio" name="is_export"> 是</label>
+        <label><input type="radio" name="is_export"> 否</label>  
        </td>
        <td>成型周期</td>
        <td>
          <input type="text" name="molding_cycle">
        </td>
+       <td></td>
+       <td></td>
       </tr>
+      <tr class="distance"></tr>
       <tr>
-        <td class="noborder title">进胶、冷却加热、抽芯、顶出等</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
+       <td rowspan="3">进胶、冷却加热、顶出</td>
        <td>浇口类型INJECTION GATE</td>
        <td>
          <select name="injection_type">
@@ -582,16 +563,14 @@ $result = $db->query($sql);
        <td></td>
        <td></td>
       </tr>
-      <tr>
-        <td class="noborder title">模具材料及要求</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
+      <tr class="distance"></tr>
         <tr>
        <td>项目</td>
        <td>材料品牌</td>
        <td>材料牌号</td>
        <td>材料硬度</td>
        <td>特殊处理</td>
+       <td>其他</td>
        <td>表面要求</td>
       </tr>
       <?php foreach($array_project_name as $key=>$value){ ?>
@@ -604,7 +583,7 @@ $result = $db->query($sql);
            <input type="text" name="material_specification[]">
          </td>
          <td>
-            <select name="material_hard[]">
+            <select name="material_hard">
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_material_hard as $k=>$v){
@@ -615,7 +594,7 @@ $result = $db->query($sql);
             </select>
          </td>
          <td>
-            <select name="special_handle[]">
+            <select name="special_handle">
                     <?php
                         foreach($array_special_handle as $k=>$v){
 
@@ -624,8 +603,23 @@ $result = $db->query($sql);
                      ?>
             </select>
          </td>
+         <td>
+            <?php if($key<4){ ?>
+              <select name="other">
+                      <?php
+                         echo '<option value="">--请选择--</option>';
+                          foreach($array_other as $k=>$v){
+
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
+                       ?>
+              </select>
+            <?php }else{ ?>
+              <input type="text" name="other">
+            <?php } ?>
+         </td>
          <td> 
-              <select name="surface_require[]">
+              <select name="surface_require">
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_surface_require as $k=>$v){
@@ -637,124 +631,233 @@ $result = $db->query($sql);
          </td>
       </tr>
       <?php }?>
-      <tr>
-        <td class="noborder title">配件标准</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
-        <td>项目</td>
-        <td>品牌</td>
-        <td>规格</td>
-        <td>项目</td>
-        <td>品牌</td>
-        <td>规格</td>
-      </tr>
-      <tr>
-        <td>标准件</td>
-        <td>
-          <input type="text" name="supplier">
-        </td>
-        <td>
-          <input type="text" name="specification[]">
-        </td>
-        <td>水管接头</td>
-        <td>
-          <input type="text" name="supplier">
-        </td>
-        <td>
-          <input type="text" name="specification[]">
-        </td>
-      </tr>
-      <tr>
-        <td>日期章</td>
-        <td>
-          <input type="text" name="supplier">
-        </td>
-        <td>
-          <input type="text" name="specification[]">
-        </td>
-        <td>电子阀接头</td>
-        <td>
-          <input type="text" name="supplier">
-        </td>
-        <td>
-          <input type="text" name="specification[]">
-        </td>
-      </tr>
-      <tr>
-        <td>油缸</td>
-        <td>
-          <input type="text" name="supplier">
-        </td>
-        <td>
-          <input type="text" name="specification[]">
-        </td>
-        <td>气动接头</td>
-        <td>
-          <input type="text" name="supplier">
-        </td>
-        <td>
-          <input type="text" name="specification[]">
-        </td>
-      </tr>
-      <tr>
-        <td>皮纹</td>
-        <td>
-          <input type="text" name="supplier">
-        </td>
-        <td>
-          <input type="text" name="specification[]">
-        </td>
-        <td>油压接头</td>
-        <td>
-          <input type="text" name="supplier">
-        </td>
-        <td>
-          <input type="text" name="specification[]">
-        </td>
-      </tr>
-      <tr>
-        <td class="noborder title">试模打样</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
-        <td>客户参与试模</td>
-        <td>
+      <tr class="distance"></tr>
+        <tr>
+       <td>项目</td>
+       <td>品牌/Supplier</td>
+       <td>规格型号/Specification</td>
+       <td rowspan="3">设计要求</td>
+       <td>
           <label>
-            <input type="radio" name="customer_join" value="1">
-            是
+            <input type="checkbox" name="product_design">产品设计
           </label>
+       </td>
+       <td>
           <label>
-            <input type="radio" name="customer_join" value="0">
-            否
+            <input type="checkbox" name="mould_analyse">模流分析
           </label>
-        </td>
-        <td>严格按客户要求试模</td>
-        <td>
+       </td>
+       <td>
           <label>
-            <input type="radio" name="customer_require" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="customer_require" value="0">
-            否
-          </label>
-        </td>
-        <td>客户是否需要走水板</td>
-        <td>
-          <label>
-            <input type="radio" name="customer_water" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="customer_water" value="0">
-            否
+            <input type="checkbox" name="dfm_report">
+            DFM报告
           </label>
         </td>
       </tr>
+        <tr>
+       <td>镶件、日期章/Inserts</td>
+       <td>
+         <input type="text" name="supplier[]">
+       </td>
+       <td>
+         <input type="text" name="specification[]">
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="drawing_2d">
+            2D模具结构图
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="drawing_3d">
+            3D模具图
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="drawing_check">
+            图纸检查对照表
+          </label>
+       </td>
+      </tr>
       <tr>
-        <td>试模、打样胶料</td>
-        <td>
+       <td>标准件</td>
+       <td>
+         <input type="text" name="supplier[]">
+       </td>
+       <td>
+         <input type="text" name="specification[]"
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="customer_confirm">
+            客户确认书
+          </label>  
+       </td>
+       <td>
+         <label>
+            <input type="checkbox" name="customer_self_criticism">
+            客户当面检讨
+          </label>
+       </td>
+       <td></td>
+      </tr>
+      <tr>
+       <td>水管接头</td>
+       <td>
+         <input type="text" name="supplier[]">
+       </td>
+       <td>
+         <input type="text" name="specification[]">
+       </td>
+       <td rowspan="6">走模要求</td>
+       <td>
+         <label>
+            <input type="checkbox" name="is_move">
+            是否移模
+         </label> 
+       </td>
+       <td></td>
+       <td></td>
+      </tr>
+        <tr>
+       <td>油管接头</td>
+       <td>
+         <input type="text" name="supplier[]">
+       </td>
+       <td>
+         <input type="text" name="specification[]">
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_drawing">
+            纸制模具图纸
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_handbook">
+            模具手册
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="steel_material">
+            钢材材质证明
+          </label>
+       </td>
+      </tr>
+        <tr>
+       <td>热流道接头</td>
+       <td>
+         <input type="text" name="supplier[]">
+       </td>
+       <td>
+         <input type="text" name="specification[]">
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_check">
+            模具检测报告
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="sample_check">
+            样品检查报告
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_shaping">
+            试模成型报告
+          </label>
+       </td>
+      </tr>
+      <tr>
+       <td>油缸</td>
+       <td>
+         <input type="text" name="supplier[]">
+       </td>
+       <td>
+         <input type="text" name="specification[]">
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_phone">
+            模具末次试模照片、视频
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_enchase">
+            走模装箱照片、视频
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="dvd_usb">
+            光盘、USB电子数据
+          </label>
+       </td>
+      </tr>
+        <tr>
+       <td>皮纹</td>
+       <td>
+         <input type="text" name="supplier[]">
+       </td>
+       <td>
+         <input type="text" name="specification[]">
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="surface_spray">
+            外观喷漆
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="customer_plate">
+            客户铭牌
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_ring">
+            吊环
+          </label>
+       </td>
+      </tr>
+      <tr>
+       <td>特殊表面处理</td>
+       <td>
+         <input type="text" name="supplier[]">
+       </td>
+       <td>
+         <input type="text" name="specification[]">
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="back_parts">易损备件
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_electrode">电极
+          </label>
+       </td>
+       <td>
+          <label>
+            <input type="checkbox" name="mould_fixture">检具、夹具
+          </label>
+       </td>
+      </tr>
+      <tr class="distance"></tr>
+        <tr>
+       <td rowspan="3">样品、模具交付</td>
+       <td>试模、打样胶料</td>
+       <td>
          <select name="draw_material">
                       <?php
                           foreach($array_draw_material as $k=>$v){
@@ -763,13 +866,13 @@ $result = $db->query($sql);
                           }
                        ?>
               </select>
-        </td>
-        <td>免费样品数量/次数</td>
-        <td>
+       </td>
+       <td>免费样品数量/次数</td>
+       <td>
          <input type="text" name="draw_num">
-        </td>
-        <td>寄样方式</td>
-        <td>
+       </td>
+       <td>寄样方式</td>
+       <td>
          <select name="draw_post">
                    <?php
                       foreach($array_draw_post as $k=>$v){
@@ -778,22 +881,11 @@ $result = $db->query($sql);
                         }
                    ?>
           </select>
-         </td>
+       </td>
       </tr>
-      <tr>
-        <td>产品检查报告</td>
-        <td>
-          <select name="product_check">
-                   <?php
-                      foreach($array_product_check as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-        <td>包装方式</td>
-        <td>
+        <tr>
+       <td>模具包装方式</td>
+       <td>
            <select name="pack_method">
                    <?php
                       foreach($array_pack_method as $k=>$v){
@@ -802,34 +894,19 @@ $result = $db->query($sql);
                         }
                    ?>
           </select>
-        </td>
-        <td>其它事项</td>
-        <td>
-          <input type="text" name="other_thing">
-        </td>
-      </tr>
-      <tr>
-        <?php for($i=0;$i<6;$i++){ 
-          echo '<td>T'.$i.': <input type="text" style="width:100px" name="t_num"> 模</td>';
-        } ?>
-      </tr>
-      <tr>
-        <td class="noborder title">走模要求</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
-        <td>是否移模</td>
-        <td>
-         <label>
-            <input type="radio" name="is_move" value="1">
-            是
-         </label> 
-         <label>
-            <input type="radio" name="is_move" value="0">
-            否
-         </label>
        </td>
-       <td>模具交付目的地</td>
+       <td>模具运输方式</td>
+       <td>
+           <select name="mould_transport">
+                   <?php
+                      foreach($array_mould_transport as $k=>$v){
+
+                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                   ?>
+          </select>
+       </td>
+       <td>模具交付地点</td>
        <td>
            <select name="hand_over">
                    <?php
@@ -840,9 +917,33 @@ $result = $db->query($sql);
                    ?>
           </select>
        </td>
-       <td>交易结算方式</td>
+      </tr>
+        <tr>
+       <td>客户公司交模</td>
        <td>
-          <select name="settle_way">
+         <label>
+           <input type="radio" name="customer_company">
+           是
+         </label>
+         <label>
+           <input type="radio" name="customer_company">
+           否
+         </label>
+       </td>
+       <td>收取售后服务费用</td>
+       <td>
+          <label>
+           <input type="radio" name="service_fee">
+           是
+         </label>
+         <label>
+           <input type="radio" name="service_fee">
+           否
+         </label>
+       </td>
+       <td>交货结算方式</td>
+       <td>
+           <select name="settle_way">
                    <?php
                       foreach($array_settle_way as $k=>$v){
 
@@ -852,355 +953,52 @@ $result = $db->query($sql);
           </select>
        </td>
       </tr>
+      <tr class="distance"></tr>
       <tr>
-        <td>模具外观喷漆</td>
-         <td>
-          <select name="surface_spray">
-                   <?php
-                      foreach($array_surface_spray as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-         </td>
-         <td>热流道、运水、动作铭牌</td>
-         <td>
-           <select name="action_plate" multiple="multiple">
-                   <?php
-                      foreach($array_action_plate as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-         </td>
-         <td>客户及我司铭牌</td>
-         <td>
-          <select name="customer_plate" multiple="multiple">
-                   <?php
-                      foreach($array_customer_plate as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-         </td>
-      </tr>
-      <tr>
-        <td>吊环、备件、电极</td>
-        <td>
-         <select name="mould_ring">
-                   <?php
-                      foreach($array_mould_ring as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-        <td>末次样品、模具手册、2D图纸、数据光盘</td>
-        <td>
-          <select name="mould_handbook">
-                   <?php
-                      foreach($array_mould_handbook as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-        <td>钢材材质证明、热处理证明</td>
-        <td>
-          <label>
-            <input type="radio" name="steel_material" vlaue="1">
-            要
-          </label>
-          <label>
-            <input type="radio" name="steel_material" value="0">
-            不要
-          </label>
-        </td>
-      </tr>
-      <tr>
-        <td>零件检查报告、走模前检查报告</td>
-        <td>
-            <label>
-            <input type="radio" name="mould_check" vlaue="1">
-            要
-          </label>
-          <label>
-            <input type="radio" name="mould_check" value="0">
-            不要
-          </label>
-        </td>
-        <td>试模报告、样品检测报告</td>
-        <td>
-          <select name="sample_check">
-                   <?php
-                      foreach($array_sample_check as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-         <td>末次试模照片、视频</td>
-        <td>
-          <label>
-            <input type="radio" name="mould_phone" vlaue="1">
-            要
-          </label>
-          <label>
-            <input type="radio" name="mould_phone" value="0">
-            不要
-          </label>
-        </td>
-      </tr>
-      <tr>
-        <td>走模装箱照片、视频</td>
-        <td>
-          <label>
-            <input type="radio" name="phone_vedio" vlaue="1">
-            要
-          </label>
-          <label>
-            <input type="radio" name="phone_vedio" value="0">
-            不要
-          </label>
-        </td>
-        <td>模具包装方式</td>
-        <td>
-          <select name="mould_pack">
-                   <?php
-                      foreach($array_mould_pack as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-           <td>模具运输方式</td>
-        <td>
-           <select name="mould_transport">
-                   <?php
-                      foreach($array_mould_transport as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td>客户处交模、验模</td>
+        <td>流程控制</td>
+        <td>产品评审会</td>
         <td>
            <label>
-            <input type="radio" name="customer_try" vlaue="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="customer_try" value="0">
-            否
-          </label>
+           <input type="radio" name="product_judge">
+           是
+         </label>
+         <label>
+           <input type="radio" name="product_judge">
+           否
+         </label>
         </td>
-        <td>售后服务</td>
+        <td>模具评审会</td>
         <td>
            <label>
-            <input type="radio" name="service_fee" vlaue="1">
-            收费
-          </label>
-          <label>
-            <input type="radio" name="service_fee" value="0">
-            免费
-          </label>
+           <input type="radio" name="mould_judge">
+           是
+         </label>
+         <label>
+           <input type="radio" name="mould_judge">
+           否
+         </label>
         </td>
-        <td>其它要求</td>
+        <td>加工工艺评审会</td>
         <td>
-          <input type="text" name="go_mould_require">
-        </td>
-      </tr>
-      <tr>
-        <td class="noborder title">流程控制</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
-        <td>产品设计</td>
-        <td>
-          <label>
-            <input type="radio" name="product_design" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="product_design" value="0">
-            否
-          </label>
-       </td>
-       <td>模流分析</td>
-       <td>
-          <label>
-            <input type="radio" name="mould_analyse" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="mould_analyse" value="0">
-            否
-          </label>
-       </td>
-        <td>DFM报告</td>
-        <td>
-          <label>
-            <input type="radio" name="dfm_report" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="dfm_report" value="0">
-            否
-          </label>
+           <label>
+           <input type="radio" name="machining_judge">
+           是
+         </label>
+         <label>
+           <input type="radio" name="machining_judge">
+           否
+         </label>
         </td>
       </tr>
-        <td>2D模具结构设计图</td>
-        <td>
-          <label>
-            <input type="radio" name="drawing_2d" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="drawing_2d" value="0">
-            否
-          </label>
-        </td>
-        <td>全3D模具图</td>
-        <td>
-          <label>
-            <input type="radio" name="drawing_3d" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="drawing_3d" value="0">
-            否
-          </label>
-        </td>
-        <td>图纸检查对照表</td>
-        <td>
-           <select name="drawing_check">
-                   <?php
-                      foreach($array_drawing_check as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
+         <tr>
+        <td>重点提示</td>
+        <td colspan="6" style="text-align:left;padding-left:25px">
+          <input type="text" name="task_content" style="width:31%"> 
         </td>
       </tr>
-      <tr>
-         <td>项目启动会</td>
-        <td>
-          <label>
-            <input type="radio" name="project_start" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="project_start" value="0">
-            否
-          </label>
-        </td>
-         <td>产品评审会</td>
-        <td>
-          <label>
-            <input type="radio" name="product_judge" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="product_judge" value="0">
-            否
-          </label>
-        </td>
-         <td>模具结构评审会</td>
-        <td>
-          <label>
-            <input type="radio" name="muould_judge" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="muould_judge" value="0">
-            否
-          </label>
-        </td>
-      </tr>
-      <tr>
-         <td>零件加工工艺评审会</td>
-        <td>
-          <label>
-            <input type="radio" name="machining_judge" value="1">
-            是
-          </label>
-          <label>
-            <input type="radio" name="machining_judge" value="0">
-            否
-          </label>
-        </td>
-        <td>客户评审方式</td>
-        <td>
-           <select name="judge_method">
-                   <?php
-                      foreach($array_judge_method as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-        <td>客户确认图纸方式</td>
-        <td>
-           <select name="customer_confirm">
-                   <?php
-                      foreach($array_customer_confirm as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td>项目进度汇报</td>
-        <td>
-           <select name="project_progress">
-                   <?php
-                      foreach($array_project_progress as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-         <td>出错汇报</td>
-        <td>
-           <select name="error_report">
-                   <?php
-                      foreach($array_error_report as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
-        </td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td class="noborder title">草图及重点提示</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
-        <td colspan="6"></td>
-      </tr>
-      <tr>
-        <td class="noborder title">负责人与审核</td>
-        <td class="noborder" colspan="5"></td>
-      </tr>
-      <tr>
+      <tr class="distance"></tr>
+        <tr>
+        <td rowspan="3">责任人与审核</td>
         <td>销售经理</td>
         <td>
           <input type="text" name="sales_manager">
@@ -1245,7 +1043,7 @@ $result = $db->query($sql);
       <tr class="distance"></tr>
       <tr>
       	<td colspan="7">
-      		<input type="submit" class="submit" value="发起项目">
+      		<input type="submit" class="submit" value="保存">
       	</td>
       </tr>
        </table>

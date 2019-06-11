@@ -3,7 +3,7 @@
 </div>
 <div id="menu">
   <ul>
-    <li class="menulevel"><a href="/project_management/">首页</a></li>
+    <li class="menulevel"><a href="new_project.php">新的任务</a></li>
     <li class="menulevel"><a href="mould.php">模具数据</a></li>
     <li class="menulevel"><a href="#">模具试模</a>
       <ul>

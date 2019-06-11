@@ -118,8 +118,6 @@ $array_project_name = array('模架','模架A板','模架B板','模架顶针板'
 $array_material_hard = array('HRC18-28','HRC28-32','HRC38-42','HRC48-52');
 //特殊处理
 $array_special_handle = array('无','氮化','涂层','热处理+氮化','热处理+涂层');
-//其它
-$array_other = array('HASCO标准','DME标准','LKM标准');
 //表面要求
 $array_surface_require = array('刀纹','去刀纹','省模','抛光','火花纹','蚀纹');
 //打样胶料
@@ -139,4 +137,30 @@ $array_hand_over = array('本厂','国内','国外
 //结算方式
 $array_settle_way = array('EXW','FOB/CIF','DDP
 ');
+//产品检查报告
+$array_product_check = array('自检','客检','第三方/');
+//模具外观喷漆
+$array_surface_spray = array('无','客户指定颜色');
+//热流道、运水、动作铭牌
+$array_action_plate = array('热流道','运水','动作铭牌');
+//客户铭牌
+$array_customer_plate = array('客户','本厂');
+//吊环、备件、电极
+$array_mould_ring = array('吊环','备件','电极');
+//模具手册
+$array_mould_handbook = array('随箱发送','单独寄客户');
+//试模报告、样品检测报告
+$array_sample_check = array('不要','每次','仅末次');
+//模具包装方式
+$array_mould_pack = array('木箱/铁架/踏板');
+// 图纸检查对照表
+$array_drawing_check = array('客户','本厂');
+//客户评审方式
+$array_judge_method = array('按2D模具结构图','按全3D','现场评审');
+//客户确认方式
+$array_customer_confirm = array('书面','现场确认');
+//项目进度汇报
+$array_project_progress = array('每周','每月');
+//出错汇报
+$array_error_report = array('自行补救','客户方案');
 ?>
