@@ -16,18 +16,27 @@ $result = $db->query($sql);
       $info = $result->fetch_assoc();
   }
   echo '<meta charset="utf-8">';
- 
+ //获取型腔数
+ $cavity_num = $info['cavity_type'];
+ if(strpos($cavity_num,'$$')){
+    $cavity = str_replace('$$','+',$cavity_num);
+ }else{
+    $cavity = '1*'.$cavity_num;
+ }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="../css/system_base.css" type="text/css" rel="stylesheet" />
+<link href="../css/jquery-ui.css" type="text/css" rel="stylesheet" />
 <link href="css/main.css" type="text/css" rel="stylesheet" />
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
+<script language="javascript" type="text/javascript" src="../js/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="../js/jquery-ui.js"></script>
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
-<script language="javascript" type="text/javascript" src="../js/main.js"></script>
+
 
 <title>订单管理-嘉泰隆</title>
 <style type="text/css">
@@ -35,14 +44,73 @@ $result = $db->query($sql);
       .distance{height:10px;}
       table tr td{border:1px solid grey;font-size:11px;display:table-cell;}
       .submit{width:80px;height:25px;}
-      select{width:75%;}
+      select{width:75%;height:22px;}
+      table tr td input[type='text']{width:75%;height:22px;}
       #table_list table tr .noborder{border:0;}
+      #table_list table tr td .tips{width:15%;background:white;display:inline-block;height:10px;margin-top:-3px;}
+      #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:;}
 </style>
 <script type="text/javascript" charset="utf-8">
-    $(function(){
-
    
- 
+  $(function(){
+    var availableTags = ['HASCO','DME','LKM','盘起'];
+    var water_connect = ['HASCO','DME','Staubli','日东'];
+    var connector = ['HASCO','DME','Festo','LKM'];
+    var cylinder = ['Merkle','HPS','HEB','Parker'];
+    var material_supplier = ['HASCO/DME','LKM','仿HASCO','仿DME','仿LKM'];
+    var material_specification = ["45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)","Cu"];
+    //材料品牌
+    var num = $('.material_auto').size();
+    for(var i=0;i<num;i++){
+      $('.material_auto').eq(i).autocomplete({
+        source: material_supplier
+      });
+    }
+    //材料牌号
+    var index = $('.material_specification').size();
+    for(var i=0;i<index;i++){
+      $('.material_specification').eq(i).autocomplete({
+        source: material_specification
+      });
+    }
+    //标准件
+    $( "#supplier" ).autocomplete({
+      source: availableTags
+    });
+    //日期章
+    $('#date_chapter').autocomplete({
+      source: availableTags
+    })
+    //水管接头
+    $('#water_connect').autocomplete({
+      source: water_connect
+    })
+    //电子阀接头
+    $('#electronic_connector').autocomplete({
+      source: connector
+    })
+    //气动接头
+    $('#air_connector').autocomplete({
+      source: connector
+    })
+    //油接头
+    $('#oil_connector').autocomplete({
+      source: connector
+    })
+    //油缸
+    $('#cylinder').autocomplete({
+      source: cylinder
+    })
+    //唧嘴选中sr时变为输入框
+    $('#ji_sr').bind('change',function(){
+      var ji_sr = $(this).val();
+      var inp = '<input type="text" name="ji_sr">';
+      if(ji_sr == '2'){
+        var par = $(this).parent();
+        $(this).remove();
+        par.append(inp);
+      }
+    })
     })
 </script>
 </head>
@@ -56,8 +124,9 @@ $result = $db->query($sql);
 
 
 ?>
+
+
   <h4 style="padding-left:10px">
-      发起简易项目
   </h4>
   <div id="table_list">
   <form action="order_start_do.php?action=add" name="" method="post">
@@ -91,7 +160,7 @@ $result = $db->query($sql);
           </td>
           <td>图纸类型</td>
           <td>
-            <select name="drawing_type" style="width:69%">
+            <select name="drawing_type">
                   <?php
                      echo '<option value="">--请选择--</option>';
                       foreach($array_drawing_type as $k=>$v){
@@ -103,7 +172,7 @@ $result = $db->query($sql);
           </td>
           <td>重点要求</td>
           <td>
-          <select name="require" style="width:69%">
+          <select name="require">
                   <?php
                      echo '<option value="">--请选择--</option>';
                       foreach($array_require as $k=>$v){
@@ -121,7 +190,7 @@ $result = $db->query($sql);
           </td>
           <td>任务内容</td>
           <td colspan="3">
-            <input type="text" name="task_content" style="width:88%;text-align:left">
+            <input type="text" name="task_content" style="width:91%;text-align:left">
           </td>
         </tr>
          <tr>
@@ -181,7 +250,6 @@ $result = $db->query($sql);
   	elseif($mould_type == 'normal'){
   ?>
   <h4 style="padding-left:10px">
-      发起模具规格书
   </h4>
   <div id='table_list'>
   <form action="order_start_do.php?action=add" name="list" method="post">
@@ -246,7 +314,7 @@ $result = $db->query($sql);
        </td>
        <td>型腔数</td>
        <td>
-         <input type="text" name="cavity_num" >
+         <input type="text" name="cavity_num" value="<?php echo $cavity ?>">
        </td>
        <td>产品缩水率</td>
        <td>
@@ -278,7 +346,8 @@ $result = $db->query($sql);
        </td>
        <td>机器吨位</td>
        <td>
-         <input type="text" name="machine_tonnage">
+         <input type="text" name="machine_tonnage" style="width:58%">
+         <p class="tips">T</p>
        </td>
        <td>模具装夹方式</td>
        <td>
@@ -296,11 +365,12 @@ $result = $db->query($sql);
       <tr>
        <td>定位环直径</td>
        <td>
-         <input type="text" name="locator">
+         <input type="text" name="locator" style="width:58%">
+         <p class="tips">mm</p>
        </td>
        <td>唧嘴SR</td>
        <td>
-         <select name="ji_sr">
+         <select name="ji_sr" id="ji_sr">
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_ji_sr as $k=>$v){
@@ -312,7 +382,9 @@ $result = $db->query($sql);
        </td>
        <td>KO直径、螺牙</td>
        <td>
-         <input type="text" name="screw">
+          直径:
+          <input type="text" name="screw_diameter" style="width:30px;">mm螺牙:
+          <input type="text" name="screw" style="width:30px">M
        </td>
       </tr>
         <tr>
@@ -450,7 +522,8 @@ $result = $db->query($sql);
        </td>
        <td>模具寿命</td>
        <td>
-       	<input type="text" name="mould_life">
+       	<input type="text" name="mould_life" style="width:58%">
+        <p class="tips">万</p>
        </td>
       </tr>
       <tr>
@@ -467,11 +540,13 @@ $result = $db->query($sql);
        </td>
        <td>是否备模或类似参考</td>
        <td>
-         <input type="text" name="is_reference">
+         <p class="tips">模号:</p>
+         <input type="text" name="is_reference" style="width:58%">
        </td>
        <td>成型周期</td>
        <td>
-         <input type="text" name="molding_cycle">
+         <input type="text" name="molding_cycle" style="width:58%">
+         <p class="tips">S</p>
        </td>
       </tr>
       <tr>
@@ -543,7 +618,7 @@ $result = $db->query($sql);
        </td>
        <td>特殊冷却加热</td>
        <td>
-         <select name="sepcial_cool">
+         <select name="sepcial_cool" multiple="multiple" style="height:30px">
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_sepcial_cool as $k=>$v){
@@ -598,10 +673,22 @@ $result = $db->query($sql);
         <tr>
          <td><?php echo $value ?></td>
          <td>
-           <input type="text" name="material_supplier[]">
+            <?php if($key<4){ ?>
+              <div class="ui-widget">
+                <input type="text" name="material_supplier[]" class="material_supplier material_auto">
+              </div>
+            <?php }else{ ?>
+              <select name="material_supplier[]" class="material_supplier">
+                 <?php
+                    foreach($array_material_county as $k=>$v){
+                        echo '<option value="'.$k.'">'.$v.'</option>';
+                      }
+                     ?>
+              </select>
+            <?php } ?>
          </td>
          <td>
-           <input type="text" name="material_specification[]">
+           <input type="text" name="material_specification[]" class="material_specification">
          </td>
          <td>
             <select name="material_hard[]">
@@ -652,65 +739,85 @@ $result = $db->query($sql);
       <tr>
         <td>标准件</td>
         <td>
-          <input type="text" name="supplier">
+          <div class="ui-widget"> 
+            <input type="text" name="supplier[]" class="supplier" id="supplier">
+          </div>
         </td>
         <td>
-          <input type="text" name="specification[]">
+          <input type="text" name="specification[]" class="specification">
         </td>
         <td>水管接头</td>
         <td>
-          <input type="text" name="supplier">
+          <div class="ui-widget">
+            <input type="text" name="supplier[]" class="supplier" id="water_connect">
+          </div>
         </td>
         <td>
-          <input type="text" name="specification[]">
+          <input type="text" name="specification[]" class="specification">
         </td>
       </tr>
       <tr>
         <td>日期章</td>
         <td>
-          <input type="text" name="supplier">
+          <div class="ui-widget">
+            <input type="text" name="supplier[]" class="supplier" id="date_chapter">
+          </div>
         </td>
         <td>
-          <input type="text" name="specification[]">
+          <input type="text" name="specification[]" class="specification">
         </td>
         <td>电子阀接头</td>
         <td>
-          <input type="text" name="supplier">
+          <div class="ui-widget">            
+            <input type="text" name="supplier[]" class="supplier" id="electronic_connector">
+          </div>
         </td>
         <td>
-          <input type="text" name="specification[]">
+          <input type="text" name="specification[]" class="specification">
         </td>
       </tr>
       <tr>
         <td>油缸</td>
         <td>
-          <input type="text" name="supplier">
+          <div class="ui-widget">
+            <input type="text" name="supplier[]" class="supplier" id="cylinder">
+          </div>
         </td>
         <td>
-          <input type="text" name="specification[]">
+          <input type="text" name="specification[]" class="specification">
         </td>
         <td>气动接头</td>
         <td>
-          <input type="text" name="supplier">
+          <div class="ui-widget">            
+            <input type="text" name="supplier[]" class="supplier" id="air_connector">
+          </div>
         </td>
         <td>
-          <input type="text" name="specification[]">
+          <input type="text" name="specification[]" class="specification">
         </td>
       </tr>
       <tr>
         <td>皮纹</td>
         <td>
-          <input type="text" name="supplier">
+           <select name="skin_texture">
+               <?php
+                  foreach($array_skin_texture as $k=>$v){
+                      echo '<option value="'.$k.'">'.$v.'</option>';
+                       }
+               ?>
+            </select>
         </td>
         <td>
-          <input type="text" name="specification[]">
+          <input type="text" name="specification[]" class="specification">
         </td>
         <td>油压接头</td>
         <td>
-          <input type="text" name="supplier">
+          <div class="ui-widget">            
+            <input type="text" name="supplier[]" class="supplier" id="oil_connector">
+          </div>
         </td>
         <td>
-          <input type="text" name="specification[]">
+          <input type="text" name="specification[]" class="specification">
         </td>
       </tr>
       <tr>
@@ -866,7 +973,7 @@ $result = $db->query($sql);
          </td>
          <td>热流道、运水、动作铭牌</td>
          <td>
-           <select name="action_plate" multiple="multiple">
+           <select name="action_plate" multiple="multiple" size="2">
                    <?php
                       foreach($array_action_plate as $k=>$v){
 
@@ -877,7 +984,7 @@ $result = $db->query($sql);
          </td>
          <td>客户及我司铭牌</td>
          <td>
-          <select name="customer_plate" multiple="multiple">
+          <select name="customer_plate" multiple="multiple" size="2">
                    <?php
                       foreach($array_customer_plate as $k=>$v){
 
@@ -1194,7 +1301,7 @@ $result = $db->query($sql);
         <td class="noborder" colspan="5"></td>
       </tr>
       <tr>
-        <td colspan="6"></td>
+        <td colspan="6" style="height:100px"></td>
       </tr>
       <tr>
         <td class="noborder title">负责人与审核</td>

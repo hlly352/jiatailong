@@ -163,4 +163,8 @@ $array_customer_confirm = array('书面','现场确认');
 $array_project_progress = array('每周','每月');
 //出错汇报
 $array_error_report = array('自行补救','客户方案');
+//皮纹
+$array_skin_texture = array('模德','客户指定','普通');
+//材料品牌
+$array_material_county = array('国产','进口');
 ?>

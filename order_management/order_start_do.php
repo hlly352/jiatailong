@@ -32,6 +32,7 @@ if($action == 'add'){
 	//去除最后一个逗号
 	$sql_value = substr($sql_value,0,strlen($sql_value)-1);
 	 $specification_sql = "INSERT INTO `db_mould_specification`($sql_key) VALUES(".$sql_val.")";
+	
 	 $mould_data_sql = "UPDATE `db_mould_data` SET `is_start`='1' WHERE `mould_dataid`={$data['mould_id']}";
 	//执行sql语句
 	$db->query($specification_sql);
