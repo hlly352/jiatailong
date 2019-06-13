@@ -57,7 +57,15 @@ if($res->num_rows){
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script type="text/javascript" charset="utf-8">
 	$(function(){
-			//选择客户后自动获取客户代码
+	//自动计算价税合计
+	if($('.currency').val() == 'rmb'){
+			var total_rmb = (parseFloat($('.agreement_price').val()) + parseFloat($('.order_vat').val())).toFixed(2);
+			$('.order_total_rmb').val(total_rmb);
+		} else {
+			var total_rmb = parseFloat($('.agreement_price').val()).toFixed(2);
+			$('.order_total_rmb').val(total_rmb);
+		}
+	//选择客户后自动获取客户代码
 	$('.customer_names').live('change',function(){
 		var num = $('.customer_names').index(this);
 		var customer_id = $(this).val();
@@ -154,51 +162,61 @@ if($res->num_rows){
 	})
 	//自动切换汇率
 	$('.currency').live('change',function(){
-		var num = $('.currency').index(this);
-		var currency = $('.currency').eq(num).val();
+		var currency = $(this).val();
 		//人民币汇率为 1
 		if(currency.indexOf('rmb') != -1){
-			$('.mold_rate').eq(num).val('1');
+			$('.mold_rate').val('1');
 		} else {
-			$('.mold_rate').eq(num).val(' ');
+			$('.mold_rate').val(' ');
 		}
 	})
 	//自动计算金额
 	$(".unit_price,.number,.mold_rate,.currency").live('change',function(){
-		var num = $(this).parent().parent().prevAll().size() -1;
-		var number = $('.number').eq(num).val();
-		var unit_price = $('.unit_price').eq(num).val();
-		var mold_rate = $('.mold_rate').eq(num).val();
-		var currency = $('.currency').eq(num).val();
+		var number = $('.number').val();
+		var unit_price = $('.unit_price').val();
+		var mold_rate = $('.mold_rate').val();
+		var currency = $('.currency').val();
 		
 		if(number && unit_price && mold_rate){
 			var agreement_price = parseFloat(number * unit_price);
 			agreement_price = agreement_price.toFixed(2);
-			$('.agreement_price').eq(num).val(agreement_price);
+			$('.agreement_price').val(agreement_price);
 			if(currency == 'rmb_vat'){
 				var rmb_vat = parseFloat(number * unit_price * mold_rate/1.13);
 				var rmb_without_vat = rmb_vat.toFixed(2);
-				$('.deal_price').eq(num).val(rmb_without_vat);
-			  //计算税金
-	        var order_vat = parseFloat(number * unit_price * mold_rate / 1.13 * 0.13);
-	 
+				$('.deal_price').val(rmb_without_vat);
+	       //计算税金
+       	 var order_vat = parseFloat(number * unit_price * mold_rate / 1.13 * 0.13);
+ 
 	      }else{
 	        var deal_price = parseFloat(number * unit_price * mold_rate);
 	        deal_price = deal_price.toFixed(2);
 	        $('.deal_price').val(deal_price);
 	        //判断是否是人民币未税
-		        if(currency == 'rmb'){
-		        	var order_vat = parseFloat(number * unit_price * mold_rate * 0.13);
-		        } else {
-		        	var order_vat = 0;
-		        }
-		 
+	          if(currency == 'rmb'){
+	            var order_vat = parseFloat(number * unit_price * mold_rate * 0.13);
+	          } else {
+	            var order_vat = 0;
+	          }
+	   
 	      }
 	      //格式化税金
 	      order_vat = order_vat.toFixed(2);
 	      $('.order_vat').val(order_vat);
-		}
-	})
+	      //计算价税合计
+	      
+	      if(currency == 'rmb'){
+
+	        var order_total_rmb = parseFloat($('.deal_price').val()) + parseFloat(order_vat);
+	      } else {
+	        var order_total_rmb = parseFloat($('.agreement_price').val()) * mold_rate;
+	      }
+	      //格式化价税合计
+	 
+	      order_total_rmb = parseFloat(order_total_rmb).toFixed(2);
+	      $('.order_total_rmb').val(order_total_rmb);
+	    }
+		})
 	})
 </script>
 <title>订单管理-嘉泰隆</title>
@@ -223,13 +241,17 @@ if($res->num_rows){
   <form action="order_taskdo.php?action=order_approval_edit" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
-        <th style="">日期</th>
-        <th style="">客户代码</th>
-        <th style="">客户名称</th>
-        <th style="">项目名称</th>
-        <th style="">模具编号</th>
-        <th style="">零件名称</th>
-        <th style="">图片/内容</th>
+        <th style="" rowspan="2">日期</th>
+        <th style="" rowspan="2">客户代码</th>
+        <th style="" rowspan="2">客户名称</th>
+        <th style="" rowspan="2">项目名称</th>
+        <th style="" rowspan="2">模具编号</th>
+        <th style="" rowspan="2">零件名称</th>
+        <th style="" rowspan="2">图片/内容</th>
+        <th style="" colspan="5">合同内容</th>
+        <th style="" colspan="3">人民币计价</th>
+      </tr>
+      <tr>
         <th style="">数量</th>
         <th style="">单价</th>
         <th style="">币别</th>
@@ -237,6 +259,7 @@ if($res->num_rows){
         <th style="">金额</th>
         <th style="">人民币未税价格</th>
         <th style="">税金</th>
+        <th style="">价税合计</th>
      </tr>
 
      <tr class="task">
@@ -261,10 +284,11 @@ if($res->num_rows){
               <td class="show_list"><input type="text" name="agreement_price" id="agreement_price" value="<?php echo $mouldinfo['agreement_price'] ?>" class="agreement_price"/></td>
               <td class="show_list"><input type="text" name="deal_price" value="<?php echo $mouldinfo['deal_price'] ?>" id="deal_price" class="deal_price"></td>
               <input type="hidden" name="mould_id" value="<?php echo $_GET['mould_id'] ?>">
-              <td class="show_list"><input type="text" class="order_vat" id="order_vat" name="order_vat" value="<?php echo $mouldinfo['order_vat'] ?>"></td>
+              <td class="show_list"><input type="text" class="order_vat" id="order_vat" name="order_vat" value="<?php echo $mouldinfo['order_vat']?$mouldinfo['order_vat']:0 ?>"></td>
+              <td  class="show_list"><input type="text" class="order_total_rmb"></td>
           </tr>
           <tr>
-              <td colspan="14" style="align:center">
+              <td colspan="15" style="align:center">
              	 
               	<input id="edit" type="submit" value="保 存" style="margin-top:5px;height:29px;width:80px">
 

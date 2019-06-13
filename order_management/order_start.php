@@ -18,11 +18,13 @@ $result = $db->query($sql);
   echo '<meta charset="utf-8">';
  //获取型腔数
  $cavity_num = $info['cavity_type'];
- if(strpos($cavity_num,'$$')){
-    $cavity = str_replace('$$','+',$cavity_num);
- }else{
-    $cavity = '1*'.$cavity_num;
- }
+ if($cavity_num){
+   if(strpos($cavity_num,'$$')){
+      $cavity = str_replace('$$','+',$cavity_num);
+   }else{
+      $cavity = '1*'.$cavity_num;
+   }
+  }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -48,63 +50,16 @@ $result = $db->query($sql);
       table tr td input[type='text']{width:75%;height:22px;}
       #table_list table tr .noborder{border:0;}
       #table_list table tr td .tips{width:15%;background:white;display:inline-block;height:10px;margin-top:-3px;}
-      #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:;}
+      #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:700;}
 </style>
 <script type="text/javascript" charset="utf-8">
    
   $(function(){
-    var availableTags = ['HASCO','DME','LKM','盘起'];
-    var water_connect = ['HASCO','DME','Staubli','日东'];
-    var connector = ['HASCO','DME','Festo','LKM'];
-    var cylinder = ['Merkle','HPS','HEB','Parker'];
-    var material_supplier = ['HASCO/DME','LKM','仿HASCO','仿DME','仿LKM'];
-    var material_specification = ["45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)","Cu"];
-    //材料品牌
-    var num = $('.material_auto').size();
-    for(var i=0;i<num;i++){
-      $('.material_auto').eq(i).autocomplete({
-        source: material_supplier
-      });
-    }
-    //材料牌号
-    var index = $('.material_specification').size();
-    for(var i=0;i<index;i++){
-      $('.material_specification').eq(i).autocomplete({
-        source: material_specification
-      });
-    }
-    //标准件
-    $( "#supplier" ).autocomplete({
-      source: availableTags
-    });
-    //日期章
-    $('#date_chapter').autocomplete({
-      source: availableTags
-    })
-    //水管接头
-    $('#water_connect').autocomplete({
-      source: water_connect
-    })
-    //电子阀接头
-    $('#electronic_connector').autocomplete({
-      source: connector
-    })
-    //气动接头
-    $('#air_connector').autocomplete({
-      source: connector
-    })
-    //油接头
-    $('#oil_connector').autocomplete({
-      source: connector
-    })
-    //油缸
-    $('#cylinder').autocomplete({
-      source: cylinder
-    })
+
     //唧嘴选中sr时变为输入框
     $('#ji_sr').bind('change',function(){
       var ji_sr = $(this).val();
-      var inp = '<input type="text" name="ji_sr">';
+      var inp = '<input type="text" name="ji_sr" value="sr">';
       if(ji_sr == '2'){
         var par = $(this).parent();
         $(this).remove();
@@ -278,33 +233,25 @@ $result = $db->query($sql);
        </td>
       </tr>
       <tr>
-       <td>材质/其它</td>
+       <td>塑胶材料</td>
        <td>
          <input type="text" name="material_other">
        </td>
        <td>图纸类型</td>
        <td>
-                <select name="drawing_type">
-                  <?php
-                     echo '<option value="">--请选择--</option>';
-                      foreach($array_drawing_type as $k=>$v){
-
-                        echo '<option value="'.$k.'">'.$v.'</option>';
-                      }
-                   ?>
-            </select>
+          <?php
+            foreach($array_drawing_type as $k=>$v){
+                echo '<label><input type="checkbox" name="drawing_type[]" value="'.$k.'">'.$v.'</label> ';
+            }
+          ?>
        </td>
        <td>重点要求</td>
        <td>
-               <select name="require">
-                  <?php
-                     echo '<option value="">--请选择--</option>';
-                      foreach($array_require as $k=>$v){
-
-                        echo '<option value="'.$k.'">'.$v.'</option>';
-                      }
-                   ?>
-          </select>
+             <?php
+            foreach($array_require as $k=>$v){
+                echo '<label><input type="checkbox" name="require[]" value="'.$k.'">'.$v.'</label> ';
+            }
+          ?>
        </td>
       </tr>
       <tr>
@@ -317,7 +264,7 @@ $result = $db->query($sql);
          <input type="text" name="cavity_num" value="<?php echo $cavity ?>">
        </td>
        <td>产品缩水率</td>
-       <td>
+       <td style="background:yellow">
          <input type="text" name="shrink">
        </td>
       </tr>
@@ -351,15 +298,11 @@ $result = $db->query($sql);
        </td>
        <td>模具装夹方式</td>
        <td>
-          <select name="install_way">
-                  <?php
-                     echo '<option value="">--请选择--</option>';
-                      foreach($array_install_way as $k=>$v){
-
-                        echo '<option value="'.$k.'">'.$v.'</option>';
-                      }
-                   ?>
-          </select>
+           <?php
+            foreach($array_install_way as $k=>$v){
+                echo '<label><input type="checkbox" name="install_way[]" value="'.$k.'">'.$v.'</label> ';
+            }
+          ?>
        </td>
       </tr>
       <tr>
@@ -435,15 +378,12 @@ $result = $db->query($sql);
        </td>
        <td>模具类型</td>
        <td>
-           <select name="mould_type">
-                    <?php
-                       echo '<option value="">--请选择--</option>';
-                        foreach($array_mould_type as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                     ?>
-            </select>
+           <?php
+            foreach($array_mould_type as $k=>$v){
+                echo '<label><input type="checkbox" name="mould_type[]" value="'.$k.'">'.$v.'</label> ';
+                echo $k==3?'<br>':'';
+            }
+          ?>
        </td>
        <td>模具形式</td>
        <td>
@@ -473,14 +413,12 @@ $result = $db->query($sql);
        </td>
        <td>组合互换</td>
        <td>
-       	 <select name="mould_group">
-                    <?php
-                        foreach($array_mould_group as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                     ?>
-            </select>
+           <?php
+            foreach($array_mould_group as $k=>$v){
+                echo '<label><input type="checkbox" name="mould_group[]" value="'.$k.'">'.$v.'</label> ';
+                echo $k == 1?'<br>':'';
+            }
+          ?>
        </td>
        <td>图纸标准</td>
        <td>
@@ -538,7 +476,7 @@ $result = $db->query($sql);
           否
         </label>  
        </td>
-       <td>是否备模或类似参考</td>
+       <td>备模或类似参考</td>
        <td>
          <p class="tips">模号:</p>
          <input type="text" name="is_reference" style="width:58%">
@@ -554,7 +492,7 @@ $result = $db->query($sql);
         <td class="noborder" colspan="5"></td>
       </tr>
       <tr>
-       <td>浇口类型INJECTION GATE</td>
+       <td>浇口类型</td>
        <td>
          <select name="injection_type">
                     <?php
@@ -606,41 +544,31 @@ $result = $db->query($sql);
        </td>
        <td>冷却加热介质</td>
        <td>
-         <select name="cool_medium">
-                    <?php
-                       echo '<option value="">--请选择--</option>';
-                        foreach($array_cool_medium as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                     ?>
-            </select>
+           <?php
+            foreach($array_cool_medium as $k=>$v){
+                echo '<label><input type="checkbox" name="cool_medium[]" value="'.$k.'">'.$v.'</label> ';
+            }
+          ?>
        </td>
        <td>特殊冷却加热</td>
        <td>
-         <select name="sepcial_cool" multiple="multiple" style="height:30px">
-                    <?php
-                       echo '<option value="">--请选择--</option>';
-                        foreach($array_sepcial_cool as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                     ?>
-            </select>
+           <?php
+            foreach($array_sepcial_cool as $k=>$v){
+                echo '<label><input type="checkbox" name="sepcial_cool[]" value="'.$k.'">'.$v.'</label> ';
+                echo $k == 2?'<br>':'';
+            }
+          ?>
        </td>
       </tr>
       <tr>
-       <td>顶出系统EJECTION SYSTEM</td>
+       <td>顶出系统</td>
        <td>
-         <select name="ejection_system">
-                    <?php
-                       echo '<option value="">--请选择--</option>';
-                        foreach($array_ejection_system as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                     ?>
-            </select>
+        <?php
+          foreach($array_ejection_system as $k=>$v){
+            echo '<label><input type="checkbox" name="ejection_system[]" value="'.$k.'">'.$v.'</label> ';
+            echo $k==4?'<br>':'';
+          } 
+        ?>
        </td>
        <td>取件方式</td>
        <td>
@@ -654,8 +582,10 @@ $result = $db->query($sql);
                      ?>
             </select>
        </td>
-       <td></td>
-       <td></td>
+       <td>其它要求</td>
+       <td>
+         <input type="text" name="ejection_require">
+       </td>
       </tr>
       <tr>
         <td class="noborder title">模具材料及要求</td>
@@ -674,12 +604,18 @@ $result = $db->query($sql);
          <td><?php echo $value ?></td>
          <td>
             <?php if($key<4){ ?>
-              <div class="ui-widget">
-                <input type="text" name="material_supplier[]" class="material_supplier material_auto">
-              </div>
+               <select name="material_supplier[]" class="material_supplier">
+                 <?php
+                    echo '<option value="">--请选择--</option>';
+                    foreach($array_material_supplier as $k=>$v){
+                        echo '<option value="'.$k.'">'.$v.'</option>';
+                      }
+                     ?>
+              </select>
             <?php }else{ ?>
               <select name="material_supplier[]" class="material_supplier">
                  <?php
+                    echo '<option value="">--请选择--</option>';
                     foreach($array_material_county as $k=>$v){
                         echo '<option value="'.$k.'">'.$v.'</option>';
                       }
@@ -688,7 +624,14 @@ $result = $db->query($sql);
             <?php } ?>
          </td>
          <td>
-           <input type="text" name="material_specification[]" class="material_specification">
+           <select name="material_specification[]" class="material_specification">
+                 <?php
+                    echo '<option value="">--请选择--</option>';
+                    foreach($array_material_specification as $k=>$v){
+                        echo '<option value="'.$k.'">'.$v.'</option>';
+                      }
+                     ?>
+              </select>
          </td>
          <td>
             <select name="material_hard[]">
@@ -739,18 +682,30 @@ $result = $db->query($sql);
       <tr>
         <td>标准件</td>
         <td>
-          <div class="ui-widget"> 
-            <input type="text" name="supplier[]" class="supplier" id="supplier">
-          </div>
+           <select name="supplier[]">
+                      <?php
+                         echo '<option value="">--请选择--</option>';
+                          foreach($array_water_connector as $k=>$v){
+
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
+                       ?>
+              </select>
         </td>
         <td>
           <input type="text" name="specification[]" class="specification">
         </td>
         <td>水管接头</td>
         <td>
-          <div class="ui-widget">
-            <input type="text" name="supplier[]" class="supplier" id="water_connect">
-          </div>
+          <select name="supplier[]">
+                      <?php
+                         echo '<option value="">--请选择--</option>';
+                          foreach($array_water_connector as $k=>$v){
+
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
+                       ?>
+              </select>
         </td>
         <td>
           <input type="text" name="specification[]" class="specification">
@@ -759,18 +714,30 @@ $result = $db->query($sql);
       <tr>
         <td>日期章</td>
         <td>
-          <div class="ui-widget">
-            <input type="text" name="supplier[]" class="supplier" id="date_chapter">
-          </div>
+          <select name="supplier[]">
+                      <?php
+                         echo '<option value="">--请选择--</option>';
+                          foreach($array_supplier as $k=>$v){
+
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
+                       ?>
+              </select>
         </td>
         <td>
           <input type="text" name="specification[]" class="specification">
         </td>
         <td>电子阀接头</td>
         <td>
-          <div class="ui-widget">            
-            <input type="text" name="supplier[]" class="supplier" id="electronic_connector">
-          </div>
+          <select name="supplier[]">
+                      <?php
+                         echo '<option value="">--请选择--</option>';
+                          foreach($array_air_connector as $k=>$v){
+
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
+                       ?>
+              </select>
         </td>
         <td>
           <input type="text" name="specification[]" class="specification">
@@ -779,18 +746,30 @@ $result = $db->query($sql);
       <tr>
         <td>油缸</td>
         <td>
-          <div class="ui-widget">
-            <input type="text" name="supplier[]" class="supplier" id="cylinder">
-          </div>
+           <select name="supplier[]">
+                      <?php
+                         echo '<option value="">--请选择--</option>';
+                          foreach($array_cylinder as $k=>$v){
+
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
+                       ?>
+              </select>
         </td>
         <td>
           <input type="text" name="specification[]" class="specification">
         </td>
         <td>气动接头</td>
         <td>
-          <div class="ui-widget">            
-            <input type="text" name="supplier[]" class="supplier" id="air_connector">
-          </div>
+           <select name="supplier[]">
+                      <?php
+                         echo '<option value="">--请选择--</option>';
+                          foreach($array_air_connector as $k=>$v){
+
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
+                       ?>
+              </select>
         </td>
         <td>
           <input type="text" name="specification[]" class="specification">
@@ -801,6 +780,7 @@ $result = $db->query($sql);
         <td>
            <select name="skin_texture">
                <?php
+                  echo '<option value="">--请选择--</option>';
                   foreach($array_skin_texture as $k=>$v){
                       echo '<option value="'.$k.'">'.$v.'</option>';
                        }
@@ -812,9 +792,15 @@ $result = $db->query($sql);
         </td>
         <td>油压接头</td>
         <td>
-          <div class="ui-widget">            
-            <input type="text" name="supplier[]" class="supplier" id="oil_connector">
-          </div>
+           <select name="supplier[]">
+                      <?php
+                         echo '<option value="">--请选择--</option>';
+                          foreach($array_oil_connector as $k=>$v){
+
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
+                       ?>
+              </select>
         </td>
         <td>
           <input type="text" name="specification[]" class="specification">
@@ -864,6 +850,7 @@ $result = $db->query($sql);
         <td>
          <select name="draw_material">
                       <?php
+                          echo '<option value="">--请选择--</option>';
                           foreach($array_draw_material as $k=>$v){
 
                             echo '<option value="'.$k.'">'.$v.'</option>';
@@ -873,12 +860,14 @@ $result = $db->query($sql);
         </td>
         <td>免费样品数量/次数</td>
         <td>
-         <input type="text" name="draw_num">
+          <input type="text" name="draw_num" style="width:57px;"> 次 共
+          <input type="text" name="total_num" style="width:57px"> 次
         </td>
         <td>寄样方式</td>
         <td>
          <select name="draw_post">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_draw_post as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -890,19 +879,18 @@ $result = $db->query($sql);
       <tr>
         <td>产品检查报告</td>
         <td>
-          <select name="product_check">
-                   <?php
-                      foreach($array_product_check as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
+          <?php
+            foreach($array_product_check as $k=>$v){
+              echo '<label><input type="checkbox" name="product_check[]" value="'.$k.'">'.$v.'</label> ';
+              echo $k==4?'<br>':'';
+            } 
+          ?>
         </td>
         <td>包装方式</td>
         <td>
            <select name="pack_method">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_pack_method as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -940,6 +928,7 @@ $result = $db->query($sql);
        <td>
            <select name="hand_over">
                    <?php
+                      echo '<option vlaue="">--请选择--</option>';
                       foreach($array_hand_over as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -951,6 +940,7 @@ $result = $db->query($sql);
        <td>
           <select name="settle_way">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_settle_way as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -973,43 +963,35 @@ $result = $db->query($sql);
          </td>
          <td>热流道、运水、动作铭牌</td>
          <td>
-           <select name="action_plate" multiple="multiple" size="2">
-                   <?php
-                      foreach($array_action_plate as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
+            <?php
+              foreach($array_action_plate as $k=>$v){
+                echo '<label><input type="checkbox" name="action_plate[]" value="'.$k.'">'.$v.'</label> ';
+              } 
+            ?>
          </td>
          <td>客户及我司铭牌</td>
          <td>
-          <select name="customer_plate" multiple="multiple" size="2">
-                   <?php
-                      foreach($array_customer_plate as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
+          <?php
+            foreach($array_customer_plate as $k=>$v){
+              echo '<label><input type="checkbox" name="customer_plate[]" value="'.$k.'">'.$v.'</label> ';
+            } 
+          ?>
          </td>
       </tr>
       <tr>
-        <td>吊环、备件、电极</td>
+        <td>吊环、备件、电极、末次样品</td>
         <td>
-         <select name="mould_ring">
-                   <?php
-                      foreach($array_mould_ring as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
+          <?php
+            foreach($array_mould_ring as $k=>$v){
+              echo '<label><input type="checkbox" name="mould_ring[]" value="'.$k.'">'.$v.'</label> ';
+            } 
+          ?>
         </td>
-        <td>末次样品、模具手册、2D图纸、数据光盘</td>
+        <td>模具手册、2D图纸、数据光盘</td>
         <td>
           <select name="mould_handbook">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_mould_handbook as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -1025,7 +1007,7 @@ $result = $db->query($sql);
           </label>
           <label>
             <input type="radio" name="steel_material" value="0">
-            不要
+            否
           </label>
         </td>
       </tr>
@@ -1038,19 +1020,19 @@ $result = $db->query($sql);
           </label>
           <label>
             <input type="radio" name="mould_check" value="0">
-            不要
+            否
           </label>
         </td>
         <td>试模报告、样品检测报告</td>
         <td>
-          <select name="sample_check">
-                   <?php
-                      foreach($array_sample_check as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
+           <label>
+            <input type="radio" name="sample_check" vlaue="1">
+            是
+          </label>
+          <label>
+            <input type="radio" name="sample_check" value="0">
+            否
+          </label>
         </td>
          <td>末次试模照片、视频</td>
         <td>
@@ -1060,7 +1042,7 @@ $result = $db->query($sql);
           </label>
           <label>
             <input type="radio" name="mould_phone" value="0">
-            不要
+            否
           </label>
         </td>
       </tr>
@@ -1073,13 +1055,14 @@ $result = $db->query($sql);
           </label>
           <label>
             <input type="radio" name="phone_vedio" value="0">
-            不要
+            否
           </label>
         </td>
         <td>模具包装方式</td>
         <td>
           <select name="mould_pack">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_mould_pack as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -1091,6 +1074,7 @@ $result = $db->query($sql);
         <td>
            <select name="mould_transport">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_mould_transport as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -1113,14 +1097,15 @@ $result = $db->query($sql);
         </td>
         <td>售后服务</td>
         <td>
-           <label>
-            <input type="radio" name="service_fee" vlaue="1">
-            收费
-          </label>
-          <label>
-            <input type="radio" name="service_fee" value="0">
-            免费
-          </label>
+           <select name="service_fee">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($array_service_fee as $k=>$v){
+
+                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                   ?>
+          </select>
         </td>
         <td>其它要求</td>
         <td>
@@ -1190,14 +1175,11 @@ $result = $db->query($sql);
         </td>
         <td>图纸检查对照表</td>
         <td>
-           <select name="drawing_check">
-                   <?php
-                      foreach($array_drawing_check as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                   ?>
-          </select>
+          <?php
+            foreach($array_drawing_check as $k=>$v){
+              echo '<label><input type="checkbox" name="drawing_check[]" value="'.$k.'">'.$v.'</label> ';
+            } 
+          ?>
         </td>
       </tr>
       <tr>
@@ -1251,8 +1233,8 @@ $result = $db->query($sql);
         <td>
            <select name="judge_method">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_judge_method as $k=>$v){
-
                          echo '<option value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
@@ -1262,6 +1244,7 @@ $result = $db->query($sql);
         <td>
            <select name="customer_confirm">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_customer_confirm as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -1275,6 +1258,7 @@ $result = $db->query($sql);
         <td>
            <select name="project_progress">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_project_progress as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -1282,10 +1266,11 @@ $result = $db->query($sql);
                    ?>
           </select>
         </td>
-         <td>出错汇报</td>
+         <td>出错处理</td>
         <td>
            <select name="error_report">
                    <?php
+                      echo '<option value="">--请选择--</option>';
                       foreach($array_error_report as $k=>$v){
 
                          echo '<option value="'.$k.'">'.$v.'</option>';
@@ -1293,8 +1278,10 @@ $result = $db->query($sql);
                    ?>
           </select>
         </td>
-        <td></td>
-        <td></td>
+        <td>其它要求</td>
+        <td>
+          <input type="text" name="control_require">
+        </td>
       </tr>
       <tr>
         <td class="noborder title">草图及重点提示</td>

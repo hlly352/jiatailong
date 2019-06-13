@@ -10,6 +10,7 @@ $action = $_GET['action'];
 //执行添加操作
 if($action == 'add'){
 	$data = $_POST;
+	var_dump($data);exit;
 	//去除客户代码
 	$customer_code = $data['customer_code'];
 	unset($data['customer_code']);

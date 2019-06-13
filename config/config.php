@@ -88,7 +88,7 @@ $array_mould_way = array('2板','3板','3板简化版','2板倒装');
 //型腔/型芯方式
 $array_cavity_mode = array('原生/镶件','原生/原生','镶件/原生','镶件/镶件');
 //组合互换
-$array_mould_group = array('无','共用模架','共用热流道','共用配件','互换镶件');
+$array_mould_group = array('共用模架','共用热流道','共用配件','互换镶件');
 //图纸标准
 $array_drawing_standard = array('公制','英制','美制');
 //难度系数
@@ -121,7 +121,7 @@ $array_special_handle = array('无','氮化','涂层','热处理+氮化','热处
 //表面要求
 $array_surface_require = array('刀纹','去刀纹','省模','抛光','火花纹','蚀纹');
 //打样胶料
-$array_draw_material = array('自购','客供');
+$array_draw_material = array('自购','客供','代客购买');
 //寄样方式
 $array_draw_post = array('国内快递','国际快递','客户自提
 ');
@@ -135,10 +135,9 @@ $array_mould_transport = array('海运','空运','汽运','火车
 $array_hand_over = array('本厂','国内','国外
 ');
 //结算方式
-$array_settle_way = array('EXW','FOB/CIF','DDP
-');
+$array_settle_way = array('EXW','FOB','CIF','DDP');
 //产品检查报告
-$array_product_check = array('自检','客检','第三方/');
+$array_product_check = array('自检','客检','第三方');
 //模具外观喷漆
 $array_surface_spray = array('无','客户指定颜色');
 //热流道、运水、动作铭牌
@@ -146,7 +145,7 @@ $array_action_plate = array('热流道','运水','动作铭牌');
 //客户铭牌
 $array_customer_plate = array('客户','本厂');
 //吊环、备件、电极
-$array_mould_ring = array('吊环','备件','电极');
+$array_mould_ring = array('吊环','备件','电极','末次样品');
 //模具手册
 $array_mould_handbook = array('随箱发送','单独寄客户');
 //试模报告、样品检测报告
@@ -160,11 +159,26 @@ $array_judge_method = array('按2D模具结构图','按全3D','现场评审');
 //客户确认方式
 $array_customer_confirm = array('书面','现场确认');
 //项目进度汇报
-$array_project_progress = array('每周','每月');
+$array_project_progress = array('每周','每月','每天');
 //出错汇报
 $array_error_report = array('自行补救','客户方案');
 //皮纹
 $array_skin_texture = array('模德','客户指定','普通');
 //材料品牌
 $array_material_county = array('国产','进口');
+$array_material_supplier = array('HASCO/DME','LKM','仿HASCO','仿DME','仿LKM','其他');
+// 材料牌号
+$array_material_specification = array("45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)","Cu");
+//品牌
+$array_supplier = array('HASCO','DME','LKM','盘起','其他');
+//油缸
+$array_cylinder = array('Merkle','HPS','HEB','Parker','其他');
+//水管接头
+$array_water_connector = array('HASCO','DME','Staubli','日东','其他');
+//气动接头
+$array_air_connector = array('HASCO','DME','Staubli','日东','其他');
+//油压接头
+$array_oil_connector = array('HASCO','DME','LKM','其他');
+//售后服务
+$array_service_fee = array('收费','免费');
 ?>
