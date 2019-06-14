@@ -10,10 +10,7 @@ $action = $_GET['action'];
 //执行添加操作
 if($action == 'add'){
 	$data = $_POST;
-	var_dump($data);exit;
-	//去除客户代码
-	$customer_code = $data['customer_code'];
-	unset($data['customer_code']);
+	var_dump($data);
 	//遍历得到的结果
 	$sql_key = ' ';
 				foreach($data as $key=>$value){
@@ -33,8 +30,9 @@ if($action == 'add'){
 	//去除最后一个逗号
 	$sql_value = substr($sql_value,0,strlen($sql_value)-1);
 	 $specification_sql = "INSERT INTO `db_mould_specification`($sql_key) VALUES(".$sql_val.")";
-	
+
 	 $mould_data_sql = "UPDATE `db_mould_data` SET `is_start`='1' WHERE `mould_dataid`={$data['mould_id']}";
+	
 	//执行sql语句
 	$db->query($specification_sql);
 	if($db->affected_rows){
@@ -44,6 +42,8 @@ if($action == 'add'){
 		} else {
 			header('location:order_gather.php');
 		}
+	} else {
+		header('location:order_gather.php');
 	}
 
 ?>

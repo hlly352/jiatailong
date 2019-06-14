@@ -6,25 +6,25 @@ require_once '../config/config.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 //获取模具id
-  $id = $_GET['mould_id'];
+  $id = $_GET['specification_id'];
   $mould_type = $_GET['mould_type'];
 //查询对应模具的数据
-$sql = "SELECT * FROM `db_mould_data` INNER JOIN `db_customer_info` ON `db_mould_data`.`client_name` = `db_customer_info`.`customer_id` WHERE `db_mould_data`.`mould_dataid` = ".$id;
+$sql = "SELECT * FROM `db_mould_specification` WHERE `mould_specification_id` = {$id}";
 $result = $db->query($sql);
   $mould_info = [];
   if($result->num_rows){
       $info = $result->fetch_assoc();
   }
   echo '<meta charset="utf-8">';
- //获取型腔数
- $cavity_num = $info['cavity_type'];
- if($cavity_num){
-   if(strpos($cavity_num,'$$')){
-      $cavity = str_replace('$$','+',$cavity_num);
-   }else{
-      $cavity = '1*'.$cavity_num;
-   }
+  //把数组还原
+  foreach($info as $k=>$v){
+    if(strstr($v,'$$')){
+      $info[$k] = explode('$$',$v);
+    } else {
+      $info[$k] = $v;
+    }
   }
+ var_dump($info);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -75,7 +75,7 @@ $result = $db->query($sql);
 
 <?php 
   //判断显示哪一个页面
-  if($mould_type == 'task'){
+  if(!isset($info['shrink'])){
 
 
 ?>
@@ -109,9 +109,9 @@ $result = $db->query($sql);
           </td>
         </tr>
          <tr>
-          <td>材质/其它</td>
+          <td>塑胶材料</td>
           <td>
-            <input type="text" name="material_other" >
+            <input type="text" name="material_other" value="<?php echo $material_other ?>">
           </td>
           <td>图纸类型</td>
           <td>
@@ -195,14 +195,13 @@ $result = $db->query($sql);
         <tr class="distance"></tr>
         <tr>
         <td colspan="7">
-          <input type="submit" class="submit" value="发起项目">
+          <input type="submit" class="submit" value="保存">
         </td>
       </tr>
     </table>
   </form>
   </div>
-  <?php } 
-    elseif($mould_type == 'normal'){
+  <?php } else {
   ?>
   <h4 style="padding-left:10px">
   </h4>
@@ -240,17 +239,16 @@ $result = $db->query($sql);
        <td>图纸类型</td>
        <td>
           <?php
-            foreach($array_drawing_type as $k=>$v){
-                echo '<label><input type="checkbox" name="drawing_type[]" value="'.$k.'">'.$v.'</label> ';
-            }
-          ?>
+           doCheckbox($array_drawing_type,'drawing_type',$info);
+           ?>
        </td>
        <td>重点要求</td>
        <td>
              <?php
-            foreach($array_require as $k=>$v){
-                echo '<label><input type="checkbox" name="require[]" value="'.$k.'">'.$v.'</label> ';
-            }
+             doCheckbox($array_require,'require',$info);
+            // foreach($array_require as $k=>$v){
+            //     echo '<label><input type="checkbox" name="require[]" value="'.$k.'">'.$v.'</label> ';
+            // }
           ?>
        </td>
       </tr>
@@ -299,9 +297,7 @@ $result = $db->query($sql);
        <td>模具装夹方式</td>
        <td>
            <?php
-            foreach($array_install_way as $k=>$v){
-                echo '<label><input type="checkbox" name="install_way[]" value="'.$k.'">'.$v.'</label> ';
-            }
+            doCheckbox($array_install_way,'install_way',$info);
           ?>
        </td>
       </tr>
@@ -379,10 +375,8 @@ $result = $db->query($sql);
        <td>模具类型</td>
        <td>
            <?php
-            foreach($array_mould_type as $k=>$v){
-                echo '<label><input type="checkbox" name="mould_type[]" value="'.$k.'">'.$v.'</label> ';
-                echo $k==3?'<br>':'';
-            }
+             doCheckbox($array_mould_type,'mould_type',$info,3);
+           
           ?>
        </td>
        <td>模具形式</td>
@@ -414,10 +408,7 @@ $result = $db->query($sql);
        <td>组合互换</td>
        <td>
            <?php
-            foreach($array_mould_group as $k=>$v){
-                echo '<label><input type="checkbox" name="mould_group[]" value="'.$k.'">'.$v.'</label> ';
-                echo $k == 1?'<br>':'';
-            }
+            doCheckbox($array_mould_group,'mould_group',$info,1);
           ?>
        </td>
        <td>图纸标准</td>
@@ -545,18 +536,13 @@ $result = $db->query($sql);
        <td>冷却加热介质</td>
        <td>
            <?php
-            foreach($array_cool_medium as $k=>$v){
-                echo '<label><input type="checkbox" name="cool_medium[]" value="'.$k.'">'.$v.'</label> ';
-            }
+               doCheckbox($array_cool_medium,'cool_medium',$info);
           ?>
        </td>
        <td>特殊冷却加热</td>
        <td>
            <?php
-            foreach($array_sepcial_cool as $k=>$v){
-                echo '<label><input type="checkbox" name="sepcial_cool[]" value="'.$k.'">'.$v.'</label> ';
-                echo $k == 2?'<br>':'';
-            }
+               doCheckbox($array_sepcial_cool,'sepcial_cool',$info,2);
           ?>
        </td>
       </tr>
@@ -564,10 +550,7 @@ $result = $db->query($sql);
        <td>顶出系统</td>
        <td>
         <?php
-          foreach($array_ejection_system as $k=>$v){
-            echo '<label><input type="checkbox" name="ejection_system[]" value="'.$k.'">'.$v.'</label> ';
-            echo $k==4?'<br>':'';
-          } 
+           doCheckbox($array_ejection_system,'ejection_system',$info,4);
         ?>
        </td>
        <td>取件方式</td>
@@ -880,10 +863,7 @@ $result = $db->query($sql);
         <td>产品检查报告</td>
         <td>
           <?php
-            foreach($array_product_check as $k=>$v){
-              echo '<label><input type="checkbox" name="product_check[]" value="'.$k.'">'.$v.'</label> ';
-              echo $k==4?'<br>':'';
-            } 
+             doCheckbox($array_product_check,'product_check',$info,4);
           ?>
         </td>
         <td>包装方式</td>
@@ -964,17 +944,13 @@ $result = $db->query($sql);
          <td>热流道、运水、动作铭牌</td>
          <td>
             <?php
-              foreach($array_action_plate as $k=>$v){
-                echo '<label><input type="checkbox" name="action_plate[]" value="'.$k.'">'.$v.'</label> ';
-              } 
+               doCheckbox($array_action_plate,'action_plate',$info); 
             ?>
          </td>
          <td>客户及我司铭牌</td>
          <td>
           <?php
-            foreach($array_customer_plate as $k=>$v){
-              echo '<label><input type="checkbox" name="customer_plate[]" value="'.$k.'">'.$v.'</label> ';
-            } 
+             doCheckbox($array_customer_plate,'customer_plate',$info,3);
           ?>
          </td>
       </tr>
@@ -982,9 +958,7 @@ $result = $db->query($sql);
         <td>吊环、备件、电极、末次样品</td>
         <td>
           <?php
-            foreach($array_mould_ring as $k=>$v){
-              echo '<label><input type="checkbox" name="mould_ring[]" value="'.$k.'">'.$v.'</label> ';
-            } 
+             doCheckbox($array_mould_ring,'mould_ring',$info,3);
           ?>
         </td>
         <td>模具手册、2D图纸、数据光盘</td>
@@ -1176,9 +1150,7 @@ $result = $db->query($sql);
         <td>图纸检查对照表</td>
         <td>
           <?php
-            foreach($array_drawing_check as $k=>$v){
-              echo '<label><input type="checkbox" name="drawing_check[]" value="'.$k.'">'.$v.'</label> ';
-            } 
+             doCheckbox($array_drawing_check,'drawing_check',$info);
           ?>
         </td>
       </tr>
@@ -1208,11 +1180,11 @@ $result = $db->query($sql);
          <td>模具结构评审会</td>
         <td>
           <label>
-            <input type="radio" name="mould_judge" value="1">
+            <input type="radio" name="muould_judge" value="1">
             是
           </label>
           <label>
-            <input type="radio" name="mould_judge" value="0">
+            <input type="radio" name="muould_judge" value="0">
             否
           </label>
         </td>
@@ -1339,7 +1311,7 @@ $result = $db->query($sql);
       <tr class="distance"></tr>
       <tr>
         <td colspan="7">
-          <input type="submit" class="submit" value="发起项目">
+          <input type="submit" class="submit" value="保存">
         </td>
       </tr>
        </table>

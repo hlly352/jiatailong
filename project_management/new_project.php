@@ -1,6 +1,7 @@
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
+require_once '../config/config.php';
 require_once '../class/page.php';
 require_once 'shell.php';
 //查询模具状态
@@ -27,14 +28,14 @@ if($_GET['submit']){
   }
   $sqlwhere = " WHERE `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_client`.`client_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
-$sql = "SELECT *,`db_designer`.`employee_name` as designer,`db_projecter`.`employee_name` as projecter,`db_steeler`.`employee_name` as steeler,`db_electroder`.`employee_name` as electroder,`db_assembler`.`employee_name` as assembler FROM `db_mould_specification` LEFT JOIN `db_employee` AS `db_projecter` ON `db_projecter`.`employeeid` = `db_mould_specification`.`projecter` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`designer` LEFT JOIN `db_employee` AS `db_steeler` ON `db_steeler`.`employeeid` = `db_mould_specification`.`steeler` LEFT JOIN `db_employee` AS `db_electroder` ON `db_electroder`.`employeeid` = `db_mould_specification`.`electroder` LEFT JOIN `db_employee` AS `db_assembler` ON `db_mould_specification`.`assembler` = `db_assembler`.`employeeid` $sqlwhere";
+$sql = "SELECT *,`db_mould_data`.`upload_final_path` as image_filepath,`db_designer`.`employee_name` as designer,`db_projecter`.`employee_name` as projecter,`db_steeler`.`employee_name` as steeler,`db_electroder`.`employee_name` as electroder,`db_assembler`.`employee_name` as assembler FROM `db_mould_specification` INNER JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_projecter` ON `db_projecter`.`employeeid` = `db_mould_specification`.`projecter` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`designer` LEFT JOIN `db_employee` AS `db_steeler` ON `db_steeler`.`employeeid` = `db_mould_specification`.`steeler` LEFT JOIN `db_employee` AS `db_electroder` ON `db_electroder`.`employeeid` = `db_mould_specification`.`electroder` LEFT JOIN `db_employee` AS `db_assembler` ON `db_mould_specification`.`assembler` = `db_assembler`.`employeeid` $sqlwhere";
 
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_mould_specification`.`specification_time` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
-echo $sqllist;
+
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -131,8 +132,7 @@ $result = $db->query($sqllist);
         <th rowspan="2" width="3%">代码</th>
         <th rowspan="2" width="4%">项目名称</th>
         <th rowspan="2" width="5%">模具编号</th>
-        <th rowspan="2" width="6%">零件名称/<br />
-          编号</th>
+        <th rowspan="2" width="6%">零件名称</th>
         <th rowspan="2" width="6%">零件图片</th>
         <th rowspan="2" width="6%">塑胶<br />
           材料</th>
@@ -150,27 +150,26 @@ $result = $db->query($sqllist);
           等级</th>
         <th rowspan="2" width="3%">难度<br />
           系数</th>
-        <th colspan="5">责任人</th>
+        <th colspan="4">责任人</th>
         <th rowspan="2" width="5%">首板时间</th>
         <th rowspan="2" width="5%">重点提示</th>
         <th rowspan="2" width="4%">目前状态</th>
+        <th rowspan="2" width="4%">操作</th>
       </tr>
       <tr>
         <th width="4%">项目</th>
         <th width="4%">设计</th>
         <th width="4%">钢料</th>
-        <th width="4%">电极</th>
         <th width="4%">装配</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-       var_dump($row);
-      $mouldid = $row['mould_id'];
       $image_filedir = $row['image_filedir'];
       $image_filename = $row['image_filename'];
-      $image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
+      //$image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
+      $image_filepath = $row['image_filepath'];
       if(is_file($image_filepath)){
-        $image_file = "<img src=\"".$image_filepath."\" />";
+        $image_file = "<img src=\"".$image_filepath."\" width=\"85\" height=\"45\"/>";
       }else{
         $image_file = "<img src=\"../images/no_image_85_45.png\" width=\"85\" height=\"45\" />";
       }
@@ -182,25 +181,25 @@ $result = $db->query($sqllist);
         <td><!-- <?php if($_SESSION['system_shell'][$system_dir]['isadmin']){ ?><a href="mouldae.php?id=<?php echo $mouldid; ?>&action=edit"><?php echo $row['mould_number']; ?></a><?php }else{ echo $row['mould_number']; }; ?> -->
           <?php echo $row['mould_no'] ?>
         </td>
-        <td><?php echo $row['part_name']; ?></td>
-        <td><a href="mould_photo.php?id=<?php echo $mouldid; ?>"><?php echo $image_file; ?></a></td>
+        <td><?php echo $row['mould_name']; ?></td>
+        <td><!-- <a href="mould_photo.php?id=<?php echo $row['mould_id']; ?>"> --><?php echo $image_file; ?><!-- </a> --></td>
         <td><?php echo $row['material_other']; ?></td>
         <td><?php echo $row['shrink']; ?></td>
         <td><?php echo $row['surface_require']; ?></td>
         <td><?php echo $row['cavity_num']; ?></td>
-        <td><?php echo $row['injection_type']; ?></td>
+        <td><?php echo $array_injection_type[$row['injection_type']]; ?></td>
         <td><?php echo $row['core_material']; ?></td>
-        <td><?php echo $array_is_status[$row['is_export']]; ?></td>
-        <td><?php echo $row['quality_degree']; ?></td>
-        <td><?php echo $row['difficulty_degree']; ?></td>
+        <td><?php echo $row['is_export'] == '1'?'是':'否'; ?></td>
+        <td><?php echo $array_quality_degree[$row['quality_degree']]; ?></td>
+        <td><?php echo $array_difficulty_degree[$row['difficulty_degree']]; ?></td>
         <td><?php echo $row['projecter']; ?></td>
         <td><?php echo $row['designer']; ?></td>
         <td><?php echo $row['steeler']; ?></td>
-        <td><?php echo $row['electroder']; ?></td>
         <td><?php echo $array_mould_assembler[$row['assembler']]; ?></td>
         <td><?php echo $row['checkbox_time']; ?></td>
-        <td><?php echo $row['require']; ?></td>
+        <td><?php ?></td>
         <td><?php echo $row['mould_statusname']; ?></td>
+        <td><a href="mould_specification_edit.php?action=edit&specification_id=<?php echo $row['mould_specification_id'] ?>">完善</a></td>
       </tr>
       <?php } ?>
     </table>

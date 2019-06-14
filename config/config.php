@@ -72,7 +72,7 @@ $array_customer_grade = array(0=>'一般',1=>'重要',2=>'关键');
 $array_currency = array('rmb_vat'=>'人民币(含税)','rmb'=>'人民币(未税)','usd'=>'美元','eur'=>'欧元','jpy'=>'日元');
 //订单启动
 //图纸类型
-$array_drawing_type = array('2d'=>'2D','3d'=>'3D','other'=>'样品');
+$array_drawing_type = array('2D','3D','样品');
 //重点要求
 $array_require = array('关键尺寸','外观要求','后处理');
 //装夹方式
@@ -151,7 +151,7 @@ $array_mould_handbook = array('随箱发送','单独寄客户');
 //试模报告、样品检测报告
 $array_sample_check = array('不要','每次','仅末次');
 //模具包装方式
-$array_mould_pack = array('木箱/铁架/踏板');
+$array_mould_pack = array('木箱','铁架','踏板');
 // 图纸检查对照表
 $array_drawing_check = array('客户','本厂');
 //客户评审方式
@@ -160,7 +160,7 @@ $array_judge_method = array('按2D模具结构图','按全3D','现场评审');
 $array_customer_confirm = array('书面','现场确认');
 //项目进度汇报
 $array_project_progress = array('每周','每月','每天');
-//出错汇报
+//出错处理
 $array_error_report = array('自行补救','客户方案');
 //皮纹
 $array_skin_texture = array('模德','客户指定','普通');
