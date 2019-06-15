@@ -28,7 +28,7 @@ if($_GET['submit']){
   }
   $sqlwhere = " WHERE `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_client`.`client_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
-$sql = "SELECT *,`db_mould_data`.`upload_final_path` as image_filepath,`db_designer`.`employee_name` as designer,`db_projecter`.`employee_name` as projecter,`db_steeler`.`employee_name` as steeler,`db_assembler`.`employee_name` as assembler FROM `db_mould_specification` INNER JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_projecter` ON `db_projecter`.`employeeid` = `db_mould_specification`.`project_manager` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`leading` LEFT JOIN `db_employee` AS `db_steeler` ON `db_steeler`.`employeeid` = `db_mould_specification`.`programming` LEFT JOIN `db_employee` AS `db_assembler` ON `db_mould_specification`.`benchwork_artificer` = `db_assembler`.`employeeid` WHERE `db_mould_specification`.`is_approval` = '0' $sqlwhere";
+$sql = "SELECT *,`db_mould_data`.`upload_final_path` as image_filepath,`db_designer`.`employee_name` as designer,`db_projecter`.`employee_name` as projecter,`db_steeler`.`employee_name` as steeler,`db_assembler`.`employee_name` as assembler FROM `db_mould_specification` INNER JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_projecter` ON `db_projecter`.`employeeid` = `db_mould_specification`.`project_manager` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`leading` LEFT JOIN `db_employee` AS `db_steeler` ON `db_steeler`.`employeeid` = `db_mould_specification`.`programming` LEFT JOIN `db_employee` AS `db_assembler` ON `db_mould_specification`.`benchwork_artificer` = `db_assembler`.`employeeid` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
 
 $result = $db->query($sql);
 $result_id = $db->query($sql);
@@ -199,7 +199,7 @@ $result = $db->query($sqllist);
         <td><?php echo $row['checkbox_time']; ?></td>
         <td><?php ?></td>
         <td><?php echo $row['mould_statusname']; ?></td>
-        <td><a href="mould_specification_edit.php?action=edit&specification_id=<?php echo $row['mould_specification_id'] ?>">完善</a></td>
+        <td><a href="mould_specification_edit.php?action=edit&specification_id=<?php echo $row['mould_specification_id'] ?>">批准</a></td>
       </tr>
       <?php } ?>
     </table>

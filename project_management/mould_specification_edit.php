@@ -24,7 +24,7 @@ $result = $db->query($sql);
       $info[$k] = $v;
     }
   }
- var_dump($info);
+//var_dump($info);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -35,11 +35,8 @@ $result = $db->query($sql);
 <link href="css/main.css" type="text/css" rel="stylesheet" />
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
-<script language="javascript" type="text/javascript" src="../js/jquery.js"></script>
 <script language="javascript" type="text/javascript" src="../js/jquery-ui.js"></script>
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
-
-
 <title>订单管理-嘉泰隆</title>
 <style type="text/css">
       table{width:100%;border-collapse: collapse;border-spacing: 2px;}
@@ -51,6 +48,9 @@ $result = $db->query($sql);
       #table_list table tr .noborder{border:0;}
       #table_list table tr td .tips{width:15%;background:white;display:inline-block;height:10px;margin-top:-3px;}
       #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:700;}
+      #project_approval,#back{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
+    #no_approval{background:grey;}
+    #save{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;margin-top:5px;height:29px;width:80px}
 </style>
 <script type="text/javascript" charset="utf-8">
    
@@ -65,6 +65,11 @@ $result = $db->query($sql);
         $(this).remove();
         par.append(inp);
       }
+    })
+    //点击审核
+    $('#project_approval').live('click',function(){
+      var specification_id = $('input[name=specification_id]').val();
+      window.open('project_approval_do.php?action=approval&specification_id='+specification_id,'_self');
     })
     })
 </script>
@@ -111,7 +116,7 @@ $result = $db->query($sql);
          <tr>
           <td>塑胶材料</td>
           <td>
-            <input type="text" name="material_other" value="<?php echo $material_other ?>">
+            <input type="text" name="material_other" value="<?php echo $info['material_other'] ?>">
           </td>
           <td>图纸类型</td>
           <td>
@@ -206,14 +211,14 @@ $result = $db->query($sql);
   <h4 style="padding-left:10px">
   </h4>
   <div id='table_list'>
-  <form action="order_start_do.php?action=add" name="list" method="post">
+  <form action="../order_management/order_start_do.php?action=edit" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
           <td class="noborder title">基本信息</td>
           <td colspan="3" class="noborder"></td>
           <td class="noborder">客户合同编号</td>
           <td class="noborder">
-              <input type="hidden" name="mould_id" value="<?php echo $_GET['mould_id'] ?>">
+              <input type="hidden" name="specification_id" value="<?php echo $info['mould_specification_id'] ?>">
               <input type="text" name="customer_order_no" value="<?php echo $info['customer_order_no'] ?>" >
           </td>
         </tr>
@@ -234,7 +239,7 @@ $result = $db->query($sql);
       <tr>
        <td>塑胶材料</td>
        <td>
-         <input type="text" name="material_other">
+         <input type="text" name="material_other" value="<?php echo $info['material_other'] ?>">
        </td>
        <td>图纸类型</td>
        <td>
@@ -259,25 +264,25 @@ $result = $db->query($sql);
        </td>
        <td>型腔数</td>
        <td>
-         <input type="text" name="cavity_num" value="<?php echo $cavity ?>">
+         <input type="text" name="cavity_num" value="<?php echo $info['cavity_num'] ?>">
        </td>
        <td>产品缩水率</td>
        <td style="background:yellow">
-         <input type="text" name="shrink">
+         <input type="text" name="shrink" value="<?php echo $info['shrink'] ?>">
        </td>
       </tr>
       <tr>
        <td>启动时间</td>
        <td>
-         <input type="text" name="start_time">
+         <input type="text" name="start_time" value="<?php echo $info['start_time'] ?>">
        </td>
        <td>首板时间</td>
        <td>
-         <input type="text" name="check_time">
+         <input type="text" name="check_time" value="<?php echo $info['check_time'] ?>">
        </td>
        <td>预计走模时间</td>
        <td>
-         <input type="text" name="finish_time">
+         <input type="text" name="finish_time" value="<?php echo $info['finish_time'] ?>">
        </td>
       </tr>
       <tr>
@@ -287,11 +292,11 @@ $result = $db->query($sql);
       <tr>
        <td>机器品牌</td>
        <td>
-         <input type="text" name="machine_supplier">
+         <input type="text" name="machine_supplier" value="<?php echo $info['machine_supplier'] ?>">
        </td>
        <td>机器吨位</td>
        <td>
-         <input type="text" name="machine_tonnage" style="width:58%">
+         <input type="text" name="machine_tonnage" style="width:58%" value="<?php echo $info['machine_tonnage'] ?>">
          <p class="tips">T</p>
        </td>
        <td>模具装夹方式</td>
@@ -304,55 +309,59 @@ $result = $db->query($sql);
       <tr>
        <td>定位环直径</td>
        <td>
-         <input type="text" name="locator" style="width:58%">
+         <input type="text" name="locator" style="width:58%" value="<?php echo $info['locator'] ?>">
          <p class="tips">mm</p>
        </td>
        <td>唧嘴SR</td>
-       <td>
-         <select name="ji_sr" id="ji_sr">
-                    <?php
-                       echo '<option value="">--请选择--</option>';
-                        foreach($array_ji_sr as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
-                        }
-                     ?>
-            </select>
+       <td>    
+            <?php
+                if($info['ji_sr'] == '0' || $info['ji_sr'] == '1'){
+                    echo '<select name="ji_sr" id="ji_sr">';
+                    echo '<option value="">--请选择--</option>';
+                    foreach($array_ji_sr as $k=>$v){
+                        $is_select = $info['ji_sr'] == $k?'selected':'';
+                        echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
+                       }
+                    echo '</select>';
+                }else{
+                     echo '<input type="text" name="ji_sr" value="'.$info['ji_sr'].'">';
+                }
+           ?>         
        </td>
        <td>KO直径、螺牙</td>
        <td>
           直径:
-          <input type="text" name="screw_diameter" style="width:30px;">mm螺牙:
-          <input type="text" name="screw" style="width:30px">M
+          <input type="text" name="screw_diameter" style="width:30px;" value="<?php echo $info['screw_diameter'] ?>">mm螺牙:
+          <input type="text" name="screw" style="width:30px" value="<?php echo $info['screw'] ?>">M
        </td>
       </tr>
         <tr>
        <td>集水块接头规格</td>
        <td>
-         <input type="text" name="catchment">
+         <input type="text" name="catchment"  value="<?php echo $info['catchment'] ?>">
        </td>
        <td>电子阀接头规格</td>
        <td>
-         <input type="text" name="electron_valve">
+         <input type="text" name="electron_valve" value="<?php echo $info['electron_valve'] ?>">
        </td>
        
        <td>气阀接头规格</td>
        <td>
-         <input type="text" name="air_valve">
+         <input type="text" name="air_valve" value="<?php echo $info['air_valve'] ?>">
        </td>
       </tr>
       <tr>
        <td>集油块接头规格</td>
        <td>
-         <input type="text" name="oil_collection">
+         <input type="text" name="oil_collection" value="<?php echo $info['oil_collection'] ?>">
        </td>
        <td>热流道温控箱接头规格</td>
        <td>
-         <input type="text" name="temperature_control">
+         <input type="text" name="temperature_control" value="<?php echo $info['temperature_control'] ?>">
        </td>
        <td>其它要求</td>
        <td>
-         <input type="text" name="other_require">
+         <input type="text" name="other_require" value="<?php echo $info['other_require'] ?>">
        </td>
       </tr>
       <tr>
@@ -366,8 +375,8 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_mould_require as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                          $is_select = $k == $info['mould_require'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -385,8 +394,8 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_mould_way as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['mould_way'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -399,8 +408,8 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_cavity_mode as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['cavity_mode'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -408,6 +417,7 @@ $result = $db->query($sql);
        <td>组合互换</td>
        <td>
            <?php
+
             doCheckbox($array_mould_group,'mould_group',$info,1);
           ?>
        </td>
@@ -417,8 +427,8 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_drawing_standard as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['drawing_standard'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -431,8 +441,8 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_difficulty_degree as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['difficulty_degree'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -443,15 +453,15 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_quality_degree as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['quality_degree'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
        </td>
        <td>模具寿命</td>
        <td>
-        <input type="text" name="mould_life" style="width:58%">
+        <input type="text" name="mould_life" style="width:58%" value="<?php echo $info['mould_life'] ?>">
         <p class="tips">万</p>
        </td>
       </tr>
@@ -459,22 +469,22 @@ $result = $db->query($sql);
        <td>模具是否出口</td>
        <td>
         <label>
-          <input type="radio" name="is_export" vlaue="1">
+          <input type="radio" name="is_export" value="1" <?php echo $info['is_export']=='1'?'checked':'' ?>>
           是
         </label>
         <label>
-          <input type="radio" name="is_export" vlaue="0">
+          <input type="radio" name="is_export" value="0" <?php echo $info['is_export']=='0'?'checked':'' ?>>
           否
         </label>  
        </td>
        <td>备模或类似参考</td>
        <td>
          <p class="tips">模号:</p>
-         <input type="text" name="is_reference" style="width:58%">
+         <input type="text" name="is_reference" style="width:58%" value="<?php echo $info['is_reference'] ?>">
        </td>
        <td>成型周期</td>
        <td>
-         <input type="text" name="molding_cycle" style="width:58%">
+         <input type="text" name="molding_cycle" style="width:58%" value="<?php echo $info['molding_cycle'] ?>">
          <p class="tips">S</p>
        </td>
       </tr>
@@ -489,8 +499,8 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_injection_type as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['injection_type'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -499,10 +509,10 @@ $result = $db->query($sql);
        <td>
          <select name="needle_type">
                     <?php
-         
+        
                         foreach($array_needle_type as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['needle_type'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -513,8 +523,8 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_runner_type as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['runner_type'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -527,8 +537,8 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_hot_runner_supplier as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['hot_runner_supplier'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
@@ -559,15 +569,15 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_pickup_way as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                           $is_select = $k == $info['pickup_way'] ? 'selected':'';
+                          echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                      ?>
             </select>
        </td>
        <td>其它要求</td>
        <td>
-         <input type="text" name="ejection_require">
+         <input type="text" name="ejection_require" value="<?php echo $info['ejection_require'] ?>">
        </td>
       </tr>
       <tr>
@@ -589,9 +599,14 @@ $result = $db->query($sql);
             <?php if($key<4){ ?>
                <select name="material_supplier[]" class="material_supplier">
                  <?php
+
                     echo '<option value="">--请选择--</option>';
                     foreach($array_material_supplier as $k=>$v){
-                        echo '<option value="'.$k.'">'.$v.'</option>';
+                      if($info['material_supplier'][$key] == strval($k)){
+                            echo '<option selected value="'.$k.'">'.$v.'</option>';
+                          }else{
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
                       }
                      ?>
               </select>
@@ -600,7 +615,11 @@ $result = $db->query($sql);
                  <?php
                     echo '<option value="">--请选择--</option>';
                     foreach($array_material_county as $k=>$v){
-                        echo '<option value="'.$k.'">'.$v.'</option>';
+                      if($info['material_supplier'][$key] == strval($k)){
+                            echo '<option selected value="'.$k.'">'.$v.'</option>';
+                          }else{
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                          }
                       }
                      ?>
               </select>
@@ -611,7 +630,11 @@ $result = $db->query($sql);
                  <?php
                     echo '<option value="">--请选择--</option>';
                     foreach($array_material_specification as $k=>$v){
-                        echo '<option value="'.$k.'">'.$v.'</option>';
+                      if($info['material_specification'][$key] == strval($k)){
+                         echo '<option selected value="'.$k.'">'.$v.'</option>';
+                      }else{
+                          echo '<option value="'.$k.'">'.$v.'</option>';
+                      }
                       }
                      ?>
               </select>
@@ -621,8 +644,11 @@ $result = $db->query($sql);
                     <?php
                        echo '<option value="">--请选择--</option>';
                         foreach($array_material_hard as $k=>$v){
-
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+              if($info['material_hard'][$key] == strval($k)){
+                           echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                      }
                         }
                      ?>
             </select>
@@ -630,9 +656,13 @@ $result = $db->query($sql);
          <td>
             <select name="special_handle[]">
                     <?php
-                        foreach($array_special_handle as $k=>$v){
 
-                          echo '<option value="'.$k.'">'.$v.'</option>';
+                        foreach($array_special_handle as $k=>$v){
+              if($info['special_handle'][$key] == strval($k)){
+                          echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
+                            echo '<option value="'.$k.'">'.$v.'</option>';
+                      }
                         }
                      ?>
             </select>
@@ -642,8 +672,11 @@ $result = $db->query($sql);
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_surface_require as $k=>$v){
-
+              if($info['surface_require'][$key] == strval($k)){
+                           echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
                             echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
                           }
                        ?>
               </select>
@@ -669,14 +702,18 @@ $result = $db->query($sql);
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_water_connector as $k=>$v){
-
+                            if($info['supplier'][0] == strval($k)){
+                         echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
                             echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                  
                           }
                        ?>
               </select>
         </td>
         <td>
-          <input type="text" name="specification[]" class="specification">
+          <input type="text" name="specification[]" class="specification" value="<?php echo $info['specification'][0] ?>">
         </td>
         <td>水管接头</td>
         <td>
@@ -684,14 +721,17 @@ $result = $db->query($sql);
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_water_connector as $k=>$v){
-
+              if($info['supplier'][1] == strval($k)){
+                         echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
                             echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
                           }
                        ?>
               </select>
         </td>
         <td>
-          <input type="text" name="specification[]" class="specification">
+          <input type="text" name="specification[]" class="specification" value="<?php echo $info['specification'][1] ?>">
         </td>
       </tr>
       <tr>
@@ -701,14 +741,18 @@ $result = $db->query($sql);
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_supplier as $k=>$v){
-
-                            echo '<option value="'.$k.'">'.$v.'</option>';
+              if($info['supplier'][2] == strval($k)){
+                           echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
+                             echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                           
                           }
                        ?>
               </select>
         </td>
         <td>
-          <input type="text" name="specification[]" class="specification">
+          <input type="text" name="specification[]" class="specification" value="<?php echo $info['specification'][2] ?>">
         </td>
         <td>电子阀接头</td>
         <td>
@@ -716,14 +760,18 @@ $result = $db->query($sql);
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_air_connector as $k=>$v){
-
-                            echo '<option value="'.$k.'">'.$v.'</option>';
+              if($info['supplier'][3] == strval($k)){
+                           echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
+                             echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                           
                           }
-                       ?>
+                      ?>
               </select>
         </td>
         <td>
-          <input type="text" name="specification[]" class="specification">
+          <input type="text" name="specification[]" class="specification" value="<?php echo $info['specification'][3] ?>">
         </td>
       </tr>
       <tr>
@@ -733,14 +781,18 @@ $result = $db->query($sql);
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_cylinder as $k=>$v){
-
-                            echo '<option value="'.$k.'">'.$v.'</option>';
+              if($info['supplier'][4] == strval($k)){
+                           echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
+                             echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                           
                           }
                        ?>
               </select>
         </td>
         <td>
-          <input type="text" name="specification[]" class="specification">
+          <input type="text" name="specification[]" class="specification" value="<?php echo $info['specification'][4] ?>">
         </td>
         <td>气动接头</td>
         <td>
@@ -748,14 +800,18 @@ $result = $db->query($sql);
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_air_connector as $k=>$v){
-
-                            echo '<option value="'.$k.'">'.$v.'</option>';
+              if($info['supplier'][5] == strval($k)){
+                           echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
+                             echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                           
                           }
                        ?>
               </select>
         </td>
         <td>
-          <input type="text" name="specification[]" class="specification">
+          <input type="text" name="specification[]" class="specification" value="<?php echo $info['specification'][5] ?>">
         </td>
       </tr>
       <tr>
@@ -765,13 +821,18 @@ $result = $db->query($sql);
                <?php
                   echo '<option value="">--请选择--</option>';
                   foreach($array_skin_texture as $k=>$v){
-                      echo '<option value="'.$k.'">'.$v.'</option>';
-                       }
+            if($info['skin_texture'] == strval($k)){
+                         echo '<option selected value="'.$k.'">'.$v.'</option>';
+                      }else{
+                           echo '<option value="'.$k.'">'.$v.'</option>';
+                      }
+                           
+                     }
                ?>
             </select>
         </td>
         <td>
-          <input type="text" name="specification[]" class="specification">
+          <input type="text" name="specification[]" class="specification" value="<?php echo $info['specification'][6] ?>">
         </td>
         <td>油压接头</td>
         <td>
@@ -779,14 +840,19 @@ $result = $db->query($sql);
                       <?php
                          echo '<option value="">--请选择--</option>';
                           foreach($array_oil_connector as $k=>$v){
-
-                            echo '<option value="'.$k.'">'.$v.'</option>';
+              if($info['supplier'][6] == strval($k)){
+                           echo '<option selected value="'.$k.'">'.$v.'</option>';
+                        }else{
+                             echo '<option value="'.$k.'">'.$v.'</option>';
+                        }
+                           
                           }
+                          
                        ?>
               </select>
         </td>
         <td>
-          <input type="text" name="specification[]" class="specification">
+          <input type="text" name="specification[]" class="specification" value="<?php echo $info['specification'][7] ?>">
         </td>
       </tr>
       <tr>
@@ -797,33 +863,33 @@ $result = $db->query($sql);
         <td>客户参与试模</td>
         <td>
           <label>
-            <input type="radio" name="customer_join" value="1">
+            <input type="radio" name="customer_join" value="1" <?php echo $info['customer_join']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="customer_join" value="0">
+            <input type="radio" name="customer_join" value="0" <?php echo $info['customer_join']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
         <td>严格按客户要求试模</td>
         <td>
           <label>
-            <input type="radio" name="customer_require" value="1">
+            <input type="radio" name="customer_require" value="1" <?php echo $info['customer_require']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="customer_require" value="0">
+            <input type="radio" name="customer_require" value="0" <?php echo $info['customer_require']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
         <td>客户是否需要走水板</td>
         <td>
           <label>
-            <input type="radio" name="customer_water" value="1">
+            <input type="radio" name="customer_water" value="1" <?php echo $info['customer_water']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="customer_water" value="0">
+            <input type="radio" name="customer_water" value="0" <?php echo $info['customer_water']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -835,16 +901,16 @@ $result = $db->query($sql);
                       <?php
                           echo '<option value="">--请选择--</option>';
                           foreach($array_draw_material as $k=>$v){
-
-                            echo '<option value="'.$k.'">'.$v.'</option>';
+                            $is_select = $k == $info['draw_material'] ? 'selected':'';
+                            echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                           }
                        ?>
               </select>
         </td>
         <td>免费样品数量/次数</td>
         <td>
-          <input type="text" name="draw_num" style="width:57px;"> 次 共
-          <input type="text" name="total_num" style="width:57px"> 次
+          <input type="text" name="draw_num" style="width:57px;" value="<?php echo $info['draw_num']?>"> 次 共
+          <input type="text" name="total_num" style="width:57px" value="<?php echo $info['total_num']?>"> 次
         </td>
         <td>寄样方式</td>
         <td>
@@ -852,8 +918,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_draw_post as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        $is_select = $k == $info['draw_post'] ? 'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -872,20 +938,20 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_pack_method as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        $is_select = $k == $info['pack_method'] ? 'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
         </td>
         <td>其它事项</td>
         <td>
-          <input type="text" name="other_thing">
+          <input type="text" name="other_thing" value="<?php echo $info['other_thing'] ?>">
         </td>
       </tr>
       <tr>
         <?php for($i=0;$i<6;$i++){ 
-          echo '<td>T'.$i.': <input type="text" style="width:100px" name="t_num"> 模</td>';
+          echo '<td>T'.$i.': <input type="text" style="width:100px" name="t_num[]" value="'.$info['t_num'][$i].'"> 模</td>';
         } ?>
       </tr>
       <tr>
@@ -896,11 +962,11 @@ $result = $db->query($sql);
         <td>是否移模</td>
         <td>
          <label>
-            <input type="radio" name="is_move" value="1">
+            <input type="radio" name="is_move" value="1" <?php echo $info['is_move']=='1'?'checked':'' ?>>
             是
          </label> 
          <label>
-            <input type="radio" name="is_move" value="0">
+            <input type="radio" name="is_move" value="0" <?php echo $info['is_move']=='0'?'checked':'' ?>>
             否
          </label>
        </td>
@@ -910,8 +976,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_hand_over as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        $is_select = $info['hand_over'] == $k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -922,8 +988,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_settle_way as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+            $is_select = $info['settle_way'] == $k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -935,8 +1001,8 @@ $result = $db->query($sql);
           <select name="surface_spray">
                    <?php
                       foreach($array_surface_spray as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+            $is_select = $info['surface_spray'] == $k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -967,8 +1033,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_mould_handbook as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+            $is_select = $info['mould_handbook'] == $k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -976,11 +1042,11 @@ $result = $db->query($sql);
         <td>钢材材质证明、热处理证明</td>
         <td>
           <label>
-            <input type="radio" name="steel_material" vlaue="1">
+            <input type="radio" name="steel_material" value="1" <?php echo $info['steel_material']=='1'?'checked':'' ?>>
             要
           </label>
           <label>
-            <input type="radio" name="steel_material" value="0">
+            <input type="radio" name="steel_material" value="0" <?php echo $info['steel_material']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -989,33 +1055,33 @@ $result = $db->query($sql);
         <td>零件检查报告、走模前检查报告</td>
         <td>
             <label>
-            <input type="radio" name="mould_check" vlaue="1">
+            <input type="radio" name="mould_check" value="1" <?php echo $info['mould_check']=='1'?'checked':'' ?>>
             要
           </label>
           <label>
-            <input type="radio" name="mould_check" value="0">
+            <input type="radio" name="mould_check" value="0" <?php echo $info['mould_check']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
         <td>试模报告、样品检测报告</td>
         <td>
            <label>
-            <input type="radio" name="sample_check" vlaue="1">
+            <input type="radio" name="sample_check" value="1" <?php echo $info['sample_check']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="sample_check" value="0">
+            <input type="radio" name="sample_check" value="0" <?php echo $info['sample_check']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
          <td>末次试模照片、视频</td>
         <td>
           <label>
-            <input type="radio" name="mould_phone" vlaue="1">
+            <input type="radio" name="mould_photo" value="1" <?php echo $info['mould_photo']=='1'?'checked':'' ?>>
             要
           </label>
           <label>
-            <input type="radio" name="mould_phone" value="0">
+            <input type="radio" name="mould_photo" value="0" <?php echo $info['mould_photo']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -1024,11 +1090,11 @@ $result = $db->query($sql);
         <td>走模装箱照片、视频</td>
         <td>
           <label>
-            <input type="radio" name="phone_vedio" vlaue="1">
+            <input type="radio" name="photo_vedio" value="1" <?php echo $info['photo_vedio']=='1'?'checked':'' ?>>
             要
           </label>
           <label>
-            <input type="radio" name="phone_vedio" value="0">
+            <input type="radio" name="photo_vedio" value="0" <?php echo $info['photo_vedio']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -1038,8 +1104,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_mould_pack as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+            $is_select = $info['mould_pack'] == $k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -1050,8 +1116,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_mould_transport as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+            $is_select = $info['mould_transport'] == $k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -1061,11 +1127,11 @@ $result = $db->query($sql);
         <td>客户处交模、验模</td>
         <td>
            <label>
-            <input type="radio" name="customer_try" vlaue="1">
+            <input type="radio" name="customer_try" value="1" <?php echo $info['customer_try']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="customer_try" value="0">
+            <input type="radio" name="customer_try" value="0" <?php echo $info['customer_try']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -1075,15 +1141,15 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_service_fee as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        $is_select = $info['service_fee']==$k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
         </td>
         <td>其它要求</td>
         <td>
-          <input type="text" name="go_mould_require">
+          <input type="text" name="go_mould_require" value="<?php echo $info['go_mould_require'] ?>">
         </td>
       </tr>
       <tr>
@@ -1094,33 +1160,33 @@ $result = $db->query($sql);
         <td>产品设计</td>
         <td>
           <label>
-            <input type="radio" name="product_design" value="1">
+            <input type="radio" name="product_design" value="1" <?php echo $info['product_design']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="product_design" value="0">
+            <input type="radio" name="product_design" value="0" <?php echo $info['product_design']=='0'?'checked':'' ?>>
             否
           </label>
        </td>
        <td>模流分析</td>
        <td>
           <label>
-            <input type="radio" name="mould_analyse" value="1">
+            <input type="radio" name="mould_analyse" value="1" <?php echo $info['mould_analyse']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="mould_analyse" value="0">
+            <input type="radio" name="mould_analyse" value="0" <?php echo $info['mould_analyse']=='0'?'checked':'' ?>>
             否
           </label>
        </td>
         <td>DFM报告</td>
         <td>
           <label>
-            <input type="radio" name="dfm_report" value="1">
+            <input type="radio" name="dfm_report" value="1" <?php echo $info['dfm_report']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="dfm_report" value="0">
+            <input type="radio" name="dfm_report" value="0" <?php echo $info['dfm_report']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -1128,22 +1194,22 @@ $result = $db->query($sql);
         <td>2D模具结构设计图</td>
         <td>
           <label>
-            <input type="radio" name="drawing_2d" value="1">
+            <input type="radio" name="drawing_2d" value="1" <?php echo $info['drawing_2d']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="drawing_2d" value="0">
+            <input type="radio" name="drawing_2d" value="0" <?php echo $info['drawing_2d']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
         <td>全3D模具图</td>
         <td>
           <label>
-            <input type="radio" name="drawing_3d" value="1">
+            <input type="radio" name="drawing_3d" value="1" <?php echo $info['drawing_3d']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="drawing_3d" value="0">
+            <input type="radio" name="drawing_3d" value="0" <?php echo $info['drawing_3d']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -1158,33 +1224,33 @@ $result = $db->query($sql);
          <td>项目启动会</td>
         <td>
           <label>
-            <input type="radio" name="project_start" value="1">
+            <input type="radio" name="project_start" value="1" <?php echo $info['project_start']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="project_start" value="0">
+            <input type="radio" name="project_start" value="0" <?php echo $info['project_start']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
          <td>产品评审会</td>
         <td>
           <label>
-            <input type="radio" name="product_judge" value="1">
+            <input type="radio" name="product_judge" value="1" <?php echo $info['product_judge']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="product_judge" value="0">
+            <input type="radio" name="product_judge" value="0" <?php echo $info['product_judge']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
          <td>模具结构评审会</td>
         <td>
           <label>
-            <input type="radio" name="muould_judge" value="1">
+            <input type="radio" name="mould_judge" value="1" <?php echo $info['mould_judge']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="muould_judge" value="0">
+            <input type="radio" name="mould_judge" value="0" <?php echo $info['mould_judge']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -1193,11 +1259,11 @@ $result = $db->query($sql);
          <td>零件加工工艺评审会</td>
         <td>
           <label>
-            <input type="radio" name="machining_judge" value="1">
+            <input type="radio" name="machining_judge" value="1" <?php echo $info['machining_judge']=='1'?'checked':'' ?>>
             是
           </label>
           <label>
-            <input type="radio" name="machining_judge" value="0">
+            <input type="radio" name="machining_judge" value="0" <?php echo $info['machining_judge']=='0'?'checked':'' ?>>
             否
           </label>
         </td>
@@ -1207,7 +1273,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_judge_method as $k=>$v){
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+                         $is_select = $info['judge_method']==$k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -1218,8 +1285,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_customer_confirm as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        $is_select = $info['customer_confirm'] == $k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -1232,8 +1299,8 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_project_progress as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        $is_select = $info['project_progress']==$k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
@@ -1244,15 +1311,15 @@ $result = $db->query($sql);
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($array_error_report as $k=>$v){
-
-                         echo '<option value="'.$k.'">'.$v.'</option>';
+                        $is_select = $info['error_report']==$k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
                         }
                    ?>
           </select>
         </td>
         <td>其它要求</td>
         <td>
-          <input type="text" name="control_require">
+          <input type="text" name="control_require" value="<?php echo $info['control_require'] ?>">
         </td>
       </tr>
       <tr>
@@ -1311,7 +1378,9 @@ $result = $db->query($sql);
       <tr class="distance"></tr>
       <tr>
         <td colspan="7">
-          <input type="submit" class="submit" value="保存">
+          <input id="save" type="submit" class="submit" value="保存">
+          <span id="project_approval">审核</span>
+          <span id="back" onclick="window.history.go(-1);">返回</span>
         </td>
       </tr>
        </table>

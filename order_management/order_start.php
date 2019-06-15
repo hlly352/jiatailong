@@ -468,11 +468,11 @@ $result = $db->query($sql);
        <td>模具是否出口</td>
        <td>
         <label>
-          <input type="radio" name="is_export" vlaue="1">
+          <input type="radio" name="is_export" value="1">
           是
         </label>
         <label>
-          <input type="radio" name="is_export" vlaue="0">
+          <input type="radio" name="is_export" value="0">
           否
         </label>  
        </td>
@@ -905,7 +905,7 @@ $result = $db->query($sql);
       </tr>
       <tr>
         <?php for($i=0;$i<6;$i++){ 
-          echo '<td>T'.$i.': <input type="text" style="width:100px" name="t_num"> 模</td>';
+          echo '<td>T'.$i.': <input type="text" style="width:100px" name="t_num[]"> 模</td>';
         } ?>
       </tr>
       <tr>
@@ -1002,7 +1002,7 @@ $result = $db->query($sql);
         <td>钢材材质证明、热处理证明</td>
         <td>
           <label>
-            <input type="radio" name="steel_material" vlaue="1">
+            <input type="radio" name="steel_material" value="1">
             要
           </label>
           <label>
@@ -1015,7 +1015,7 @@ $result = $db->query($sql);
         <td>零件检查报告、走模前检查报告</td>
         <td>
             <label>
-            <input type="radio" name="mould_check" vlaue="1">
+            <input type="radio" name="mould_check" value="1">
             要
           </label>
           <label>
@@ -1026,7 +1026,7 @@ $result = $db->query($sql);
         <td>试模报告、样品检测报告</td>
         <td>
            <label>
-            <input type="radio" name="sample_check" vlaue="1">
+            <input type="radio" name="sample_check" value="1">
             是
           </label>
           <label>
@@ -1037,11 +1037,11 @@ $result = $db->query($sql);
          <td>末次试模照片、视频</td>
         <td>
           <label>
-            <input type="radio" name="mould_phone" vlaue="1">
+            <input type="radio" name="mould_photo" value="1">
             要
           </label>
           <label>
-            <input type="radio" name="mould_phone" value="0">
+            <input type="radio" name="mould_photo" value="0">
             否
           </label>
         </td>
@@ -1050,11 +1050,11 @@ $result = $db->query($sql);
         <td>走模装箱照片、视频</td>
         <td>
           <label>
-            <input type="radio" name="phone_vedio" vlaue="1">
+            <input type="radio" name="photo_vedio" value="1">
             要
           </label>
           <label>
-            <input type="radio" name="phone_vedio" value="0">
+            <input type="radio" name="photo_vedio" value="0">
             否
           </label>
         </td>
@@ -1087,7 +1087,7 @@ $result = $db->query($sql);
         <td>客户处交模、验模</td>
         <td>
            <label>
-            <input type="radio" name="customer_try" vlaue="1">
+            <input type="radio" name="customer_try" value="1">
             是
           </label>
           <label>
