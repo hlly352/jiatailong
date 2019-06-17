@@ -7,6 +7,44 @@ require_once '../class/image.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $action = $_GET['action'];
+//接收图片信息
+$file = $_FILES['file'];
+//判断是否接收到图片
+if($file){
+	//拼接图片存储路径
+    $filedir = date("Ymd");
+	$upfiledir = "../upload/mould_image/".$filedir."/";
+	 //得到传输的数据
+		 if(($_FILES['file']['tmp_name'][0]) != null){
+			if($_FILES['file']['name']){
+				 //图片上传
+				$upload = new upload();
+				$upload->upload_files($upfiledir);
+				$target_path =  '';
+				$target_name = '';
+				$final_path = '';
+				$upload_final_path = '';
+				//图片上传后得到图片的信息
+				$upload_info = $upload->array_upload_files;
+				//从图片信息中提取图片的存储路径
+				foreach($upload_info as $key=>$value){
+					foreach($value as $ks=>$vs){
+			
+					if($ks == 'upload_target_path'){
+						$target_path = $vs;
+					} elseif($ks == 'upload_final_name'){
+						$target_name = $vs;
+					}
+					$final_path = $target_path.$target_name;
+				}
+				$upload_final_path .= $final_path.'$';
+				
+
+				}
+			}
+		}
+
+}
 
 //执行添加操作
 if($action == 'add'){
@@ -21,8 +59,8 @@ if($action == 'add'){
 				$sql_val .= '"'.$value.'",';
 					
 				}
-				$sql_val .= '"'.$employeeid.'","'.time().'"';
-				$sql_key .= '`employeeid`,`specification_time`';
+				$sql_val .= '"'.$employeeid.'","'.time().'","'.$upload_final_path.'"';
+				$sql_key .= '`employeeid`,`specification_time`,`upload_final_path`';
 	
 		
 		

@@ -47,7 +47,7 @@ require_once 'shell.php';
 		 $value_word = substr($value_word,0,strlen($value_word)-2);
 
 		 //图片的存储路径
-	           $filedir = date("Ymd");
+	    $filedir = date("Ymd");
 		$upfiledir = "../upload/mould_image/".$filedir."/";
 		 //得到传输的数据
 		 if(($_FILES['file']['tmp_name'][0]) != null){

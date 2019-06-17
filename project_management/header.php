@@ -4,8 +4,8 @@
 <div id="menu">
   <ul>
     <li class="menulevel"><a href="new_project.php">新的项目</a></li>
-    <li class="menulevel"><a href="project_approval.php">项目审批</a></li>
-    <li class="menulevel"><a href="mould.php">项目汇总</a></li>
+    <li class="menulevel"><a href="project_summary.php">项目汇总(新)</a></li>
+    <li class="menulevel"><a href="mould.php">项目汇总(旧)</a></li>
     <li class="menulevel"><a href="#">项目评审</a></li>
     <li class="menulevel"><a href="#">项目进度</a></li>
     <li class="menulevel"><a href="#">模具试模</a>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
@@ -15,6 +15,22 @@ $result = $db->query($sql);
   if($result->num_rows){
       $info = $result->fetch_assoc();
   }
+//查找负责人员
+$depart_name = array('saler'=>'市场部','projecter'=>'项目部','designer'=>'设计部','programming'=>'CNC','assembler'=>'钳工');
+foreach($depart_name as $k=>$v){
+    $sql_employee = "SELECT `db_employee`.`employeeid`,`db_employee`.`employee_name` FROM `db_employee` LEFT JOIN `db_department` as saler ON `db_employee`.deptid = saler.`deptid` WHERE saler.`dept_name` LIKE '%$v%'";
+    $res = $db->query($sql_employee);
+   
+    ${$k} = array();
+    
+    if($res->num_rows){
+      while($row = $res->fetch_row()){
+        ${$k}[] = $row;
+      }
+      
+    }
+}
+
   echo '<meta charset="utf-8">';
  //获取型腔数
  $cavity_num = $info['cavity_type'];
@@ -29,7 +45,7 @@ $result = $db->query($sql);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 <link href="../css/system_base.css" type="text/css" rel="stylesheet" />
 <link href="../css/jquery-ui.css" type="text/css" rel="stylesheet" />
 <link href="css/main.css" type="text/css" rel="stylesheet" />
@@ -53,7 +69,45 @@ $result = $db->query($sql);
       #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:700;}
 </style>
 <script type="text/javascript" charset="utf-8">
-   
+       //上传图片之前预览图片
+
+function view(file){
+    var filepath = $(file).val();  
+    var extStart = filepath.lastIndexOf(".")+1;
+    var ext = filepath.substring(extStart, filepath.length).toUpperCase();
+    var allowtype = ["JPG","GIF","PNG"];
+    if($.inArray(ext,allowtype) == -1)
+    {
+      alert("请选择正确文件类型");
+      $(file).val('');
+      return false;
+    }
+    if($(file).prevAll().size()<19){
+    $(file).css('display','none');
+    if (file.files && file.files[0]){ 
+
+    var reader = new FileReader(); 
+
+    reader.onload = function(evt){ 
+
+    $(file).next().html('<img src="' + evt.target.result + '" width="95px" height="50px" />'); 
+
+    } 
+
+    reader.readAsDataURL(file.files[0]); 
+
+    }else{
+
+    $(file).next().html('<p style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src=\'' + file.value + '\'"></p>'); 
+
+    } 
+    var files = ' <input type="file" name="file[]" onchange="view(this)"/><span style="margin-left:20px"></span>';
+    $(file).next().after(files);
+  } else {
+    alert('最多上传十张图片');
+    $(file).remove();
+  }
+ }
   $(function(){
 
     //唧嘴选中sr时变为输入框
@@ -66,6 +120,7 @@ $result = $db->query($sql);
         par.append(inp);
       }
     })
+
     })
 </script>
 </head>
@@ -207,7 +262,7 @@ $result = $db->query($sql);
   <h4 style="padding-left:10px">
   </h4>
   <div id='table_list'>
-  <form action="order_start_do.php?action=add" name="list" method="post">
+  <form action="order_start_do.php?action=add" name="list" method="post" enctype="multipart/form-data">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
           <td class="noborder title">基本信息</td>
@@ -1288,52 +1343,164 @@ $result = $db->query($sql);
         <td class="noborder" colspan="5"></td>
       </tr>
       <tr>
-        <td colspan="6" style="height:100px"></td>
+        <td colspan="6" style="height:100px;text-align:left">
+          <input type="file" name="file[]" onchange="view(this)"/>
+
+          <span id="preview"></span>
+        </td>
       </tr>
       <tr>
         <td class="noborder title">负责人与审核</td>
         <td class="noborder" colspan="5"></td>
       </tr>
       <tr>
-        <td>销售经理</td>
+        <td>销售</td>
         <td>
-          <input type="text" name="sales_manager">
+           <select name="saler">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($saler as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
         </td>
-        <td>项目经理</td>
+        <td>部门经理</td>
         <td>
-          <input type="text" name="project_manager">
+           <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($saler as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
         </td>
-        <td>主设计工程师</td>
+        <td>意见</td>
         <td>
-          <input type="text" name="leading">
+          <input type="text" name="suggestion[]">
         </td>
       </tr>
          <tr>
-        <td>主编程工程师</td>
+        <td>项目</td>
         <td>
-          <input type="text" name="programming">
+          <select name="projecter">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($projecter as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
         </td>
-        <td>钳工组别</td>
+        <td>部门经理</td>
         <td>
-          <input type="text" name="benchwork_group">
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($projecter as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
         </td>
-        <td>钳工技师</td>
+        <td>意见</td>
         <td>
-          <input type="text" name="benchwork_artificer">
+          <input type="text" name="suggestion[]">
         </td>
       </tr>
-         <tr>
-        <td>填表（销售及项目经理）：</td>
+      <tr>
+        <td>设计</td>
         <td>
-          <input type="text" name="writer">
+          <select name="designer">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($designer as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
         </td>
-        <td>审核（设计部经理）：</td>
+        <td>部门经理</td>
         <td>
-          <input type="text" name="assessor">
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($designer as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
         </td>
-        <td>批准（副总经理）：</td>
+        <td>意见</td>
         <td>
-          <input type="text" name="approver">
+          <input type="text" name="suggestion[]">
+        </td>
+      </tr>
+       <tr>
+        <td>编程</td>
+        <td>
+          <select name="programming">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($programming as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>部门经理</td>
+        <td>
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($programming as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]">
+        </td>
+      </tr>
+       <tr>
+        <td>装配</td>
+        <td>
+          <select name="assembler">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($assembler as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>部门经理</td>
+        <td>
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($assembler as $k=>$v){
+
+                         echo '<option value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]">
         </td>
       </tr>
       <tr class="distance"></tr>

@@ -15,9 +15,9 @@ if($action == 'approval'){
 	$sql = "UPDATE `db_mould_specification` SET `is_approval`='1' WHERE `mould_specification_id`=".$specification_id;
 	$db->query($sql);
 	if($db->affected_rows){
-		header('location:project_approval.php');
+		header('location:project_summary.php');
 	} else {
-		header('location:project_approval.php');
+		header('location:project_summary.php');
 	}
 	}
 
