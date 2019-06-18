@@ -199,7 +199,7 @@ $result = $db->query($sqllist);
         <td><?php echo $row['checkbox_time']; ?></td>
         <td><?php ?></td>
         <td><?php echo $row['mould_statusname']; ?></td>
-        <td><a href="mould_specification_edit.php?action=edit&specification_id=<?php echo $row['mould_specification_id'] ?>">批准</a></td>
+        <td><a href="mould_specification_edit.php?action=edit&from=summary&specification_id=<?php echo $row['mould_specification_id'] ?>">变更</a></td>
       </tr>
       <?php } ?>
     </table>

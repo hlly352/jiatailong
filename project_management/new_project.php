@@ -52,7 +52,7 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>模具数据</h4>
+  <h4></h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -163,6 +163,15 @@ $result = $db->query($sqllist);
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
+      //查找型芯和型腔的材质
+      $cavity_sql = "SELECT `material_specification` FROM `db_mould_data` WHERE `mould_dataid`=".$row['mould_id'];
+      $res = $db->query($cavity_sql);
+      if($res->num_rows){
+        $cavity = $res->fetch_row();
+      }
+      //转换为数组
+    $cavity = explode('$$',$cavity[0]);
+
       $image_filedir = $row['image_filedir'];
       $image_filename = $row['image_filename'];
       //$image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
@@ -187,7 +196,7 @@ $result = $db->query($sqllist);
         <td><?php echo $row['surface_require']; ?></td>
         <td><?php echo $row['cavity_num']; ?></td>
         <td><?php echo $array_injection_type[$row['injection_type']]; ?></td>
-        <td><?php echo $row['core_material']; ?></td>
+        <td><?php echo $cavity[1].'/'.$cavity[2]; ?></td>
         <td><?php echo $row['is_export'] == '1'?'是':'否'; ?></td>
         <td><?php echo $array_quality_degree[$row['quality_degree']]; ?></td>
         <td><?php echo $array_difficulty_degree[$row['difficulty_degree']]; ?></td>

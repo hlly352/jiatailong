@@ -30,6 +30,28 @@ foreach($depart_name as $k=>$v){
       
     }
 }
+//查看当前用户是否是管理员
+//获取当前页面的路径
+
+  $system_url =  dirname(__FILE__);
+
+  $system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+  $system_url = substr($system_url,$system_pos);
+  //通过路径查询对应的模块id
+  $system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+  $system_id_res = $db->query($system_id_sql);
+  $system_id = $system_id_res->fetch_row()[0];
+  if($system_id ==' '){
+    header('location:../myjtl/index.php');
+  }
+  //查询登录用户是否是客户管理的管理员
+  $system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+  $system_res = $db->query($system_sql);
+
+  $system_info = [];
+  while($system_admin = $system_res->fetch_row()){
+    $system_info = $system_admin;
+  }
 
   echo '<meta charset="utf-8">';
 
@@ -67,8 +89,9 @@ foreach($depart_name as $k=>$v){
       table tr td input[type='text']{width:75%;height:22px;}
       #table_list table tr .noborder{border:0;}
       #table_list table tr td .tips{width:15%;background:white;display:inline-block;height:10px;margin-top:-3px;}
+      #table_list table tr td:nth-of-type(odd):not(.title){background:#ddd;}
       #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:700;}
-      #project_approval,#back{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
+      #project_approval,#back,#no_approval{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
     #no_approval{background:grey;}
     #save{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;margin-top:5px;height:29px;width:80px}
 </style>
@@ -77,7 +100,7 @@ foreach($depart_name as $k=>$v){
 
 function view(file){
   $('.mould_image').remove();
-    var filepath = $(file).val();  
+    var filepath = $(file).val();
     var extStart = filepath.lastIndexOf(".")+1;
     var ext = filepath.substring(extStart, filepath.length).toUpperCase();
     var allowtype = ["JPG","GIF","PNG"];
@@ -270,7 +293,7 @@ function view(file){
   <h4 style="padding-left:10px">
   </h4>
   <div id='table_list'>
-  <form action="../order_management/order_start_do.php?action=edit&fun=<?php echo $_GET['fun'] ?>" name="list" method="post">
+  <form action="../order_management/order_start_do.php?action=edit&fun=<?php echo $_GET['fun'] ?>" name="list" method="post" enctype="multipart/form-data">
     <table id="main" cellpadding="0" cellspacing="0">
       <tr>
           <td class="noborder title">基本信息</td>
@@ -1519,7 +1542,7 @@ function view(file){
         </td>
         <td>意见</td>
         <td>
-          <input type="text" name="suggestion[]" value="<?php echo $inifo['suggestion'][3] ?>">
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][3] ?>">
         </td>
       </tr>
        <tr>
@@ -1555,8 +1578,11 @@ function view(file){
       <tr class="distance"></tr>
       <tr>
         <td colspan="7">
+          <input type="hidden" name="from" value="<?php echo $_GET['from'] ?>">
           <input id="save" type="submit" class="submit" value="保存">
-          <span id="project_approval">审核</span>
+          <?php if($_GET['from'] !='summary'){ ?>
+          <span id="<?php echo $system_info[0] == '1'?'project_approval':'no_approval'?>">审批</span>
+          <?php } ?>
           <span id="back" onclick="window.history.go(-1);">返回</span>
         </td>
       </tr>

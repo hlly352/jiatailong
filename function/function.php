@@ -193,6 +193,21 @@ function arr_merge($arr1,$arr2){
 					echo $data;
 				}
 			}
+//处理编辑项目信息里的多选框
+function doCheckbox($arr,$str,$info,$num = -1){
+            foreach($arr as $k=>$v){
+            	if(isset($info[$str])){
+	            	if(in_array($k,$info[$str])){
+	            		$is_check = 'checked';
+	            	}else{
+	            		$is_check = '';
+	            	}
+           		 }
+                //输出多选框
+                echo '<label><input type="checkbox" name="'.$str.'[]" '.$is_check.'  value="'.$k.'">'.$v.'</label>';
+                echo $k == $num?'<br>':'';
+            }
+		}
 
 
 ?>

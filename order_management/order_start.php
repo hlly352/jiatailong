@@ -32,6 +32,13 @@ foreach($depart_name as $k=>$v){
 }
 
   echo '<meta charset="utf-8">';
+  //获取图片
+   $image_filepath = $info['upload_final_path'];
+      if(is_file($image_filepath)){
+        $image_file = "<img style=\"display:block;margin:10px auto\" src=\"".$image_filepath."\" width=\"300\" height=\"150\"/>";
+      }else{
+        $image_file = "<img style=\"display:block;margin:10px auto\" src=\"../images/no_image_85_45.png\" width=\"300\" height=\"150\" />";
+      }
  //获取型腔数
  $cavity_num = $info['cavity_type'];
  if($cavity_num){
@@ -66,11 +73,48 @@ foreach($depart_name as $k=>$v){
       table tr td input[type='text']{width:75%;height:22px;}
       #table_list table tr .noborder{border:0;}
       #table_list table tr td .tips{width:15%;background:white;display:inline-block;height:10px;margin-top:-3px;}
+      #table_list table tr td:nth-of-type(odd):not(.title){background:#ddd;}
       #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:700;}
+      #back{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
+      #save{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;margin-top:5px;height:29px;width:80px}
 </style>
 <script type="text/javascript" charset="utf-8">
-       //上传图片之前预览图片
+//上传产品图片预览
+function view_data(file){
+    var filepath = $(file).val();  
+    var extStart = filepath.lastIndexOf(".")+1;
+    var ext = filepath.substring(extStart, filepath.length).toUpperCase();
+    var allowtype = ["JPG","GIF","PNG"];
+    if($.inArray(ext,allowtype) == -1)
+    {
+      alert("请选择正确文件类型");
+      $(file).val('');
+      return false;
+    }
+    $(file).prev().empty()
+    if (file.files && file.files[0]){ 
 
+    var reader = new FileReader(); 
+
+    reader.onload = function(evt){ 
+
+    $(file).prev().html('<img src="' + evt.target.result + '" width="300px" height="150px" />'); 
+
+    } 
+
+    reader.readAsDataURL(file.files[0]); 
+
+    }else{
+
+    $(file).prev().html('<p style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src=\'' + file.value + '\'"></p>'); 
+
+    } 
+    var files = ' <input type="file" name="file[]" onchange="view(this)"/><span style="margin-left:20px"></span>';
+    $(file).next().after(files);
+  } 
+
+
+ //上传图片之前预览图片
 function view(file){
     var filepath = $(file).val();  
     var extStart = filepath.lastIndexOf(".")+1;
@@ -282,17 +326,30 @@ function view(file){
        <td>
          <input type="text" name="project_name" value="<?php echo $info['project_name'] ?>">
        </td>
-       <td>产品名称</td>
-       <td>
-         <input type="text" name="mould_name" value="<?php echo $info['mould_name'] ?>">
+       <td colspan="2" rowspan="6" style="background:white">
+         <span>
+          <?php echo $image_file ?>  
+         </span>
+         <input type="file" name="image" onchange="view_data(this)" style="display:block;margin:5px auto">
        </td>
       </tr>
       <tr>
-       <td>塑胶材料</td>
+        <td>模具编号</td>
        <td>
-         <input type="text" name="material_other">
+         <input type="text" name="mould_no" value="<?php echo $info['mould_no'] ?>">
        </td>
-       <td>图纸类型</td>
+        <td>产品名称</td>
+       <td>
+         <input type="text" name="mould_name" value="<?php echo $info['mould_name'] ?>">
+       </td>     
+      </tr>
+      <tr>
+       
+       <td>型腔数</td>
+       <td>
+         <input type="text" name="cavity_num" value="<?php echo $cavity ?>">
+       </td>
+        <td>图纸类型</td>
        <td>
           <?php
             foreach($array_drawing_type as $k=>$v){
@@ -300,23 +357,23 @@ function view(file){
             }
           ?>
        </td>
-       <td>重点要求</td>
-       <td>
-             <?php
-            foreach($array_require as $k=>$v){
-                echo '<label><input type="checkbox" name="require[]" value="'.$k.'">'.$v.'</label> ';
-            }
-          ?>
-       </td>
       </tr>
       <tr>
-       <td>模具编号</td>
+       <td>启动时间</td>
        <td>
-         <input type="text" name="mould_no" value="<?php echo $info['mould_no'] ?>">
+         <input type="text" name="start_time">
        </td>
-       <td>型腔数</td>
+       <td>塑胶材料</td>
        <td>
-         <input type="text" name="cavity_num" value="<?php echo $cavity ?>">
+         <input type="text" name="material_other">
+       </td>
+       
+      
+      </tr>
+      <tr>
+        <td>首板时间</td>
+       <td>
+         <input type="text" name="check_time">
        </td>
        <td>产品缩水率</td>
        <td style="background:yellow">
@@ -324,17 +381,17 @@ function view(file){
        </td>
       </tr>
       <tr>
-       <td>启动时间</td>
-       <td>
-         <input type="text" name="start_time">
-       </td>
-       <td>首板时间</td>
-       <td>
-         <input type="text" name="check_time">
-       </td>
-       <td>预计走模时间</td>
+         <td>预计走模时间</td>
        <td>
          <input type="text" name="finish_time">
+       </td>
+        <td>重点要求</td>
+       <td>
+             <?php
+            foreach($array_require as $k=>$v){
+                echo '<label><input type="checkbox" name="require[]" value="'.$k.'">'.$v.'</label> ';
+            }
+          ?>
        </td>
       </tr>
       <tr>
@@ -1343,7 +1400,7 @@ function view(file){
         <td class="noborder" colspan="5"></td>
       </tr>
       <tr>
-        <td colspan="6" style="height:100px;text-align:left">
+        <td colspan="6" style="height:100px;text-align:left;background:white">
           <input type="file" name="file[]" onchange="view(this)"/>
 
           <span id="preview"></span>
@@ -1505,8 +1562,9 @@ function view(file){
       </tr>
       <tr class="distance"></tr>
       <tr>
-        <td colspan="7">
-          <input type="submit" class="submit" value="发起项目">
+        <td colspan="7" style="background:white">
+          <input type="submit" id="save" class="submit" value="发起项目">
+          <span id="back" onclick="window.history.go(-1);">返回</span>
         </td>
       </tr>
        </table>

@@ -55,8 +55,6 @@ $array_mould_heat = array('tempered'=>'调质/Tempered','hardened'=>'淬火/Hard
 //材料名称
 $array_mould_material = array('cavity'=>'型腔/Cavity','core'=>'型芯/Core','silde'=>'滑块/Slide','lifter'=>'斜顶/Lifter','insert'=>'镶件/Insert','electrode'=>'电极/Electrode');
 $array_mould_materials = array('base'=>'模架/Mode Base','cavity'=>'型腔1/Cavity','cavitys'=>'型腔2/Cavity','core'=>'型芯1/Core','cores'=>'型芯2/Core','silde'=>'滑块/Slide','lifter'=>'斜顶/Lifter','inserts'=>'镶件/Insert','electrode'=>'电极/Electrode');
-//材料牌号
-$array_material_specification = array(0=>'1.2312',1=>'1.2343',2=>'Cu');
 //模具配件数据
 $array_mold_standard = array('Inserts'=>'镶件、日期章/Inserts','sleeve'=>'顶杆、顶管/Ejection Pin\\Sleeve','connector'=>'水管、油管接头/Connector','components'=>'标准件/Standard Components','hotrunner'=>'热流道/Hot Runner','tempcontroller'=>'温控器/Temp Controller','cylinder'=>'油缸/Hydro-cylinder');
 //模具设计项目
@@ -166,7 +164,7 @@ $array_error_report = array('自行补救','客户方案');
 $array_skin_texture = array('模德','客户指定','普通');
 //材料品牌
 $array_material_county = array('国产','进口');
-$array_material_supplier = array('HASCO/DME','LKM','仿HASCO','仿DME','仿LKM','其他');
+$array_material_supplier = array('HASCO','DME','LKM','仿HASCO','仿DME','仿LKM','其他');
 // 材料牌号
 $array_material_specification = array("45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)","Cu");
 //品牌
