@@ -1,0 +1,18 @@
+ 	  table{width:100%;border-collapse: collapse;border-spacing: 2px;}
+      .distance{height:10px;}
+      table tr td{border:1px solid grey;font-size:11px;display:table-cell;}
+      .submit{width:80px;height:25px;}
+      select{width:75%;height:22px;}
+      table tr td input[type='text']{width:75%;height:22px;}
+      #table_list table tr .noborder{border:0;}
+      #table_list table tr td .tips{width:15%;background:white;display:inline-block;height:10px;margin-top:-3px;}
+      #table_list table tr td:nth-of-type(odd):not(.title){background:#eee;}
+      #table_list table tr:nth-child(-n+38):nth-child(n+24) td{background:white;}
+      #table_list table tr:nth-child(-n+32):nth-child(n+24) td:first-child{background:#eee;}
+      #table_list table tr:nth-child(23) td{background:#eee;}
+      #table_list table #cont td{background:white;}
+      #table_list table #notback td{background:#eee;}
+      #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:700;}
+      #project_approval,#back,#no_approval{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
+      #save,#saves{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;margin-top:5px;height:29px;width:80px}
+      #no_approval{background:grey;}

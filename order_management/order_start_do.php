@@ -10,10 +10,20 @@ $action = $_GET['action'];
 //接收图片信息
 $file = $_FILES['file'];
 $image = $_FILES['image'];
-if($image){
-		//拼接图片存储路径
+if($image['name'] != null){
+	//查找原来的图片地址
+	$img_sql = "SELECT `upload_final_path` FROM `db_mould_data` WHERE `mould_dataid`=".$_POST['mould_id'];
+	$imgres = $db->query($img_sql);
+	if($imgres->num_rows){
+		$img_file = $imgres->fetch_row()[0];
+	}
+	
+	//拼接图片存储路径
     $filedir = date("Ymd");
 	$upfiledir = "../upload/mould_image/".$filedir."/";
+	if(!is_dir($upfiledir)){
+		mkdir($upfiledir);
+	}
 	$upload_name = $upfiledir.$image['name'];
 	 //得到传输的数据
 		 if(($_FILES['image']['tmp_name'][0]) != null){
@@ -28,13 +38,14 @@ if($image){
 	//插入到模具资料中
 	$sql_data = "UPDATE `db_mould_data` SET `upload_final_path`='".$upload_name."' WHERE `mould_dataid`=".$_POST['mould_id'];
 	$db->query($sql_data);
-	if($db->affected_rows){
-		echo 'ok';
+	if($db->affected_rows && is_file($img_file)){
+
+		@unlink($img_file);
 	}
 }
-
 //判断是否接收到图片
-if($file){
+$upload_final_path = ' ';
+if($file['name'][0] != null){
 	//拼接图片存储路径
     $filedir = date("Ymd");
 	$upfiledir = "../upload/mould_image/".$filedir."/";
@@ -69,7 +80,6 @@ if($file){
 		}
 
 }
-
 //执行添加操作
 if($action == 'add'){
 	$data = $_POST;
@@ -92,7 +102,6 @@ if($action == 'add'){
 		//去除最后一个逗号
 		$sql_value = substr($sql_value,0,strlen($sql_value)-1);
 		 $specification_sql = "INSERT INTO `db_mould_specification`($sql_key) VALUES(".$sql_val.")";
-
 		 $mould_data_sql = "UPDATE `db_mould_data` SET `is_start`='1' WHERE `mould_dataid`={$data['mould_id']}";
 		
 		//执行sql语句
@@ -131,7 +140,7 @@ if($action == 'add'){
 		//更新时间
 		$sql_word .= '`specification_time`="'.time().'"';
 		//若原来有图片，则把原来的图片删除
-		if($upload_final_path){
+		if($upload_final_path !=' '){
 			$sqls = "SELECT `upload_final_path` FROM `db_mould_specification` WHERE `mould_specification_id` =".$id;
 			$res = $db->query($sqls);
 
@@ -149,10 +158,10 @@ if($action == 'add'){
 			}
 
 		$sql = "UPDATE `db_mould_specification` SET $sql_word WHERE `mould_specification_id`=".$id;
-		
+	
 		$db->query($sql);
 		if($db->affected_rows){
-			
+
 			if($from == 'summary'){
 				header('location:../project_management/project_summary.php');
 			} else{

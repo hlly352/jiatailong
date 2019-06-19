@@ -197,6 +197,9 @@ function arr_merge($arr1,$arr2){
 function doCheckbox($arr,$str,$info,$num = -1){
             foreach($arr as $k=>$v){
             	if(isset($info[$str])){
+            		if(!is_array($info[$str])){
+            			$info[$str] = array($info[$str]);
+            		}
 	            	if(in_array($k,$info[$str])){
 	            		$is_check = 'checked';
 	            	}else{
@@ -208,6 +211,5 @@ function doCheckbox($arr,$str,$info,$num = -1){
                 echo $k == $num?'<br>':'';
             }
 		}
-
 
 ?>

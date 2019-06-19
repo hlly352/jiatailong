@@ -5,6 +5,7 @@ require_once '../class/page.php';
 require_once '../config/config.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
+
 //获取模具id
   $id = $_GET['specification_id'];
   $mould_type = $_GET['mould_type'];
@@ -15,6 +16,19 @@ $result = $db->query($sql);
   if($result->num_rows){
       $info = $result->fetch_assoc();
   }
+ //查找data表里的图片路径
+ 
+ $data_sql = "SELECT `upload_final_path` FROM `db_mould_data` WHERE `mould_dataid`=".$info['mould_id'];
+ $res = $db->query($data_sql);
+ if($res->num_rows){
+  $image = $res->fetch_row()[0];
+ }
+ //获取图片
+      if(is_file($image)){
+        $img_file = "<img style=\"display:block;margin:10px auto\" src=\"".$image."\" width=\"300\" height=\"150\"/>";
+      }else{
+        $img_file = "<img style=\"display:block;margin:10px auto\" src=\"../images/no_image_85_45.png\" width=\"300\" height=\"150\" />";
+      }
  //查找负责人员
 $depart_name = array('saler'=>'市场部','projecter'=>'项目部','designer'=>'设计部','programming'=>'CNC','assembler'=>'钳工');
 foreach($depart_name as $k=>$v){
@@ -74,70 +88,20 @@ foreach($depart_name as $k=>$v){
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="../css/system_base.css" type="text/css" rel="stylesheet" />
 <link href="../css/jquery-ui.css" type="text/css" rel="stylesheet" />
+<link href="../css/order_start.css" type="text/css" rel="stylesheet" />
 <link href="css/main.css" type="text/css" rel="stylesheet" />
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/jquery-ui.js"></script>
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
+
 <title>订单管理-嘉泰隆</title>
-<style type="text/css">
-      table{width:100%;border-collapse: collapse;border-spacing: 2px;}
-      .distance{height:10px;}
-      table tr td{border:1px solid grey;font-size:11px;display:table-cell;}
-      .submit{width:80px;height:25px;}
-      select{width:75%;height:22px;}
-      table tr td input[type='text']{width:75%;height:22px;}
-      #table_list table tr .noborder{border:0;}
-      #table_list table tr td .tips{width:15%;background:white;display:inline-block;height:10px;margin-top:-3px;}
-      #table_list table tr td:nth-of-type(odd):not(.title){background:#ddd;}
-      #table_list table tr .title{font-family:'黑体', serif;font-size:15px;color:blue;text-align:left;padding-left:10px;font-weight:700;}
-      #project_approval,#back,#no_approval{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;padding-top:2px;margin-left:10px;}
-    #no_approval{background:grey;}
-    #save{width:80px;height:25px; display: inline-block;cursor:pointer;background-image: linear-gradient(#ddd, #bbb);border: 1px solid rgba(0,0,0,.2);border-radius: .3em;box-shadow: 0 1px white inset;text-align: center;line-height:25px;margin-top:5px;height:29px;width:80px}
-</style>
 <script type="text/javascript" charset="utf-8">
-          //上传图片之前预览图片
-
-function view(file){
-  $('.mould_image').remove();
-    var filepath = $(file).val();
-    var extStart = filepath.lastIndexOf(".")+1;
-    var ext = filepath.substring(extStart, filepath.length).toUpperCase();
-    var allowtype = ["JPG","GIF","PNG"];
-    if($.inArray(ext,allowtype) == -1)
-    {
-      alert("请选择正确文件类型");
-      $(file).val('');
-      return false;
-    }
-    if($(file).prevAll().size()<19){
-    $(file).css('display','none');
-    if (file.files && file.files[0]){ 
-
-    var reader = new FileReader(); 
-
-    reader.onload = function(evt){ 
-
-    $(file).next().html('<img src="' + evt.target.result + '" width="95px" height="50px" />'); 
-
-    } 
-
-    reader.readAsDataURL(file.files[0]); 
-
-    }else{
-
-    $(file).next().html('<p style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src=\'' + file.value + '\'"></p>'); 
-
-    } 
-    var files = ' <input type="file" name="file[]" onchange="view(this)"/><span style="margin-left:20px"></span>';
-    $(file).next().after(files);
-  } else {
-    alert('最多上传十张图片');
-    $(file).remove();
-  }
- }
   $(function(){
-
+    <?php if($_GET['show'] == 'show'){?>
+      $('input').prop('disabled',true);
+      $('select').prop('disabled',true);
+  <?php }?>
     //唧嘴选中sr时变为输入框
     $('#ji_sr').bind('change',function(){
       var ji_sr = $(this).val();
@@ -160,129 +124,182 @@ function view(file){
 <body>
 <?php include "header.php"; ?>
 
-<?php 
-  //判断显示哪一个页面
-  if(!isset($info['shrink'])){
+  <?php
 
-
-?>
-
-
+   //判断显示哪一个页面
+   if($info['shrink']==''){
+  ?>
   <h4 style="padding-left:10px">
   </h4>
   <div id="table_list">
-  <form action="order_start_do.php?action=add" name="" method="post">
+  <form action="../order_management/order_start_do.php?action=edit" name="" method="post" enctype="multipart/form-data">
     <table>
         <tr>
-          <td colspan="6" style="text-align:right;padding-right:20px">客户合同编号</td>
-          <td>
-              <input type="hidden" name="mould_id" value="<?php echo $_GET['mould_id']?>">
+          <td class="noborder title">基本信息</td>
+          <td colspan="3" class="noborder"></td>
+          <td class="noborder" style="background:white">客户合同编号</td>
+          <td class="noborder">
+              <input type="hidden" name="mould_id" value="<?php echo $info['mould_id'] ?>">
+              <input type="hidden" name="specification_id" value="<?php echo $info['mould_specification_id'] ?>">
               <input type="text" name="customer_order_no" value="<?php echo $info['customer_order_no'] ?>" >
           </td>
         </tr>
-         <tr>
-          <td rowspan="4">基本信息</td>
-          <td>客户代码</td>
-          <td>
-              <input type="text" name="customer_code" value="<?php echo $info['customer_code'] ?>" >
-          </td>
-          <td>项目名称</td>
-          <td>
-              <input type="text" name="project_name" value="<?php echo $info['project_name'] ?>">
-          </td>
-          <td>产品名称</td>
-          <td>
-            <input type="text" name="mould_name" value="<?php echo $info['mould_name'] ?>">
-          </td>
-        </tr>
-         <tr>
-          <td>塑胶材料</td>
-          <td>
-            <input type="text" name="material_other" value="<?php echo $info['material_other'] ?>">
-          </td>
-          <td>图纸类型</td>
-          <td>
-            <select name="drawing_type">
-                  <?php
-                     echo '<option value="">--请选择--</option>';
-                      foreach($array_drawing_type as $k=>$v){
-
-                        echo '<option value="'.$k.'">'.$v.'</option>';
-                      }
-                   ?>
-            </select>
-          </td>
-          <td>重点要求</td>
-          <td>
-          <select name="require">
-                  <?php
-                     echo '<option value="">--请选择--</option>';
-                      foreach($array_require as $k=>$v){
-
-                        echo '<option value="'.$k.'">'.$v.'</option>';
-                      }
+      <tr>
+       <td>客户代码</td>
+       <td>
+         <input type="text" name="customer_code" value="<?php echo $info['customer_code'] ?>">
+       </td>
+       <td width="15%">项目名称</td>
+       <td>
+         <input type="text" name="project_name" value="<?php echo $info['project_name'] ?>">
+       </td>
+       <td colspan="2" rowspan="5" style="background:white">
+         <span>
+          <?php echo $img_file ?>  
+         </span>
+         <input type="file" name="image" onchange="view_data(this)" style="display:block;margin:5px auto">
+       </td>
+      </tr>
+      <tr>
+        <td>模具编号</td>
+       <td>
+         <input type="text" name="mould_no" value="<?php echo $info['mould_no'] ?>">
+       </td>
+        <td>产品名称</td>
+       <td>
+         <input type="text" name="mould_name" value="<?php echo $info['mould_name'] ?>">
+       </td>     
+      </tr>
+      <tr>
+       
+       <td>任务内容</td>
+       <td>
+         <input type="text" name="cavity_num" value="<?php echo $info['cavity_num'] ?>">
+       </td>
+        <td>图纸类型</td>
+       <td>
+          <?php
+            doCheckbox($array_drawing_type,'drawing_type',$info);
+          ?>
+       </td>
+      </tr>
+      <tr>
+       <td>启动时间</td>
+       <td>
+         <input type="text" name="start_time" value="<?php echo $info['start_time'] ?>">
+       </td>
+       <td>塑胶材料</td>
+       <td>
+         <input type="text" name="material_other" value="<?php echo $info['material_other'] ?>">
+       </td>
+       
+      
+      </tr>
+      <tr>
+        <td>验收时间</td>
+       <td>
+         <input type="text" name="check_time" value="<?php echo $info['check_time'] ?>">
+       </td>
+         <td>完成时间</td>
+       <td>
+         <input type="text" name="finish_time" value="<?php echo $info['finish_time'] ?>">
+       </td>
+      </tr>
+       <tr>
+        <td class="noborder title">负责人与审核</td>
+        <td class="noborder" colspan="5"></td>
+      </tr>
+      <tr>
+        <td>销售</td>
+        <td>
+           <select name="saler">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($saler as $k=>$v){
+                        $is_select = $info['saler']==$k?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
                    ?>
           </select>
-          </td>
-        </tr>
+        </td>
+        <td>部门经理</td>
+        <td>
+           <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($saler as $k=>$v){
+                        $is_select = $info['manager'][0] == $v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][0] ?>">
+        </td>
+      </tr>
          <tr>
-          <td>模具编号<br>任务编号</td>
-          <td>
-            <input type="text" name="mould_no" value="<?php echo $info['mould_no'] ?>" >
-          </td>
-          <td>任务内容</td>
-          <td colspan="3">
-            <input type="text" name="task_content" style="width:91%;text-align:left">
-          </td>
-        </tr>
-         <tr>
-          <td>启动时间</td>
-          <td>
-            <input type="text" name="start_time" >
-          </td>
-          <td>完成时间</td>
-          <td>
-            <input type="text" name="finish_time">
-          </td>
-          <td>验收时间</td>
-          <td>
-            <input type="text" name="check_time">
-          </td>
-        </tr>
+        <td>项目</td>
+        <td>
+          <select name="projecter">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($projecter as $k=>$v){
+                        $is_select = $info['projecter']==$v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>部门经理</td>
+        <td>
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($projecter as $k=>$v){
+                        $is_select = $info['manager'][1]==$v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][1] ?>">
+        </td>
+      </tr>
+      <tr>
+        <td>实施</td>
+        <td>
+          <input type="text" name="do_task" value="<?php echo $info['do_task'] ?>">
+        </td>
+        <td>部门经理</td>
+        <td>
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($projecter as $k=>$v){
+                        $is_select = $info['manager'][2]==$v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][2] ?>">
+        </td>
+      </tr>
         <tr class="distance"></tr>
         <tr>
-          <td rowspan="2">责任人与审核</td>
-          <td>销售经理</td>
-          <td>
-              <input type="text" name="sales_manager" value="">
-          </td>
-          <td>项目经理</td>
-          <td>
-            <input type="text" name="project_manager">
-          </td>
-          <td>责任人</td>
-          <td>
-            <input type="text" name="leading">
-          </td>
-        </tr>
-         <tr>
-          <td>填表（销售及项目经理）：</td>
-          <td>
-            <input type="text" name="writer">
-          </td>
-          <td>审核（责任部门经理）：</td>
-          <td>
-            <input type="text" name="assessor">
-          </td>
-          <td>批准（副总经理）：</td>
-          <td>
-            <input type="text" name="approver">
-          </td>
-        </tr>
-        <tr class="distance"></tr>
-        <tr>
-        <td colspan="7">
-          <input type="submit" class="submit" value="保存">
+          <td colspan="7" style="background:white">
+          <?php if($_GET['show'] != 'show'){ ?>
+            <input type="submit" id="save" class="submit" value="保存">
+            <?php if($_GET['from'] !='summary'){ ?>
+              <span id="<?php echo $system_info[0] == '1'?'project_approval':'no_approval'?>">审批</span>
+          <?php }} ?>
+          <span id="back" onclick="window.history.go(-1);">返回</span>
         </td>
       </tr>
     </table>
@@ -298,8 +315,9 @@ function view(file){
       <tr>
           <td class="noborder title">基本信息</td>
           <td colspan="3" class="noborder"></td>
-          <td class="noborder">客户合同编号</td>
-          <td class="noborder">
+          <td class="noborder" style="background:white">客户合同编号</td>
+          <td class="noborder">    
+              <input type="hidden" name="mould_id" value="<?php echo $info['mould_id'] ?>">
               <input type="hidden" name="specification_id" value="<?php echo $info['mould_specification_id'] ?>">
               <input type="text" name="customer_order_no" value="<?php echo $info['customer_order_no'] ?>" >
           </td>
@@ -313,21 +331,59 @@ function view(file){
        <td>
          <input type="text" name="project_name" value="<?php echo $info['project_name'] ?>">
        </td>
-       <td>产品名称</td>
-       <td>
-         <input type="text" name="mould_name" value="<?php echo $info['mould_name'] ?>">
-       </td>
+       <td colspan="2" rowspan="6" style="background:white">
+        <span>
+          <?php echo $img_file ?>  
+         </span>
+         <input type="file" name="image" onchange="view_data(this)" style="display:block;margin:5px auto">
+       </td>  
       </tr>
       <tr>
-       <td>塑胶材料</td>
+        <td>模具编号</td>
        <td>
-         <input type="text" name="material_other" value="<?php echo $info['material_other'] ?>">
+         <input type="text" name="mould_no" value="<?php echo $info['mould_no'] ?>">
+       </td>
+        <td>产品名称</td>
+       <td>
+         <input type="text" name="mould_name" value="<?php echo $info['mould_name'] ?>">
+       </td>   
+      </tr>
+      <tr>
+       <td>型腔数</td>
+       <td>
+         <input type="text" name="cavity_num" value="<?php echo $info['cavity_num'] ?>">
        </td>
        <td>图纸类型</td>
        <td>
           <?php
            doCheckbox($array_drawing_type,'drawing_type',$info);
            ?>
+       </td>       
+      </tr>
+      <tr>
+       <td>启动时间</td>
+       <td>
+         <input type="text" name="start_time" value="<?php echo $info['start_time'] ?>">
+       </td>
+        <td>塑胶材料</td>
+       <td>
+         <input type="text" name="material_other" value="<?php echo $info['material_other'] ?>">
+       </td> 
+      </tr>
+      <tr>
+        <td>首板时间</td>
+       <td>
+         <input type="text" name="check_time" value="<?php echo $info['check_time'] ?>">
+       </td>
+       <td>产品缩水率</td>
+       <td style="background:yellow">
+         <input type="text" name="shrink" value="<?php echo $info['shrink'] ?>">
+       </td>
+      </tr>
+      <tr>
+         <td>预计走模时间</td>
+       <td>
+         <input type="text" name="finish_time" value="<?php echo $info['finish_time'] ?>">
        </td>
        <td>重点要求</td>
        <td>
@@ -337,34 +393,6 @@ function view(file){
             //     echo '<label><input type="checkbox" name="require[]" value="'.$k.'">'.$v.'</label> ';
             // }
           ?>
-       </td>
-      </tr>
-      <tr>
-       <td>模具编号</td>
-       <td>
-         <input type="text" name="mould_no" value="<?php echo $info['mould_no'] ?>">
-       </td>
-       <td>型腔数</td>
-       <td>
-         <input type="text" name="cavity_num" value="<?php echo $info['cavity_num'] ?>">
-       </td>
-       <td>产品缩水率</td>
-       <td style="background:yellow">
-         <input type="text" name="shrink" value="<?php echo $info['shrink'] ?>">
-       </td>
-      </tr>
-      <tr>
-       <td>启动时间</td>
-       <td>
-         <input type="text" name="start_time" value="<?php echo $info['start_time'] ?>">
-       </td>
-       <td>首板时间</td>
-       <td>
-         <input type="text" name="check_time" value="<?php echo $info['check_time'] ?>">
-       </td>
-       <td>预计走模时间</td>
-       <td>
-         <input type="text" name="finish_time" value="<?php echo $info['finish_time'] ?>">
        </td>
       </tr>
       <tr>
@@ -571,8 +599,8 @@ function view(file){
        </td>
       </tr>
       <tr>
-        <td class="noborder title">进胶、冷却加热、抽芯、顶出等</td>
-        <td class="noborder" colspan="5"></td>
+        <td class="noborder title" colspan="2">进胶、冷却加热、抽芯、顶出等</td>
+        <td class="noborder" colspan="4"></td>
       </tr>
       <tr>
        <td>浇口类型</td>
@@ -769,7 +797,7 @@ function view(file){
         <td class="noborder title">配件标准</td>
         <td class="noborder" colspan="5"></td>
       </tr>
-      <tr>
+      <tr id="notback">
         <td>项目</td>
         <td>品牌</td>
         <td>规格</td>
@@ -1408,8 +1436,8 @@ function view(file){
         <td class="noborder title">草图及重点提示</td>
         <td class="noborder" colspan="5"></td>
       </tr>
-      <tr>
-        <td colspan="6" style="height:100px;text-align:left">
+      <tr id="cont">
+        <td colspan="6" style="height:100px;text-align:left" >
           <?php
             foreach($image_file as $k=>$v){
               echo '<span class="mould_image" style="margin-left:10px"><img width="95" height="50" src='.$v.' ></span>';
@@ -1576,13 +1604,14 @@ function view(file){
         </td>
       </tr>
       <tr class="distance"></tr>
-      <tr>
+      <tr id="cont">
         <td colspan="7">
+          <?php if($_GET['show'] != 'show'){ ?>
           <input type="hidden" name="from" value="<?php echo $_GET['from'] ?>">
-          <input id="save" type="submit" class="submit" value="保存">
+          <input id="saves" type="submit" class="submit" value="保存">
           <?php if($_GET['from'] !='summary'){ ?>
           <span id="<?php echo $system_info[0] == '1'?'project_approval':'no_approval'?>">审批</span>
-          <?php } ?>
+          <?php }} ?>
           <span id="back" onclick="window.history.go(-1);">返回</span>
         </td>
       </tr>
@@ -1591,5 +1620,6 @@ function view(file){
 </div>
 <?php } ?>
  <?php include "../footer.php"; ?>
+ <script language="javascript" type="text/javascript" src="../js/view_img.js"></script>
 </body>
 </html>

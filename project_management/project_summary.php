@@ -47,6 +47,22 @@ $result = $db->query($sqllist);
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
+<script type="text/javascript">
+  $(function(){
+    //鼠标滑过
+    $('.detail').hover(function(){
+        $(this).css('cursor','pointer');
+        $(this).css('color','blue');
+      },function(){
+        $(this).css('color','black');
+      //点击事件
+      }).live('click',function(){
+        var specification_id = $(this).children('input:hidden').val();
+        window.open('mould_specification_edit.php?show=show&specification_id='+specification_id,'_self');
+      })
+
+})
+</script>
 <title>项目管理-嘉泰隆</title>
 </head>
 
@@ -131,7 +147,7 @@ $result = $db->query($sqllist);
         <th rowspan="2" width="3%">ID</th>
         <th rowspan="2" width="3%">代码</th>
         <th rowspan="2" width="4%">项目名称</th>
-        <th rowspan="2" width="5%">模具编号</th>
+        <th rowspan="2" width="5%" >模具编号</th>
         <th rowspan="2" width="6%">零件名称</th>
         <th rowspan="2" width="6%">零件图片</th>
         <th rowspan="2" width="6%">塑胶<br />
@@ -178,8 +194,9 @@ $result = $db->query($sqllist);
         <td><input type="checkbox" name="id[]" value="<?php echo $mouldid; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
         <td><?php echo $row['customer_code']; ?></td>
         <td><?php echo $row['project_name']; ?></td>
-        <td><!-- <?php if($_SESSION['system_shell'][$system_dir]['isadmin']){ ?><a href="mouldae.php?id=<?php echo $mouldid; ?>&action=edit"><?php echo $row['mould_number']; ?></a><?php }else{ echo $row['mould_number']; }; ?> -->
+        <td class="detail"><!-- <?php if($_SESSION['system_shell'][$system_dir]['isadmin']){ ?><a href="mouldae.php?id=<?php echo $mouldid; ?>&action=edit"><?php echo $row['mould_number']; ?></a><?php }else{ echo $row['mould_number']; }; ?> -->
           <?php echo $row['mould_no'] ?>
+        <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
         <td><?php echo $row['mould_name']; ?></td>
         <td><!-- <a href="mould_photo.php?id=<?php echo $row['mould_id']; ?>"> --><?php echo $image_file; ?><!-- </a> --></td>
