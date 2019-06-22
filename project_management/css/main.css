@@ -5,13 +5,12 @@
 	height:70px;
 	line-height:70px;
 	margin:0 auto;
-	background:url(../images/project_management.png) no-repeat 30px center #F6F6F6;
+	background:url(../images/project.png) no-repeat 30px center #F6F6F6;
 	border-bottom:1px solid #999;
 }
 #header h4 {
-	padding-left:100px;
+	padding-left:70px;
 	font-size:24px;
-	font-weight:bold;
 }
 #header h4 em {
 	font-size:10px;

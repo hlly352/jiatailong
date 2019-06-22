@@ -8,11 +8,11 @@ require_once 'shell.php';
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="../css/system_base.css" type="text/css" rel="stylesheet" />
-<link href="css/main.css" type="text/css" rel="stylesheet" />
-<link rel="shortcut icon" href="../images/logo/xel.ico" />
+<link href="css/main.css?v=603" type="text/css" rel="stylesheet" />
+<link rel="shortcut icon" type="text/css" href="../images/logo/jtl.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<title>项目管理-希尔林</title>
+<title>项目管理-苏州嘉泰隆</title>
 </head>
 
 <body>
@@ -28,17 +28,8 @@ if($result->num_rows){
     <?php
 	$i = 1;
     while($row = $result->fetch_assoc()){
-    	var_dump($row);
 	?>
-    	<li>
-    		<b><?php echo $i; ?>.</b> 
-    		<a href="../myjtl/system_help_info.php?id=<?php echo $row['helpid']; ?>" target="_blank"<?php if($row['diff_date'] <= 7) echo " style=\"color:#03F\""; ?>>
-    			<?php echo $row['help_title']; ?>
-    		</a> 
-    		<span>
-    	                      <?php echo $row['dodate']; ?>
-    	           </span>
-    	 </li>
+    <li><b><?php echo $i; ?>.</b> <a href="../myjtl/system_help_info.php?id=<?php echo $row['helpid']; ?>" target="_blank"<?php if($row['diff_date'] <= 7) echo " style=\"color:#03F\""; ?>><?php echo $row['help_title']; ?></a> <span> <?php echo $row['dodate']; ?></span></li>
     <?php
 	$i++;
 	}

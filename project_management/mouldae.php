@@ -19,7 +19,7 @@ $result_mould_status = $db->query($sql_mould_status);
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="../css/system_base.css" type="text/css" rel="stylesheet" />
 <link href="css/main.css" type="text/css" rel="stylesheet" />
-<link rel="shortcut icon" href="../images/logo/xel.ico" />
+<link rel="shortcut icon" type="text/css" href="../images/logo/jtl.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
@@ -178,7 +178,7 @@ $(function(){
 	})
 })
 </script>
-<title>项目管理-希尔林</title>
+<title>项目管理-苏州嘉泰隆</title>
 </head>
 
 <body>

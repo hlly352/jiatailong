@@ -167,10 +167,10 @@ $result = $db->query($sqllist);
       $cavity_sql = "SELECT `material_specification` FROM `db_mould_data` WHERE `mould_dataid`=".$row['mould_id'];
       $res = $db->query($cavity_sql);
       if($res->num_rows){
-        $cavity = $res->fetch_row();
+      	$cavity = $res->fetch_row();
       }
       //转换为数组
-    $cavity = explode('$$',$cavity[0]);
+	  $cavity = explode('$$',$cavity[0]);
 
       $image_filedir = $row['image_filedir'];
       $image_filename = $row['image_filename'];

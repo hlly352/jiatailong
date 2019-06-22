@@ -47,7 +47,7 @@ function view(file){
       $(file).val('');
       return false;
     }
-    if($(file).prevAll().size()<19){
+    if($(file).prevAll().size()<11){
     $(file).css('display','none');
     if (file.files && file.files[0]){ 
 
@@ -69,7 +69,7 @@ function view(file){
     var files = ' <input type="file" name="file[]" onchange="view(this)"/><span style="margin-left:20px"></span>';
     $(file).next().after(files);
   } else {
-    alert('最多上传十张图片');
+    alert('最多上传六张图片');
     $(file).remove();
   }
  }

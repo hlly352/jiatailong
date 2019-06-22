@@ -21,7 +21,7 @@ $result = $db->query($sql);
  $data_sql = "SELECT `upload_final_path` FROM `db_mould_data` WHERE `mould_dataid`=".$info['mould_id'];
  $res = $db->query($data_sql);
  if($res->num_rows){
-  $image = $res->fetch_row()[0];
+ 	$image = $res->fetch_row()[0];
  }
  //获取图片
       if(is_file($image)){
@@ -30,9 +30,9 @@ $result = $db->query($sql);
         $img_file = "<img style=\"display:block;margin:10px auto\" src=\"../images/no_image_85_45.png\" width=\"300\" height=\"150\" />";
       }
  //查找负责人员
-$depart_name = array('saler'=>'市场部','projecter'=>'项目部','designer'=>'设计部','programming'=>'CNC','assembler'=>'钳工');
+$depart_name = array('boss'=>'总经办','saler'=>'市场部','projecter'=>'项目部','designer'=>'设计部','programming'=>'CNC','assembler'=>'钳工');
 foreach($depart_name as $k=>$v){
-    $sql_employee = "SELECT `db_employee`.`employeeid`,`db_employee`.`employee_name` FROM `db_employee` LEFT JOIN `db_department` as saler ON `db_employee`.deptid = saler.`deptid` WHERE saler.`dept_name` LIKE '%$v%'";
+    $sql_employee = "SELECT `db_employee`.`employeeid`,`db_employee`.`employee_name` FROM `db_employee` LEFT JOIN `db_department` as saler ON `db_employee`.deptid = saler.`deptid` WHERE `db_employee`.`employee_status`='1' AND saler.`dept_name` LIKE '%$v%'";
     $res = $db->query($sql_employee);
    
     ${$k} = array();
@@ -43,29 +43,32 @@ foreach($depart_name as $k=>$v){
       }
       
     }
+    if($k !='boss'){
+      ${$k} = array_merge(${$k},$boss);
+    }
 }
 //查看当前用户是否是管理员
 //获取当前页面的路径
 
-  $system_url =  dirname(__FILE__);
+	$system_url =  dirname(__FILE__);
 
-  $system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
-  $system_url = substr($system_url,$system_pos);
-  //通过路径查询对应的模块id
-  $system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
-  $system_id_res = $db->query($system_id_sql);
-  $system_id = $system_id_res->fetch_row()[0];
-  if($system_id ==' '){
-    header('location:../myjtl/index.php');
-  }
-  //查询登录用户是否是客户管理的管理员
-  $system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
-  $system_res = $db->query($system_sql);
+	$system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+	$system_url = substr($system_url,$system_pos);
+	//通过路径查询对应的模块id
+	$system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+	$system_id_res = $db->query($system_id_sql);
+	$system_id = $system_id_res->fetch_row()[0];
+	if($system_id ==' '){
+	  header('location:../myjtl/index.php');
+	}
+	//查询登录用户是否是客户管理的管理员
+	$system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+	$system_res = $db->query($system_sql);
 
-  $system_info = [];
-  while($system_admin = $system_res->fetch_row()){
-    $system_info = $system_admin;
-  }
+	$system_info = [];
+	while($system_admin = $system_res->fetch_row()){
+	  $system_info = $system_admin;
+	}
 
   echo '<meta charset="utf-8">';
 
@@ -112,10 +115,34 @@ foreach($depart_name as $k=>$v){
         par.append(inp);
       }
     })
+    //点击图片放大
+    $('.mould_image').live('click',function(){
+      $('#divs').remove();
+      var img = $(this).html();
+      var client_width = (document.body.clientWidth - 800)/2;
+      var client_height = $(document).height()- 600;
+      var divs = '<div id="divs" style="position:absolute;left:'+client_width+'px;top:'+client_height+'px">'+img+'</div>'
+      $('#table_list').prepend(divs);
+      $('#divs').children('img').css('width','800px');
+      $('#divs').children('img').css('height','500px');
+    })
+    //点击其它地方删除图片
+    $(document).mouseup(function(e){
+      var div = $('#divs');
+      if(!div.is(e.target) && div.has(e.target).length === 0){
+        $('#divs').remove();
+      }
+    })
     //点击审核
     $('#project_approval').live('click',function(){
       var specification_id = $('input[name=specification_id]').val();
       window.open('project_approval_do.php?action=approval&specification_id='+specification_id,'_self');
+    })
+    //点击导出
+    $('#export').live('click',function(){
+      var specification_id = $('input[name=specification_id]').val();
+      var shrink = $('input[name=shrink]').val();
+      window.open('specification_export.php?action=show&shrink='+shrink+'&specification_id='+specification_id,'_self');
     })
     })
 </script>
@@ -176,11 +203,9 @@ foreach($depart_name as $k=>$v){
        <td>
          <input type="text" name="cavity_num" value="<?php echo $info['cavity_num'] ?>">
        </td>
-        <td>图纸类型</td>
+        <td>图纸编号</td>
        <td>
-          <?php
-            doCheckbox($array_drawing_type,'drawing_type',$info);
-          ?>
+          <input type="text" name="drawing_type" value="<?php echo $info['drawing_type'] ?>">
        </td>
       </tr>
       <tr>
@@ -353,11 +378,9 @@ foreach($depart_name as $k=>$v){
        <td>
          <input type="text" name="cavity_num" value="<?php echo $info['cavity_num'] ?>">
        </td>
-       <td>图纸类型</td>
+       <td>图纸编号</td>
        <td>
-          <?php
-           doCheckbox($array_drawing_type,'drawing_type',$info);
-           ?>
+          <input type="text" name="drawing_type" value="<?php echo $info['drawing_type'] ?>">
        </td>       
       </tr>
       <tr>
@@ -1059,8 +1082,8 @@ foreach($depart_name as $k=>$v){
           <input type="text" name="other_thing" value="<?php echo $info['other_thing'] ?>">
         </td>
       </tr>
-      <tr>
-        <?php for($i=0;$i<6;$i++){ 
+      <tr id="cont">
+        <?php for($i=1;$i<7;$i++){ 
           echo '<td>T'.$i.': <input type="text" style="width:100px" name="t_num[]" value="'.$info['t_num'][$i].'"> 模</td>';
         } ?>
       </tr>
@@ -1440,7 +1463,7 @@ foreach($depart_name as $k=>$v){
         <td colspan="6" style="height:100px;text-align:left" >
           <?php
             foreach($image_file as $k=>$v){
-              echo '<span class="mould_image" style="margin-left:10px"><img width="95" height="50" src='.$v.' ></span>';
+              echo '<span class="mould_image" style="margin-left:10px"><img width="206" height="80" src='.$v.' ></span>';
             }
            ?>
 
@@ -1455,12 +1478,12 @@ foreach($depart_name as $k=>$v){
       <tr>
         <td>销售</td>
         <td>
-           <select name="saler">
+           <select name="saler[]">
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($saler as $k=>$v){
 
-                        $is_select = $info['saler'] == $v[0]?'selected':'';
+                        $is_select = $info['saler'][0] == $v[0]?'selected':'';
                          echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
                         }
                    ?>
@@ -1486,11 +1509,11 @@ foreach($depart_name as $k=>$v){
          <tr>
         <td>项目</td>
         <td>
-          <select name="projecter">
+          <select name="projecter[]">
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($projecter as $k=>$v){
-                         $is_select = $info['projecter'] == $v[0]?'selected':'';
+                         $is_select = $info['projecter'][0] == $v[0]?'selected':'';
                          echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
                         }
                    ?>
@@ -1516,11 +1539,11 @@ foreach($depart_name as $k=>$v){
       <tr>
         <td>设计</td>
         <td>
-          <select name="designer">
+          <select name="designer[]">
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($designer as $k=>$v){
-                         $is_select = $info['designer']==$v[0]?'selected':'';
+                         $is_select = $info['designer'][0]==$v[0]?'selected':'';
                          echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
                         }
                    ?>
@@ -1546,11 +1569,11 @@ foreach($depart_name as $k=>$v){
        <tr>
         <td>编程</td>
         <td>
-          <select name="programming">
+          <select name="programming[]">
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($programming as $k=>$v){
-                         $is_select = $info['programming']==$v[0]?'selected':'';
+                         $is_select = $info['programming'][0]==$v[0]?'selected':'';
                          echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
                         }
                    ?>
@@ -1576,11 +1599,11 @@ foreach($depart_name as $k=>$v){
        <tr>
         <td>装配</td>
         <td>
-          <select name="assembler">
+          <select name="assembler[]">
                    <?php
                       echo '<option value="">--请选择--</option>';
                       foreach($assembler as $k=>$v){
-                         $is_select = $info['assembler']==$v[0]?'selected':'';
+                         $is_select = $info['assembler'][0]==$v[0]?'selected':'';
                          echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
                         }
                    ?>
@@ -1604,6 +1627,179 @@ foreach($depart_name as $k=>$v){
         </td>
       </tr>
       <tr class="distance"></tr>
+      <?php 
+        //判断是否有原负责人
+        $arr_duty = array('saler','projecter','designer','programming','assembler','manager','suggestion');
+        $i = 0;
+        foreach($arr_duty as $key=>$value){
+          if($value=='manager' || $value == 'suggestion'){
+            if($info[$value][6] ==' '){
+              $i++;
+            }
+          }else{
+            if($info[$value][1]==' '){
+            $i++;
+          }
+          }
+        }
+       if($_GET['show'] == 'show' && $i==0){ 
+      ?>
+        <tr>
+        <td class="noborder title">原负责人与审核</td>
+        <td class="noborder" colspan="5"></td>
+      </tr>
+      <tr>
+        <td>销售</td>
+        <td>
+           <select name="saler[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($saler as $k=>$v){
+
+                        $is_select = $info['saler'][1] == $v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>部门经理</td>
+        <td>
+           <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($saler as $k=>$v){
+                        $is_select = $info['manager'][5] == $v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][5] ?>">
+        </td>
+      </tr>
+         <tr>
+        <td>项目</td>
+        <td>
+          <select name="projecter[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($projecter as $k=>$v){
+                         $is_select = $info['projecter'][1] == $v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>部门经理</td>
+        <td>
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($projecter as $k=>$v){
+                         $is_select = $info['manager'][6] == $v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][6] ?>">
+        </td>
+      </tr>
+      <tr>
+        <td>设计</td>
+        <td>
+          <select name="designer[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($designer as $k=>$v){
+                         $is_select = $info['designer'][1]==$v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>部门经理</td>
+        <td>
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($designer as $k=>$v){
+                         $is_select = $info['manager'][7]==$v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][7] ?>">
+        </td>
+      </tr>
+       <tr>
+        <td>编程</td>
+        <td>
+          <select name="programming[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($programming as $k=>$v){
+                         $is_select = $info['programming'][1]==$v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>部门经理</td>
+        <td>
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($programming as $k=>$v){
+                         $is_select = $info['manager'][8]==$v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][8] ?>">
+        </td>
+      </tr>
+       <tr>
+        <td>装配</td>
+        <td>
+          <select name="assembler[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($assembler as $k=>$v){
+                         $is_select = $info['assembler'][1]==$v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>部门经理</td>
+        <td>
+          <select name="manager[]">
+                   <?php
+                      echo '<option value="">--请选择--</option>';
+                      foreach($assembler as $k=>$v){
+                         $is_select = $info['manager'][9] == $v[0]?'selected':'';
+                         echo '<option '.$is_select.' value="'.$v[0].'">'.$v[1].'</option>';
+                        }
+                   ?>
+          </select>
+        </td>
+        <td>意见</td>
+        <td>
+          <input type="text" name="suggestion[]" value="<?php echo $info['suggestion'][9] ?>">
+        </td>
+      </tr>
+      <?php } ?>
       <tr id="cont">
         <td colspan="7">
           <?php if($_GET['show'] != 'show'){ ?>
@@ -1611,7 +1807,9 @@ foreach($depart_name as $k=>$v){
           <input id="saves" type="submit" class="submit" value="保存">
           <?php if($_GET['from'] !='summary'){ ?>
           <span id="<?php echo $system_info[0] == '1'?'project_approval':'no_approval'?>">审批</span>
-          <?php }} ?>
+          <?php }}else{ ?>
+          <span id="export">导出</span>
+        <?php } ?>
           <span id="back" onclick="window.history.go(-1);">返回</span>
         </td>
       </tr>
