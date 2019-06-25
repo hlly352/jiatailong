@@ -180,7 +180,7 @@ if($shrink == 'undefined'){
 		     //设置高度
 				$objPHPExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(10);
 			//设置宽度
-			$objPHPExcel->getActiveSheet()->getColumnDimension($v)->setWidth(12);
+			$objPHPExcel->getActiveSheet()->getColumnDimension($v)->setWidth(14);
 			//垂直居中
 			$objPHPExcel->getActiveSheet()->getStyle('A1')->getAlignment()->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER);
 		}
@@ -189,6 +189,15 @@ if($shrink == 'undefined'){
 		//设置单元格字体和字号
 		$objPHPExcel->getActiveSheet()->getStyle('A3:F12')->getFont()->setName('Arial')->setSize(6);
 		$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setName('Arial')->setSize(10)->setBold(true);
+		//设置背景色
+		$objPHPExcel->getActiveSheet()->getStyle('A4:A8')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('DEDEDE');
+		$objPHPExcel->getActiveSheet()->getStyle('C4:C8')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('DEDEDE');
+		$objPHPExcel->getActiveSheet()->getStyle('A10:A12')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('DEDEDE');
+		$objPHPExcel->getActiveSheet()->getStyle('C10:C12')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('DEDEDE');
+		$objPHPExcel->getActiveSheet()->getStyle('E10:E12')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('DEDEDE');
+		//设置字体
+		$objPHPExcel->getActiveSheet()->getStyle('A3')->getFont()->setName('Arial')->setSize(6)->setBold(true);
+		$objPHPExcel->getActiveSheet()->getStyle('A9')->getFont()->setName('Arial')->setSize(6)->setBold(true);
 	}else{
 	$objPHPExcel->getActiveSheet()->mergeCells('E4:F9');
 	$objPHPExcel->getActiveSheet()->mergeCells('A10:F10');
@@ -204,11 +213,13 @@ $arr_a = array('客户代码','模具编号','型腔数','启动时间','首板�
 $arr_a_num = array(3,10,15,20,24,35,41,46,53,59,61);
 //设置第A列的文字内容
 $objPHPExcel->getActiveSheet()->mergeCells('A3:D3');
+$objPHPExcel->getActiveSheet()->getStyle('A3')->getFont()->setName('Arial')->setSize(10)->setBold(true);
 foreach($arr_a as $k=>$v){
 	$key = $k + 4;
 	//合并每个栏目的标题
 	if(in_array($key,$arr_a_num)){
 		$objPHPExcel->getActiveSheet()->mergeCells('A'.$key.':F'.$key);
+		$objPHPExcel->getActiveSheet()->getStyle('A'.$key)->getFont()->setName('Arial')->setSize(10)->setBold(true);
 	}
 	$objPHPExcel->getActiveSheet()->setCellValue('A'.$key, $v);
 }
@@ -315,28 +326,37 @@ foreach($duty_arr as $k=>$v){
 		}
 	}
 	//获取部门员工的姓名
-	$new_duty = explode('$$',$row[$v]);
-	$i = $new_duty[0];
-	if(!empty($i)){
-		foreach(${$v} as $ks=>$vs){
-			if($vs[0]==$i){
-				${$v} = ${$v}[$ks][1];
+	if(strpos('$$',$row[$v])){
+		$new_duty = explode('$$',$row[$v]);
+		$i = $new_duty[0];
+		if(!empty($i)){
+			foreach(${$v} as $ks=>$vs){
+				if($vs[0]==$i){
+					${$v} = ${$v}[$ks][1];
+						}
 					}
-				}
-	} else {
-		${$v} = ' ';
+		} else {
+			${$v} = ' ';
+		}
+	}else{
+		foreach(${$v} as $kes=>$vas){
+				if($vas[0]==$row[$v]){
+			${$v} = ${$v}[$kes][1];
+		}
 	}
-	if(is_array(${$v})){
-		${$v} = ' ';
 	}
+		if(is_array(${$v})){
+			${$v} = ' ';
+		}
 
 }
 
 //设置第b 列的文字内容
 //supplier变为数组
-$supplier = explode('$$',$row['supplier']);
 
-$arr_b = array($row['customer_code'],$row['mould_no'],$row['cavity_num'],$row['start_time'],$row['check_time'],$row['finish_time'],7=>$row['machine_supplier'],$row['locator'],$row['catchment'],$row['oil_collection'],12=>$row['mould_require'],$row['cavity_mode'],$row['difficulty_degree'],$row['is_export'],17=>$row['injection_type'],$row['hot_runner_supplier'],$row['ejection_system'],'','材料品牌',$material_supplier[0],$material_supplier[1],$material_supplier[2],$material_supplier[3],$country[0],$country[1],$country[2],$country[3],$country[4],' ','品牌',$array_water_connector[$supplier[0]],$array_supplier[$supplier[2]],$array_cylinder[$supplier[4]],$array_skin_texture[$row['skin_texture']],' ',$row['customer_join'],$row['draw_material'],$row['product_check'],'T2:'.$t_num[1].'模',43=>$row['is_move'],$row['surface_spray'],$row['mould_ring'],$row['mould_check'],$row['photo_vedio'],$row['customer_try'],50=>$row['product_design'],$row['drawing_2d'],$row['project_start'],$row['machining_judge'],$row['project_progress'],58=>$saler,$projecter,$designer,$programming,$assembler);
+	$supplier = explode('$$',$row['supplier']);
+
+$arr_b = array($row['customer_code'],$row['mould_no'],$row['cavity_num'],$row['start_time'],$row['check_time'],$row['finish_time'],7=>$row['machine_supplier'],$row['locator'],$row['catchment'],$row['oil_collection'],12=>$row['mould_require'],$row['cavity_mode'],$row['difficulty_degree'],$row['is_export'],17=>$row['injection_type'],$row['hot_runner_supplier'],$row['ejection_system'],' ','材料品牌',$material_supplier[0],$material_supplier[1],$material_supplier[2],$material_supplier[3],$country[0],$country[1],$country[2],$country[3],$country[4],' ','品牌',$array_water_connector[$supplier[0]],$array_supplier[$supplier[2]],$array_cylinder[$supplier[4]],$array_skin_texture[$row['skin_texture']],' ',$row['customer_join'],$row['draw_material'],$row['product_check'],'T2:'.$t_num[1].'模',43=>$row['is_move'],$row['surface_spray'],$row['mould_ring'],$row['mould_check'],$row['photo_vedio'],$row['customer_try'],50=>$row['product_design'],$row['drawing_2d'],$row['project_start'],$row['machining_judge'],$row['project_progress'],58=>$saler,$projecter,$designer,$programming,$assembler);
 
 foreach($arr_b as $k=>$v){
 	$key = $k + 4;
@@ -398,7 +418,7 @@ foreach($arr_e as $k=>$v){
 	$objPHPExcel->getActiveSheet()->setCellValue('E'.$key, $v);
 }
 //设置f列的文字信息
-$arr_f = array(11=>$row['install_way'],'直径:'.$row['screw_diameter'].'mm 螺牙:'.$row['screw'].'M',$row['air_valve'],$row['other_require'],16=>$row['mould_way'],$row['drawing_standard'],$row['mould_life'].'万',$row['moding_cycle'].'S',21=>$row['runner_type'],$row['sepcial_cool'],$row['ejection_require'],25=>'表面要求',$surface_require[0],$surface_require[1],$surface_require[2],$surface_require[3],$surface_require[4],$surface_require[5],$surface_require[6],$surface_require[7],$surface_require[8],36=>'规格',$specification[1],$specification[3],$specification[5],$specification[7],42=>$row['customer_water'],$row['draw_post'],$row['other_thing'],'T6'.$t_num[5].'模',48=>$row['settle_way'],$row['customer_plate'],$row['steel_material'],$row['mould_photo'],$row['mould_transport'],$row['go_mould_require'],54=>$row['dfm_report'],$row['drawing_check'],$row['mould_judge'],$row['customer_confirm'],$row['control_require'],62=>$suggestion[0],$suggestion[1],$suggestion[2],$suggestion[3],$suggestion[4]);
+$arr_f = array(11=>$row['install_way'],'直径:'.$row['screw_diameter'].'mm 螺牙:'.$row['screw'].'M',$row['air_valve'],$row['other_require'],16=>$row['mould_way'],$row['drawing_standard'],$row['mould_life'].'万',$row['moding_cycle'].'S',21=>$row['runner_type'],$row['sepcial_cool'],$row['ejection_require'],25=>'表面要求',$surface_require[0],$surface_require[1],$surface_require[2],$surface_require[3],$surface_require[4],$surface_require[5],$surface_require[6],$surface_require[7],$surface_require[8],36=>'规格',$specification[1],$specification[3],$specification[5],$specification[7],42=>$row['customer_water'],$row['draw_post'],$row['other_thing'],'T6'.$t_num[5].'模',47=>$row['settle_way'],$row['customer_plate'],$row['steel_material'],$row['mould_photo'],$row['mould_transport'],$row['go_mould_require'],54=>$row['dfm_report'],$row['drawing_check'],$row['mould_judge'],$row['customer_confirm'],$row['control_require'],62=>$suggestion[0],$suggestion[1],$suggestion[2],$suggestion[3],$suggestion[4]);
 foreach($arr_f as $k=>$v){
 	$objPHPExcel->getActiveSheet()->setCellValue('F'.$k, $v);
 }
@@ -414,7 +434,7 @@ foreach($arr_horizontal as $v){
 		}
 	}
 	//设置宽度
-	$objPHPExcel->getActiveSheet()->getColumnDimension($v)->setWidth(12);
+	$objPHPExcel->getActiveSheet()->getColumnDimension($v)->setWidth(14);
 }
 $objPHPExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
 //垂直居中
@@ -428,7 +448,11 @@ $objPHPExcel->getActiveSheet()->getStyle('A1:F2')->getFont()->setName('Arial')->
  $objPHPExcel->getActiveSheet()->getStyle('A60')->getBorders()->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
  $objPHPExcel->getActiveSheet()->getStyle('F60')->getBorders()->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
  $objPHPExcel->getActiveSheet()->getStyle('A61:F66')->getBorders()->getAllBorders()->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
-
+//设置单元格背景色
+$arr_back = array('A4:A9','C4:C9','A11:A14','C11:C14','E11:E14','A16:A19','C16:C19','E16:E19','A21:A23','C21:C23','E21:E23','A25:F25','A26:A34','A36:F36','A37:A40','D37:D40','A42:A44','C42:C44','E42:E44','A47:A52','C47:C52','E47:E52','A54:A58','C54:C58','E54:E58','A62:A66','C62:C66','E62:E66');
+foreach($arr_back as $v){
+	$objPHPExcel->getActiveSheet()->getStyle($v)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('DEDEDE');
+}
 //插入多张图片
 if(!empty($row['upload_final_path'])){
 	$objPHPExcel->getActiveSheet()->getRowDimension(60)->setRowHeight(40);
@@ -451,12 +475,12 @@ if(!empty($row['upload_final_path'])){
 		$objDraw[$k]->setPath('./img'.$k.'.jpg');
 		/*设置图片高度*/
 		$objDraw[$k]->setResizeProportional(false);
-		$objDraw[$k]->setWidth(60);
+		$objDraw[$k]->setWidth(75);
 		$objDraw[$k]->setHeight(45);
 		/*设置图片要插入的单元格*/
 		$objDraw[$k]->setCoordinates('F60');
 		/*设置图片所在单元格的格式*/
-		$offset = (-65)*(6-$k);
+		$offset = (-80)*(6-$k);
 		$objDraw[$k]->setOffsetX($offset);
 		$objDraw[$k]->setOffsetY(5);
 		$objDraw[$k]->setRotation(0);
@@ -504,6 +528,4 @@ header('Pragma: public'); // HTTP/1.0
 $objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);
 $objWriter->save('php://output'); 
 }
-
-
 ?>
