@@ -80,7 +80,7 @@ require_once 'shell.php';
 		}
 		}
 		
-
+echo $upload_final_path;exit;
 	if($action == 'add'){
 		//报价单号
 		$mold_id = FLOOR(RAND()*9000+1000);

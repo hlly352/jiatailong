@@ -1485,6 +1485,7 @@ $(function(){
             } 
           }
           $('.material_height').eq(i).val(parseInt(p_height * 1.2 +40));
+
           //输入产品大小后计算型腔和型芯的重量
           var wei = (parseInt($('.material_length').eq(i).val())/1000)*(parseInt($('.material_width').eq(i).val())/1000)*(parseInt($('.material_height').eq(i).val()) /1000)*7800;
           wei = Math.round(wei);
