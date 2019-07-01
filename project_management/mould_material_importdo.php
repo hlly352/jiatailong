@@ -11,7 +11,8 @@ if($_POST['submit']){
 	$dotime = fun_gettime();
 	$data = new Spreadsheet_Excel_Reader();
 	$data->setOutputEncoding('CP936');
-	if($_FILES['file']['type'] ==  "application/vnd.ms-excel"){ //判断文件是否为Excel03版本
+
+	if($_FILES['file']['type'] ==  "application/octet-stream"){ //判断文件是否为Excel03版本
 		$filepath = ($_FILES['file']['tmp_name']); //获取文件临时文件名
 		$data->read($filepath); //读取临时文件
 		error_reporting(E_ALL ^ E_NOTICE);

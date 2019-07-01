@@ -211,5 +211,13 @@ function doCheckbox($arr,$str,$info,$num = -1){
                 echo $k == $num?'<br>':'';
             }
 		}
-
+//通过id查找人名
+function getName($id,$db){
+	$sql = "SELECT `employee_name` FROM `db_employee` WHERE `employeeid`=".$id;
+	$result = $db->query($sql);
+	if($result->num_rows){
+		$employee_name = $result->fetch_row()[0];
+		return $employee_name;
+	}
+}
 ?>

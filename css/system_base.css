@@ -283,3 +283,6 @@ select {
 .clear {
 	clear:both;
 }
+.txt {
+	width: 155px;
+}

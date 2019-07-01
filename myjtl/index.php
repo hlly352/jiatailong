@@ -89,11 +89,14 @@ $(function(){
 	  $result_express_receive = $db->query($sql_express_receive);
 	  //待试模审批
 	  $sql_mould_try_approve = "SELECT `db_mould_try`.`tryid`,`db_mould`.`mould_number`,`db_employee`.`employee_name` FROM `db_mould_try` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_try`.`mouldid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_mould_try`.`employeeid` WHERE `db_mould_try`.`approve_status` = 'A' AND `db_mould_try`.`try_status` = 1 AND `db_mould_try`.`approver` = '$employeeid'";
+	  //待审批期间物料
+	  $sql_mould_other_material = "SELECT * FROM `db_mould_other_material` WHERE `status` ='A' AND `approver` = '$employeeid'";
+	  $result_other_material = $db->query($sql_mould_other_material);
 	  //带审批报价
 	  $sql_mould_quote_approve = "SELECT `db_mould_data`.`mould_dataid` FROM `db_mould_data` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = '5020'  INNER JOIN `db_system_employee` ON `db_system_employee`.`employeeid` = `db_employee`.`employeeid` WHERE `db_system_employee`.`systemid` = '19' AND `db_system_employee`.`isadmin`='1' AND `db_mould_data`.`is_approval`='0'";
 	  //echo $sql_mould_quote_approve;
 	  $result_mould_try_approve = $db->query($sql_mould_try_approve);
-	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows;
+	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows;
 	  //计划任务
 	  $sql_plan = "SELECT `planid`,`plan_content`,`start_date` FROM `db_job_plan` WHERE `employeeid` = '$employeeid' AND `plan_status` = 1 AND `plan_result` = 0";
 	  $result_plan = $db->query($sql_plan);
@@ -173,6 +176,17 @@ $(function(){
 		?>
         <li><a href="/my_office/employee_goout_approve.php?id=<?php echo $row_goout['gooutid']; ?>">【出门】<?php echo $row_goout['employee_name'].'/出门证号:'.$row_goout['goout_num']; ?></a></li>
         <?php
+			}
+		}
+		?>
+		<?php
+			if($result_other_material->num_rows){
+				while($row_other_material = $result_other_material->fetch_assoc()){
+					$name = getName($row_other_material['applyer'],$db);
+
+		?>
+		<li><a href="/mould_material/mould_other_material_apply.php?action=edit&id=<?php echo $row_other_material['mould_other_id'] ?>">【期间物料】<?php echo $name.'/物料名称：'.$row_other_material['material_name'] ?></a></li>
+		 <?php
 			}
 		}
 		?>

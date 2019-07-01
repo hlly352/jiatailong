@@ -14,7 +14,6 @@ require_once 'shell.php';
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <title>采购管理-希尔林</title>
 </head>
-
 <body>
 <?php include "header.php"; ?>
 <?php

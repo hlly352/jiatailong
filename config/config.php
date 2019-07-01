@@ -181,5 +181,7 @@ $array_oil_connector = array('HASCO','DME','LKM','其他');
 $array_service_fee = array('收费','免费');
 //物料申请
 //物料类型
-$array_mould_other_fee = array('易耗品','办公用品','福利品');
+$array_mould_other_material = array('易耗品','办公用品','福利品','其它');
+//物料状态
+$array_mould_material_status = array('A'=>'未审批','B'=>'通 过','C'=>'未通过','D'=>'询价中');
 ?>

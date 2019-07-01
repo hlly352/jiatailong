@@ -2,17 +2,14 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
+$employeeid = $_SESSION['employee_info']['employeeid'];
+ $employee_name = $_SESSION['employee_info']['employee_name'];
 $array_system_shell = $_SESSION['system_shell'][$system_dir];
 $action = fun_check_action($_GET['action']);
-//查询组别
-$sql_workteam = "SELECT `workteamid`,`workteam_name` FROM `db_mould_workteam` ORDER BY `workteamid` ASC";
-$result_workteam = $db->query($sql_workteam);
-//查询供应商
-$sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(2,`supplier_typeid`) >0 ORDER BY `supplier_code` ASC";
-$result_supplier = $db->query($sql_supplier);
-//外发类型
-$sql_outward_type = "SELECT `outward_typeid`,`outward_typename` FROM `db_mould_outward_type` ORDER BY `outward_typeid` ASC";
-$result_outward_type = $db->query($sql_outward_type);
+//查询部门
+$sql_department = "SELECT `deptid`,`dept_name` FROM `db_department` ORDER BY `deptid` ASC";
+$result_department = $db->query($sql_department);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -96,233 +93,173 @@ $(function(){
 
 <body>
 <?php include "header.php"; ?>
-<div id="table_sheet">
+  <div id="table_sheet">
   <?php
   if($action == "add"){
-	  if(isset($_GET['id'])){
-		  $mouldid = $_GET['id'];
-		  $sql_mould = "SELECT `mouldid`,`mould_number` FROM `db_mould` WHERE `mouldid` = '$mouldid'";
-		  $result_mould = $db->query($sql_mould);
-		  if($result_mould->num_rows){
-			  $array_mould = $result_mould->fetch_assoc();
-			  $mouldid = $array_mould['mouldid'];
-			  $mould_number = $array_mould['mould_number'];
-		  }else{
-			  $mouldid = 0;
-			  $mould_number = '--';
-		  }
-	  }else{
-		  $mouldid = 0;
-		  $mould_number = '--';
-	  }
+    //员工的下属
+    $sql_employee = "SELECT `employeeid`,`employee_name` FROM `db_employee` WHERE `superior` = '$employeeid' AND `employee_status`= 1 AND `account_status` = 0 ORDER BY CONVERT(`employee_name` USING 'GBK') COLLATE 'GBK_CHINESE_CI' ASC";
+    $result_employee = $db->query($sql_employee);
+    //查找当前员工的部门
+    $sql_employee_dept = 'SELECT `deptid` FROM `db_employee` WHERE `employeeid`='.$employeeid;
+    $res_employee_dept = $db->query($sql_employee_dept);
+    if($res_employee_dept->num_rows){
+      $employee_dept = $res_employee_dept->fetch_row()[0];
+    }
   ?>
   <h4>期间物料申请</h4>
-  <form action="mould_outwarddo.php" name="mould_outward" method="post">
-    <table>
+  <form action="mould_other_materialdo.php" name="mould_other_material" method="post">
+    <table >
       <tr>
-        <th width="20%">模具编号：</th>
-        <td width="80%"><?php echo $mould_number; ?></td>
+        <th width="10%">模具编号：</th>
+        <td width="15%">
+          <input type="text" name="mould_no" class="input_txt">
+        </td>
+        <th width="10%">物料名称：</th>
+        <td width="15%">
+          <input type="text" name="material_name" class="input_txt">
+        </td>
+        <th width="10%">物料规格：</th>
+        <td width="15%">
+          <input type="text" name="material_specification"  class="input_txt" />
+        </td>
+        <th width="10%">数量：</th>
+        <td width="15%">
+          <input type="text" name="quantity" id="quantity" class="input_txt" />
+        </td>
       </tr>
       <tr>
-        <th>物料名称：</th>
-        <td><input type="text" name=""></td>
-      </tr>
-      <tr>
-        <th>物料：</th>
-        <td><input type="text" name="order_date" value="<?php echo date('Y-m-d'); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
-      </tr>
-      <tr>
-        <th>申请组别：</th>
-        <td><select name="workteamid" id="workteamid">
-            <option value="">请选择</option>
-            <?php
-            if($result_workteam->num_rows){
-				while($row_workteam = $result_workteam->fetch_assoc()){
-					echo "<option value=\"".$row_workteam['workteamid']."\">".$row_workteam['workteam_name']."</option>";
-				}
-			}
-			?>
-          </select></td>
-      </tr>
-      <tr>
-        <th>申请日期：</th>
-        <td><input type="text" name="order_number" id="order_number" class="input_txt" />
-          <span class="tag"> *长度7位</span></td>
-      </tr>
-      <tr>
-        <th>数量：</th>
-        <td><input type="text" name="quantity" id="quantity" class="input_txt" /></td>
-      </tr>
-      <tr>
+        <th>物料类型：</th>
+        <td>
+          <select name="material_type" class="input_txt txt">
+              <?php 
+                foreach($array_mould_other_material as $k=>$v){
+                echo '<option value="'.$k.'">'.$v.'</option>';
+              }
+              ?>
+          </select>
+        </td>
         <th>申请人：</th>
-        <td><select name="supplierid" id="supplierid">
+           <td width=""><select name="applyer" class="input_txt txt">
+            <option value="<?php echo $employeeid; ?>"><?php echo $employee_name; ?></option>
+            <?php
+      if($result_employee->num_rows){
+        while($row_employee = $result_employee->fetch_assoc()){
+          echo "<option value=\"".$row_employee['employeeid']."\">".$row_employee['employee_name']."</option>";
+        }
+      }
+      ?>
+          </select>
+          <!-- <span class="tag"> *如需代理申请请下拉选择</span> -->
+        </td>
+        <th>申请部门：</th>
+        <td><select name="apply_team" id="apply_team" class="input_txt txt">
             <option value="">请选择</option>
             <?php
-            if($result_supplier->num_rows){
-				while($row_supplier = $result_supplier->fetch_assoc()){
-					echo "<option value=\"".$row_supplier['supplierid']."\">".$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']."</option>";
-				}
-			}
-			?>
+            if($result_department->num_rows){
+        while($row_department = $result_department->fetch_assoc()){
+          $is_select = $row_department['deptid'] == $employee_dept?'selected':'';
+          echo "<option ".$is_select." value=\"".$row_department['deptid']."\">".$row_department['dept_name']."</option>";
+        }
+      }
+      ?>
           </select></td>
-      </tr>
-      <tr>
-        <th>计划回厂时间：</th>
-        <td><select name="outward_typeid" id="outward_typeid">
-            <option value="">请选择</option>
-            <?php
-            if($result_outward_type->num_rows){
-				while($row_outward_type = $result_outward_type->fetch_assoc()){
-					echo "<option value=\"".$row_outward_type['outward_typeid']."\">".$row_outward_type['outward_typename']."</option>";
-				}
-			}
-			?>
-          </select></td>
-      </tr>
+        <th>申请日期：</th>
+        <td><input type="text" name="apply_date" value="<?php echo date('Y-m-d'); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" id="order_number" class="input_txt" />
+          </td>
       <tr>
         <th>备注：</th>
         <td><input type="text" name="remark" class="input_txt" /></td>
       </tr>
       <tr>
-        <th>&nbsp;</th>
-        <td><input type="submit" name="submit" id="submit" value="确定" class="button" />
+        <td colspan="8" style="text-align:center">
+          <input type="submit" name="submit" id="submi" value="确定" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-          <input type="hidden" name="mouldid" value="<?php echo $mouldid; ?>" />
-          <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
+          <input type="hidden" name="action" value="<?php echo $action; ?>" />
+        </td>
       </tr>
     </table>
   </form>
   <?php
   }elseif($action == "edit"){
-	  $outwardid = fun_check_int($_GET['id']);
-	  $sql = "SELECT `db_mould_outward`.`outwardid`,`db_mould_outward`.`mouldid`,`db_mould_outward`.`part_number`,`db_mould_outward`.`order_date`,`db_mould_outward`.`workteamid`,`db_mould_outward`.`order_number`,`db_mould_outward`.`quantity`,`db_mould_outward`.`outward_typeid`,`db_mould_outward`.`cost`,`db_mould_outward`.`iscash`,`db_mould_outward`.`applyer`,`db_mould_outward`.`plan_date`,`db_mould_outward`.`actual_date`,`db_mould_outward`.`remark`,`db_mould_outward`.`inout_status`,`db_mould_outward`.`outward_status`,`db_mould_outward`.`supplierid`,`db_mould`.`mould_number` FROM `db_mould_outward` LEFT JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_outward`.`mouldid` WHERE `db_mould_outward`.`outwardid` = '$outwardid'";
+
+	  $material_id = fun_check_int($_GET['id']);
+	  $sql = "SELECT * FROM `db_mould_other_material` WHERE `mould_other_id`= '$material_id'";
 	  $result = $db->query($sql);
-	  if($result->num_rows && $array_system_shell['isconfirm']){
-		  $array = $result->fetch_assoc();
-		  $mould_number = $array['mouldid']?$array['mould_number']:'--';
-		  $inout_status = $array['inout_status'];
-		  $sql_pay = "SELECT * FROM `db_cash_pay` WHERE `linkid` = '$outwardid' AND `data_type` = 'MO'";
-		  $result_pay = $db->query($sql_pay);
+	  if($result->num_rows){
+		  $row = $result->fetch_assoc();
+       //查找申请人的信息
+    $sql_applyer = "SELECT `employee_name` FROM `db_employee` WHERE `employeeid` =".$row['applyer'];
+    $result_applyer = $db->query($sql_applyer);
+    if($result_applyer->num_rows){
+      $applyer_name = $result_applyer->fetch_row()[0];
+    }
   ?>
-  <h4>外协加工修改</h4>
-  <form action="mould_outwarddo.php" name="mould_outward" method="post">
-    <table>
+  <h4>期间物料审批</h4>
+  <form action="mould_other_materialdo.php" name="mould_outward" method="post">
+   <table>
       <tr>
-        <th width="20%">模具编号：</th>
-        <td width="80%"><?php echo $mould_number; ?></td>
+        <th width="10%">模具编号：</th>
+        <td width="15%">
+          <input type="text" name="mould_no" class="input_txt" value="<?php echo $row['mould_no'] ?>">
+        </td>
+        <th width="10%">物料名称：</th>
+        <td width="15%">
+          <input type="text" name="material_name" class="input_txt" value="<?php echo $row['material_name'] ?>">
+        </td>
+        <th width="10%">物料规格：</th>
+        <td width="15%">
+          <input type="text" name="material_specification"  class="input_txt" value="<?php echo $row['material_specification'] ?>" />
+        </td>
+        <th width="10%">数量：</th>
+        <td width="15%">
+          <input type="text" name="quantity" id="quantity" class="input_txt" value="<?php echo $row['quantity'] ?>" />
+        </td>
       </tr>
       <tr>
-        <th>零件编号：</th>
-        <td><textarea name="part_number" cols="50" rows="3" class="input_txt" id="part_number"><?php echo $array['part_number']; ?></textarea></td>
-      </tr>
-      <tr>
-        <th>外协时间：</th>
-        <td><input type="text" name="order_date" value="<?php echo $array['order_date']; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
-      </tr>
-      <tr>
-        <th>申请组别：</th>
-        <td><select name="workteamid" id="workteamid">
-            <option value="">请选择</option>
-            <?php
-            if($result_workteam->num_rows){
-				while($row_workteam = $result_workteam->fetch_assoc()){
-			?>
-            <option value="<?php echo $row_workteam['workteamid']; ?>"<?php if($row_workteam['workteamid'] == $array['workteamid']) echo " selected=\"selected\""; ?>><?php echo $row_workteam['workteam_name']; ?></option>
-            <?php
-				}
-			}
-			?>
-          </select></td>
-      </tr>
-      <tr>
-        <th>外协单号：</th>
-        <td><input type="text" name="order_number" id="order_number" value="<?php echo $array['order_number']; ?>" class="input_txt" />
-        <span class="tag"> *长度7位</span></td>
-      </tr>
-      <tr>
-        <th>数量：</th>
-        <td><input type="text" name="quantity" id="quantity" value="<?php echo $array['quantity']; ?>" class="input_txt" /></td>
-      </tr>
-      <tr>
-        <th>供应商：</th>
-        <td><select name="supplierid" id="supplierid">
-            <option value="">请选择</option>
-            <?php
-            if($result_supplier->num_rows){
-				while($row_supplier = $result_supplier->fetch_assoc()){
-			?>
-            <option value="<?php echo $row_supplier['supplierid']; ?>"<?php if($row_supplier['supplierid'] == $array['supplierid']) echo " selected=\"selected\""; ?>><?php echo $row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']; ?></option>
-            <?php
-				}
-			}
-			?>
-          </select></td>
-      </tr>
-      <tr>
-        <th>类型：</th>
-        <td><select name="outward_typeid" id="outward_typeid">
-            <option value="">请选择</option>
-            <?php
-            if($result_outward_type->num_rows){
-				while($row_outward_type = $result_outward_type->fetch_assoc()){
-			?>
-            <option value="<?php echo $row_outward_type['outward_typeid']; ?>"<?php if($row_outward_type['outward_typeid'] == $array['outward_typeid']) echo " selected=\"selected\""; ?>><?php echo $row_outward_type['outward_typename']; ?></option>
-            <?php
-				}
-			}
-			?>
-          </select></td>
-      </tr>
-      <tr>
-        <th>金额(元)：</th>
-        <td><input type="text" name="cost" id="cost" value="<?php echo $array['cost']; ?>" class="input_txt"<?php if($result_pay->num_rows) echo " readonly=\"readonly\""; ?> /></td>
-      </tr>
-      <tr>
-        <th>现金：</th>
-        <td><select name="iscash">
-            <?php foreach($array_is_status as $is_status_key=>$is_status_value){ ?>
-            <option value="<?php echo $is_status_key; ?>"<?php if($is_status_key == $array['iscash']) echo " selected=\"selected\""; ?><?php if($result_pay->num_rows && $is_status_key == 0) echo " disabled=\"disabled\""; ?>><?php echo $is_status_value; ?></option>
-            <?php } ?>
-          </select></td>
-      </tr>
-      <tr>
+        <th>物料类型：</th>
+        <td>
+          <select name="material_type" class="input_txt txt">
+              <?php
+                foreach($array_mould_other_material as $k=>$v){
+                $is_select = $k==$row['material_type']?'selected':'';
+                echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
+              }
+              ?>
+          </select>
+        </td>
         <th>申请人：</th>
-        <td><input type="text" name="applyer" id="applyer" value="<?php echo $array['applyer']; ?>" class="input_txt" /></td>
-      </tr>
-      <tr>
-        <th>计划回厂：</th>
-        <td><input type="text" name="plan_date" value="<?php echo $array['plan_date']; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
-      </tr>
-      <tr>
-        <th>进度状态：</th>
-        <td><select name="inout_status" id="inout_status">
-            <?php foreach($array_mould_inout_status as $inout_status_key=>$inout_status_value){ ?>
-            <option value="<?php echo $inout_status_key; ?>"<?php if($inout_status_key == $inout_status) echo " selected=\"selected\""; ?>><?php echo $inout_status_value; ?></option>
-            <?php } ?>
+           <td width="">
+              <input type="text" value="<?php echo $applyer_name ?>" readOnly class="input_txt"/>
+          <!-- <span class="tag"> *如需代理申请请下拉选择</span> -->
+        </td>
+        <th>申请部门：</th>
+        <td><select name="apply_team" id="apply_team" class="input_txt txt">
+            <option value="">请选择</option>
+            <?php
+            if($result_department->num_rows){
+        while($row_department = $result_department->fetch_assoc()){
+          $is_select = $row_department['deptid'] == $row['apply_team']?'selected':'';
+          echo "<option ".$is_select." value=\"".$row_department['deptid']."\">".$row_department['dept_name']."</option>";
+        }
+      }
+      ?>
           </select></td>
-      </tr>
-      <tr>
-        <th>实际回厂：</th>
-        <td><input type="text" name="actual_date" id="actual_date" value="<?php echo $array['actual_date']; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt"<?php if($inout_status == 0) echo " disabled=\"disabled\""; ?> /></td>
-      </tr>
-      <tr>
-      <tr>
-        <th>状态：</th>
-        <td><select name="outward_status">
-            <?php foreach($array_status as $status_key=>$status_value){ ?>
-            <option value="<?php echo $status_key; ?>"<?php if($status_key == $array['outward_status']) echo " selected=\"selected\""; ?><?php if($result_pay->num_rows && $status_key == 0) echo " disabled=\"disabled\""; ?>><?php echo $status_value; ?></option>
-            <?php } ?>
-          </select></td>
+        <th>申请日期：</th>
+        <td><input type="text" name="apply_date" value="<?php echo $row['apply_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" id="order_number" class="input_txt" />
+          </td>
       </tr>
       <tr>
         <th>备注：</th>
-        <td><input type="text" name="remark" value="<?php echo $array['remark']; ?>" class="input_txt" /></td>
+        <td><input type="text" name="remark" class="input_txt" value="<?php echo $row['remark'] ?>"/></td>
       </tr>
       <tr>
-        <th>&nbsp;</th>
-        <td><input type="submit" name="submit" id="submit" value="确定" class="button" />
+        <td colspan="8" style="text-align:center">
+          <input type="hidden" name="mould_other_id" value="<?php echo $row['mould_other_id'] ?>" />
+          <input type="submit" name="submit" id="submi" value="通过" class="button" />
+          &nbsp;
+          <input type="submit" name="submit" id="submi" value="退回" class="button" />
+          &nbsp;
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-          <input type="hidden" name="outwardid" value="<?php echo $outwardid; ?>" />
           <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
       </tr>
     </table>
