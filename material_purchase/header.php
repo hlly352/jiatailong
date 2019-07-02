@@ -22,7 +22,7 @@
       <ul>
         <li><a href="material_order.php">物料订单</a></li>
         <li><a href="cutter_order.php">刀具订单</a></li>
-        <li><a href="cutter_order.php">期间物料订单</a></li>
+        <li><a href="other_material_order.php">期间物料订单</a></li>
       </ul>
     </li>
     <li class="menulevel"><a href="#">订单明细</a>

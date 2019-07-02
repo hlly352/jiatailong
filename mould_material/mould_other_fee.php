@@ -121,15 +121,18 @@ $result = $db->query($sqllist);
     <table>
       <tr>
         <th width="">ID</th>
-        <th width="10%">申请日期</th>
-        <th width="10%">模具编号</th>
-        <th width="10%">物料名称</th>
-        <th width="10%">物料规格</th>
-        <th width="10%">数量</th>
-        <th width="10%">物料类型</th>
-        <th width="10%">申请人</th>
-        <th width="10%">申请部门</th>
-        <th width="10%">备注</th>
+        <th width="">申请日期</th>
+        <th width="">需求日期</th>
+        <th width="">模具编号</th>
+        <th width="">物料类型</th>
+        <th width="">物料名称</th>
+        <th width="">物料规格</th>
+        <th width="">申购量</th>
+        <th width="">单位</th>
+        <th width="">库存量</th>
+        <th width="">申请人</th>
+        <th width="">申请部门</th>
+        <th width="">备注</th>
         <th width="5%">状态</th>
       </tr>
       <?php
@@ -137,6 +140,8 @@ $result = $db->query($sqllist);
         //获取当前物料的审批人
         if($row['approver'] == $employeeid){
           $approver = true;
+        } else {
+          $approver = false;
         }
         //查询组别
         $sql_department = "SELECT `dept_name` FROM `db_department` WHERE `deptid`=".$row['apply_team'];
@@ -162,11 +167,14 @@ $result = $db->query($sqllist);
             <input type="checkbox" name="id[]" value="<?php echo $row['mould_other_id']; ?>"<?php if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> />
         </td>
         <td><?php echo $row['apply_date']; ?></td>
+        <td><?php echo $row['requirement_date']; ?></td>
         <td><?php echo $row['mould_no']; ?></td>
+        <td><?php echo $array_mould_other_material[$row['material_type']]; ?></td>
         <td><?php echo $row['material_name']; ?></td>
         <td><?php echo $row['material_specification']; ?></td>
         <td><?php echo $row['quantity'] ?></td>
-        <td><?php echo $array_mould_other_material[$row['material_type']]; ?></td>
+        <td><?php echo $row['unit']; ?></td>
+        <td><?php echo $row['stock']; ?></td>
         <td><?php echo $applyer[0]; ?></td>
         <td><?php echo $apply_team[0]; ?></td>
         <td><?php echo $row['remark']; ?></td>

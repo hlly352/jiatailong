@@ -95,19 +95,22 @@ $result = $db->query($sqllist);
 		  $array_order = array();
 	  }
   ?>
-  <form action="mould_materialdo.php" name="mould_material_list" method="post">
+  <form action="other_material_inquiry.php" name="mould_material_list" method="post">
     <table>
-      <tr>
+       <tr>
         <th width="">ID</th>
-        <th width="10%">申请日期</th>
-        <th width="10%">模具编号</th>
-        <th width="10%">物料名称</th>
-        <th width="10%">物料规格</th>
-        <th width="10%">数量</th>
-        <th width="10%">物料类型</th>
-        <th width="10%">申请人</th>
-        <th width="10%">申请组别</th>
-        <th width="10%">备注</th>
+        <th width="">申请日期</th>
+        <th width="">需求日期</th>
+        <th width="">模具编号</th>
+        <th width="">物料类型</th>
+        <th width="">物料名称</th>
+        <th width="">物料规格</th>
+        <th width="">申购量</th>
+        <th width="">单位</th>
+        <th width="">库存量</th>
+        <th width="">申请人</th>
+        <th width="">申请部门</th>
+        <th width="">备注</th>
         <th width="5%">状态</th>
       </tr>
       <?php
@@ -131,14 +134,19 @@ $result = $db->query($sqllist);
         $status = $array_mould_material_status[$row['status']];
        }
 	  ?>
-      <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $materialid; ?>"<?php if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> /></td>
+   <tr>
+        <td>
+            <input type="checkbox" name="id[]" value="<?php echo $row['mould_other_id']; ?>"<?php if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> />
+        </td>
         <td><?php echo $row['apply_date']; ?></td>
+        <td><?php echo $row['requirement_date']; ?></td>
         <td><?php echo $row['mould_no']; ?></td>
+        <td><?php echo $array_mould_other_material[$row['material_type']]; ?></td>
         <td><?php echo $row['material_name']; ?></td>
         <td><?php echo $row['material_specification']; ?></td>
         <td><?php echo $row['quantity'] ?></td>
-        <td><?php echo $array_mould_other_material[$row['material_type']]; ?></td>
+        <td><?php echo $row['unit']; ?></td>
+        <td><?php echo $row['stock']; ?></td>
         <td><?php echo $applyer[0]; ?></td>
         <td><?php echo $apply_team[0]; ?></td>
         <td><?php echo $row['remark']; ?></td>
@@ -150,8 +158,8 @@ $result = $db->query($sqllist);
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
-      <input type="submit" name="submit" id="submit" value="添加" class="select_button"  disabled="disabled" />
-      <input type="hidden" name="action" value="add" />
+      <input type="submit" name="submit" id="submit" value="删除" class="select_button"  disabled="disabled" />
+      <input type="hidden" name="action" value="del" />
     </div>
   </form>
   <div id="page">

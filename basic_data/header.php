@@ -34,6 +34,7 @@
         <li><a href="supplier_type.php">供应商类型</a></li>
         <li><a href="supplier_business_type.php">供应商业务</a></li>
         <li><a href="express_inc.php">快递公司</a></li>
+        <li><a href="other_material_supplier.php">期间物料</a></li>
       </ul>
     </li>
     <li class="menulevel"><a href="unit.php">计量单位</a></li>

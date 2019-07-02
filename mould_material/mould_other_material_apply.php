@@ -110,10 +110,30 @@ $(function(){
   <form action="mould_other_materialdo.php" name="mould_other_material" method="post">
     <table >
       <tr>
+        <th width="10%">申请时间：</th>
+        <td width="15%">
+            <input type="text" name="apply_date" value="<?php echo date('Y-m-d'); ?>"readOnly id="order_number" class="input_txt" />
+        </td>
+        <th width="10%">需求时间：</th>
+        <td width="15%">
+            <input type="text" name="requirement_date" value="<?php echo date('Y-m-d',strtotime(date('Y-m-d',time())."+5 day")); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" id="order_number" class="input_txt" />
+        </td>
         <th width="10%">模具编号：</th>
         <td width="15%">
           <input type="text" name="mould_no" class="input_txt">
         </td>
+        <th>物料类型：</th>
+        <td>
+          <select name="material_type" class="input_txt txt">
+              <?php 
+                foreach($array_mould_other_material as $k=>$v){
+                echo '<option value="'.$k.'">'.$v.'</option>';
+              }
+              ?>
+          </select>
+        </td>
+      </tr>
+      <tr>
         <th width="10%">物料名称：</th>
         <td width="15%">
           <input type="text" name="material_name" class="input_txt">
@@ -126,19 +146,28 @@ $(function(){
         <td width="15%">
           <input type="text" name="quantity" id="quantity" class="input_txt" />
         </td>
+        <th>单位：</th>
+        <td>
+          <input type="text" name="unit" class="input_txt" />
+        </td>
+       
+    
+      <tr>
+        <th>标准库存：</th>
+        <td>
+          <input type="text" name="standard_stock" class="input_txt"/>
+        </td>
+        <th>库存量：</th>
+        <td>
+          <input type="text" name="stock" class="input_txt"/>
+        </td>
+        <th>备注：</th>
+        <td colspan="3">
+          <input type="text" name="remark" size="65" class="input_txt" />
+        </td>
       </tr>
       <tr>
-        <th>物料类型：</th>
-        <td>
-          <select name="material_type" class="input_txt txt">
-              <?php 
-                foreach($array_mould_other_material as $k=>$v){
-                echo '<option value="'.$k.'">'.$v.'</option>';
-              }
-              ?>
-          </select>
-        </td>
-        <th>申请人：</th>
+         <th>申请人：</th>
            <td width=""><select name="applyer" class="input_txt txt">
             <option value="<?php echo $employeeid; ?>"><?php echo $employee_name; ?></option>
             <?php
@@ -162,13 +191,8 @@ $(function(){
         }
       }
       ?>
-          </select></td>
-        <th>申请日期：</th>
-        <td><input type="text" name="apply_date" value="<?php echo date('Y-m-d'); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" id="order_number" class="input_txt" />
-          </td>
-      <tr>
-        <th>备注：</th>
-        <td><input type="text" name="remark" class="input_txt" /></td>
+          </select>
+        </td>
       </tr>
       <tr>
         <td colspan="8" style="text-align:center">
@@ -197,11 +221,32 @@ $(function(){
   <h4>期间物料审批</h4>
   <form action="mould_other_materialdo.php" name="mould_outward" method="post">
    <table>
-      <tr>
+       <tr>
+        <th width="10%">申请时间：</th>
+        <td width="15%">
+            <input type="text" name="apply_date" value="<?php echo $row['apply_date'] ?>" class="input_txt" />
+        </td>
+        <th width="10%">需求时间：</th>
+        <td width="15%">
+            <input type="text" name="requirement_date" value="<?php echo date('Y-m-d',strtotime(date('Y-m-d',time())."+5 day")); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" id="order_number" class="input_txt" />
+        </td>
         <th width="10%">模具编号：</th>
         <td width="15%">
           <input type="text" name="mould_no" class="input_txt" value="<?php echo $row['mould_no'] ?>">
         </td>
+        <th>物料类型：</th>
+        <td>
+          <select name="material_type" class="input_txt txt">
+              <?php
+                foreach($array_mould_other_material as $k=>$v){
+                $is_select = $k==$row['material_type']?'selected':'';
+                echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
+              }
+              ?>
+          </select>
+        </td>
+      </tr>
+      <tr>
         <th width="10%">物料名称：</th>
         <td width="15%">
           <input type="text" name="material_name" class="input_txt" value="<?php echo $row['material_name'] ?>">
@@ -214,19 +259,27 @@ $(function(){
         <td width="15%">
           <input type="text" name="quantity" id="quantity" class="input_txt" value="<?php echo $row['quantity'] ?>" />
         </td>
+        <th>单位：</th>
+        <td>
+          <input type="text" name="unit" value="<?php echo $row['unit'] ?>" class="input_txt" />
+        </td>
+       
+    
+      <tr>
+        <th>标准库存：</th>
+        <td>
+          <input type="text" name="standard_stock" value="<?php echo $row['standard_stock'];?>" class="input_txt"/>
+        </td>
+        <th>库存量：</th>
+        <td>
+          <input type="text" name="stock" value="<?php echo $row['stock']; ?>" class="input_txt"/>
+        </td>
+        <th>备注：</th>
+        <td colspan="3">
+          <input type="text" name="remark" size="65" value="<?php echo $row['remark'] ?>" class="input_txt" />
+        </td>
       </tr>
       <tr>
-        <th>物料类型：</th>
-        <td>
-          <select name="material_type" class="input_txt txt">
-              <?php
-                foreach($array_mould_other_material as $k=>$v){
-                $is_select = $k==$row['material_type']?'selected':'';
-                echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
-              }
-              ?>
-          </select>
-        </td>
         <th>申请人：</th>
            <td width="">
               <input type="text" value="<?php echo $applyer_name ?>" readOnly class="input_txt"/>
@@ -243,14 +296,8 @@ $(function(){
         }
       }
       ?>
-          </select></td>
-        <th>申请日期：</th>
-        <td><input type="text" name="apply_date" value="<?php echo $row['apply_date'] ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" id="order_number" class="input_txt" />
-          </td>
-      </tr>
-      <tr>
-        <th>备注：</th>
-        <td><input type="text" name="remark" class="input_txt" value="<?php echo $row['remark'] ?>"/></td>
+          </select>
+        </td>
       </tr>
       <tr>
         <td colspan="8" style="text-align:center">
