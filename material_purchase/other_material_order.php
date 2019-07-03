@@ -21,11 +21,11 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_order_status";
 }
-$sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_material_order`.`delivery_cycle`,`db_material_order`.`dotime`,`db_material_order`.`order_status`,`db_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid` WHERE (`db_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_other_material_order`.`orderid`,`db_other_material_order`.`order_number`,`db_other_material_order`.`order_date`,`db_other_material_order`.`delivery_cycle`,`db_other_material_order`.`dotime`,`db_other_material_order`.`order_status`,`db_other_material_order`.`employeeid`,`db_other_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_other_material_order` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_other_material_order`.`employeeid` WHERE (`db_other_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_material_order`.`order_number` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_other_material_order`.`order_number` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -133,11 +133,11 @@ $result = $db->query($sqllist);
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $orderid; ?>"<?php if(in_array($orderid,$array_material_inout) || $employeeid != $row['employeeid']) echo " disabled=\"disabled\""; ?> /></td>
         <td><?php echo $row['order_number']; ?></td>
-        <td><?php echo $row['order_date']; ?></td>
+        <td><?php echo date('Y-m-d',strtotime($row['order_date'])); ?></td>
         <td><?php echo $row['supplier_cname']; ?></td>
         <td><?php echo $row['delivery_cycle']; ?></td>
         <td><?php echo $row['employee_name']; ?></td>
-        <td><?php echo $row['dotime']; ?></td>
+        <td><?php echo date('Y-m-d H:i:s',$row['dotime']); ?></td>
         <td><?php echo $list_count; ?></td>
         <td><?php echo $array_order_status[$row['order_status']]; ?></td>
         <td><?php if($employeeid == $row['employeeid']){ ?>
@@ -151,7 +151,7 @@ $result = $db->query($sqllist);
           <?php } ?>
           </a></td>
         <td><?php if($employeeid == $row['employeeid'] && $list_count){ ?>
-          <a href="material_order_list.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a>
+          <a href="other_material_orderlist.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a>
           <?php } ?></td>
       </tr>
       <?php } ?>

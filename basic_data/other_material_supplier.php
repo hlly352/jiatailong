@@ -59,6 +59,9 @@ $result = $db->query($sqllist);
 <div id="table_list">
   
   <form action="other_supplierae.php" name="supplier_list" method="post">
+      <?php
+      if($result->num_rows){
+      	?>
     <table>
       <tr>
         <th width="">ID</th>
@@ -69,8 +72,7 @@ $result = $db->query($sqllist);
         <th width="">地址</th>
         <th width="">Edit</th>
       </tr>
-      <?php
-      if($result->num_rows){
+      	<?php
 	      while($row = $result->fetch_assoc()){
 			  $supplierid = $row['other_supplier_id'];
 		  ?>

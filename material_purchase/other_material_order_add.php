@@ -100,17 +100,7 @@ $(function(){
 			}
 		}
 	})
-	$("input[name^=process_cost]").blur(function(){
-		var process_cost = $(this).val();
-		if($.trim(process_cost) && !rf_a.test(process_cost)){
-			alert('请输入数字')
-			$(this).val(this.defaultValue);
-		}else{
-			if($.trim(process_cost)){
-				$(this).val(parseFloat($(this).val()).toFixed(2))
-			}
-		}
-	})
+
 	/*
 	$("input[name^=amount]").blur(function(){
 		var amount = $(this).val();
@@ -162,18 +152,17 @@ $(function(){
 <?php
 $data_source = $_GET['data_source']?trim($_GET['data_source']):'A';
 if($_GET['submit']){
-	$mould_number = trim($_GET['mould_number']);
 	$material_name = trim($_GET['material_name']);
-	$specification = trim($_GET['specification']);
+	$specification = trim($_GET['material_specification']);
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
 }
 if($data_source == 'A'){
 	//$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
-	$sql = "SELECT * FROM `db_mould_other_material`";
+	$sql = "SELECT * FROM `db_mould_other_material` WHERE `inquiryid` = '$employeeid' AND `status` = 'D'";
 }elseif($data_source == 'B'){
-	$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) $sqlwhere";
+	$sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'D'";
 }elseif($data_source == 'C'){
-	$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_mould_material` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) $sqlwhere";
+	$sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'D' OR `status` = 'B'";
 }
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
@@ -185,12 +174,10 @@ $result = $db->query($sqllist);
   <form action="" name="search" method="get">
     <table>
       <tr>
-        <th>模具编号：</th>
-        <td><input type="text" name="mould_number" class="input_txt" /></td>
         <th>物料名称：</th>
         <td><input type="text" name="material_name" class="input_txt" /></td>
         <th>规格：</th>
-        <td><input type="text" name="specification" class="input_txt" /></td>
+        <td><input type="text" name="material_specification" class="input_txt" /></td>
         <th>物料来源：</th>
         <td><select name="data_source" id="data_source">
             <option value="A"<?php if($data_source == 'A') echo " selected=\"selected\""; ?>>我的询价单</option>
@@ -206,57 +193,56 @@ $result = $db->query($sqllist);
 </div>
 <div id="table_list">
   <?php if($result->num_rows){ ?>
-  <form action="material_order_list_adddo.php" name="material_list" method="post">
+  <form action="other_order_material_listdo.php" name="material_list" method="post">
     <table>
       <tr>
-        <th width="6%" rowspan="2">模具编号</th>
-        <th width="10%" rowspan="2">物料名称</th>
-        <th width="14%" rowspan="2">规格</th>
-        <th width="6%" rowspan="2">材质</th>
-        <th colspan="2">需求</th>
-        <th colspan="2">实际</th>
-        <th width="6%" rowspan="2">单价(含税)</th>
-        <th width="4%" rowspan="2">税率</th>
-        <th width="7%" rowspan="2">金额(含税)</th>
-        <th width="7%" rowspan="2">加工费</th>
-        <th width="4%" rowspan="2">现金</th>
-        <th width="8%" rowspan="2">计划回厂日期</th>
-        <th width="8%" rowspan="2">备注</th>
+        <th width="">模具编号</th>
+        <th width="">物料名称</th>
+        <th width="">规格</th>
+        <th >需求数量</th>
+        <th >实际数量</th>
+        <th>单位</th>
+        <th>申请人</th>
+        <th>申请部门</th>
+        <th width="">单价(含税)</th>
+        <th width="">税率</th>
+        <th width="">金额(含税)</th>
+        <th width="">现金</th>
+        <th width="">计划回厂日期</th>
+        <th width="">备注</th>
       </tr>
-      <tr>
-        <th width="6%">数量</th>
-        <th width="4%">单位</th>
-        <th width="6%">数量</th>
-        <th width="4%">单位</th>
-      </tr>
+      
       <?php
       while($row = $result->fetch_assoc()){
-		  $materialid = $row['materialid'];
-		  $complete_status = $row['complete_status'];
-		  $material_name_bg = $complete_status?'':" style=\"background:yellow\"";
+		  //获取申请部门
+		  $dept_sql = "SELECT `dept_name` FROM `db_department` WHERE `deptid`=".$row['apply_team'];
+		  $res_dept = $db->query($dept_sql);
+		  if($res_dept->num_rows){
+		  	$department = $res_dept->fetch_row()[0];
+ 		  }
 	  ?>
       <tr>
-        <td><?php echo $row['mould_number']; ?></td>
+        <td><?php echo $row['mould_no']; ?></td>
         <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
-        <td><?php echo $row['specification']; ?></td>
-        <td><?php echo $row['texture']; ?></td>
-        <td><input type="text" name="order_quantity[]" value="<?php echo $row['material_quantity']; ?>" class="input_txt" size="8" readonly="readonly" /></td>
-        <td><select name="unitid[]" id="unitid-<?php echo $materialid; ?>">
-            <?php
-			foreach($array_unit as $unitid=>$unit_name){
-				echo "<option value=\"".$unitid."\">".$unit_name."</option>";
-			}
+        <td><?php echo $row['material_specification']; ?></td>
+        <td><?php echo $row['quantity']; ?></td>
+        <td>
+        	<input type="text" name="actual_quantity[]" value="<?php echo $row['material_quantity']; ?>" class="input_txt" size="8" />
+        </td>
+        <td><?php echo $row['unit'] ?></td>
+        <td>
+        	<?php
+        		echo getName($row['applyer'],$db);
+        	?>
+        </td>
+        <td>
+			<?php
+				echo $department;
 			?>
-          </select></td>
-        <td><input type="text" name="actual_quantity[]" id="actual_quantity-<?php echo $materialid; ?>" class="input_txt" size="8"<?php if($complete_status == 0) echo " disabled=\"disabled\"  style=\"background:#EEE;\""; ?> /></td>
-        <td><select name="actual_unitid[]" id="actual_unitid-<?php echo $materialid; ?>">
-            <?php
-			foreach($array_unit as $unitid=>$unit_name){
-				echo "<option value=\"".$unitid."\">".$unit_name."</option>";
-			}
-			?>
-          </select></td>
-        <td><input type="text" name="unit_price[]" id="unit_price-<?php echo $materialid; ?>" class="input_txt" size="8"<?php if($complete_status == 0) echo " disabled=\"disabled\"  style=\"background:#EEE;\""; ?> /></td>
+        </td>
+        <td>
+        	<input type="text" name="unit_price[]" class="input_txt" size="8"/>
+        </td>
         <td><select name="tax_rate[]" id="tax_rate-<?php echo $materialid; ?>">
             <?php
 			foreach($array_tax_rate as $tax_rate){
@@ -264,22 +250,28 @@ $result = $db->query($sqllist);
 			}
 			?>
           </select></td>
-        <td><input type="text" name="amount[]" id="amount-<?php echo $materialid; ?>" class="input_txt" size="10" readonly="readonly" /></td>
-        <td><input type="text" name="process_cost[]" id="process_cost-<?php echo $materialid; ?>" class="input_txt" size="10" /></td>
+        <td>
+        	<input type="text" name="amount[]" id="amount-<?php echo $materialid; ?>" class="input_txt" size="10" readonly="readonly" />
+        </td>
+    
         <td><select name="iscash[]">
             <?php foreach($array_is_status as $is_status_key=>$is_status_value){ ?>
             <option value="<?php echo $is_status_key; ?>"<?php if($is_status_key == 0) echo " selected=\"selected\""; ?>><?php echo $is_status_value; ?></option>
             <?php } ?>
           </select></td>
-        <td><input type="text" name="plan_date[]" value="<?php echo $plan_date; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="12" /></td>
+        <td>
+        	<input type="text" name="plan_date[]" value="<?php echo date('Y-m-d',strtotime($plan_date)); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="12" />
+        </td>
         <td><input type="text" name="remark[]" class="input_txt" size="12" />
-          <input type="hidden" name="materialid[]" value="<?php echo $materialid; ?>" /></td>
+          <input type="hidden" name="materialid[]" value="<?php echo $row['mould_other_id']; ?>" /></td>
       </tr>
       <?php } ?>
       <tr>
         <td colspan="15"><input type="submit" name="submit" value="添加" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-          <input type="hidden" name="orderid" value="<?php echo $orderid; ?>" /></td>
+          <input type="hidden" name="orderid" value="<?php echo $orderid; ?>" />
+		  <input type="hidden" name="mould_other_id" value="<?php echo $row['mould_other_id'] ?>"/>
+        </td>
       </tr>
     </table>
   </form>

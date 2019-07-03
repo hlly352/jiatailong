@@ -161,12 +161,6 @@ $(function(){
         <td>
           <input type="text" name="stock" class="input_txt"/>
         </td>
-        <th>备注：</th>
-        <td colspan="3">
-          <input type="text" name="remark" size="65" class="input_txt" />
-        </td>
-      </tr>
-      <tr>
          <th>申请人：</th>
            <td width=""><select name="applyer" class="input_txt txt">
             <option value="<?php echo $employeeid; ?>"><?php echo $employee_name; ?></option>
@@ -192,6 +186,12 @@ $(function(){
       }
       ?>
           </select>
+        </td>
+      </tr>
+      <tr>  
+         <th>备注：</th>
+        <td colspan="3">
+          <input type="text" name="remark" class="input_txt" />
         </td>
       </tr>
       <tr>
@@ -274,12 +274,6 @@ $(function(){
         <td>
           <input type="text" name="stock" value="<?php echo $row['stock']; ?>" class="input_txt"/>
         </td>
-        <th>备注：</th>
-        <td colspan="3">
-          <input type="text" name="remark" size="65" value="<?php echo $row['remark'] ?>" class="input_txt" />
-        </td>
-      </tr>
-      <tr>
         <th>申请人：</th>
            <td width="">
               <input type="text" value="<?php echo $applyer_name ?>" readOnly class="input_txt"/>
@@ -297,6 +291,12 @@ $(function(){
       }
       ?>
           </select>
+        </td>
+      </tr>
+      <tr>
+        <th>备注：</th>
+        <td colspan="3">
+          <input type="text" name="remark" value="<?php echo $row['remark'] ?>" class="input_txt" />
         </td>
       </tr>
       <tr>
