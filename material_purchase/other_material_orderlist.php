@@ -249,6 +249,7 @@ $result = $db->query($sqllist);
       </tr>
       <?php } ?>
       <tr>
+      <td colspan="14">
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="orderid" value="<?php echo $orderid; ?>" />
       <input type="hidden" name="mould_other_id" value="<?php echo $row['mould_other_id'] ?>"/>

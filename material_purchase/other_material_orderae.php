@@ -81,13 +81,14 @@ $(function(){
   }elseif($action == "edit"){
 	  $employeeid = $_SESSION['employee_info']['employeeid'];
 	  $orderid = fun_check_int($_GET['id']);
-	  $sql = "SELECT `order_number`,`order_date`,`delivery_cycle`,`supplierid`,`order_status` FROM `db_material_order` WHERE `orderid` = '$orderid' AND `employeeid` = '$employeeid' AND `orderid` NOT IN (SELECT `db_material_order_list`.`orderid` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` GROUP BY `db_material_order_list`.`orderid`)";
+	  $sql = "SELECT `order_number`,`order_date`,`delivery_cycle`,`supplierid`,`order_status` FROM `db_other_material_order` WHERE `orderid` = '$orderid'";
 	  $result = $db->query($sql);
 	  if($result->num_rows){
 		  $array = $result->fetch_assoc();
+    
   ?>
-  <h4>物料订单修改</h4>
-  <form action="material_orderdo.php" name="material_order" method="post">
+  <h4>期间物料订单修改</h4>
+  <form action="other_material_orderdo.php" name="material_order" method="post">
     <table>
       <tr>
         <th width="20%">合同号：</th>
@@ -95,7 +96,7 @@ $(function(){
       </tr>
       <tr>
         <th>订单日期：</th>
-        <td><?php echo $array['order_date']; ?></td>
+        <td><?php echo date('Y-m-d',strtotime($array['order_date'])); ?></td>
       </tr>
       <tr>
         <th>供应商：</th>
@@ -104,8 +105,8 @@ $(function(){
             <?php
             if($result_supplier->num_rows){
 				while($row_supplier = $result_supplier->fetch_assoc()){
-			?>
-            <option value="<?php echo $row_supplier['supplierid']; ?>"<?php if($row_supplier['supplierid'] == $array['supplierid']) echo " selected=\"selected\""; ?>><?php echo $row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']; ?></option>
+			?>    <?php $is_select = $array['supplierid'] == $row_supplier['other_supplier_id'] ?'selected':'';?>
+            <option <?php echo $is_select ?> value="<?php echo $row_supplier['other_supplier_id']; ?>"<?php if($row_supplier['supplierid'] == $array['supplierid']) echo " selected=\"selected\""; ?>><?php echo $row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']; ?></option>
             <?php
 				}
 			}

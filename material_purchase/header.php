@@ -8,7 +8,7 @@ $(function(){
 </script>
 <style type="text/css">
   #menu ul li.menulevel ul{display:block;position: relative;}
-  #menu ul li.menulevel ul li a{background: cyan}
+  #menu ul li.menulevel ul li a{background: skyblue}
 </style>
 <div id="menu">
   <ul>
@@ -38,7 +38,7 @@ $(function(){
       <ul>
         <li><a href="material_orderlist.php">模具物料</a></li>
         <li><a href="cutter_orderlist.php">加工刀具</a></li>
-        <li><a href="other_material_orderlist.php">期间物料</a></li>
+        <li><a href="other_material_list.php">期间物料</a></li>
       </ul>
     <li class="menulevel"><a href="material_inout_list_in.php">入库记录</a>
       <ul>

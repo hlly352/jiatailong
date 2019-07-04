@@ -31,10 +31,10 @@ if($_POST['submit']){
 	}elseif($action == "edit"){
 		$orderid = $_POST['orderid'];
 		$order_status = $_POST['order_status'];
-		$sql = "UPDATE `db_material_order` SET `delivery_cycle` = '$delivery_cycle',`supplierid` = '$supplierid',`order_status` = '$order_status' WHERE `orderid` = '$orderid'";
+		$sql = "UPDATE `db_other_material_order` SET `delivery_cycle` = '$delivery_cycle',`supplierid` = '$supplierid',`order_status` = '$order_status' WHERE `orderid` = '$orderid'";
 		$db->query($sql);
 		if($db->affected_rows){
-			header('location:'.$_SERVER['HTTP_REFERER']);
+			header('location:other_material_order.php');
 		}
 	}elseif($action == "del"){
 		$array_id = $_POST['id'];

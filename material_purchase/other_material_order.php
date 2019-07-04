@@ -88,7 +88,7 @@ $result = $db->query($sqllist);
 	  }
 	  $array_orderid = rtrim($array_orderid,',');
 	  //订单明细数量
-	  $sql_order_list = "SELECT `orderid`,COUNT(*) AS `count` FROM `db_material_order_list` WHERE `orderid` IN ($array_orderid) GROUP BY `orderid`";
+	  $sql_order_list = "SELECT `orderid`,COUNT(*) AS `count` FROM `db_other_material_order` WHERE `orderid` IN ($array_orderid) GROUP BY `orderid`";
 	  $result_order_list = $db->query($sql_order_list);
 	  if($result_order_list->num_rows){
 		  while($row_order_list = $result_order_list->fetch_assoc()){
@@ -141,10 +141,10 @@ $result = $db->query($sqllist);
         <td><?php echo $list_count; ?></td>
         <td><?php echo $array_order_status[$row['order_status']]; ?></td>
         <td><?php if($employeeid == $row['employeeid']){ ?>
-          <a href="material_order_list_add.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
+          <a href="other_material_order_add.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
         <td><?php if(!in_array($orderid,$array_material_inout) && $employeeid == $row['employeeid']){ ?>
-          <a href="material_orderae.php?id=<?php echo $orderid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
+          <a href="other_material_orderae.php?id=<?php echo $orderid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
         <td><?php if($employeeid == $row['employeeid'] && $list_count){ ?>
           <a href="excel_material_order.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/excel_10_10.png" width="10" height="10" />

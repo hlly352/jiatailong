@@ -48,8 +48,8 @@ require_once 'shell.php';
 <?php include "header.php"; ?>
 <div id="help_info">
   <dl>
-    <dt> 模具物料使用流程：</dt>
-    <dd class="tag"> 模具物料申请>>2019-07-01</dd>
+    <dt> 物料申请使用流程：</dt>
+    <dd class="tag"> 物料申请>>2019-07-01</dd>
     <dd class="content">1、一般物料
       模具数据→对应模号→下载模板→将要上传的物料信息粘贴到模板→确定上传。</dd>
     <dd class="content">2、CNC铜料
