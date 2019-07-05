@@ -108,7 +108,7 @@ $result = $db->query($sqllist);
 		  $array_material_inout = array();
 	  }
   ?>
-  <form action="material_orderdo.php" name="material_order" method="post">
+  <form action="other_material_orderdo.php" name="material_order" method="post">
     <table>
       <tr>
         <th width="4%">ID</th>

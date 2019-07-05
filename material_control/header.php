@@ -24,7 +24,7 @@ $(function(){
       <ul>
         <li><a href="material_godown_entry.php">模具物料</a></li>
         <li><a href="cutter_godown_entry.php">加工刀具</a></li>
-        <li><a href="other_godown_entry.php">期间物料</a></li>
+        <li><a href="other_material_godown_entry.php">期间物料</a></li>
       </ul>
     </li>
     <li class="menulevel"><a href="#">入库记录</a>
@@ -38,7 +38,7 @@ $(function(){
       <ul>
         <li><a href="material_out_list.php">模具物料</a></li>
         <li><a href="cutter_out_list.php">加工刀具</a></li>
-        <li><a href="cutter_out_list.php">期间物料</a></li>
+        <li><a href="other_material_out_list.php">期间物料</a></li>
       </ul>
     </li>
     <li class="menulevel"><a href="#">出库记录</a>
@@ -52,7 +52,7 @@ $(function(){
       <ul>
         <li><a href="material_abnormal_in.php">模具物料</a></li>
         <li><a href="cutter_abnormal_in.php">加工刀具</a></li>
-        <li><a href="other_abnormal_in.php">期间物料</a></li>
+        <li><a href="#">期间物料</a></li>
       </ul>
     </li>
     <li class="menulevel"><a href="copper_material.php">铜料分析</a></li>

@@ -136,7 +136,7 @@ $(function(){
       </tr>
       <tr>
         <th>订单数量：</th>
-        <td><input type="text" name="actual_quantity" id="quantity" value="<?php echo $array['actual_quantity']; ?>" class="input_txt" />
+        <td><input type="text" name="actual_quantity" id="quantity" value="<?php echo $array['actual_quantity']; ?>" readonly class="input_txt" />
           <?php echo $array['unit_name']; ?></td>
         <th>实际数量：</th>
         <td><input type="text" name="inout_quantity" id="inout_quantity" value="<?php echo $array['actual_quantity']; ?>" class="input_txt" />
@@ -155,6 +155,7 @@ $(function(){
         <th>&nbsp;</th>
         <td colspan="7"><input type="submit" name="submit" id="submit" value="确定" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
+          <input type="hidden" name="mould_other_id" value="<?php echo $array['mould_other_id'] ?>" />
           <input type="hidden" name="listid" id="listid" value="<?php echo $listid; ?>" />
           <input type="hidden" name="action" id="action" value="<?php echo $action; ?>" /></td>
       </tr>

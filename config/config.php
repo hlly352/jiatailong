@@ -183,5 +183,5 @@ $array_service_fee = array('收费','免费');
 //物料类型
 $array_mould_other_material = array('易耗品','办公用品','福利品','其它');
 //物料状态
-$array_mould_material_status = array('A'=>'未审批','B'=>'通 过','C'=>'未通过','D'=>'询价中','E'=>'已下单');
+$array_mould_material_status = array('A'=>'未审批','B'=>'通 过','C'=>'未通过','D'=>'询价中','E'=>'已下单','F'=>'已入库');
 ?>
