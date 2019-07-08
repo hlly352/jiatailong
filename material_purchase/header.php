@@ -8,7 +8,7 @@ $(function(){
 </script>
 <style type="text/css">
   #menu ul li.menulevel ul{display:block;position: relative;}
-  #menu ul li.menulevel ul li a{background: skyblue}
+  #menu ul li.menulevel ul li a{background: skyblue;font-weight:200; color:black;font-size:13px;}
 </style>
 <div id="menu">
   <ul>

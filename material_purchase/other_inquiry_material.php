@@ -22,6 +22,7 @@ $result_id = $db->query($sql);
 $_SESSION['mould_material_list'] = $sql;
 $pages = new page($result->num_rows,20);
 $sqllist = $sql . " ORDER BY `db_mould_other_material`.`add_time` DESC" . $pages->limitsql;
+$_SESSION['excel_other_inquiry_material'] = $sqllist;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -73,6 +74,7 @@ $result = $db->query($sqllist);
         </td>
         <td>
             <input type="submit" name="submit" value="查询" class="button" />
+            <input type="button"  name="button" value="导出" class="button" onclick="location.href='excel_other_inquiry_material.php'" />
         </td>
       </tr>
     </table>

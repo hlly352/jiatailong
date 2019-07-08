@@ -3,6 +3,7 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
+
 if($_POST['submit']){
 	$action = $_POST['action'];
 	$dodate = $_POST['dodate'];
@@ -13,6 +14,21 @@ if($_POST['submit']){
 		$listid = $_POST['listid'];
 		$employeeid = $_SESSION['employee_info']['employeeid'];
 		$dotime = fun_gettime();
+		//查询当前刀具还有多少库存
+		//
+		// $sql_surplus = "SELECT `db_cutter_purchase_list`.`cutterid`,SUM(`db_cutter_order_list`.`surplus`) AS `surplus` FROM `db_cutter_order_list` INNER JOIN `db_cutter_purchase_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` WHERE `db_cutter_purchase_list`.`cutterid` IN ($array_cutterid) AND `db_cutter_order_list`.`surplus` > 0 GROUP BY `db_cutter_purchase_list`.`cutterid`";
+		//
+		//
+		echo $listid;
+		$start_cutter_sql = "SELECT SUM(`db_cutter_order_list`.`surplus`) FROM `db_cutter_purchase_list` INNER JOIN `db_cutter_order_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` WHERE `db_cutter_purchase_list`.`cutterid` = (SELECT `db_cutter_purchase_list`.`cutterid` FROM `db_cutter_order_list` LEFT JOIN `db_cutter_purchase_list` ON `db_cutter_order_list`.`purchase_listid` = `db_cutter_purchase_list`.`purchase_listid` WHERE `db_cutter_order_list`.`listid`='$listid' AND `db_cutter_order_list`.`surplus` >= 0) AND `db_cutter_purchase_list`.`cutterid`";
+	
+		$res_start_cutter = $db->query($start_cutter_sql);
+		if($res_start_cutter->num_rows){
+			while($row_start_cutter = $res_start_cutter->fetch_assoc()){
+				var_dump($row_start_cutter);
+			}
+		}
+		exit;
 		$sql_list = "SELECT `db_cutter_purchase_list`.`cutterid` FROM `db_cutter_order_list` INNER JOIN `db_cutter_purchase_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` WHERE `db_cutter_order_list`.`listid` = '$listid' AND (`db_cutter_purchase_list`.`quantity`-`db_cutter_order_list`.`in_quantity`) >= '$quantity'";
 		$result_list = $db->query($sql_list);
 		if($result_list->num_rows){

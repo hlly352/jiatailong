@@ -38,6 +38,7 @@ require_once 'shell.php';
   margin-top:10px;
   line-height:24px;
   color: blue;
+  padding-left: 13px;
 }
 #help_info .p1{color:red;margin-top:20px;}
 #help_info .p2{color:blue;font-size:16px;font-family:'黑体';}
@@ -50,15 +51,27 @@ require_once 'shell.php';
   <dl>
     <dt> 物料申请使用流程：</dt>
     <dd class="tag"> 物料申请>>2019-07-01</dd>
-    <dd class="content">1、一般物料
+    <dd>一、模具物料申请（与模具物料编号相关的所有物料）</dd>
+    <dd class="content"> 1、一般物料
       模具数据→对应模号→下载模板→将要上传的物料信息粘贴到模板→确定上传。</dd>
-    <dd class="content">2、CNC铜料
+    <dd class="content"> 2、CNC铜料
     模具数据→对应模号→模具物料添加→填写物料信息（其中规格栏填写铜料重量，红色标记必填项）→确定上传。</dd>
-    <dd class="content">3、物料的更改
+    <dd class="content"> 3、物料的更改
       上传后的物料可在模具物料栏中查询到，系统自动按照上传时间排序，最新上传的在最前面。如需更改点击最后的编辑按钮，修改后再点击确定。</dd>
-    <dd class="content">4、物料的删除
+    <dd class="content"> 4、物料的删除
       在物料可编辑的情况下，可以删除物料。选择要删除的物料，在复选框中打钩，点击删除即可。
       物料不可编辑时则需采购部删除订单后再进行修改，修改流程同上。</dd>
+    <br>
+    <dd>二、期间物料申请（无法确定到单套模具的物料，例如易耗品，办公用品，福利品...）</dd>
+    <dd class="content">
+       1、申请期间物料：申请人填写物料信息，申请期间物料。
+    </dd>
+    <dd class="content">
+      2、审批期间物料：部门经理对申请的物料信息进行审批。
+    </dd>
+    <dd class="content">
+      3、查看申请记录：查看所有期间物料的申请记录。
+    </dd>
   </dl>
       <p class="p1">特别说明 :</p>
       <p class="p2">
