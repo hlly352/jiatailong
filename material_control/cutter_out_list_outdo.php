@@ -19,11 +19,21 @@ if($_POST['submit']){
 			$old_quantity = $array_old_quantity[$key];
 			$dodate = $array_dodate[$key];
 			$remark = trim($array_remark[$key]);
+			//查找期初库存
+			$start_cutter_sql = "SELECT SUM(`db_cutter_order_list`.`surplus`) AS `start_quantity` FROM `db_cutter_purchase_list` INNER JOIN `db_cutter_order_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` WHERE `db_cutter_purchase_list`.`cutterid` = (SELECT `db_cutter_purchase_list`.`cutterid` FROM `db_cutter_order_list` LEFT JOIN `db_cutter_purchase_list` ON `db_cutter_order_list`.`purchase_listid` = `db_cutter_purchase_list`.`purchase_listid` WHERE `db_cutter_order_list`.`listid`='$listid' AND `db_cutter_order_list`.`surplus` >= 0) AND `db_cutter_purchase_list`.`cutterid`";
+			$res_start_cutter = $db->query($start_cutter_sql);
+			if($res_start_cutter->num_rows){
+				$row_start_cutter = $res_start_cutter->fetch_assoc();
+			}
+			//期初库存
+			$start_quantity = intval($row_start_cutter['start_quantity']);
+			//期末库存
+			$end_quantity = $start_quantity - $quantity;
 			if($quantity){
 				$sql_surplus = "SELECT * FROM `db_cutter_order_list` WHERE `listid` = '$listid' AND `surplus` >= '$quantity'";
 				$result_surplus = $db->query($sql_surplus);
 				if($result_surplus->num_rows){
-					$sql_add = "INSERT INTO `db_cutter_inout` (`inoutid`,`listid`,`apply_listid`,`dotype`,`quantity`,`old_quantity`,`dodate`,`employeeid`,`remark`,`dotime`) VALUES (NULL,'$listid','$apply_listid','O','$quantity','$old_quantity','$dodate','$employeeid','$remark','$dotime')";
+					$sql_add = "INSERT INTO `db_cutter_inout` (`inoutid`,`listid`,`apply_listid`,`dotype`,`quantity`,`old_quantity`,`dodate`,`employeeid`,`remark`,`dotime`,`start_quantity`,`end_quantity`) VALUES (NULL,'$listid','$apply_listid','O','$quantity','$old_quantity','$dodate','$employeeid','$remark','$dotime','$start_quantity','$end_quantity')";
 					$db->query($sql_add);
 					if($db->insert_id){
 						$total_out_quantity += $quantity;
