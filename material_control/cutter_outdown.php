@@ -8,13 +8,13 @@ $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -
 $employeeid = $_SESSION['employee_info']['employeeid'];
 if($_GET['submit']){
 	$entry_number = trim($_GET['entry_number']);
-	$sqlwhere = " AND `db_godown_entry`.`entry_number` LIKE '%$entry_number%'";
+	$sqlwhere = " AND `db_outdown`.`entry_number` LIKE '%$entry_number%'";
 }
-$sql = "SELECT `db_godown_entry`.`entryid`,`db_godown_entry`.`entry_number`,`db_godown_entry`.`entry_date`,`db_godown_entry`.`employeeid`,`db_godown_entry`.`dotime`,`db_employee`.`employee_name` FROM `db_godown_entry` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_godown_entry`.`employeeid` WHERE `db_godown_entry`.`dotype` = 'M' AND (`db_godown_entry`.`entry_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_outdown`.`entryid`,`db_outdown`.`entry_number`,`db_outdown`.`entry_date`,`db_outdown`.`employeeid`,`db_outdown`.`dotime`,`db_employee`.`employee_name` FROM `db_outdown` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_outdown`.`employeeid` WHERE `db_outdown`.`dotype` = 'C' AND (`db_outdown`.`entry_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_godown_entry`.`entry_number` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_outdown`.`entry_number` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -33,26 +33,22 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>
-    <a href="other_material_in_list.php">
-      <input type="button" value="期间物料入库" class="butn">
-    </a>
-    <a href="other_material_godown_entry.php">
-      <input type="button" value="期间物料入库单" class="butn"/>
-    </a>
+ <h4>
+    <a href="cutter_in_list.php"><input type="button" class="butn" value="加工刀具入库" /></a>
+    <a href="cutter_godown_entry.php"><input type="button" class="butn" value="加工刀具入库单"></a>
   </h4>
-  <h4>物料入库单</h4>
+  <h4>刀具出库库单</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
-        <th>入库单号：</th>
+        <th>出库单号：</th>
         <td><input type="text" name="entry_number" class="input_txt" /></td>
-        <th>入库单日期：</th>
+        <th>出库单日期：</th>
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
           --
           <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="添加" class="button" onclick="location.href='material_godown_entryae.php'" /></td>
+          <input type="button" name="button" value="添加" class="button" onclick="location.href='cutter_outdownae.php'" /></td>
       </tr>
     </table>
   </form>
@@ -65,7 +61,7 @@ $result = $db->query($sqllist);
 			$array_entryid .= $row_id['entryid'].','; 
 		}
 		$array_entryid = trim($array_entryid,',');
-		$sql_entry = "SELECT `db_godown_entry_list`.`entryid`,COUNT(*) AS `count` FROM `db_godown_entry_list` INNER JOIN `db_godown_entry` ON `db_godown_entry`.`entryid` = `db_godown_entry_list`.`entryid` WHERE `db_godown_entry_list`.`entryid` IN ($array_entryid) AND `db_godown_entry`.`dotype` = 'M' GROUP BY `db_godown_entry_list`.`entryid`";
+		$sql_entry = "SELECT `db_outdown_list`.`entryid`,COUNT(*) AS `count` FROM `db_outdown_list` INNER JOIN `db_outdown` ON `db_outdown`.`entryid` = `db_outdown_list`.`entryid` WHERE `db_outdown_list`.`entryid` IN ($array_entryid) AND `db_outdown`.`dotype` = 'C' GROUP BY `db_outdown_list`.`entryid`";
 		$result_entry = $db->query($sql_entry);
 		if($result_entry->num_rows){
 			while($row_entry =$result_entry->fetch_assoc()){
@@ -74,6 +70,7 @@ $result = $db->query($sqllist);
 		}else{
 			$array_entry = array();
 		}
+		//print_r($array_entry);
     ?>
     <table>
       <tr>
@@ -99,9 +96,9 @@ $result = $db->query($sqllist);
         <td><?php echo $row['employee_name']; ?></td>
         <td><?php echo $row['dotime']; ?></td>
         <td><?php echo $count; ?></td>
-        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="material_godown_entry_list_add.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>
-        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="material_godown_entry_list.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a><?php } ?></td>
-        <td><?php if($count>0){ ?><a href="material_godown_entry_print.php?id=<?php echo $entryid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a><?php } ?></td>
+        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="cutter_godown_entry_list_add.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>
+        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="cutter_godown_entry_list.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a><?php } ?></td>
+        <td><?php if($count>0){ ?><a href="cutter_godown_entry_print.php?id=<?php echo $entryid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a><?php } ?></td>
         <?php } ?>
     </table>
     <div id="checkall">

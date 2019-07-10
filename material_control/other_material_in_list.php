@@ -49,6 +49,14 @@ $result_id = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
+  <h4>
+    <a href="other_material_in_list.php">
+      <input type="button" value="期间物料入库" class="butn">
+    </a>
+    <a href="other_material_godown_entry.php">
+      <input type="button" value="期间物料入库单" class="butn"/>
+    </a>
+  </h4>
   <h4>物料订单明细</h4>
   <form action="" name="search" method="get">
     <table>

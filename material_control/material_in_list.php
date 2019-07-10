@@ -40,7 +40,10 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>待入库物料</h4>
+  <h4 style="padding-left:100px">
+    <a href="material_in_list.php"><input class="butn blue"  type="button" value="模具物料入库" /></a>
+    <a href="material_godown_entry.php"><input class="butn" type="button" value="模具物料入库单打印"/></a>
+  </h4>
   <form action="" name="search" method="get">
     <table>
       <tr>

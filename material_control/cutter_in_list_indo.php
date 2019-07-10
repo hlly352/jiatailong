@@ -28,7 +28,6 @@ if($_POST['submit']){
 		$start_quantity = intval($row_start_cutter['start_quantity']);
 		//计算期末库存
 		$end_quantity = $row_start_cutter['start_quantity'] + $quantity;
-	
 		$sql_list = "SELECT `db_cutter_purchase_list`.`cutterid` FROM `db_cutter_order_list` INNER JOIN `db_cutter_purchase_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` WHERE `db_cutter_order_list`.`listid` = '$listid' AND (`db_cutter_purchase_list`.`quantity`-`db_cutter_order_list`.`in_quantity`) >= '$quantity'";
 		$result_list = $db->query($sql_list);
 		if($result_list->num_rows){

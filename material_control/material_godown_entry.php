@@ -33,7 +33,11 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>物料入库单</h4>
+   <h4>
+    <a href="material_in_list.php"><input class="butn"  type="button" value="模具物料入库" /></a>
+    <a href="material_godown_entry.php"><input class="butn" type="button" value="模具物料入库单"/></a>
+  </h4>
+  <h4>模具物料入库单</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>

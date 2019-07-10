@@ -286,3 +286,10 @@ select {
 .txt {
 	width: 160px;
 }
+.butn{
+	width: 125px;
+	height: 30px;
+}
+.blue{
+	background: skyblue;
+}

@@ -38,6 +38,14 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
+  <h4>
+    <a href="cutter_out_list.php">
+      <input type="button" value="加工刀具出库" class="butn" style="background:skyblue">
+    </a>
+    <a href="cutter_outdown.php">
+      <input type="button" value="加工刀具出库单" class="butn">
+    </a>
+  </h4>
   <h4>待出库刀具</h4>
   <form action="" name="search" method="get">
     <table>
