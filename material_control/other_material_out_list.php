@@ -41,15 +41,14 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>
+  <h4 style="padding-left:100px">
     <a href="other_material_out_list.php">
-      <input type="button" value="期间物料出库" class="butn">
+      <input type="button" value="期间物料出库" class="butn blue">
     </a>
     <a href="other_material_outdown.php">
-      <input type="button" value="期间物料出库单" class="butn">
+      <input type="button" value="期间物料出库单打印" class="butn">
     </a>
   </h4>
-  <h4>待出库物料</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>

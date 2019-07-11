@@ -19,10 +19,9 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
 }
-$sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`plan_date`,DATEDIFF(`db_material_order_list`.`plan_date`,`db_material_inout`.`dodate`) AS `diff_date`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND DATEDIFF(`db_material_order_list`.`plan_date`,`db_material_inout`.`dodate`) < 0 $sqlwhere";
 $result = $db->query($sql);
-$result_total = $db->query($sql);
-$_SESSION['material_inout_list_in'] = $sql;
+$_SESSION['material_abnormal_entry'] = $sql;
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_material_inout`.`inoutid` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
@@ -43,7 +42,7 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>物料入库记录</h4>
+  <h4>物料异常入库</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -71,19 +70,13 @@ $result = $db->query($sqllist);
 			?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_inout_in.php'" /></td>
+          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_abnormal_in.php'" /></td>
       </tr>
     </table>
   </form>
 </div>
 <div id="table_list">
-  <?php
-  if($result->num_rows){
-	  while($row_total = $result_total->fetch_assoc()){
-		  $total_amount += $row_total['amount'];
-		  $total_process_cost += $row_total['process_cost'];	
-	  }																																				
-  ?>
+  <?php if($result->num_rows){ ?>
   <table>
     <tr>
       <th width="4%">ID</th>
@@ -92,56 +85,41 @@ $result = $db->query($sqllist);
       <th width="8%">物料名称</th>
       <th width="12%">规格</th>
       <th width="6%">材质</th>
-      <th width="6%">表单号</th>
-      <th width="5%">订单<br />
+      <th width="9%">表单号</th>
+      <th width="5%">入库<br />
         数量</th>
-      <th width="4%">单位</th>
       <th width="5%">实际<br />
         数量</th>
-      <th width="4%">单位</th>
       <th width="5%">单价<br />
         (含税)</th>
       <th width="5%">金额<br />
         (含税)</th>
       <th width="5%">加工费</th>
-      <th width="5%">供应商</th>
+      <th width="8%">供应商</th>
       <th width="6%">入库日期</th>
-      <th width="4%">异常数量</th>
+      <th width="6%">计划回厂日期</th>
+      <th width="4%">差异</th>
     </tr>
-    <?php
-	while($row = $result->fetch_assoc()){
-		$inoutid = $row['inoutid'];
-		$listid = $row['listid'];
-    //查询当前订单所有的入库数量
-      $order_sql = "SELECT SUM(`db_material_inout`.`quantity`) AS `total_inquantity` FROM `db_material_inout` WHERE `db_material_inout`.`listid`='$listid' AND `db_material_inout`.`dotype` = 'I' GROUP BY `db_material_inout`.`listid`";
-    $order_result = $db->query($order_sql);
-    if($order_result->num_rows){
-      $info = $order_result->fetch_row()[0];
-    }
-	?>
-  <?php if($info != $row['inout_quantity']){ ?>
+    <?php while($row = $result->fetch_assoc()){ ?>
     <tr>
-      <td><?php echo $inoutid; ?></td>
+      <td><?php echo $row['inoutid']; ?></td>
       <td><?php echo $row['order_number']; ?></td>
       <td><?php echo $row['mould_number']; ?></td>
       <td><?php echo $row['material_name']; ?></td>
       <td><?php echo $row['specification']; ?></td>
       <td><?php echo $row['texture']; ?></td>
       <td><?php echo $row['form_number']; ?></td>
-      <td><?php echo $row['quantity']; ?></td>
-      <td><?php echo $row['unit_name_order']; ?></td>
-      <td <?php echo $info != $row['inout_quantity']?'style="background:red"':'' ?>><?php echo $row['inout_quantity']; ?></td>
-      <td><?php echo $row['unit_name_actual']; ?></td>
+      <td><?php echo $row['quantity'].$row['unit_name_order']; ?></td>
+      <td><?php echo $row['inout_quantity'].$row['unit_name_actual']; ?></td>
       <td><?php echo $row['unit_price']; ?></td>
       <td><?php echo $row['amount']; ?></td>
       <td><?php echo $row['process_cost']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
-      <td>
-        <?php echo $info - $row['inout_quantity'] ?>
-      </td>
+      <td><?php echo $row['plan_date']; ?></td>
+      <td><?php echo $row['diff_date']; ?></td>
     </tr>
-    <?php }} ?>
+    <?php } ?>
   </table>
   <div id="page">
     <?php $pages->getPage();?>

@@ -3,6 +3,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+$employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 $sql_cutter_type = "SELECT `typeid`,`type` FROM `db_cutter_type` ORDER BY `typeid` ASC";
@@ -11,8 +12,8 @@ $result_cutter_type = $db->query($sql_cutter_type);
 $sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(1,`supplier_typeid`) >0 ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
 if($_GET['submit']){
-	$order_number = trim($_GET['order_number']);
-	$specification = trim($_GET['specification']);
+	$order_number = rtrim($_GET['order_number']);
+	$specification = rtrim($_GET['specification']);
 	$typeid = $_GET['typeid'];
 	if($typeid){
 		$sql_typeid = " AND `db_cutter_specification`.`typeid` = '$typeid'";
@@ -23,9 +24,10 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_cutter_order`.`order_number` LIKE '%$order_number%' AND `db_cutter_specification`.`specification` LIKE '%$specification%' $sql_typeid $sql_supplierid";
 }
-$sql = "SELECT `db_cutter_inout`.`inoutid`,`db_cutter_inout`.`dodate`,`db_cutter_inout`.`quantity`,`db_cutter_inout`.`form_number`,`db_cutter_order_list`.`unit_price`,`db_cutter_order_list`.`plan_date`,`db_cutter_order`.`order_number`,`db_cutter_type`.`type`,`db_cutter_specification`.`specification`,`db_cutter_hardness`.`texture`,`db_cutter_hardness`.`hardness`,`db_cutter_brand`.`brand`,`db_supplier`.`supplier_cname`,(`db_cutter_inout`.`quantity`*`db_cutter_order_list`.`unit_price`) AS `amount`,DATEDIFF(`db_cutter_order_list`.`plan_date`,`db_cutter_inout`.`dodate`) AS `diff_date` FROM `db_cutter_inout` INNER JOIN `db_cutter_order_list` ON `db_cutter_order_list`.`listid` = `db_cutter_inout`.`listid` INNER JOIN `db_cutter_order` ON `db_cutter_order`.`orderid` = `db_cutter_order_list`.`orderid` INNER JOIN `db_cutter_purchase_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` INNER JOIN `db_mould_cutter` ON `db_mould_cutter`.`cutterid` = `db_cutter_purchase_list`.`cutterid` INNER JOIN `db_cutter_specification` ON `db_cutter_specification`.`specificationid` = `db_mould_cutter`.`specificationid` INNER JOIN `db_cutter_type` ON `db_cutter_type`.`typeid` = `db_cutter_specification`.`typeid` INNER JOIN `db_cutter_hardness` ON `db_cutter_hardness`.`hardnessid` = `db_mould_cutter`.`hardnessid` INNER JOIN `db_cutter_brand` ON `db_cutter_brand`.`brandid` = `db_cutter_purchase_list`.`brandid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_cutter_order`.`supplierid` WHERE `db_cutter_inout`.`dotype` = 'I' AND (`db_cutter_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND DATEDIFF(`db_cutter_order_list`.`plan_date`,`db_cutter_inout`.`dodate`) < 0 $sqlwhere";
+$sql = "SELECT `db_cutter_order`.`orderid`,`db_cutter_inout`.`inoutid`,`db_cutter_inout`.`listid`,`db_cutter_inout`.`form_number`,`db_cutter_inout`.`quantity` AS `in_quantity`,`db_cutter_inout`.`dodate`,`db_cutter_inout`.`employeeid`,`db_cutter_order_list`.`unit_price`,`db_cutter_order`.`order_number`,`db_cutter_purchase_list`.`quantity` AS `order_quantity`,`db_cutter_type`.`type`,`db_cutter_specification`.`specification`,`db_cutter_hardness`.`texture`,`db_cutter_hardness`.`hardness`,`db_cutter_brand`.`brand`,`db_supplier`.`supplier_cname`,(`db_cutter_inout`.`quantity`*`db_cutter_order_list`.`unit_price`) AS `amount` FROM `db_cutter_inout` INNER JOIN `db_cutter_order_list` ON `db_cutter_order_list`.`listid` = `db_cutter_inout`.`listid` INNER JOIN `db_cutter_order` ON `db_cutter_order`.`orderid` = `db_cutter_order_list`.`orderid` INNER JOIN `db_cutter_purchase_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` INNER JOIN `db_mould_cutter` ON `db_mould_cutter`.`cutterid` = `db_cutter_purchase_list`.`cutterid` INNER JOIN `db_cutter_specification` ON `db_cutter_specification`.`specificationid` = `db_mould_cutter`.`specificationid` INNER JOIN `db_cutter_type` ON `db_cutter_type`.`typeid` = `db_cutter_specification`.`typeid` INNER JOIN `db_cutter_hardness` ON `db_cutter_hardness`.`hardnessid` = `db_mould_cutter`.`hardnessid` INNER JOIN `db_cutter_brand` ON `db_cutter_brand`.`brandid` = `db_cutter_purchase_list`.`brandid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_cutter_order`.`supplierid` WHERE (`db_cutter_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND `db_cutter_inout`.`dotype` = 'I' $sqlwhere";
 $result = $db->query($sql);
-$_SESSION['cutter_abnormal_entry'] = $sql;
+$result_total = $db->query($sql);
+$_SESSION['cutter_inout_list_in'] = $sql;
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_cutter_inout`.`inoutid` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
@@ -46,7 +48,7 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>刀具异常入库</h4>
+  <h4>刀具入库记录</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -68,9 +70,9 @@ $result = $db->query($sqllist);
 			?>
           </select></td>
         <th>订单日期：</th>
-        <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
+        <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
           --
-          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
+          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" /></td>
         <th>供应商：</th>
         <td><select name="supplierid">
             <option value="">所有</option>
@@ -85,13 +87,18 @@ $result = $db->query($sqllist);
 			?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_cutter_abnormal_in.php'" /></td>
+          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_cutter_inout_in.php'" /></td>
       </tr>
     </table>
   </form>
 </div>
 <div id="table_list">
-  <?php if($result->num_rows){ ?>
+  <?php
+  if($result->num_rows){
+	  while($row_total = $result_total->fetch_assoc()){
+		  $total_amount += $row_total['amount'];	
+	  }
+  ?>
   <table>
     <tr>
       <th width="4%">ID</th>
@@ -101,7 +108,9 @@ $result = $db->query($sqllist);
       <th width="6%">材质</th>
       <th width="8%">硬度</th>
       <th width="6%">品牌</th>
-      <th width="8%">表单号</th>
+      <th width="6%">表单号</th>
+      <th width="4%">订单<br />
+        数量</th>
       <th width="4%">入库<br />
         数量</th>
       <th width="4%">单位</th>
@@ -111,12 +120,22 @@ $result = $db->query($sqllist);
         (含税)</th>
       <th width="8%">供应商</th>
       <th width="6%">入库日期</th>
-      <th width="6%">计划回厂日期</th>
-      <th width="4%">差异</th>
+      <th width="4%">异常数量</th>
     </tr>
-    <?php while($row = $result->fetch_assoc()){ ?>
+    <?php
+    while($row = $result->fetch_assoc()){
+		$inoutid = $row['inoutid'];
+		$listid = $row['listid'];
+    //通过合同号查询当前合同的数量
+    $order_sql = "SELECT SUM(`db_cutter_inout`.`quantity`) AS `total_inquantity` FROM `db_cutter_inout` WHERE `db_cutter_inout`.`listid`='$listid' AND `db_cutter_inout`.`dotype` = 'I' GROUP BY `db_cutter_inout`.`listid`";
+    $order_result = $db->query($order_sql);
+    if($order_result->num_rows){
+      $info = $order_result->fetch_row()[0];
+    }
+	?>
+  <?php if($info != $row['order_quantity']){ ?>
     <tr>
-      <td><?php echo $row['inoutid']; ?></td>
+      <td><?php echo $inoutid; ?></td>
       <td><?php echo $row['order_number']; ?></td>
       <td><?php echo $row['type']; ?></td>
       <td><?php echo $row['specification']; ?></td>
@@ -124,16 +143,20 @@ $result = $db->query($sqllist);
       <td><?php echo $row['hardness']; ?></td>
       <td><?php echo $row['brand']; ?></td>
       <td><?php echo $row['form_number']; ?></td>
-      <td><?php echo $row['quantity']; ?></td>
+      <td><?php echo $row['order_quantity']; ?></td>
+      <!--入库数量与订单数量不符，则显示红色背景-->
+      <td <?php echo $info != $row['order_quantity']?'style="background:red"':'' ?>><?php echo $row['in_quantity']; ?></td>
       <td>件</td>
       <td><?php echo $row['unit_price']; ?></td>
       <td><?php echo $row['amount']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
-      <td><?php echo $row['plan_date']; ?></td>
-      <td><?php echo $row['diff_date']; ?></td>
+      <td>
+        <?php echo $info - $row['order_quantity'] ?>
+      </td>
     </tr>
-    <?php } ?>
+    <?php } }?>
+   
   </table>
   <div id="page">
     <?php $pages->getPage();?>

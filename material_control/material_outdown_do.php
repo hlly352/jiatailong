@@ -13,16 +13,16 @@ if($_POST['submit']){
 			$array_number = $result_number->fetch_assoc();
 			$max_number = $array_number['max_number'];
 			$next_number = $max_number + 1;
-			$entry_number = 'C'.date('Ymd',strtotime($entry_date)).strtolen($next_number,2).$next_number;
+			$entry_number = date('Ymd',strtotime($entry_date)).strtolen($next_number,2).$next_number;
 		}else{
-			$entry_number = 'C'.date('Ymd',strtotime($entry_date))."01";
+			$entry_number = date('Ymd',strtotime($entry_date))."01";
 		} 
 		$employeeid = $_SESSION['employee_info']['employeeid'];
 		$dotime = fun_gettime();
-		$sql = "INSERT INTO `db_outdown` (`entryid`,`entry_number`,`entry_date`,`employeeid`,`dotype`,`dotime`) VALUES (NULL,'$entry_number','$entry_date','$employeeid','C','$dotime')";
+		$sql = "INSERT INTO `db_outdown` (`entryid`,`entry_number`,`entry_date`,`employeeid`,`dotype`,`dotime`) VALUES (NULL,'$entry_number','$entry_date','$employeeid','M','$dotime')";
 		$db->query($sql);
 		if($db->insert_id){
-			header("location:cutter_outdown.php");
+			header("location:material_outdown.php");
 		}
 	}elseif($action == "del"){
 		$array_id = $_POST['id'];

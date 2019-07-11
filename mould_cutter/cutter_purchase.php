@@ -6,7 +6,7 @@ require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 if($_GET['submit']){
 	$purchase_number = trim($_GET['purchase_number']);
-	$sqlwhere = " WHERE `db_cutter_purchase`.`purchase_number` LIKE '%$purchase_number%'";
+	$sqlwhere = "WHERE `db_cutter_purchase`.`purchase_number` LIKE '%$purchase_number%'";
 }
 $sql = "SELECT `db_cutter_purchase`.`purchaseid`,`db_cutter_purchase`.`purchase_number`,`db_cutter_purchase`.`purchase_date`,`db_cutter_purchase`.`purchase_time`,`db_cutter_purchase`.`employeeid`,`db_employee`.`employee_name` FROM `db_cutter_purchase` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_cutter_purchase`.`employeeid` $sqlwhere";
 $result = $db->query($sql);

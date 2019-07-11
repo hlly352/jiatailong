@@ -33,11 +33,14 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
- <h4>
-    <a href="cutter_in_list.php"><input type="button" class="butn" value="加工刀具入库" /></a>
-    <a href="cutter_godown_entry.php"><input type="button" class="butn" value="加工刀具入库单"></a>
+  <h4 style="padding-left:100px">
+    <a href="cutter_out_list.php">
+      <input type="button" value="加工刀具出库" class="butn">
+    </a>
+    <a href="cutter_outdown.php">
+      <input type="button" value="加工刀具出库单打印" class="butn blue">
+    </a>
   </h4>
-  <h4>刀具出库库单</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -75,8 +78,8 @@ $result = $db->query($sqllist);
     <table>
       <tr>
         <th width="4%">ID</th>
-        <th width="20%">入库单号</th>
-        <th width="20%">入库单日期</th>
+        <th width="20%">出库单号</th>
+        <th width="20%">出库单日期</th>
         <th width="20%">制单人</th>
         <th width="20%">时间</th>
         <th width="4%">项数</th>
@@ -96,9 +99,9 @@ $result = $db->query($sqllist);
         <td><?php echo $row['employee_name']; ?></td>
         <td><?php echo $row['dotime']; ?></td>
         <td><?php echo $count; ?></td>
-        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="cutter_godown_entry_list_add.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>
-        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="cutter_godown_entry_list.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a><?php } ?></td>
-        <td><?php if($count>0){ ?><a href="cutter_godown_entry_print.php?id=<?php echo $entryid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a><?php } ?></td>
+        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="cutter_outdown_list_add.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>
+        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="cutter_outdown_list.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a><?php } ?></td>
+        <td><?php if($count>0){ ?><a href="cutter_outdown_print.php?id=<?php echo $entryid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a><?php } ?></td>
         <?php } ?>
     </table>
     <div id="checkall">

@@ -113,6 +113,12 @@ $result = $db->query($sqllist);
 	while($row = $result->fetch_assoc()){
 		$inoutid = $row['inoutid'];
 		$listid = $row['listid'];
+    //查询当前订单所有的入库数量
+      $order_sql = "SELECT SUM(`db_material_inout`.`quantity`) AS `total_inquantity` FROM `db_material_inout` WHERE `db_material_inout`.`listid`='$listid' AND `db_material_inout`.`dotype` = 'I' GROUP BY `db_material_inout`.`listid`";
+    $order_result = $db->query($order_sql);
+    if($order_result->num_rows){
+      $info = $order_result->fetch_row()[0];
+    }
 	?>
     <tr>
       <td><?php echo $inoutid; ?></td>
@@ -124,7 +130,7 @@ $result = $db->query($sqllist);
       <td><?php echo $row['form_number']; ?></td>
       <td><?php echo $row['quantity']; ?></td>
       <td><?php echo $row['unit_name_order']; ?></td>
-      <td><?php echo $row['inout_quantity']; ?></td>
+      <td <?php echo $info != $row['inout_quantity']?'style="background:red"':'' ?>><?php echo $row['inout_quantity']; ?></td>
       <td><?php echo $row['unit_name_actual']; ?></td>
       <td><?php echo $row['unit_price']; ?></td>
       <td><?php echo $row['amount']; ?></td>
