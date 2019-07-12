@@ -41,7 +41,7 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4 style="padding-left:100px">
+  <h4 class="tit">
     <a href="material_out_list.php">
       <input type="button" class="butn blue" value="模具物料出库">
     </a>

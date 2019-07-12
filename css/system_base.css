@@ -287,9 +287,12 @@ select {
 	width: 160px;
 }
 .butn{
-	width: 125px;
+	width: 150px;
 	height: 30px;
 }
 .blue{
 	background: skyblue;
+}
+.tit{
+	margin-left: -33px;
 }

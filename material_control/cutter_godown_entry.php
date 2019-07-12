@@ -33,7 +33,7 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
- <h4 style="padding-left:100px">
+ <h4 class="tit">
     <a href="cutter_in_list.php"><input type="button" class="butn" value="加工刀具入库" /></a>
     <a href="cutter_godown_entry.php"><input type="button" class="butn blue" value="加工刀具入库单打印"></a>
   </h4>

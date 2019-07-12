@@ -43,8 +43,14 @@
     </li>
     <li class="menulevel"><a href="mould_outward.php">外协加工</a></li>
     <li class="menulevel"><a href="#">对账功能</a>
-    <li class="menulevel"><a href="#">付款申请</a>
-    <li class="menulevel"><a href="#">应付款管理</a>
+      <ul>
+        <li><a href="material_balance_account.php">模具物料</a></li>
+        <li><a href="cutter_balance_account.php">加工刀具</a></li>
+        <li><a href="other_material_balance_account.php">期间物料</a></li> 
+      </ul>
+    </li>
+    <li class="menulevel"><a href="#">应付账款</a></li>
+    <li class="menulevel"><a href="#">付款申请</a></li>
     <li class="menulevel"><a href="/myjtl/">内网首页</a></li>
   </ul>
   <span><?php echo $_SESSION['employee_info']['employee_name']; ?> <a href="../passport/logout.php">退出</a></span>
