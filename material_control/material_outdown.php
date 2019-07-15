@@ -57,7 +57,7 @@ $result = $db->query($sqllist);
   </form>
 </div>
 <div id="table_list">
-  <form action="material_godown_entrydo.php" name="godown_entry" method="post">
+  <form action="material_outdowndo.php" name="godown_entry" method="post">
     <?php
     if($result->num_rows){
 		while($row_id = $result_id->Fetch_assoc()){

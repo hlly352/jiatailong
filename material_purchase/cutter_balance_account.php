@@ -23,7 +23,7 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_cutter_order`.`order_number` LIKE '%$order_number%' AND `db_cutter_specification`.`specification` LIKE '%$specification%' $sql_typeid $sql_supplierid";
 }
-$sql = "SELECT `db_cutter_inout`.`inoutid`,`db_cutter_inout`.`listid`,`db_cutter_inout`.`form_number`,`db_cutter_inout`.`quantity` AS `in_quantity`,`db_cutter_inout`.`dodate`,`db_cutter_order_list`.`unit_price`,`db_cutter_order`.`order_number`,`db_cutter_purchase_list`.`quantity` AS `order_quantity`,`db_cutter_type`.`type`,`db_cutter_specification`.`specification`,`db_cutter_hardness`.`texture`,`db_cutter_hardness`.`hardness`,`db_cutter_brand`.`brand`,`db_supplier`.`supplier_cname`,(`db_cutter_inout`.`quantity`*`db_cutter_order_list`.`unit_price`) AS `amount` FROM `db_cutter_inout` INNER JOIN `db_cutter_order_list` ON `db_cutter_order_list`.`listid` = `db_cutter_inout`.`listid` INNER JOIN `db_cutter_order` ON `db_cutter_order`.`orderid` = `db_cutter_order_list`.`orderid` INNER JOIN `db_cutter_purchase_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` INNER JOIN `db_mould_cutter` ON `db_mould_cutter`.`cutterid` = `db_cutter_purchase_list`.`cutterid` INNER JOIN `db_cutter_specification` ON `db_cutter_specification`.`specificationid` = `db_mould_cutter`.`specificationid` INNER JOIN `db_cutter_type` ON `db_cutter_type`.`typeid` = `db_cutter_specification`.`typeid` INNER JOIN `db_cutter_hardness` ON `db_cutter_hardness`.`hardnessid` = `db_mould_cutter`.`hardnessid` INNER JOIN `db_cutter_brand` ON `db_cutter_brand`.`brandid` = `db_cutter_purchase_list`.`brandid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_cutter_order`.`supplierid` WHERE (`db_cutter_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND `db_cutter_inout`.`dotype` = 'I' AND `db_cutter_order_list`.`in_quantity` = `db_cutter_inout`.`quantity` $sqlwhere";
+$sql = "SELECT `db_cutter_inout`.`inoutid`,`db_cutter_inout`.`listid`,`db_cutter_inout`.`form_number`,`db_cutter_inout`.`quantity` AS `in_quantity`,`db_cutter_inout`.`dodate`,`db_cutter_order_list`.`unit_price`,`db_cutter_order`.`order_number`,`db_cutter_purchase_list`.`quantity` AS `order_quantity`,`db_cutter_type`.`type`,`db_cutter_specification`.`specification`,`db_cutter_hardness`.`texture`,`db_cutter_hardness`.`hardness`,`db_cutter_brand`.`brand`,`db_supplier`.`supplier_cname`,(`db_cutter_inout`.`quantity`*`db_cutter_order_list`.`unit_price`) AS `amount` FROM `db_cutter_inout` INNER JOIN `db_cutter_order_list` ON `db_cutter_order_list`.`listid` = `db_cutter_inout`.`listid` INNER JOIN `db_cutter_order` ON `db_cutter_order`.`orderid` = `db_cutter_order_list`.`orderid` INNER JOIN `db_cutter_purchase_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` INNER JOIN `db_mould_cutter` ON `db_mould_cutter`.`cutterid` = `db_cutter_purchase_list`.`cutterid` INNER JOIN `db_cutter_specification` ON `db_cutter_specification`.`specificationid` = `db_mould_cutter`.`specificationid` INNER JOIN `db_cutter_type` ON `db_cutter_type`.`typeid` = `db_cutter_specification`.`typeid` INNER JOIN `db_cutter_hardness` ON `db_cutter_hardness`.`hardnessid` = `db_mould_cutter`.`hardnessid` INNER JOIN `db_cutter_brand` ON `db_cutter_brand`.`brandid` = `db_cutter_purchase_list`.`brandid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_cutter_order`.`supplierid` WHERE (`db_cutter_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND `db_cutter_inout`.`dotype` = 'I' AND `db_cutter_order_list`.`in_quantity` = `db_cutter_inout`.`quantity` AND `db_cutter_inout`.`account_status` = 'P' $sqlwhere";
 
 $result = $db->query($sql);
 $result_total = $db->query($sql);
@@ -103,11 +103,11 @@ $result = $db->query($sqllist);
     <tr>
       <th width="4%">ID</th>
       <th width="8%">合同号</th>
-      <th width="6%">类型</th>
+      <th width="5%">类型</th>
       <th width="10%">规格</th>
       <th width="6%">材质</th>
-      <th width="8%">硬度</th>
-      <th width="6%">品牌</th>
+      <th width="7%">硬度</th>
+      <th width="5%">品牌</th>
       <th width="8%">表单号</th>
       <th width="5%">订单<br />
         数量</th>
@@ -118,17 +118,21 @@ $result = $db->query($sqllist);
         (含税)</th>
       <th width="6%">金额<br />
         (含税)</th>
-      <th width="8%">供应商</th>
+      <th width="7%">供应商</th>
       <th width="6%">入库日期</th>
       <th width="4%">Info</th>
+      <th width="4%">操作</th>
     </tr>
     <?php
     while($row = $result->fetch_assoc()){
 		$inoutid = $row['inoutid'];
 		$listid = $row['listid'];
 	?>
+  <form action="cutter_balance_account_do.php" method="post">
     <tr>
-      <td><?php echo $inoutid; ?></td>
+      <td>
+        <input type="checkbox" name="id[]" value="<?php echo $inoutid ?>">
+      </td>
       <td><?php echo $row['order_number']; ?></td>
       <td><?php echo $row['type']; ?></td>
       <td><?php echo $row['specification']; ?></td>
@@ -144,14 +148,24 @@ $result = $db->query($sqllist);
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
       <td><a href="cutter_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td>
+       <td>
+        <a href="cutter_balance_account_do.php?id=<?php echo $inoutid ?>">对账</a>
+      </td>
     </tr>
     <?php } ?>
     <tr>
       <td colspan="12">Total</td>
       <td><?php echo number_format($total_amount,2); ?></td>
-      <td colspan="3">&nbsp;</td>
+      <td colspan="4">&nbsp;</td>
     </tr>
   </table>
+  <div id="checkall">
+      <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
+      <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
+      <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
+      <input type="submit" name="submit" id="submit" value="对账" class="select_button" />
+    </div>
+  </form>  
   <div id="page">
     <?php $pages->getPage();?>
   </div>

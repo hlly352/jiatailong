@@ -51,7 +51,7 @@
     </li>
     <li class="menulevel"><a href="#">库存管理</a>
        <ul>   
-        <li><a href="#">模具物料</a></li>
+        <li><a href="material_stock.php">模具物料</a></li>
         <li><a href="cutter_stock.php">加工刀具</a></li>
         <li><a href="#">期间物料</a></li>
       </ul>
