@@ -26,7 +26,7 @@
         <li><a href="mould_outward_payment_list.php">已付加工</a></li> 
       </ul>
     </li>
-     <li class="menulevel"><a href="#">对账功能</a>
+     <li class="menulevel"><a href="#">对账审核</a>
       <ul>
         <li><a href="material_balance_account.php">模具物料</a></li>
         <li><a href="cutter_order_list.php">加工刀具</a></li>

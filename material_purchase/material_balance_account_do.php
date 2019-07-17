@@ -3,6 +3,7 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
+$employeeid = $_SESSION['employee_info']['employeeid'];
 //获取对账成功的记录id
 if($_POST['submit']){
 	$id = $_POST['id'];
@@ -11,6 +12,7 @@ if($_POST['submit']){
 	$inoutid = $_GET['id'];
 	$id[] = $_GET['id'];
 }
+$nowmonth = date('Y-m');
 //通过inoutid查询供应商
 foreach($id as $v){
 	$supplier_sql = "SELECT `db_material_order`.`supplierid` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_inout`.`listid` = `db_material_order_list`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_inout`.`inoutid` = ".$v;
@@ -18,14 +20,14 @@ foreach($id as $v){
 	if($result_supplier->num_rows){
 		while($row = $result_supplier->fetch_assoc()){
 			//通过供应商查找对账汇总表里是否存在
-			$account_sql = "SELECT `accountid` FROM `db_material_account` WHERE `supplierid` = ".$row['supplierid'];
+			$account_sql = "SELECT `accountid` FROM `db_material_account` WHERE `supplierid` = ".$row['supplierid']." AND `account_time` LIKE '$nowmonth%'";
 			$result_account = $db->query($account_sql);
 			if($result_account->num_rows){
 				$accountid = $result_account->fetch_row()[0];
 			}else{
 				//没有则新建一条汇总
 				$time = date('Y-m-d');
-				$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`) VALUES('$time',".$row['supplierid'].")";
+				$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`,`employeeid`) VALUES('$time',".$row['supplierid'].",'$employeeid')";
 				$db->query($add_sql);
 				if($db->affected_rows){
 					$accountid = $db->insert_id;
