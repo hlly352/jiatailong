@@ -80,9 +80,9 @@ $result = $db->query($sqllist);
 <div id="table_list">
   <?php if($result->num_rows){ ?>
   <table>
-    <tr>
+<tr>
       <th width="4%">ID</th>
-      <th width="6%">合同号</th>
+      <    th width="6%">合同号</th>
       <th width="6%">模具编号</th>
       <th width="7%">物料名称</th>
       <th width="10%">规格</th>

@@ -2,7 +2,7 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
-$action = fun_check_action($_GET['action']);
+$action = fun_check_action();
 $employeeid = $_SESSION['employee_info']['employeeid'];
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -43,16 +43,17 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 <div id="table_sheet">
   <?php
   $accountid = $_GET['id'];
-  if($action == "add"){
+  if($action == "approval"){
 	//查找当前供应商的信息
-	$sql = "SELECT `db_material_account`.`accountid`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,`db_material_account`.`amount` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `accountid` =".$accountid;
+	$sql = "SELECT `db_material_account`,`apply_amount`,`db_material_invoice_list`.`invoice_no`,`db_material_account`.`accountid`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,`db_material_account`.`amount` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` WHERE `db_material_account`.`accountid` =".$accountid;
+
 	$result = $db->query($sql);
 	if($result->num_rows){
 		$row = $result->fetch_assoc();
 	
 
   ?>
-  <h4>发票信息录入</h4>
+  <h4>付款审批</h4>
   <form action="material_invoice_info_do.php?action=add" name="employee_goout" method="post">
     <table>
       <tr>
@@ -72,7 +73,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
       <tr>
         <th width="12%">发票号：</th>
         <td width="20%">
-        	<input type="text" id="invoice_no" name="invoice_no">
+        	<input type="text" id="invoice_no" name="invoice_no" value="<?php echo $row['invoice_no'] ?>">
         </td>
         <th width="12%">发票金额：</th>
         <td>
@@ -87,6 +88,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
         <td colspan="6" style="text-align:center">
         	<input type="hidden" name="accountid" value="<?php echo $row['accountid'] ?>">
         	<input type="submit" name="submit" id="submit" value="确定" class="button" />
+          <input type="button" class="button" value="退回">
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="employeeid" value="<?php echo $employeeid; ?>" />
           <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>

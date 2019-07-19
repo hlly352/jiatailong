@@ -17,7 +17,13 @@
         <li><a href="cutter_brand.php">刀具品牌</a></li>
       </ul>
     </li>
-    <li class="menulevel"><a href="material_type.php">物料类型</a></li>
+    <li class="menulevel"><a href="#">物料类型</a>
+      <ul>
+        <li><a href="material_type.php">模具物料</a></li>
+        <li><a href="other_material_type.php">期间物料</a></li>
+      </ul>
+    </li>
+    <li class="menulevel"><a href="other_material_data.php">期间物料</a></li>
     <li class="menulevel"><a href="#">加工类型</a>
       <ul>
         <li><a href="mould_outward_type.php">外发类型</a></li>

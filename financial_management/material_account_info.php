@@ -97,7 +97,7 @@ $result = $db->query($sql);
     </tr>
     <tr>
       <td colspan="18">
-        <input type="button" class="button" name="" value="审核" onclick="window.location.assign('material_balance_account_do.php?accountid=<?php echo $accountid ?>&action=complete')">
+        <input type="button" class="button" name="" value="确定" onclick="window.location.assign('material_balance_account_do.php?accountid=<?php echo $accountid ?>&action=complete')">
         &nbsp;
         <input type="button" class="button" name="" value="退回" onclick="window.location.assign('material_balance_account_do.php?accountid=<?php echo $accountid ?>&action=back')">
         &nbsp;
