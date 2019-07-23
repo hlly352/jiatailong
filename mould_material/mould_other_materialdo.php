@@ -67,7 +67,6 @@ require_once 'shell.php';
 		$key_sql .='`add_time`,`approver`,`status`';
 		$val_sql .='"'.time().'","'.$approver.'","A"';
 		$add_sql = "INSERT INTO `db_mould_other_material`($key_sql) VALUES($val_sql)";
-
 		$db->query($add_sql);
 		if($db->affected_rows){
 			header('location:mould_other_fee.php');

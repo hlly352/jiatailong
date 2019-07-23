@@ -21,7 +21,7 @@ if($_GET['submit']){
 	 $sqlwhere = " WHERE `material_name` LIKE '%$material_name%' AND `material_specification` LIKE '%$material_specification%' AND `material_type` LIKE '%$material_type%' AND `apply_team` LIKE '%$apply_team%' AND (`add_time` BETWEEN '$before_date' AND '$after_date')";
 }
 
-$sql = "SELECT * FROM `db_mould_other_material` $sqlwhere";
+$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould_other_material'] = $sql;
@@ -123,7 +123,6 @@ $result = $db->query($sqllist);
         <th width="">ID</th>
         <th width="">申请日期</th>
         <th width="">需求日期</th>
-        <th width="">模具编号</th>
         <th width="">物料类型</th>
         <th width="">物料名称</th>
         <th width="">物料规格</th>
@@ -168,8 +167,7 @@ $result = $db->query($sqllist);
         </td>
         <td><?php echo $row['apply_date']; ?></td>
         <td><?php echo $row['requirement_date']; ?></td>
-        <td><?php echo $row['mould_no']; ?></td>
-        <td><?php echo $array_mould_other_material[$row['material_type']]; ?></td>
+        <td><?php echo $row['material_typename']; ?></td>
         <td><?php echo $row['material_name']; ?></td>
         <td><?php echo $row['material_specification']; ?></td>
         <td><?php echo $row['quantity'] ?></td>

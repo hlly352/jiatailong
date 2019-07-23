@@ -9,7 +9,9 @@ $action = fun_check_action($_GET['action']);
 //查询部门
 $sql_department = "SELECT `deptid`,`dept_name` FROM `db_department` ORDER BY `deptid` ASC";
 $result_department = $db->query($sql_department);
-
+//查找期间物料类型
+$sql_type = "SELECT * FROM `db_other_material_type`";
+$result_type = $db->query($sql_type);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -23,6 +25,24 @@ $result_department = $db->query($sql_department);
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script language="javascript" type="text/javascript">
 $(function(){
+  //获取默认分类下的商品名称
+  function get_type(){
+  var material_type = $("#material_type").val();
+  var dataid = $("#dataid").val();
+  $.post('../ajax_function/get_other_material_name.php',{material_type:material_type},function(data){
+    $("#material_name").empty();
+    for(var k in data){
+      var is_select = dataid == data[k].dataid ?'selected':'';
+      var inp = '<option '+is_select+' value="'+data[k].dataid+'">'+data[k].material_name+'</option>';
+      $('#material_name').append(inp);
+    }
+  },'json')
+}
+  get_type();
+  //物料类型更改时变更物料名称
+  $("#material_type").live('change',function(){
+    get_type();
+  })
 	$("#submit").click(function(){
 		var part_number = $("#part_number").val();
 		if(!$.trim(part_number)){
@@ -118,26 +138,24 @@ $(function(){
         <td width="15%">
             <input type="text" name="requirement_date" value="<?php echo date('Y-m-d',strtotime(date('Y-m-d',time())."+5 day")); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" id="order_number" class="input_txt" />
         </td>
-        <th width="10%">模具编号：</th>
-        <td width="15%">
-          <input type="text" name="mould_no" class="input_txt">
-        </td>
         <th>物料类型：</th>
         <td>
-          <select name="material_type" class="input_txt txt">
-              <?php 
-                foreach($array_mould_other_material as $k=>$v){
-                echo '<option value="'.$k.'">'.$v.'</option>';
-              }
+          <select name="material_type" id="material_type" class="input_txt txt">
+              <?php
+                if($result_type->num_rows){
+                  while($row_type = $result_type->fetch_assoc()){
+                    echo '<option value="'.$row_type['material_typeid'].'">'.$row_type['material_typename'].'</option>';
+                  }
+                }
               ?>
           </select>
         </td>
-      </tr>
-      <tr>
         <th width="10%">物料名称：</th>
         <td width="15%">
-          <input type="text" name="material_name" class="input_txt">
+          <select name="material_name" id="material_name" class="input_txt txt"></select>
         </td>
+      </tr>
+      <tr>
         <th width="10%">物料规格：</th>
         <td width="15%">
           <input type="text" name="material_specification"  class="input_txt" />
@@ -150,13 +168,12 @@ $(function(){
         <td>
           <input type="text" name="unit" class="input_txt" />
         </td>
-       
-    
-      <tr>
         <th>标准库存：</th>
         <td>
           <input type="text" name="standard_stock" class="input_txt"/>
         </td>
+      </tr>
+      <tr>
         <th>库存量：</th>
         <td>
           <input type="text" name="stock" class="input_txt"/>
@@ -187,8 +204,6 @@ $(function(){
       ?>
           </select>
         </td>
-      </tr>
-      <tr>  
          <th>备注：</th>
         <td colspan="3">
           <input type="text" name="remark" class="input_txt" />
@@ -230,27 +245,26 @@ $(function(){
         <td width="15%">
             <input type="text" name="requirement_date" value="<?php echo date('Y-m-d',strtotime(date('Y-m-d',time())."+5 day")); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" id="order_number" class="input_txt" />
         </td>
-        <th width="10%">模具编号：</th>
-        <td width="15%">
-          <input type="text" name="mould_no" class="input_txt" value="<?php echo $row['mould_no'] ?>">
-        </td>
         <th>物料类型：</th>
         <td>
-          <select name="material_type" class="input_txt txt">
+          <select name="material_type" id="material_type" class="input_txt txt">
               <?php
-                foreach($array_mould_other_material as $k=>$v){
-                $is_select = $k==$row['material_type']?'selected':'';
-                echo '<option '.$is_select.' value="'.$k.'">'.$v.'</option>';
-              }
+                if($result_type->num_rows){
+                  while($row_type = $result_type->fetch_assoc()){
+                    $is_select = $row_type['material_typeid'] == $row['material_type']?'selected':'';
+                    echo '<option '.$is_select.' value="'.$row_type['material_typeid'].'">'.$row_type['material_typename'].'</option>';
+                  }
+                }
               ?>
           </select>
         </td>
-      </tr>
-      <tr>
         <th width="10%">物料名称：</th>
         <td width="15%">
-          <input type="text" name="material_name" class="input_txt" value="<?php echo $row['material_name'] ?>">
+          <select id="material_name" class="input_txt txt" name="material_name"></select>
+          <input type="hidden" id='dataid' value="<?php echo $row['material_name'] ?>" />
         </td>
+      </tr>
+      <tr>
         <th width="10%">物料规格：</th>
         <td width="15%">
           <input type="text" name="material_specification"  class="input_txt" value="<?php echo $row['material_specification'] ?>" />
@@ -263,13 +277,11 @@ $(function(){
         <td>
           <input type="text" name="unit" value="<?php echo $row['unit'] ?>" class="input_txt" />
         </td>
-       
-    
-      <tr>
         <th>标准库存：</th>
         <td>
           <input type="text" name="standard_stock" value="<?php echo $row['standard_stock'];?>" class="input_txt"/>
-        </td>
+        </td>    
+      <tr>
         <th>库存量：</th>
         <td>
           <input type="text" name="stock" value="<?php echo $row['stock']; ?>" class="input_txt"/>
@@ -292,8 +304,6 @@ $(function(){
       ?>
           </select>
         </td>
-      </tr>
-      <tr>
         <th>备注：</th>
         <td colspan="3">
           <input type="text" name="remark" value="<?php echo $row['remark'] ?>" class="input_txt" />

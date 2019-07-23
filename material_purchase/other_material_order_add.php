@@ -112,9 +112,6 @@ $(function(){
 		}
 	})
 	*/
-	$("#data_source").change(function(){
-		$("#submit").click();
-	})
 })
 </script>
 <title>采购管理-希尔林</title>
@@ -158,11 +155,11 @@ if($_GET['submit']){
 }
 if($data_source == 'A'){
 	//$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
-	$sql = "SELECT * FROM `db_mould_other_material` WHERE `inquiryid` = '$employeeid' AND `status` = 'D'";
+	$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `inquiryid` = '$employeeid' AND `status` = 'D'";
 }elseif($data_source == 'B'){
-	$sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'D'";
+	$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `status` = 'D'";
 }elseif($data_source == 'C'){
-	$sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'D' OR `status` = 'B'";
+	$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `status` = 'D' OR `status` = 'B'";
 }
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
@@ -196,7 +193,7 @@ $result = $db->query($sqllist);
   <form action="other_order_material_listdo.php" name="material_list" method="post">
     <table>
       <tr>
-        <th width="">模具编号</th>
+      	<th width="">物料类型</th>
         <th width="">物料名称</th>
         <th width="">规格</th>
         <th >需求数量</th>
@@ -222,12 +219,12 @@ $result = $db->query($sqllist);
  		  }
 	  ?>
       <tr>
-        <td><?php echo $row['mould_no']; ?></td>
+        <td><?php echo $row['material_typename']; ?></td>
         <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
         <td><?php echo $row['material_specification']; ?></td>
         <td><?php echo $row['quantity']; ?></td>
         <td>
-        	<input type="text" name="actual_quantity[]" value="<?php echo $row['material_quantity']; ?>" class="input_txt" size="8" />
+        	<input type="text" name="actual_quantity[]" id="actual_quantity-<?php echo $row['mould_other_id'] ?>" value="<?php echo $row['material_quantity']; ?>" class="input_txt" size="8" />
         </td>
         <td><?php echo $row['unit'] ?></td>
         <td>
@@ -241,7 +238,7 @@ $result = $db->query($sqllist);
 			?>
         </td>
         <td>
-        	<input type="text" name="unit_price[]" class="input_txt" size="8"/>
+        	<input type="text" id="unit_price-<?php echo $row['mould_other_id'] ?>" name="unit_price[]" class="input_txt" size="8"/>
         </td>
         <td><select name="tax_rate[]" id="tax_rate-<?php echo $materialid; ?>">
             <?php
@@ -251,7 +248,7 @@ $result = $db->query($sqllist);
 			?>
           </select></td>
         <td>
-        	<input type="text" name="amount[]" id="amount-<?php echo $materialid; ?>" class="input_txt" size="10" readonly="readonly" />
+        	<input type="text" name="amount[]" id="amount-<?php echo $row['mould_other_id']; ?>" class="input_txt amount" size="10" readonly="readonly" />
         </td>
     
         <td><select name="iscash[]">

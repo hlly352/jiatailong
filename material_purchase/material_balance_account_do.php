@@ -25,9 +25,20 @@ foreach($id as $v){
 			if($result_account->num_rows){
 				$accountid = $result_account->fetch_row()[0];
 			}else{
+				//生成对账号
+				$number_sql = "SELECT MAX((SUBSTRING(`account_number`,-2)+0)) AS `number` FROM `db_material_account` WHERE `account_time` = '".date('Y-m-d')."'";
+				$result_number = $db->query($number_sql);
+				if($result_number->num_rows){
+					$array_number = $result_number->fetch_assoc();
+					$max_number = $array_number['number'];
+					$max_number = $max_number + 1;
+					$account_number = 'A'.date('Ymd').strtolen($max_number,2).$max_number;
+				} else {
+					$account_number = 'A'.date('Ymd')."01";
+				}
 				//没有则新建一条汇总
 				$time = date('Y-m-d');
-				$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`,`employeeid`) VALUES('$time',".$row['supplierid'].",'$employeeid')";
+				$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`,`employeeid`,`account_number`) VALUES('$time',".$row['supplierid'].",'$employeeid','$account_number')";
 				$db->query($add_sql);
 				if($db->affected_rows){
 					$accountid = $db->insert_id;

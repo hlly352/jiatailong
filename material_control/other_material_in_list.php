@@ -24,7 +24,7 @@ if($_GET['submit']){
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_iscash";
 }
 //$sql = "SELECT `db_other_material_orderlist`.`listid`,`db_other_material_orderlist`.`order_quantity`,`db_material_order_list`.`actual_quantity`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`tax_rate`,`db_material_order_list`.`process_cost`,`db_material_order_list`.`iscash`,`db_material_order_list`.`plan_date`,`db_material_order_list`.`remark`,ROUND(`db_material_order_list`.`actual_quantity`*`db_material_order_list`.`unit_price`,2) AS `amount`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit`.`unit_name`,`db_unit_actual`.`unit_name` AS `actual_unit_name` FROM `db_material_order_list` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` ON `db_unit`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE (`db_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
-$sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` WHERE `db_mould_other_material`.`status` = 'E'";
+$sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `db_other_material_order`.`order_status` = '1' AND `db_mould_other_material`.`status` = 'E'";
 $result = $db->query($sql);
 $result_total = $db->query($sql);
 $_SESSION['material_orderlist'] = $sql;
@@ -62,7 +62,7 @@ $result_id = $db->query($sqllist);
       <tr>
         <th>合同号：</th>
         <td><input type="text" name="order_number" class="input_txt" size="15" /></td>
-        <th>模具编号：</th>
+        <th>物料类型：</th>
         <td><input type="text" name="mould_number" class="input_txt" size="15" /></td>
         <th>物料名称：</th>
         <td><input type="text" name="material_name" class="input_txt" size="15" /></td>
@@ -132,7 +132,7 @@ $result_id = $db->query($sqllist);
     <tr>
       <th>ID</th>
       <th>合同号</th>
-      <th>模具编号</th>
+      <th>物料类型</th>
       <th>物料名称</th>
       <th>规格</th>
       <th>需求数量</th>
@@ -170,7 +170,7 @@ $result_id = $db->query($sqllist);
     <tr>
       <td><input type="checkbox" value="<?php echo $listid; ?>"></td>
       <td><?php echo $row['order_number']; ?></td>
-      <td><?php echo $row['mould_no']; ?></td>
+      <td><?php echo $row['material_typename']; ?></td>
       <td><?php echo $row['material_name']; ?></td>
       <td><?php echo $row['material_specification']; ?></td>
       <td><?php echo $row['quantity']; ?></td>

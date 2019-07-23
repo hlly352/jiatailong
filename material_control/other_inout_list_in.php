@@ -19,7 +19,7 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
 }
-$sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid`  WHERE `db_other_material_inout`.`dotype` = 'I' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_inout`.`dotype` = 'I' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
 $result = $db->query($sql);
 $result_total = $db->query($sql);
 $_SESSION['material_inout_list_in'] = $sql;
@@ -50,8 +50,6 @@ $result = $db->query($sqllist);
       <tr>
         <th>合同号：</th>
         <td><input type="text" name="order_number" class="input_txt" size="15" /></td>
-        <th>模具编号：</th>
-        <td><input type="text" name="mould_number" class="input_txt" size="15" /></td>
         <th>物料名称：</th>
         <td><input type="text" name="material_name" class="input_txt" size="15" /></td>
         <th>规格：</th>
@@ -89,23 +87,22 @@ $result = $db->query($sqllist);
     <tr>
       <th width="4%">ID</th>
       <th width="6%">合同号</th>
-      <th width="6%">模具编号</th>
       <th width="8%">物料名称</th>
       <th width="12%">规格</th>
       <th width="6%">表单号</th>
-      <th width="5%">订单<br />
+      <th width="6%">订单<br />
         数量</th>
-      <th width="5%">实际<br />
+      <th width="6%">实际<br />
         数量</th>
-      <th width="4%">单位</th>
-      <th width="5%">单价<br />
+      <th width="5%">单位</th>
+      <th width="6%">单价<br />
         (含税)</th>
       <th width="5%">金额<br />
         (含税)</th>
       <th width="5%">供应商</th>
       <th width="6%">入库日期</th>
-      <th width="4%">Edit</th>
-      <th width="4%">Info</th>
+      <th width="5%">Edit</th>
+      <th width="5%">Info</th>
     </tr>
     <?php
 	while($row = $result->fetch_assoc()){
@@ -115,7 +112,6 @@ $result = $db->query($sqllist);
     <tr>
       <td><?php echo $inoutid; ?></td>
       <td><?php echo $row['order_number']; ?></td>
-      <td><?php echo $row['mould_no']; ?></td>
       <td><?php echo $row['material_name']; ?></td>
       <td><?php echo $row['material_specification']; ?></td>
       <td><?php echo $row['form_number']; ?></td>
@@ -126,14 +122,14 @@ $result = $db->query($sqllist);
       <td><?php echo $row['amounts'] ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
-      <td><a href="material_in_list_in.php?id=<?php echo $inoutid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
+      <td><a href="other_material_in_listin.php?id=<?php echo $inoutid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       <td><a href="material_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td>
     </tr>
     <?php } ?>
     <tr>
       <td colspan="9">Total</td>
       <td><?php echo number_format($total_amount,2); ?></td>
-      <td><?php echo number_format($total_process_cost,2); ?></td>
+      <td></td>
       <td colspan="4">&nbsp;</td>
     </tr>
   </table>

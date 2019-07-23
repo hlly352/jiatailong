@@ -63,6 +63,7 @@
         <li><a href="other_material_funds_manage.php">期间物料</a></li> 
       </ul>
     </li>
+    <li class="menulevel"><a href="material_funds_plan.php">付款管理</a></li>
     <li class="menulevel"><a href="#">付款审批</a>
       <ul>
         <li><a href="material_funds_approval.php">模具物料</a></li>

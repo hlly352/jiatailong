@@ -38,7 +38,6 @@ $result = $db->query($sql);
       <th width="6%">物料名称</th>
       <th width="10%">规格</th>
       <th width="6%">材质</th>
-      <th width="7%">表单号</th>
       <th width="4%">订单<br />
         数量</th>
       <th width="4%">单位</th>
@@ -54,6 +53,7 @@ $result = $db->query($sql);
       <th width="4%">品质<br />
       扣款</th>
       <th width="6%">供应商</th>
+      <th width="7%">表单号</th>
       <th width="6%">入库日期</th>
     </tr>
     <?php
@@ -73,7 +73,6 @@ $result = $db->query($sql);
       <td><?php echo $row['material_name']; ?></td>
       <td><?php echo $row['specification']; ?></td>
       <td><?php echo $row['texture']; ?></td>
-      <td><?php echo $row['form_number']; ?></td>
       <td><?php echo $row['quantity']; ?></td>
       <td><?php echo $row['unit_name_order']; ?></td>
       <td><?php echo $row['inout_quantity']; ?></td>
@@ -84,12 +83,13 @@ $result = $db->query($sql);
       <td><?php echo $row['process_cost']; ?></td>
       <td><?php echo $row['process_cost']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
+      <td><?php echo $row['form_number']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
     </tr>
     <?php
-	$amount +=$row['amount'];
-	}
-	?>
+  $amount +=$row['amount'];
+  }
+  ?>
     <tr>
       <td colspan="12">总金额</td>
       <td><?php echo number_format($amount,2,'.',''); ?></td>

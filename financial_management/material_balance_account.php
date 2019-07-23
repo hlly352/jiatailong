@@ -92,7 +92,7 @@ $result = $db->query($sqllist);
       <th width="">ID</th>
       <th width="">对账时间</th>
       <th width="">供应商</th>
-      <th width="">总金额</th>
+      <th width="">对账金额</th>
       <th width="">操作</th>
     </tr>
     <?php
