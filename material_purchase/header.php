@@ -49,28 +49,10 @@
         <li><a href="other_material_balance_account.php">期间物料</a></li> 
       </ul>
     </li>
-    <li class="menulevel"><a href="#">发票管理</a>
-      <ul>
-        <li><a href="material_invoice_manage.php">模具物料</a></li>
-        <li><a href="cutter_invoice_manage.php">加工刀具</a></li>
-        <li><a href="other_material_invoice_manage.php">期间物料</a></li> 
-      </ul>
-    </li>
-    <li class="menulevel"><a href="#">应付账款</a>
-      <ul>
-        <li><a href="material_funds_manage.php">模具物料</a></li>
-        <li><a href="cutter_funds_manage.php">加工刀具</a></li>
-        <li><a href="other_material_funds_manage.php">期间物料</a></li> 
-      </ul>
-    </li>
+    <li class="menulevel"><a href="material_invoice_manage.php">发票管理</a></li>
+    <li class="menulevel"><a href="material_funds_manage.php">应付账款</a></li>
     <li class="menulevel"><a href="material_funds_plan.php">付款管理</a></li>
-    <li class="menulevel"><a href="#">付款审批</a>
-      <ul>
-        <li><a href="material_funds_approval.php">模具物料</a></li>
-        <li><a href="cutter_funds_approval.php">加工刀具</a></li>
-        <li><a href="other_material_funds_approval.php">期间物料</a></li> 
-      </ul>
-    </li>
+    <li class="menulevel"><a href="#">应付账款管理</a></li>
     <li class="menulevel"><a href="/myjtl/">内网首页</a></li>
   </ul>
   <span><?php echo $_SESSION['employee_info']['employee_name']; ?> <a href="../passport/logout.php">退出</a></span>

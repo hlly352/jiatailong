@@ -17,7 +17,7 @@ function fun_getdate(){
 }
 //检测action值并返回值
 function fun_check_action(){
-	$array_action = array('add','edit','del','approval','approval_edit','show','mould_excel','apply');
+	$array_action = array('add','edit','del','approval','approval_edit','show','mould_excel','apply','add_prepayment');
 	$action = $_GET['action'];
 	if(!in_array($_GET['action'],$array_action,true)){
 		echo "System Prompt:Parameter Error!";

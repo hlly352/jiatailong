@@ -34,20 +34,8 @@
       </ul>
      </li>
       <li class="menulevel"><a href="material_invoice_manage.php">发票接收</a></li>
-     <li class="menulevel"><a href="#">付款审核</a>
-      <ul>
-        <li><a href="material_funds_approval.php">模具物料</a></li>
-        <li><a href="cutter_order_list.php">加工刀具</a></li>
-        <li><a href="cutter_inout_list_in.php">期间物料</a></li>
-      </ul>
-     </li>
-     <li class="menulevel"><a href="#">付款汇总</a>
-      <ul>
-        <li><a href="material_funds_summary.php">模具物料</a></li>
-        <li><a href="cutte_order_list.php">加工刀具</a></li>
-        <li><a href="cutte_inout_list_in.php">期间物料</a></li>
-      </ul>
-     </li>
+     <li class="menulevel"><a href="funds_plan_approval.php">付款审核</a></li>
+     <li class="menulevel"><a href="#">应付账款管理</a></li>
     <li class="menulevel"><a href="/myjtl/">内网首页</a></li>
   </ul>
   <span><?php echo $_SESSION['employee_info']['employee_name']; ?> <a href="../passport/logout.php">退出</a></span>

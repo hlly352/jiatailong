@@ -4,8 +4,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
-if($_POST['submit']){
-	$action = $_POST['action'];
+	$action = $_REQUEST['action'];
 	$plan_date = $_POST['plan_date'];
 	if($action == "add"){
 		//自动生成付款单编号
@@ -24,6 +23,41 @@ if($_POST['submit']){
 		$db->query($sql);
 		if($planid = $db->insert_id){
 			header('location:funds_plan_list_add.php?id='.$planid);
+		}
+	}elseif($action == 'show'){
+		//接收数据
+		$accountid_array = $_POST['accountid'];
+		$plan_amount_array = $_POST['plan_amount'];
+		$planid = $_POST['planid'];
+		//添加计划列表
+		$i = 0;
+		foreach($plan_amount_array as $key=>$value){
+			if(trim($value)){
+				$sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`plan_amount`) VALUES('$planid','$accountid_array[$key]','$value')";
+				$db->query($sql);
+				if(!$db->affected_rows){
+					$i++;
+				}else{
+					//更改对应的计划金额
+					$account_sql = "UPDATE `db_material_account` SET `apply_amount` = `apply_amount` + '$value'  WHERE `accountid`= $accountid_array[$key]";
+					$db->query($account_sql);
+					$status_sql = "UPDATE `db_material_account` SET `status`='C' WHERE `amount` <= `apply_amount`";
+					$db->query($status_sql);
+
+				}
+			}
+		}
+		if($i == 0){
+			header('location:material_funds_plan.php');
+		}
+	}elseif($action == 'approval'){
+		//申请到采购主管审批
+		$planid = $_GET['id'];
+		//更改付款计划的状态
+		$sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '4' WHERE `planid` = '$planid'";
+		$db->query($sql);
+		if($db->affected_rows){
+			header('location:'.$_SERVER['HTTP_REFERER']);
 		}
 	}elseif($action == "edit"){
 		$orderid = $_POST['orderid'];
@@ -44,5 +78,4 @@ if($_POST['submit']){
 			header('location:'.$_SERVER['HTTP_REFERER']);
 		}
 	}
-}
 ?>
