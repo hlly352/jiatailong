@@ -213,7 +213,7 @@ $result = $db->query($sqllist);
   </div>
   <?php
   }else{
-    echo "<p class=\"tag\">系统提示：暂无订单记录！</p>";
+    echo "<p class=\"tag\">系统提示：暂无记录！</p>";
   }
   ?>
 </div>

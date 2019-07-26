@@ -82,7 +82,7 @@ $result = $db->query($sqllist);
   <table>
 <tr>
       <th width="4%">ID</th>
-      <    th width="6%">合同号</th>
+      <th width="6%">合同号</th>
       <th width="6%">模具编号</th>
       <th width="7%">物料名称</th>
       <th width="10%">规格</th>
@@ -96,11 +96,12 @@ $result = $db->query($sqllist);
       <th width="5%">金额<br />
         (含税)</th>
       <th width="5%">加工费</th>
-      <th width="8%">供应商</th>
+      <th width="6%">供应商</th>
       <th width="6%">入库日期</th>
-      <th width="8%">货运单号</th>
-      <th width="6%">计划回厂日期</th>
+      <th width="7%">货运单号</th>
+      <th width="5%">计划回厂日期</th>
       <th width="4%">差异</th>
+      <th width="4%">核销单</th>
       <th width="4%">操作</th>
     </tr>
     <?php $row = $result->fetch_assoc();
@@ -127,6 +128,13 @@ $result = $db->query($sqllist);
       <td><?php echo $rows['form_number']; ?></td>
       <td><?php echo $rows['plan_date']; ?></td>
       <td><?php echo $rows['diff_date']; ?></td>
+      <td>
+      <?php
+          if($rows['diff_date'] != 0){
+            echo '<a href="material_cancel_order_print.php?listid='.$rows['listid'].'&diff='.$rows['diff_date'].'&inoutid='.$rows['inoutid'].'">打印</a>';
+          }
+        ?>
+      </td>
       <td>
         <?php
           if($rows['diff_date'] != 0){

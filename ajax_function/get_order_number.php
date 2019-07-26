@@ -4,7 +4,7 @@ require_once '../function/function.php';
 $supplierid = trim($_POST['supplierid']);
 $order_date = trim($_POST['order_date']);
 $employeeid = $_POST['employeeid'];
-$sql = "SELECT * FROM `db_material_order` WHERE `supplierid` = '$supplierid' AND `order_date` LIKE '$order_date%'";
+$sql = "SELECT * FROM `db_material_order` WHERE `supplierid` = '$supplierid' AND `order_date` LIKE '$order_date%' AND `order_number` NOT IN(SELECT `order_number` FROM `db_funds_prepayment`)";
 $result = $db->query($sql);
 if($result->num_rows){
 	$order_number = array();

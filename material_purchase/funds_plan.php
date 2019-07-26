@@ -17,31 +17,7 @@ $result_supplier = $db->query($sql_supplier);
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<script language="javascript" type="text/javascript">
-  //通过供应商和下单日期来查找合同号
-  function getval(val){
-    var order_date = $(val).val();
-    var supplierid = $('#supplierid').val();
-    if(supplierid && order_date){
-      //获取当前月份供应商的订单号
-      $.post('../ajax_function/get_order_number.php',{order_date:order_date,supplierid:supplierid},function(data){
-        $('#order_number').empty();
-        alert(data.length);
-        var sel = $('<select name="order_number"></select>');
-        for(var i=0;i<data.length;i++){
-          var opt = '<option>'+data[i].order_number+'</option>';
-            sel.append(opt);
-            $('#order_number').append(sel);
-        }
-      },'json')
-    }
-  }
-  $(function(){
-    $('#supplierid').live('change',function(){
-     getval($('#order_date'));
-    }) 
-  })
-</script>
+
 <title>采购管理-希尔林</title>
 </head>
 
@@ -70,6 +46,55 @@ $result_supplier = $db->query($sql_supplier);
   </form>
   <?php
   }elseif($action == "add_prepayment"){ ?>
+  <script language="javascript" type="text/javascript">
+  //通过供应商和下单日期来查找合同号
+  function getval(val){
+    var order_date = $(val).val();
+    var supplierid = $('#supplierid').val();
+    if(supplierid && order_date){
+      //获取当前月份供应商的订单号
+      $.post('../ajax_function/get_order_number.php',{order_date:order_date,supplierid:supplierid},function(data){
+        $('#order_number').empty();
+        if(data != null){
+        var sel = $('#order_number');
+        for(var i=0;i<data.length;i++){
+          var opt = '<option>'+data[i].order_number+'</option>';
+            sel.append(opt);
+        }
+      } else {
+        var sel = $('#order_number');
+        var opt = '<option value="">当前月份无订单</option>';
+        sel.append(opt);
+      }
+      },'json')
+    }
+  }
+  $(function(){
+    $('#supplierid').live('change',function(){
+     getval($('#order_date'));
+    })
+    //提交时对数据进行判断
+    $('#submit').live('click',function(){
+      var supplierid = $('#supplierid').val();
+      var order_number = $('#order_number').val();
+      if(!supplierid){
+        alert('请选择供应商');
+        $('#supplierid').focus();
+        return false;
+      }
+      if(!order_number){
+        alert('没有订单');
+        return false;
+      }
+      var prepayment = $.trim($('input[name=prepayment]').val());
+      if(!(prepayment && rf_a.test(prepayment))){
+        alert('请输入数字');
+        $('input[name=prepayment]').focus();
+        return false;
+      }
+    })
+  })
+</script>
       <h4>添加预付款</h4>
   <form action="funds_plando.php" name="material_order" method="post">
     <table>
@@ -92,8 +117,14 @@ $result_supplier = $db->query($sql_supplier);
       </tr>
       <tr>
         <th>合同号：</th>
-        <td id="order_number">
-          
+        <td>
+          <select class="input_txt txt" name="order_number" id="order_number"></select>
+        </td>
+      </tr>
+      <tr>
+        <th>预付金额：</th>
+        <td>
+          <input type="text" class="input_txt" placeholder="填入数字" name="prepayment">
         </td>
       </tr>
       <tr>

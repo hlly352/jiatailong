@@ -3,7 +3,7 @@
 $db_host       = "localhost";  //数据库主机
 $db_user       = "root";       //数据库用户名
 $db_pw         = "jiatailong";    //数据库密码
-$db_dataname   = "xeldb";       //数据库名
+$db_dataname   = "jtldb";       //数据库名
 $db_chareset   = "utf8";       //数据库连接字符串
 //密码前缀
 define('ALL_PW',"JTL");
