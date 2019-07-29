@@ -6,7 +6,70 @@ require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 	$action = $_REQUEST['action'];
 	$plan_date = $_POST['plan_date'];
+	$data_source = $_POST['data_source'];
 	if($action == "add"){
+		$planid = $_POST['planid'];
+		if($data_source == 'A' || $data_source == 'B'){
+		//接收数据
+		$accountid_array = $_POST['accountid'];
+		$plan_amount_array = $_POST['plan_amount'];
+		//添加计划列表
+		$i = 0;
+		foreach($plan_amount_array as $key=>$value){
+			if(trim($value)){
+				$sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`plan_amount`) VALUES('$planid','$accountid_array[$key]','$value')";
+				$db->query($sql);
+				if(!$db->affected_rows){
+					$i++;
+				}else{
+					//更改对应的计划金额
+					$account_sql = "UPDATE `db_material_account` SET `apply_amount` = `apply_amount` + '$value'  WHERE `accountid`= $accountid_array[$key]";
+					$db->query($account_sql);
+					$status_sql = "UPDATE `db_material_account` SET `status`='C' WHERE `amount` <= `apply_amount`";
+					$db->query($status_sql);
+
+				}
+			}
+		}
+		if($i == 0){
+			header('location:material_funds_plan.php');
+		}
+	  }elseif($data_source == 'C'){
+	  	$preid = $_POST['id'];
+	  	if(!empty($preid)){
+	  		//遍历得到计划金额
+
+	  		foreach($preid as $v){
+	  			$plan_amount_sql = "SELECT `prepayment` FROM `db_funds_prepayment` WHERE `prepayid` = '$v'";
+	  			$result_amount = $db->query($plan_amount_sql);
+	  			if($result_amount->num_rows){
+	  				$i = 0;
+	  				while($row = $result_amount->fetch_assoc()){
+	  					$plan_amount = $row['prepayment'];
+
+	  					//插入到付款计划中
+	  					$plan_sql = "INSERT INTO `db_funds_plan_list`(`planid`,`plan_amount`,`preid`) VALUES('$planid','$plan_amount','$v')";
+	  					
+	  					$db->query($plan_sql);
+	  					if(!$db->affected_rows){
+	  						$i++;
+	  					}else{
+	  						//更改预付款状态
+	  						$pre_status_sql = "UPDATE `db_funds_prepayment` SET `status` = '1' WHERE `prepayid` = '$v'";
+	  						$db->query($pre_status_sql);
+	  					}
+	  				}
+	  				if($i == 0){
+	  					header('location:material_funds_plan.php');
+	  				}
+	  			}
+	  			
+	  		}
+	  	}else{
+	  		header('location:material_funds_plan.php');
+	  	}
+	  }
+	}elseif($action == 'add_plan'){
 		//自动生成付款单编号
 		$sql_number = "SELECT MAX((SUBSTRING(`plan_number`,-2)+0)) AS `max_number` FROM `db_material_funds_plan` WHERE DATE_FORMAT(`plan_date`,'%Y-%m-%d') = '$plan_date'";
 		$result_number = $db->query($sql_number);
@@ -23,6 +86,20 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 		$db->query($sql);
 		if($planid = $db->insert_id){
 			header('location:funds_plan_list_add.php?id='.$planid);
+		}
+	}elseif($action == 'add_prepayment'){
+		//接受数据
+		$supplierid = intval($_POST['supplierid']);
+		$order_date = $_POST['order_date'];
+		$order_number = $_POST['order_number'];
+		$prepayment = trim($_POST['prepayment']);
+		$account_type = $_POST['account_type'];
+
+		$date = date('Y-m-d');
+		$sql = "INSERT INTO `db_funds_prepayment`(`order_date`,`order_number`,`prepayment`,`employeeid`,`dotime`,`supplierid`,`account_type`) VALUES('$order_date','$order_number','$prepayment','$employeeid','$date','$supplierid','$account_type')";
+		$db->query($sql);
+		if($db->affected_rows){
+			header('location:material_funds_manage.php');
 		}
 	}elseif($action == 'show'){
 		//接收数据

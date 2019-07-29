@@ -131,7 +131,7 @@ $(function(){
         <td><input type="submit" name="submit" id="submit" value="确定" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="orderid" value="<?php echo $orderid; ?>" />
-          <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
+          <input type="hidden" name="action" value="edit" /></td>
       </tr>
     </table>
   </form>

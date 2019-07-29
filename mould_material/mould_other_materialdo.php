@@ -67,6 +67,7 @@ require_once 'shell.php';
 		$key_sql .='`add_time`,`approver`,`status`';
 		$val_sql .='"'.time().'","'.$approver.'","A"';
 		$add_sql = "INSERT INTO `db_mould_other_material`($key_sql) VALUES($val_sql)";
+
 		$db->query($add_sql);
 		if($db->affected_rows){
 			header('location:mould_other_fee.php');
@@ -90,6 +91,7 @@ require_once 'shell.php';
 			}
 			$sql_value .= '`status`=\'B\',`do_time`='.time();
 			$approval_sql = "UPDATE `db_mould_other_material` SET {$sql_value} WHERE `mould_other_id`=".$id;
+	
 			$db->query($approval_sql);
 			if($db->affected_rows){
 				header('location:mould_other_fee.php');

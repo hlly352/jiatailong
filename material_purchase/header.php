@@ -38,7 +38,7 @@
       <ul>
         <li><a href="material_inout_list_in.php">模具物料</a></li>
         <li><a href="cutter_inout_list_in.php">加工刀具</a></li>
-        <li><a href="cutter_inout_lis_in.php">期间物料</a></li> 
+        <li><a href="other_inout_list_in.php">期间物料</a></li> 
       </ul>
     </li>
     <li class="menulevel"><a href="mould_outward.php">外协加工</a></li>

@@ -6,21 +6,21 @@ require_once 'shell.php';
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 //查询供应商
-$sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(1,`supplier_typeid`) >0 ORDER BY `supplier_code` ASC";
+$sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(2,`supplier_typeid`) >=0 ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
 if($_GET['submit']){
-	$order_number = trim($_GET['order_number']);
-	$mould_number = trim($_GET['mould_number']);
-	$material_name = trim($_GET['material_name']);
-	$specification = trim($_GET['specification']);
-	$supplierid = $_GET['supplierid'];
-	if($supplierid){
-		$sql_supplierid = " AND `db_material_order`.`supplierid` = '$supplierid'";
-	}
-	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
+  $order_number = trim($_GET['order_number']);
+  $mould_number = trim($_GET['mould_number']);
+  $material_name = trim($_GET['material_name']);
+  $specification = trim($_GET['specification']);
+  $supplierid = $_GET['supplierid'];
+  if($supplierid){
+    $sql_supplierid = " AND `db_material_order`.`supplierid` = '$supplierid'";
+  }
+  $sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
 }
 // $sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
-$sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND `db_material_order_list`.`order_quantity` = (`db_material_order_list`.`in_quantity` + `db_material_inout`.`cancel_num`) AND `db_material_inout`.`account_status` = 'P' $sqlwhere";
+$sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_material_inout`.`cut_payment`,`db_material_inout`.`cancel_amount`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND `db_material_order_list`.`order_quantity` = (`db_material_order_list`.`in_quantity` + `db_material_inout`.`cancel_num`) AND `db_material_inout`.`account_status` = 'P' $sqlwhere";
 $result = $db->query($sql);
 $result_total = $db->query($sql);
 $_SESSION['material_inout_list_in'] = $sql;
@@ -65,11 +65,11 @@ $result = $db->query($sqllist);
             <option value="">所有</option>
             <?php
             if($result_supplier->num_rows){
-				while($row_supplier = $result_supplier->fetch_assoc()){
-					echo "<option value=\"".$row_supplier['supplierid']."\">".$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']."</option>";
-				}
-			}
-			?>
+        while($row_supplier = $result_supplier->fetch_assoc()){
+          echo "<option value=\"".$row_supplier['supplierid']."\">".$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']."</option>";
+        }
+      }
+      ?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
           <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_inout_in.php'" /></td>
@@ -80,10 +80,10 @@ $result = $db->query($sqllist);
 <div id="table_list">
   <?php
   if($result->num_rows){
-	  while($row_total = $result_total->fetch_assoc()){
-		  $total_amount += $row_total['amount'];
-		  $total_process_cost += $row_total['process_cost'];	
-	  }																																				
+    while($row_total = $result_total->fetch_assoc()){
+      $total_amount += $row_total['amount'];
+      $total_process_cost += $row_total['process_cost'];  
+    }                                                                       
   ?>
   <table>
     <tr>
@@ -114,10 +114,10 @@ $result = $db->query($sqllist);
       <th width="4%">操作</th>
     </tr>
     <?php
-	while($row = $result->fetch_assoc()){
-		$inoutid = $row['inoutid'];
-		$listid = $row['listid'];
-	?>
+  while($row = $result->fetch_assoc()){
+    $inoutid = $row['inoutid'];
+    $listid = $row['listid'];
+  ?>
   <form action="material_balance_account_do.php" method="post">
     <tr>
       <td>
@@ -136,8 +136,8 @@ $result = $db->query($sqllist);
       <td><?php echo $row['unit_price']; ?></td>
       <td><?php echo $row['amount']; ?></td>
       <td><?php echo $row['process_cost']; ?></td>
-      <td><?php echo $row['process_cost']; ?></td>
-      <td><?php echo $row['process_cost']; ?></td>
+      <td><?php echo $row['cancel_amount']; ?></td>
+      <td><?php echo $row['cut_payment']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
       <td><a href="material_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td>
@@ -165,7 +165,7 @@ $result = $db->query($sqllist);
   </div>
   <?php
   }else{
-	  echo "<p class=\"tag\">系统提示：暂无记录</p>";
+    echo "<p class=\"tag\">系统提示：暂无记录</p>";
   }
   ?>
 </div>

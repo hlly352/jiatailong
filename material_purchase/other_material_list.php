@@ -55,8 +55,6 @@ $result_id = $db->query($sqllist);
       <tr>
         <th>合同号：</th>
         <td><input type="text" name="order_number" class="input_txt" size="15" /></td>
-        <th>模具编号：</th>
-        <td><input type="text" name="mould_number" class="input_txt" size="15" /></td>
         <th>物料名称：</th>
         <td><input type="text" name="material_name" class="input_txt" size="15" /></td>
         <th>规格：</th>
@@ -125,7 +123,6 @@ $result_id = $db->query($sqllist);
     <tr>
       <th>ID</th>
       <th>合同号</th>
-      <th>模具编号</th>
       <th>物料名称</th>
       <th>规格</th>
       <th>需求数量</th>
@@ -163,7 +160,6 @@ $result_id = $db->query($sqllist);
     <tr>
       <td><input type="checkbox" value="<?php echo $listid; ?>"></td>
       <td><?php echo $row['order_number']; ?></td>
-      <td><?php echo $row['mould_no']; ?></td>
       <td><?php echo $row['material_name']; ?></td>
       <td><?php echo $row['material_specification']; ?></td>
       <td><?php echo $row['quantity']; ?></td>

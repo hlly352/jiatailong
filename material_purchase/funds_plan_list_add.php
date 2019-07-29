@@ -99,22 +99,27 @@ $(function(){
 </div>
 <?php
 $data_source = $_GET['data_source']?trim($_GET['data_source']):'A';
-if($_GET['submit']){
-	$mould_number = trim($_GET['mould_number']);
-	$material_name = trim($_GET['material_name']);
-	$specification = trim($_GET['specification']);
-	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
-}
+// if($_GET['submit']){
+// 	$mould_number = trim($_GET['mould_number']);
+// 	$material_name = trim($_GET['material_name']);
+// 	$specification = trim($_GET['specification']);
+// 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
+// }
 if($data_source == 'A'){
-	$sql = "SELECT `db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND `db_material_account`.`status` !='C' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
+	$sql = "SELECT `db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND `db_material_account`.`status` !='C' AND `db_material_account`.`employeeid` = '$employeeid' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
 }elseif($data_source == 'B'){
-		$sql = "SELECT `db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
+	$sql = "SELECT `db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND `db_material_account`.`status` !='C' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
 }elseif($data_source == 'C'){
-		$sql = "SELECT `db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
+		$sql = "SELECT * FROM `db_funds_prepayment` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_employee` ON `db_funds_prepayment`.`employeeid` = `db_employee`.`employeeid` WHERE `db_funds_prepayment`.`status` = '0'";
 }
+
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
+if($data_source == 'A' || $data_source == 'B'){
 $sqllist = $sql . " ORDER BY `db_material_account`.`account_time` DESC" . $pages->limitsql;
+}elseif($data_source == 'C'){
+	$sqllist = $sql."ORDER BY `db_funds_prepayment`.`dotime` DESC".$pages->limitsql;
+}
 $result = $db->query($sqllist);
 ?>
 <div id="table_search">
@@ -122,10 +127,10 @@ $result = $db->query($sqllist);
   <form action="" name="search" method="get">
     <table>
       <tr>
-        <th>供应商名称：</th>
+       <!--  <th>供应商名称：</th>
         <td><input type="text" name="material_name" class="input_txt" /></td>
         <th>对账日期：</th>
-        <td><input type="text" name="specification" class="input_txt" /></td>
+        <td><input type="text" name="specification" class="input_txt" /></td> -->
         <th>应付款来源：</th>
         <td><select name="data_source" id="data_source">
             <option value="A"<?php if($data_source == 'A') echo " selected=\"selected\""; ?>>我的应付账款</option>
@@ -133,7 +138,7 @@ $result = $db->query($sqllist);
             <option value="C"<?php if($data_source == 'C') echo " selected=\"selected\""; ?>>预付款</option>
           </select></td>
         <td><input type="submit" name="submit" id="submit" value="查询" class="button" />
-          <input type="hidden" name="id" value="<?php echo $orderid; ?>" /></td>
+          <input type="hidden" name="id" value="<?php echo $planid; ?>" /></td>
       </tr>
     </table>
   </form>
@@ -142,6 +147,9 @@ $result = $db->query($sqllist);
   <?php if($result->num_rows){ ?>
   <form action="funds_plando.php" name="material_list" method="post">
     <table>
+    <?php
+    	if($data_source == 'A' || $data_source == 'B'){
+    ?>
       <tr>
       	<th>ID</th>
         <th>对账时间</th>
@@ -160,10 +168,9 @@ $result = $db->query($sqllist);
 	  ?>
       <tr>
         <td>
-        	<input type="checkbox" class="accountid" value="<?php echo $row['accountid'] ?>">
+        	<?php echo $row['accountid'] ?>
         	<input type="hidden" name="accountid[]" value="<?php echo $row['accountid'] ?>">
         </td>
-        <input type="hidden" value="<?php echo $array_plan['planid'] ?>" name="planid"/>
         <td><?php echo $row['account_time'] ?></td>
         <td><?php echo $row['date'] ?></td>
         <td><?php echo $row['supplier_cname'] ?></td>
@@ -181,10 +188,36 @@ $result = $db->query($sqllist);
         	?>
         </td>
       </tr>
-      <?php } ?>
+      <?php } }elseif($data_source == 'C'){ ?>
+     <tr>
+      <th width="">ID</th>
+      <th width="">添加时间</th>
+      <th width="">供应商</th>
+      <th width="">合同号</th>
+      <th width="">预付金额</th>
+      <th width="">操作人</th>
+    </tr>
+    <?php
+  while($row = $result->fetch_assoc()){
+  ?>
+  <form action="material_balance_account_do.php" method="post">
+    <tr>
+      <td>
+        <input type="checkbox" name="id[]" value="<?php echo $row['prepayid']?>">
+      </td>
+      <td><?php echo $row['dotime']; ?></td>
+      <td><?php echo $row['supplier_cname']; ?></td>
+      <td><?php echo $row['order_number']; ?></td>
+      <td><?php echo $row['prepayment']; ?></td>
+      <td><?php echo $row['employee_name']; ?></td>
+    </tr>
+
+      <?php } } ?>
       <tr>
         <td colspan="15"><input type="submit" name="submit" value="添加" class="button" />
           <input type="hidden" name="action" value="add">
+          <input type="hidden" name="data_source" value="<?php echo $data_source ?>">
+          <input type="hidden" value="<?php echo $array_plan['planid'] ?>" name="planid"/>
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
 
         </td>

@@ -43,7 +43,7 @@ $result = $db->query($sqllist);
 </div>
 <div id="table_list">
   <?php if($result->num_rows){ ?>
-  <form action="material_typedo.php" name="material_type_list" method="post">
+  <form action="other_material_typedo.php" name="material_type_list" method="post">
     <table>
       <tr>
         <th width="4%">ID</th>

@@ -216,11 +216,12 @@ $(function(){
         <td colspan="3"><input type="text" name="remark" value="<?php echo $array['remark']; ?>" class="input_txt" /></td>
       </tr>
       <tr>
-        <th>&nbsp;</th>
-        <td colspan="7"><input type="submit" name="submit" id="submit" value="确定" class="button" />
+        <td colspan="8">
+          <input type="submit" name="submit" id="submit" value="确定" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="inoutid" id="inoutid" value="<?php echo $inoutid; ?>" />
-          <input type="hidden" name="action" id="action" value="<?php echo $action; ?>" /></td>
+          <input type="hidden" name="action" id="action" value="<?php echo $action; ?>" />
+        </td>
       </tr>
     </table>
   </form>
@@ -231,63 +232,7 @@ $(function(){
   }
   ?>
 </div>
-<?php
-$sql_inout = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`form_number`,`db_material_inout`.`dodate`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`remark`,`db_material_inout`.`dotime`,`db_material_order_list`.`unit_price`,`db_material_inout`.`amount`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual`,`db_employee`.`employee_name` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_inout`.`employeeid` WHERE `db_material_inout`.`listid` ='$listid' AND `db_material_inout`.`dotype` = 'I' ORDER BY `db_material_inout`.`inoutid` DESC";
-$result_inout = $db->query($sql_inout);
-?>
-<div id="table_list">
-  <?php if($result_inout->num_rows){ ?>
-  <table>
-    <caption>
-    物料入库记录
-    </caption>
-    <tr>
-      <th width="4%">ID</th>
-      <th width="12%">表单号</th>
-      <th width="8%">数量</th>
-      <th width="8%">实际数量</th>
-      <th width="8%">单价(含税)</th>
-      <th width="8%">金额(含税)</th>
-      <th width="10%">出入库日期</th>
-      <th width="10%">操作人</th>
-      <th width="14%">操作时间</th>
-      <th width="14%">备注</th>
-      <th width="4%">Edit</th>
-    </tr>
-    <?php
-    while($row_inout = $result_inout->fetch_assoc()){
-		$inoutid = $row_inout['inoutid'];
-	?>
-    <tr>
-      <td><?php echo $inoutid; ?></td>
-      <td><?php echo $row_inout['form_number']; ?></td>
-      <td><?php echo $row_inout['quantity'].$row_inout['unit_name_order']; ?></td>
-      <td><?php echo $row_inout['inout_quantity'].$row_inout['unit_name_actual']; ?></td>
-      <td><?php echo $row_inout['unit_price']; ?></td>
-      <td><?php echo $row_inout['amount']; ?></td>
-      <td><?php echo $row_inout['dodate']; ?></td>
-      <td><?php echo $row_inout['employee_name']; ?></td>
-      <td><?php echo $row_inout['dotime']; ?></td>
-      <td><?php echo $row_inout['remark']; ?></td>
-      <td><a href="material_in_list_in.php?id=<?php echo $inoutid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
-    </tr>
-    <?php
-      $total += $row_inout['quantity'];
-	  }
-	  ?>
-    <tr>
-      <td>&nbsp;</td>
-      <td>Total</td>
-      <td><?php echo number_format($total,2).$array['unit_name']; ?></td>
-      <td colspan="8">&nbsp;</td>
-    </tr>
-  </table>
-  <?php
-  }else{
-	  echo "<p class=\"tag\">系统提示：暂无入库记录</p>";
-  }
-  ?>
-</div>
+
 <?php include "../footer.php"; ?>
 </body>
 </html>

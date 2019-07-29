@@ -50,7 +50,8 @@ $action = $_GET['action'];
 </div>
 <?php
 
-  $sql = "SELECT `db_funds_plan_list`.`plan_amount`,`db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_funds_plan_list` ON `db_material_account`.`accountid` = `db_funds_plan_list`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND `db_funds_plan_list`.`planid` = '$planid' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
+ // $sql = "SELECT `db_funds_plan_list`.`plan_amount`,`db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_funds_plan_list` ON `db_material_account`.`accountid` = `db_funds_plan_list`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND `db_funds_plan_list`.`planid` = '$planid' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
+$sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_funds_plan_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid`  WHERE `db_funds_plan_list`.`planid` = '$planid'";
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
@@ -77,7 +78,7 @@ $result = $db->query($sqllist);
       <?php
       while($row = $result->fetch_assoc()){
         //查询对应的发票号
-        $invoice_sql = "SELECT `invoice_no` FROM `db_material_invoice_list` WHERE `accountid`=".$row['accountid'];
+        $invoice_sql = "SELECT `invoice_no`,`date` FROM `db_material_invoice_list` WHERE `accountid`=".$row['accountid'];
         $result_invoice = $db->query($invoice_sql);
     ?>
       <tr>
@@ -87,7 +88,14 @@ $result = $db->query($sqllist);
         </td>
         <input type="hidden" value="<?php echo $array_plan['planid'] ?>" name="planid"/>
         <td><?php echo $row['account_time'] ?></td>
-        <td><?php echo $row['date'] ?></td>
+        <td><?php 
+              $result_invoices = $db->query($invoice_sql);
+              if($result_invoices ->num_rows){
+                $row_invoices = $result_invoices->fetch_assoc();
+                echo $row_invoices['date']; 
+              }
+            ?>    
+        </td>      
         <td><?php echo $row['supplier_cname'] ?></td>
         <td class="amount" id="amount-<?php echo $row['accountid'] ?>"><?php echo number_format($row['amount'],2,'.','') ?></td>
         <td>

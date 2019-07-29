@@ -138,14 +138,14 @@ $result = $db->query($sqllist);
   }
   ?>
 </div>
-<!----------------------------------预付款管理------------------------------------------------>
+<!--預付款管理-->
 <?php 
   //查询预付款项
   $prepayment_sql = "SELECT * FROM `db_funds_prepayment` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_employee` ON `db_funds_prepayment`.`employeeid` = `db_employee`.`employeeid` WHERE `db_funds_prepayment`.`status` = '0'";
   $results = $db->query($prepayment_sql);
   if($results->num_rows){
     while($rows = $results->fetch_assoc()){
-      $amount += $rows['prepayment'];
+      $amounts += $rows['prepayment'];
     }
   }
   $pages = new page($results->num_rows,2);
@@ -218,7 +218,7 @@ $result = $db->query($sqllist);
     <tr>
       <td colspan="3">Total</td>
       <td></td>
-      <td><?php echo number_format($amount,2,'.',''); ?></td>
+      <td><?php echo number_format($amounts,2,'.',''); ?></td>
       <td></td>
     </tr>
   </table>

@@ -40,7 +40,7 @@ $result_supplier = $db->query($sql_supplier);
         <th>&nbsp;</th>
         <td><input type="submit" name="submit" id="submit" value="确定" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-          <input type="hidden" name="action" value="<?php echo $action; ?>" /></td>
+          <input type="hidden" name="action" value="add_plan" /></td>
       </tr>
     </table>
   </form>
@@ -51,9 +51,11 @@ $result_supplier = $db->query($sql_supplier);
   function getval(val){
     var order_date = $(val).val();
     var supplierid = $('#supplierid').val();
+    var account_type = $('#account_type').val()
     if(supplierid && order_date){
       //获取当前月份供应商的订单号
-      $.post('../ajax_function/get_order_number.php',{order_date:order_date,supplierid:supplierid},function(data){
+      $.post('../ajax_function/get_order_number.php',{order_date:order_date,supplierid:supplierid,account_type:account_type},function(data){
+        console.log(data);
         $('#order_number').empty();
         if(data != null){
         var sel = $('#order_number');
@@ -70,7 +72,7 @@ $result_supplier = $db->query($sql_supplier);
     }
   }
   $(function(){
-    $('#supplierid').live('change',function(){
+    $('#supplierid,#account_type').live('change',function(){
      getval($('#order_date'));
     })
     //提交时对数据进行判断
@@ -99,9 +101,19 @@ $result_supplier = $db->query($sql_supplier);
   <form action="funds_plando.php" name="material_order" method="post">
     <table>
       <tr>
+        <th width="20%">类型：</th>
+        <td width="80%">
+          <select name="account_type" id="account_type" class="input_txt txt">
+            <option value="M">模具物料</option>
+            <option value="C">加工刀具</option>
+            <option value="O">期间物料</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
         <th width="20%">供应商名称：</th>
         <td width="80%">
-          <select class="input_txt txt" id="supplierid">
+          <select class="input_txt txt" id="supplierid" name="supplierid">
             <option value="">请选择</option>
             <?php 
               while($row = $result_supplier->fetch_assoc()){

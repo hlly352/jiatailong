@@ -11,12 +11,12 @@ $result_supplier = $db->query($sql_supplier);
 if($_GET['submit']){
 	$supplierid = $_GET['supplierid'];
 	if($supplierid){
-		$sql_supplierid = " WHERE `db_material_account`.`supplierid` = '$supplierid'";
+		$sql_supplierid = " AND `db_material_account`.`supplierid` = '$supplierid'";
 	}
-	$sqlwhere = "$sql_supplierid"."AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')";
+	$sqlwhere = "$sql_supplierid";
 }
 // $sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
-$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_type`,`db_material_invoice_list`.`amount` AS invoice_amount,`db_material_account`.`amount`,`db_material_account`.`account_time`,`db_supplier`.`supplier_cname`,`db_material_invoice_list`.`invoice_no`,`db_material_invoice_list`.`date`,`db_material_invoice_list`.`status` FROM `db_material_account` LEFT JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` ".$sqlwhere;
+$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_other_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_other_supplier` ON `db_material_account`.`supplierid` = `db_other_supplier`.`other_supplier_id` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_other_material_inout` ON `db_material_account_list`.`inoutid` = `db_other_material_inout`.`inoutid` WHERE `db_other_material_inout`.`account_status` = 'F' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
 $result = $db->query($sql);
 $result_total = $db->query($sql);
 $_SESSION['material_inout_list_in'] = $sql;
@@ -40,7 +40,7 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>物料发票管理</h4>
+  <h4>物料对账审核</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -83,20 +83,16 @@ $result = $db->query($sqllist);
   if($result->num_rows){
 	  while($row_total = $result_total->fetch_assoc()){
 		  $total_amount += $row_total['amount'];
-		  $total_invoice_amount += $row_total['invoice_amount'];	
+		  $total_process_cost += $row_total['process_cost'];	
 	  }																																				
   ?>
   <table>
     <tr>
       <th width="">ID</th>
       <th width="">对账时间</th>
-      <th width="">类型</th>
       <th width="">供应商</th>
       <th width="">对账金额</th>
-      <th width="">发票号</th>
-      <th width="">发票金额</th>
-      <th width="">发票日期</th>
-      <th width="">状态</th>
+      <th width="">操作</th>
     </tr>
     <?php
 	while($row = $result->fetch_assoc()){
@@ -109,48 +105,18 @@ $result = $db->query($sqllist);
         <input type="checkbox" name="id[]" value="<?php echo $accountid?>">
       </td>
       <td><?php echo $row['account_time']; ?></td>
-      <td>
-        <?php
-        $type = $row['account_type'];
-        if($type == 'M'){
-          echo '模具物料';
-        } elseif($type == 'C'){
-          echo '加工刀具';
-        } elseif($type == 'O'){
-          echo '期间物料';
-        }
-        ?>
-      </td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['amount']; ?></td>
-      <td><?php echo $row['invoice_no']; ?></td>
-      <td><?php echo $row['invoice_amount']; ?></td>
-      <td><?php echo $row['date'];?></td>
 
-      <td>
-      	<?php 
-      	$status = $row['status'];
-      	if($status == null){
-      			echo '<a href="material_invoice_info.php?action=add&id='.$row['accountid'].'">录入发票</a>';
-      		}elseif($status == 'A'){
-      			echo '待接收';
-      		}elseif($status == 'C'){
-      			echo '完成';
-      		}
-      	?>
-      </td>
+      <td><a href="other_material_account_info.php?id=<?php echo $row['accountid']; ?>">审核</a></td>
     </tr>
     <?php 
     	$amount += $row['amount'];
-    	$invoice_amount += $row['invoice_amount'];
     } ?>
     <tr>
-      <td colspan="4">Total</td>
+      <td colspan="3">Total</td>
       <td><?php echo number_format($amount,2,'.',''); ?></td>
-      <td></td>
-      <td><?php echo number_format($invoice_amount,2,'.',''); ?></td>
-      <td></td>
-      <td></td>
+      <td><?php //echo number_format($total_process_cost,2); ?></td>
     </tr>
   </table>
   <!-- <div id="checkall">

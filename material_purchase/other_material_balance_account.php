@@ -19,10 +19,13 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
 }
-$sql = $sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_inout`.`inout_quantity`>0 AND `db_other_material_inout`.`dotype` = 'I' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_inout`.`dotype` = 'I' AND `db_other_material_inout`.`account_status` = 'P' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
 $result = $db->query($sql);
+$result_total = $db->query($sql);
+$_SESSION['material_inout_list_in'] = $sql;
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_other_material_order`.`order_date` ASC,`db_other_material_orderlist`.`listid` ASC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_other_material_inout`.`inoutid` DESC" . $pages->limitsql;
+
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -41,14 +44,7 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4 class="tit">
-    <a href="other_material_out_list.php">
-      <input type="button" value="期间物料出库" class="butn blue">
-    </a>
-    <a href="other_material_outdown.php">
-      <input type="button" value="期间物料出库单打印" class="butn">
-    </a>
-  </h4>
+  <h4>期间物料对账</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -58,7 +54,7 @@ $result = $db->query($sqllist);
         <td><input type="text" name="material_name" class="input_txt" size="15" /></td>
         <th>规格：</th>
         <td><input type="text" name="specification" class="input_txt" size="15" /></td>
-        <th>订单日期：</th>
+        <th>入库日期：</th>
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
           --
           <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" /></td>
@@ -73,50 +69,78 @@ $result = $db->query($sqllist);
 			}
 			?>
           </select></td>
-        <td><input type="submit" name="submit" value="查询" class="button" /></td>
+        <td><input type="submit" name="submit" value="查询" class="button" />
+          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_inout_in.php'" /></td>
       </tr>
     </table>
   </form>
 </div>
 <div id="table_list">
-  <?php if($result->num_rows){ ?>
-  <form action="material_batch_out.php" name="material_batch_out" method="post">
-    <table>
-      <tr>
-        <th width="4%">ID</th>
-        <th width="10%">合同号</th>
-        <th width="12%">物料名称</th>
-        <th width="16%">规格</th>
-        <th width="8%">数量</th>
-        <th width="6%">单位</th>
-        <th width="12%">供应商</th>
-        <th width="10%">订单日期</th>
-        <th width="4%">Out</th>
-      </tr>
-      <?php
-      while($row = $result->fetch_assoc()){
-		  $listid = $row['listid'];
-	  ?>
-      <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $listid; ?>" /></td>
-        <td><?php echo $row['order_number']; ?></td>
-        <td><?php echo $row['material_name']; ?></td>
-        <td><?php echo $row['material_specification']; ?></td>
-        <td><?php echo $row['inout_quantity']; ?></td>
-        <td><?php echo $row['unit']; ?></td>
-        <td><?php echo $row['supplier_cname']; ?></td>
-        <td><?php echo date('Y-m-d',strtotime($row['order_date'])); ?></td>
-        <td><a href="other_material_out_listout.php?id=<?php echo $listid; ?>&inout=<?php echo $row['inout_quantity'] ?>&inoutid=<?php echo $row['inoutid'] ?>&action=add"><img src="../images/system_ico/out_10_8.png" width="10" height="8" /></a></td>
-      </tr>
-      <?php } ?>
-    </table>
-    <div id="checkall">
+  <?php
+  if($result->num_rows){
+	  while($row_total = $result_total->fetch_assoc()){
+		  $total_amount += $row_total['amount'];
+		  $total_process_cost += $row_total['process_cost'];	
+	  }																																				
+  ?>
+  <table>
+    <tr>
+      <th width="4%">ID</th>
+      <th width="6%">合同号</th>
+      <th width="8%">物料名称</th>
+      <th width="12%">规格</th>
+      <th width="6%">订单<br />
+        数量</th>
+      <th width="6%">实际<br />
+        数量</th>
+      <th width="5%">单位</th>
+      <th width="6%">单价<br />
+        (含税)</th>
+      <th width="5%">金额<br />
+        (含税)</th>
+      <th width="5%">供应商</th>
+      <th width="6%">表单号</th>
+      <th width="6%">入库日期</th>
+      <th width="5%">Edit</th>
+      <th width="5%">Info</th>
+    </tr>
+    <?php
+	while($row = $result->fetch_assoc()){
+		$inoutid = $row['inoutid'];
+		$listid = $row['listid'];
+	?>
+  <form action="other_balance_account_do.php" method="post">
+    <tr>
+      <td><input type="checkbox" value="<?php echo $inoutid; ?>" name="id[]"></td>
+      <td><?php echo $row['order_number']; ?></td>
+      <td><?php echo $row['material_name']; ?></td>
+      <td><?php echo $row['material_specification']; ?></td>
+      <td><?php echo $row['quantity']; ?></td>
+      <td><?php echo $row['inout_quantity']; ?></td>
+      <td><?php echo $row['unit']; ?></td>
+      <td><?php echo $row['unit_price']; ?></td>
+      <td><?php echo $row['amounts'] ?></td>
+      <td><?php echo $row['supplier_cname']; ?></td>
+      <td><?php echo $row['form_number']; ?></td>
+      <td><?php echo $row['dodate']; ?></td>
+      <td><a href="material_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td>
+      <td><a href="other_balance_account_do.php?id=<?php echo $inoutid; ?>&action=edit">对账</a></td>
+    </tr>
+    <?php } ?>
+    <tr>
+      <td colspan="9">Total</td>
+      <td><?php echo number_format($total_amount,2); ?></td>
+      <td></td>
+      <td colspan="4">&nbsp;</td>
+    </tr>
+  </table>
+   <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
-      <input type="submit" name="submit" id="submit" value="出库" class="select_button" />
+      <input type="submit" name="submit" id="submit" value="对账" class="select_button" />
     </div>
-  </form>
+   </form>
   <div id="page">
     <?php $pages->getPage();?>
   </div>

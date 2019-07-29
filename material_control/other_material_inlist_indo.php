@@ -1,4 +1,4 @@
- <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';

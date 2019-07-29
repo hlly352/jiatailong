@@ -5,6 +5,7 @@ require_once '../class/page.php';
 require_once 'shell.php';
 $orderid = fun_check_int($_GET['id']);
 $employeeid = $_SESSION['employee_info']['employeeid'];
+$accountid = $_GET['id'];
 //查询计量单位
 $sql_unit = "SELECT `unitid`,`unit_name` FROM `db_unit` ORDER BY `unitid` ASC";
 $result_unit = $db->query($sql_unit);
@@ -124,7 +125,9 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php
-  $sql_order = "SELECT `db_other_material_order`.`order_number`,`db_other_material_order`.`order_date`,`db_other_material_order`.`dotime`,`db_other_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_other_material_order` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_other_material_order`.`employeeid` WHERE `db_other_material_order`.`orderid` = '$orderid' AND `db_other_material_order`.`employeeid` = '$employeeid'";
+  $sql = "SELECT `db_material_account_list`.`accountid`,`db_other_material_inout`.`inoutid`,`db_other_material_inout`.`listid`,`db_other_material_inout`.`dodate`,`db_other_material_inout`.`form_number`,`db_other_material_inout`.`actual_quantity`,`db_other_material_inout`.`inout_quantity`,`db_other_material_orderlist`.`unit_price`,`db_material_order`.`order_number`,`db_mould_other_material`.`material_name`,`db_mould_other_material`.`material_specification`,`db_other_supplier`.`supplier_cname` FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_material_account_list` ON `db_other_material_inout`.`inoutid` = `db_material_account_list`.`inoutid` WHERE `db_material_account_list`.`accountid`='$accountid' AND `db_other_material_inout`.`dotype` ='I' AND `db_other_material_inout`.`account_status` = 'F' $sqlwhere";
+  echo $sql;
+$sql = $sql.'ORDER BY `db_other_material_order`.`orderid`';
   $result_order = $db->query($sql_order);
   if($result_order->num_rows){
     $array_order = $result_order->fetch_assoc();
@@ -154,10 +157,10 @@ $data_source = $_GET['data_source']?trim($_GET['data_source']):'A';
 if($_GET['submit']){
   $material_name = trim($_GET['material_name']);
   $specification = trim($_GET['material_specification']);
-  $sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
+  $sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_other_material`.`material_name` LIKE '%$material_name%' AND `db_mould_other_material`.`specification` LIKE '%$specification%'";
 }
 if($data_source == 'A'){
-  //$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
+  //$sql = "SELECT `db_mould_other_material`.`materialid`,`db_mould_other_material`.`material_number`,`db_mould_other_material`.`material_name`,`db_mould_other_material`.`specification`,`db_mould_other_material`.`material_quantity`,`db_mould_other_material`.`texture`,`db_mould_other_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_other_material`.`mouldid` WHERE `db_mould_other_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_other_material_orderlist` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
   $sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_orderlist` ON `db_mould_other_material`.`mould_other_id`=`db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `orderid`='$orderid' AND `inquiryid` = '$employeeid' AND `status` = 'E'";
 }elseif($data_source == 'B'){
   $sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'E'";

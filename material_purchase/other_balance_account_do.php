@@ -17,7 +17,7 @@ $nowmonth = date('Y-m');
 
 //通过inoutid查询供应商
 foreach($id as $v){
-	$supplier_sql = "SELECT `db_cutter_inout`.`cancel_amount`,`db_cutter_inout`.`cut_payment`,(`db_cutter_inout`.`quantity`*`db_cutter_order_list`.`unit_price`) AS `amount`,`db_cutter_order`.`supplierid`,`db_cutter_order`.`orderid` FROM `db_cutter_inout` INNER JOIN `db_cutter_order_list` ON `db_cutter_inout`.`listid` = `db_cutter_order_list`.`listid` INNER JOIN `db_cutter_order` ON `db_cutter_order`.`orderid` = `db_cutter_order_list`.`orderid` WHERE `db_cutter_inout`.`inoutid` = ".$v;
+	$supplier_sql = "SELECT `db_other_material_inout`.`cancel_amount`,`db_other_material_inout`.`cut_payment`,(`db_other_material_inout`.`inout_quantity`*`db_other_material_orderlist`.`unit_price`) AS `amount`,`db_other_material_order`.`supplierid`,`db_other_material_order`.`orderid` FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_inout`.`listid` = `db_other_material_orderlist`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` WHERE `db_other_material_inout`.`inoutid` = ".$v;
 	$result_supplier = $db->query($supplier_sql);
 	if($result_supplier->num_rows){
 		while($row = $result_supplier->fetch_assoc()){
@@ -28,7 +28,8 @@ foreach($id as $v){
 			$cut_payment += $row['cut_payment'];
 
 			//通过供应商查找对账汇总表里是否存在
-			$account_sql = "SELECT `accountid` FROM `db_material_account` WHERE `supplierid` = ".$row['supplierid']." AND `account_time` LIKE '$nowmonth%' AND `account_type` = 'C'";
+			$account_sql = "SELECT `accountid` FROM `db_material_account` WHERE `supplierid` = ".$row['supplierid']." AND `account_time` LIKE '$nowmonth%' AND `account_type` = 'O'";
+			echo $account_sql;
 			$result_account = $db->query($account_sql);
 			if($result_account->num_rows){
 				$accountid = $result_account->fetch_row()[0];
@@ -44,10 +45,12 @@ foreach($id as $v){
 				} else {
 					$account_number = 'A'.date('Ymd')."01";
 				}
+				echo $accountid;
+				echo $account_number;exit;
 				//没有则新建一条汇总
 				$time = date('Y-m-d');
-				$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`,`employeeid`,`account_number`,`account_type`) VALUES('$time',".$row['supplierid'].",'$employeeid','$account_number','C')";
-				
+				$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`,`employeeid`,`account_number`,`account_type`) VALUES('$time',".$row['supplierid'].",'$employeeid','$account_number','O')";
+				echo $add_sql;
 				$db->query($add_sql);
 				if($db->affected_rows){
 					$accountid = $db->insert_id;
@@ -97,7 +100,7 @@ $orderlist = trim($orderidlist,',');
 $insert_orderid_sql = "UPDATE `db_material_account` SET `orderidlist` = '$orderlist' WHERE `accountid` = '$accountid'";
 $db->query($insert_orderid_sql);
 //更改入库记录中的对账状态
-$sql = "UPDATE `db_cutter_inout` SET `account_status` = 'F' WHERE `inoutid` IN($inoutid)";
+$sql = "UPDATE `db_other_material_inout` SET `account_status` = 'F' WHERE `inoutid` IN($inoutid)";
 $db->query($sql);
 if($db->affected_rows){
 	header("location:".$_SERVER['HTTP_REFERER']);
