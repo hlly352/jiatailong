@@ -19,12 +19,23 @@ if($_POST['submit']){
 		$sql = "UPDATE `db_other_material_type` SET `material_typecode` = '$material_typecode',`material_typename` = '$material_typename',`material_typestatus` = '$material_typestatus' WHERE `material_typeid` = '$material_typeid'";
 		$db->query($sql);
 		if($db->affected_rows){
-			header("location:".$_SERVER['HTTP_REFERER']);
+			header("location:other_material_type.php");
 		}
 	}elseif($action == "del"){
 
 		$array_id = $_POST['id'];
 		$material_typeid = fun_convert_checkbox($array_id);
+		//查找当前分类下是否有物料
+		$data_sql = "SELECT COUNT(*) AS `count` FROM `db_other_mateiral_data` WHERE `material_typeid` IN($material_typeid)";
+		$res_data = $db->query($data_sql);
+		if($res_data->num_rows){
+			$row_data = $res_data->fetch_row()[0];
+			if($row_data >0){
+				header('location:'.$_SERVER['HTTP_REFERER']);
+				return false;
+			}
+			}
+		}
 		$sql = "DELETE FROM `db_other_material_type` WHERE `material_typeid` IN ($material_typeid)";
 
 		$db->query($sql);
@@ -32,5 +43,5 @@ if($_POST['submit']){
 			header("location:".$_SERVER['HTTP_REFERER']);
 		}
 	}
-}
+
 ?>

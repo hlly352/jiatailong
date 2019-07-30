@@ -112,7 +112,50 @@ $result = $db->query($sqllist);
         </td>
       </tr>
       <?php } ?>
-      <tr>
+     
+    </table>
+  </form>
+  <div id="page">
+    <?php $pages->getPage();?>
+  </div>
+  <?php
+  }else{
+    echo "<p class=\"tag\">系统提示：暂无未付款项</p>";
+  }
+  ?>
+<?php 
+//获取预付款项
+$pre_sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_funds_prepayment` ON `db_funds_plan_list`.`preid` = `db_funds_prepayment`.`prepayid` WHERE `db_funds_plan_list`.`planid` = '$planid'";
+$result_pre = $db->query($pre_sql);
+        if($result_pre->num_rows){ ?>
+           <div id="table_search">
+            <h4>预付款</h4>
+           </div>
+        <table>
+           <tr>
+             <th>ID</th>
+             <th>添加时间</th>
+             <th>供应商</th>
+             <th>合同号</th>
+             <th>金额</th>
+           </tr>
+        <?php } ?>
+        <?php 
+          while($row_pre = $result_pre->fetch_assoc()){
+           // var_dump($row_pre);
+        
+      ?>
+          <tr>
+            <td><?php echo $row_pre['prepayid'] ?></td>
+            <td><?php echo $row_pre['dotime'] ?></td>
+            <td><?php echo $row_pre['supplierid'] ?></td>
+            <td><?php echo $row_pre['order_number'] ?></td>
+            <td><?php echo $row_pre['prepayment'] ?></td>
+          </tr>
+      </table>
+      <?php } ?>
+      <table>
+         <tr>
         <td colspan="15">
         <?php 
           if($action == 'approval'){ ?>
@@ -124,16 +167,7 @@ $result = $db->query($sqllist);
 
         </td>
       </tr>
-    </table>
-  </form>
-  <div id="page">
-    <?php $pages->getPage();?>
-  </div>
-  <?php
-  }else{
-    echo "<p class=\"tag\">系统提示：暂无未付款项</p>";
-  }
-  ?>
+      </table>
 </div>
 <?php include "../footer.php"; ?>
 </body>

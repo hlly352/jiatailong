@@ -35,7 +35,7 @@
      </li>
       <li class="menulevel"><a href="material_invoice_manage.php">发票接收</a></li>
      <li class="menulevel"><a href="funds_plan_approval.php">付款审核</a></li>
-     <li class="menulevel"><a href="#">应付账款管理</a></li>
+     <li class="menulevel"><a href="material_funds_summary.php">应付账款管理</a></li>
     <li class="menulevel"><a href="/myjtl/">内网首页</a></li>
   </ul>
   <span><?php echo $_SESSION['employee_info']['employee_name']; ?> <a href="../passport/logout.php">退出</a></span>

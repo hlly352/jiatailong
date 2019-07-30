@@ -104,14 +104,7 @@ $result = $db->query($sqllist);
         </td>
       </tr>
       <?php } ?>
-      <tr>
-        <td colspan="15">
-          <input type="button" name="submit" class="button" value="通过" onclick="location.assign('funds_plan_approval_do.php?action=complete&planid=<?php echo $_GET['planid'] ?>')">
-          <input type="button" class="button" onclick="location.assign('funds_plan_approval_do.php?action=back&planid=<?php echo $_GET['planid'] ?>')" value="退回">
-          <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-
-        </td>
-      </tr>
+     
     </table>
   </form>
   <div id="page">
@@ -122,6 +115,47 @@ $result = $db->query($sqllist);
     echo "<p class=\"tag\">系统提示：暂无未付款项</p>";
   }
   ?>
+<?php 
+//获取预付款项
+$pre_sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_funds_prepayment` ON `db_funds_plan_list`.`preid` = `db_funds_prepayment`.`prepayid` WHERE `db_funds_plan_list`.`planid` = '$planid'";
+$result_pre = $db->query($pre_sql);
+        if($result_pre->num_rows){ ?>
+           <div id="table_search">
+            <h4>预付款</h4>
+           </div>
+        <table>
+           <tr>
+             <th>ID</th>
+             <th>添加时间</th>
+             <th>供应商</th>
+             <th>合同号</th>
+             <th>金额</th>
+           </tr>
+        <?php } ?>
+        <?php 
+          while($row_pre = $result_pre->fetch_assoc()){
+           // var_dump($row_pre);
+        
+      ?>
+          <tr>
+            <td><?php echo $row_pre['prepayid'] ?></td>
+            <td><?php echo $row_pre['dotime'] ?></td>
+            <td><?php echo $row_pre['supplierid'] ?></td>
+            <td><?php echo $row_pre['order_number'] ?></td>
+            <td><?php echo $row_pre['prepayment'] ?></td>
+          </tr>
+      </table>
+      <?php } ?>
+      <table>
+         <tr>
+        <td colspan="15">
+          <input type="button" name="submit" class="button" value="通过" onclick="location.assign('funds_plan_approval_do.php?action=complete&planid=<?php echo $_GET['planid'] ?>')">
+          <input type="button" class="button" onclick="location.assign('funds_plan_approval_do.php?action=back&planid=<?php echo $_GET['planid'] ?>')" value="退回">
+          <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
+
+        </td>
+      </tr>
+      </table>
 </div>
 <?php include "../footer.php"; ?>
 </body>

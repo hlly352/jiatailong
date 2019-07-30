@@ -125,15 +125,16 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php
-  $sql = "SELECT `db_material_account_list`.`accountid`,`db_other_material_inout`.`inoutid`,`db_other_material_inout`.`listid`,`db_other_material_inout`.`dodate`,`db_other_material_inout`.`form_number`,`db_other_material_inout`.`actual_quantity`,`db_other_material_inout`.`inout_quantity`,`db_other_material_orderlist`.`unit_price`,`db_material_order`.`order_number`,`db_mould_other_material`.`material_name`,`db_mould_other_material`.`material_specification`,`db_other_supplier`.`supplier_cname` FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_material_account_list` ON `db_other_material_inout`.`inoutid` = `db_material_account_list`.`inoutid` WHERE `db_material_account_list`.`accountid`='$accountid' AND `db_other_material_inout`.`dotype` ='I' AND `db_other_material_inout`.`account_status` = 'F' $sqlwhere";
-  echo $sql;
+  //$sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `db_material_account_list`.`accountid`='$accountid' AND `db_other_material_inout`.`dotype` ='I' AND `db_other_material_inout`.`account_status` = 'F' $sqlwhere";
+  $sql_order = "SELECT * FROM `db_material_account_list` INNER JOIN `db_other_material_inout` ON `db_material_account_list`.`inoutid` = `db_other_material_inout`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_inout`.`listid` = `db_other_material_orderlist`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` INNER JOIN `db_other_supplier` ON `db_other_material_order`.`supplierid` = `db_other_supplier`.`other_supplier_id` INNER JOIN `db_material_account` ON `db_material_account_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_employee` ON `db_material_account`.`employeeid` = `db_employee`.`employeeid` WHERE `db_material_account_list`.`accountid` = '$accountid' AND `db_other_material_inout`.`dotype`='I' AND `db_other_material_inout`.`account_status` = 'F'";
+  echo $sql_order;
 $sql = $sql.'ORDER BY `db_other_material_order`.`orderid`';
   $result_order = $db->query($sql_order);
   if($result_order->num_rows){
     $array_order = $result_order->fetch_assoc();
     $plan_date = $array_order['plan_date'];
   ?>
-  <h4>物料订单</h4>
+  <h4>订单信息</h4>
   <table>
     <tr>
       <th width="10%">合同号：</th>
@@ -161,7 +162,7 @@ if($_GET['submit']){
 }
 if($data_source == 'A'){
   //$sql = "SELECT `db_mould_other_material`.`materialid`,`db_mould_other_material`.`material_number`,`db_mould_other_material`.`material_name`,`db_mould_other_material`.`specification`,`db_mould_other_material`.`material_quantity`,`db_mould_other_material`.`texture`,`db_mould_other_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_other_material`.`mouldid` WHERE `db_mould_other_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_other_material_orderlist` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
-  $sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_orderlist` ON `db_mould_other_material`.`mould_other_id`=`db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `orderid`='$orderid' AND `inquiryid` = '$employeeid' AND `status` = 'E'";
+  $sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_orderlist` ON `db_mould_other_material`.`mould_other_id`=`db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `orderid`='$orderid' AND `inquiryid` = '$employeeid' AND `status` = 'F'";
 }elseif($data_source == 'B'){
   $sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'E'";
 }elseif($data_source == 'C'){
@@ -173,91 +174,82 @@ $sqllist = $sql . " ORDER BY `db_mould_other_material`.`mould_other_id` ASC" . $
 $result = $db->query($sqllist);
 ?>
 <div id="table_search">
-  <h4>下订单物料</h4>
+  <h4>物料详情</h4>
   
 </div>
 <div id="table_list">
-  <?php if($result->num_rows){ ?>
+  <?php if($result_order->num_rows){ ?>
   <form action="other_order_material_listdo.php" name="material_list" method="post">
-    <table>
-      <tr>
-        <th width="">物料名称</th>
-        <th width="">规格</th>
-        <th >需求数量</th>
-        <th >实际数量</th>
-        <th>单位</th>
-        <th>申请人</th>
-        <th>申请部门</th>
-        <th width="">单价(含税)</th>
-        <th width="">税率</th>
-        <th width="">金额(含税)</th>
-        <th width="">现金</th>
-        <th width="">计划回厂日期</th>
-        <th width="">备注</th>
-      </tr>
-      
-      <?php
-      while($row = $result->fetch_assoc()){
-      //获取申请部门
-      $dept_sql = "SELECT `dept_name` FROM `db_department` WHERE `deptid`=".$row['apply_team'];
-      $res_dept = $db->query($dept_sql);
-      if($res_dept->num_rows){
-        $department = $res_dept->fetch_row()[0];
-      }
-    ?>
-      <tr>
-        <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
-        <td><?php echo $row['material_specification']; ?></td>
-        <td><?php echo $row['quantity']; ?></td>
-        <td>
-         <?php echo $row['actual_quantity'] ?>
-        </td>
-        <td><?php echo $row['unit'] ?></td>
-        <td>
-          <?php
-            echo getName($row['applyer'],$db);
-          ?>
-        </td>
-        <td>
-      <?php
-        echo $department;
-      ?>
-        </td>
-        <td>
-          <?php echo $row['unit_price'] ?>
-        </td>
-        <td>
-          <?php
-            echo ($row['tax_rate']*100).'%';
-          ?>
-        </td>
-        <td>
-          <?php
-            $amount = floatval($row['unit_price'])*floatval($row['actual_quantity']);
-            echo number_format($amount,2,'.','');
-          ?>
-        </td>
-    
-        <td>
-          <?php echo $row['iscash']=='0'?'否':'是' ?>
-        </td>
-        <td>
-          <?php echo $row['plan_date'] ?>
-        </td>
-        <td>
-          <?php echo $row['remark'] ?>
-        </td>
-      </tr>
-      <?php } ?>
-      <tr>
-      <td colspan="14">
-          <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-          <input type="hidden" name="orderid" value="<?php echo $orderid; ?>" />
-      <input type="hidden" name="mould_other_id" value="<?php echo $row['mould_other_id'] ?>"/>
-        </td>
-      </tr>
-    </table>
-  </form>
+     <table>
+    <tr>
+      <th>ID</th>
+      <th>合同号</th>
+      <th>物料名称</th>
+      <th>规格</th>
+      <th>需求数量</th>
+      <th>实际数量</th>
+      <th>单位</th>
+      <th>申请人</th>
+      <th>单价<br />
+        (含税)</th>
+      <th>税率</th>
+      <th>金额<br />
+        (含税)</th>
+      <th>现金</th>
+      <th>供应商</th>
+      <th>订单日期</th>
+      <th>计划<br />回厂时间</th>
+      <th>备注</th>
+    </tr>
+    <?php
+  while($row = $result_order->fetch_assoc()){
+    $listid = $row['listid'];
+    $iscash = $row['iscash'] == '0'?'否':'是';
+    $remark = $row['remark'];
+
+
+  ?>
+    <tr>
+      <td><input type="checkbox" value="<?php echo $listid; ?>"></td>
+      <td><?php echo $row['order_number']; ?></td>
+      <td><?php echo $row['material_name']; ?></td>
+      <td><?php echo $row['material_specification']; ?></td>
+      <td><?php echo $row['quantity']; ?></td>
+      <td><?php echo $row['actual_quantity']; ?></td>
+      <td><?php echo $row['unit']; ?></td>
+      <td><?php echo $row['employee_name']; ?></td>
+      <td><?php echo $row['unit_price']; ?></td>
+      <td><?php echo $row['tax_rate']*100; ?>%</td>
+      <td><?php echo $amount; ?></td>
+      <td><?php echo $iscash ?></td>
+      <td><?php echo $row['supplier_cname']; ?></td>
+      <td><?php echo date('Y-m-d',strtotime($row['order_date'])); ?></td>
+      <td><?php echo $row['plan_date']; ?></td>
+      <td><?php echo $row['remark'] ?></td>
+    </tr>
+    <?php } ?>
+ <!--    <tr>
+      <td colspan="13">Total</td>
+      <td><?php echo number_format($total_amount,2); ?></td>
+      <td><?php echo number_format($total_process_cost,2); ?></td>
+      <td colspan="6">&nbsp;</td>
+    </tr> -->
+
+    <tr>
+      <td colspan="12">总金额</td>
+      <td><?php echo number_format($amount,2,'.',''); ?></td>
+      <td colspan="7">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="18">
+        <input type="button" class="button" name="" value="确定" onclick="window.location.assign('other_balance_account_do.php?accountid=<?php echo $accountid ?>&action=complete')">
+        &nbsp;
+        <input type="button" class="button" name="" value="退回" onclick="window.location.assign('other_balance_account_do.php?accountid=<?php echo $accountid ?>&action=back')">
+        &nbsp;
+        <input type="button" class="button" onclick="window.history.go(-1)" value="返回">
+      </td>
+    </tr>
+  </table>
   <div id="page">
     <?php $pages->getPage();?>
   </div>

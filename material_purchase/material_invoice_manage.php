@@ -16,7 +16,7 @@ if($_GET['submit']){
 	$sqlwhere = "$sql_supplierid"."AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')";
 }
 // $sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
-$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_type`,`db_material_invoice_list`.`amount` AS invoice_amount,`db_material_account`.`amount`,`db_material_account`.`account_time`,`db_supplier`.`supplier_cname`,`db_material_invoice_list`.`invoice_no`,`db_material_invoice_list`.`date`,`db_material_invoice_list`.`status` FROM `db_material_account` LEFT JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` ".$sqlwhere;
+$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_type`,`db_material_invoice_list`.`amount` AS invoice_amount,`db_material_account`.`amount`,`db_material_account`.`account_time`,`db_supplier`.`supplier_cname`,`db_material_invoice_list`.`invoice_no`,`db_material_invoice_list`.`date`,`db_material_invoice_list`.`status`,`db_material_account`.`supplierid` FROM `db_material_account` LEFT JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` ".$sqlwhere;
 $result = $db->query($sql);
 $result_total = $db->query($sql);
 $_SESSION['material_inout_list_in'] = $sql;
@@ -102,6 +102,13 @@ $result = $db->query($sqllist);
 	while($row = $result->fetch_assoc()){
 		$accountid = $row['accountid'];
 		$listid = $row['listid'];
+		 if($row['account_type'] == 'O'){
+      $sql_other_supplier = "SELECT `supplier_cname` FROM `db_other_supplier` WHERE `other_supplier_id` =".$row['supplierid'];
+      $supplier_res = $db->query($sql_other_supplier);
+      if($supplier_res->num_rows){
+        $row['supplier_cname'] = $supplier_res->fetch_row()[0];
+      }
+  }
 	?>
   <form action="material_balance_account_do.php" method="post">
     <tr>

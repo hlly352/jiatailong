@@ -123,7 +123,7 @@ $result = $db->query($sqllist);
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
       <td><a href="other_material_in_listin.php?id=<?php echo $inoutid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
-      <td><a href="material_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td>
+      <td><a href="other_material_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td>
     </tr>
     <?php } ?>
     <tr>
