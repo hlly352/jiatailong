@@ -28,17 +28,44 @@ $(function(){
   //获取默认分类下的商品名称
   function get_type(){
   var material_type = $("#material_type").val();
-  var dataid = $("#dataid").val();
+  var dataid = $('#dataid').val();
+
   $.post('../ajax_function/get_other_material_name.php',{material_type:material_type},function(data){
     $("#material_name").empty();
     for(var k in data){
       var is_select = dataid == data[k].dataid ?'selected':'';
       var inp = '<option '+is_select+' value="'+data[k].dataid+'">'+data[k].material_name+'</option>';
       $('#material_name').append(inp);
+      var material_name = $('#material_name option:selected').val();
+      var dataid = material_name?material_name:dataid;
+
+      //查找标准库存
+      if(dataid == data[k].dataid){
+        var standard_stock = data[k].standard_stock;
+        var stock = data[k].stock;
+        $('#standard_stock').val(standard_stock);
+        $('#stock').val(stock);
+        $('#quantity').val(standard_stock - stock);
+      }
     }
   },'json')
 }
   get_type();
+  //更改物料名称时查找库存
+  $("#material_name").live('change',function(){
+    var dataid = $('#dataid').val();
+    var material_name = $('#material_name option:selected').val();
+    var dataid = material_name?material_name:dataid;
+    //获取库存
+    $.post('../ajax_function/get_other_material_name.php',{dataid:dataid},function(data){
+       var standard_stock = data.standard_stock;
+       var stock = data.stock;
+       $('#standard_stock').val(standard_stock);
+       $('#stock').val(stock);
+       $('#quantity').val(standard_stock - stock);
+    },'json')
+
+  })
   //物料类型更改时变更物料名称
   $("#material_type").live('change',function(){
     get_type();
@@ -170,13 +197,13 @@ $(function(){
         </td>
         <th>标准库存：</th>
         <td>
-          <input type="text" name="standard_stock" class="input_txt"/>
+          <input type="text" name="standard_stock" disabled id="standard_stock" class="input_txt"/>
         </td>
       </tr>
       <tr>
         <th>库存量：</th>
         <td>
-          <input type="text" name="stock" class="input_txt"/>
+          <input type="text" name="stock" id="stock" disabled class="input_txt"/>
         </td>
          <th>申请人：</th>
            <td width=""><select name="applyer" class="input_txt txt">
@@ -279,12 +306,12 @@ $(function(){
         </td>
         <th>标准库存：</th>
         <td>
-          <input type="text" name="standard_stock" value="<?php echo $row['standard_stock'];?>" class="input_txt"/>
+          <input type="text" id="standard_stock" disabled name="standard_stock" value="<?php echo $row['standard_stock'];?>" class="input_txt"/>
         </td>    
       <tr>
         <th>库存量：</th>
         <td>
-          <input type="text" name="stock" value="<?php echo $row['stock']; ?>" class="input_txt"/>
+          <input type="text" name="stock" id="stock" disabled value="<?php echo $row['stock']; ?>" class="input_txt"/>
         </td>
         <th>申请人：</th>
            <td width="">

@@ -17,7 +17,7 @@ if($_POST['submit']){
 		//
 		// $sql_surplus = "SELECT `db_cutter_purchase_list`.`cutterid`,SUM(`db_cutter_order_list`.`surplus`) AS `surplus` FROM `db_cutter_order_list` INNER JOIN `db_cutter_purchase_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` WHERE `db_cutter_purchase_list`.`cutterid` IN ($array_cutterid) AND `db_cutter_order_list`.`surplus` > 0 GROUP BY `db_cutter_purchase_list`.`cutterid`";
 		//查询刀具的期初库存
-		echo $listid;
+	
 		$start_cutter_sql = "SELECT SUM(`db_cutter_order_list`.`surplus`) AS `start_quantity` FROM `db_cutter_purchase_list` INNER JOIN `db_cutter_order_list` ON `db_cutter_purchase_list`.`purchase_listid` = `db_cutter_order_list`.`purchase_listid` WHERE `db_cutter_purchase_list`.`cutterid` = (SELECT `db_cutter_purchase_list`.`cutterid` FROM `db_cutter_order_list` LEFT JOIN `db_cutter_purchase_list` ON `db_cutter_order_list`.`purchase_listid` = `db_cutter_purchase_list`.`purchase_listid` WHERE `db_cutter_order_list`.`listid`='$listid' AND `db_cutter_order_list`.`surplus` >= 0) AND `db_cutter_purchase_list`.`cutterid`";
 	
 		$res_start_cutter = $db->query($start_cutter_sql);

@@ -7,9 +7,10 @@ if($_POST['submit']){
 	$action = $_POST['action'];
 	$material_typeid = trim($_POST['material_typeid']);
 	$material_name = trim($_POST['material_name']);
+	$standard_stock = trim($_POST['standard_stock']);
 
 	if($action == "add"){
-		$sql = "INSERT INTO `db_other_material_data` (`material_typeid`,`material_name`) VALUES ('$material_typeid','$material_name')";
+		$sql = "INSERT INTO `db_other_material_data` (`material_typeid`,`material_name`,`standard_stock`) VALUES ('$material_typeid','$material_name','$standard_stock')";
 		$db->query($sql);
 		if($db->insert_id){
 			header("location:other_material_data.php");

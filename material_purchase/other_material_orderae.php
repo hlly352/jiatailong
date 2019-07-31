@@ -4,7 +4,7 @@ require_once '../function/function.php';
 require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
 //查询供应商
-$sql_supplier = "SELECT `other_supplier_id`,`supplier_code`,`supplier_cname` FROM `db_other_supplier`  ORDER BY `supplier_code` ASC";
+$sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET('4',`supplier_typeid`) ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -53,12 +53,12 @@ $(function(){
       </tr>
       <tr>
         <th>供应商：</th>
-        <td><select name="supplierid" id="supplierid">
+        <td><select name="supplierid" id="supplierid" class="input_txt txt">
             <option value="">请选择</option>
             <?php
             if($result_supplier->num_rows){
 				while($row_supplier = $result_supplier->fetch_assoc()){
-					echo "<option value=\"".$row_supplier['other_supplier_id']."\">".$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']."</option>";
+					echo "<option value=\"".$row_supplier['supplierid']."\">".$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']."</option>";
 				}
 			}
 			?>
@@ -100,13 +100,14 @@ $(function(){
       </tr>
       <tr>
         <th>供应商：</th>
-        <td><select name="supplierid" id="supplierid">
+        <td>
+          <select name="supplierid" id="supplierid" class="input_txt txt">
             <option value="">请选择</option>
             <?php
             if($result_supplier->num_rows){
 				while($row_supplier = $result_supplier->fetch_assoc()){
-			?>    <?php $is_select = $array['supplierid'] == $row_supplier['other_supplier_id'] ?'selected':'';?>
-            <option <?php echo $is_select ?> value="<?php echo $row_supplier['other_supplier_id']; ?>"<?php if($row_supplier['supplierid'] == $array['supplierid']) echo " selected=\"selected\""; ?>><?php echo $row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']; ?></option>
+			?>    <?php $is_select = $array['supplierid'] == $row_supplier['supplierid'] ?'selected':'';?>
+            <option <?php echo $is_select ?> value="<?php echo $row_supplier['supplierid']; ?>"<?php if($row_supplier['supplierid'] == $array['supplierid']) echo " selected=\"selected\""; ?>><?php echo $row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']; ?></option>
             <?php
 				}
 			}

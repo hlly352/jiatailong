@@ -24,6 +24,12 @@ $(function(){
 			$("#material_typename").focus();
 			return false;
 		}
+    var standard_stock = $('#standard_stock').val();
+    if(!ri_a.test(standard_stock)){
+      alert('请填写正确的数字');
+      $('#standard_stock').focus();
+      return false;
+    }
 	})
 	// $("#material_typecode").blur(function(){
 	// 	var material_typecode = $(this).val();
@@ -71,6 +77,11 @@ $(function(){
       <tr>
         <th>类型名称：</th>
         <td><input type="text" name="material_name" id="material_typename" class="input_txt" />
+          <span class="tag"> *必填</span></td>
+      </tr>
+      <tr>
+        <th>标准库存：</th>
+        <td><input type="text" name="standard_stock" id="standard_stock" class="input_txt" />
           <span class="tag"> *必填</span></td>
       </tr>
       <tr>

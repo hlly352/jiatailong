@@ -11,6 +11,7 @@ if($_POST['submit']){
 	$actual_quantity = $_POST['actual_quantity'];
 	$taker = trim($_POST['taker']);
 	$remark = trim($_POST['remark']);
+	$dataid = trim($_POST['dataid']);
 	if($action == "add"){
 		$employeeid = $_SESSION['employee_info']['employeeid'];
 		$dotime = fun_gettime();
@@ -24,7 +25,10 @@ if($_POST['submit']){
 				$sql = "INSERT INTO `db_other_material_inout` (`inoutid`,`dodate`,`dotype`,`form_number`,`actual_quantity`,`taker`,`remark`,`listid`,`employeeid`,`dotime`) VALUES (NULL,'$dodate','O','$form_number','$actual_quantity','$taker','$remark','$listid`','$employeeid','$dotime')";
 				$db->query($sql);
 				if($db->insert_id){
+					$data_sql = "UPDATE `db_other_material_data` SET `stock` = `stock` - '$actual_quantity' WHERE `dataid` ='$dataid'";
+					$db->query($data_sql);
 					$update_sql = "UPDATE `db_other_material_inout` SET `inout_quantity` = `inout_quantity` - $actual_quantity WHERE `inoutid` =".$inoutid;
+
 					$db->query($update_sql);
 					header("location:other_inout_list_out.php");
 				//}

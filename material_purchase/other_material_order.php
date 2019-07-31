@@ -7,7 +7,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 //查询供应商
-$sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_other_supplier` ORDER BY `supplier_code` ASC";
+$sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
 if($_GET['submit']){
 	$order_number = trim($_GET['order_number']);
@@ -21,7 +21,8 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_order_status";
 }
-$sql = "SELECT `db_other_material_order`.`orderid`,`db_other_material_order`.`order_number`,`db_other_material_order`.`order_date`,`db_other_material_order`.`delivery_cycle`,`db_other_material_order`.`dotime`,`db_other_material_order`.`order_status`,`db_other_material_order`.`employeeid`,`db_other_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_other_material_order` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_other_material_order`.`employeeid` WHERE (`db_other_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_other_material_order`.`orderid`,`db_other_material_order`.`order_number`,`db_other_material_order`.`order_date`,`db_other_material_order`.`delivery_cycle`,`db_other_material_order`.`dotime`,`db_other_material_order`.`order_status`,`db_other_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_other_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_other_material_order`.`employeeid` WHERE (`db_other_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -128,7 +129,13 @@ $result = $db->query($sqllist);
       <?php
       while($row = $result->fetch_assoc()){
 		  $orderid = $row['orderid'];
-		  $list_count = array_key_exists($orderid,$array_order_list)?$array_order_list[$orderid]:0;
+      //查询项数
+      $count_sql = "SELECT COUNT(*) FROM `db_other_material_orderlist` WHERE `orderid` = '$orderid'";
+      $result_count = $db->query($count_sql);
+      if($result_count->num_rows){
+        $list_count = $result_count->fetch_row()[0];
+      }
+		 // $list_count = array_key_exists($orderid,$array_order_list)?$array_order_list[$orderid]:0;
 	  ?>
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $orderid; ?>"<?php if(in_array($orderid,$array_material_inout) || $employeeid != $row['employeeid']) echo " disabled=\"disabled\""; ?> /></td>
@@ -147,7 +154,7 @@ $result = $db->query($sqllist);
           <a href="other_material_orderae.php?id=<?php echo $orderid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
         <td><?php if($employeeid == $row['employeeid'] && $list_count){ ?>
-          <a href="excel_material_order.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/excel_10_10.png" width="10" height="10" />
+          <a href="excel_other_material_order.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/excel_10_10.png" width="10" height="10" />
           <?php } ?>
           </a></td>
         <td><?php if($employeeid == $row['employeeid'] && $list_count){ ?>

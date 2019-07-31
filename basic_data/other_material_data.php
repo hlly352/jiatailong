@@ -50,7 +50,8 @@ $result = $db->query($sqllist);
         <th width="10%">ID</th>
         <th width="20%">类型代码</th>
         <th width="10%">物料类型</th>
-        <th width="50%">物料名称</th>
+        <th width="30%">物料名称</th>
+        <th width="20%">标准库存</th>
         <th width="10%">Edit</th>
       </tr>
       <?php
@@ -62,6 +63,7 @@ $result = $db->query($sqllist);
         <td><?php echo $row['material_typecode']; ?></td>
         <td><?php echo $row['material_typename']; ?></td>
         <td><?php echo $row['material_name']; ?></td>
+        <td><?php echo $row['standard_stock']; ?></td>
         <td width="4%"><a href="other_material_typeae.php?id=<?php echo $material_typeid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       </tr>
       <?php } ?>

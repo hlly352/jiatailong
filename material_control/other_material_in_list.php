@@ -24,7 +24,7 @@ if($_GET['submit']){
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_iscash";
 }
 //$sql = "SELECT `db_other_material_orderlist`.`listid`,`db_other_material_orderlist`.`order_quantity`,`db_material_order_list`.`actual_quantity`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`tax_rate`,`db_material_order_list`.`process_cost`,`db_material_order_list`.`iscash`,`db_material_order_list`.`plan_date`,`db_material_order_list`.`remark`,ROUND(`db_material_order_list`.`actual_quantity`*`db_material_order_list`.`unit_price`,2) AS `amount`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit`.`unit_name`,`db_unit_actual`.`unit_name` AS `actual_unit_name` FROM `db_material_order_list` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` ON `db_unit`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE (`db_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
-$sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `db_other_material_order`.`order_status` = '1' AND `db_mould_other_material`.`status` = 'E'";
+$sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `db_other_material_order`.`order_status` = '1' AND `db_mould_other_material`.`status` = 'E'";
 $result = $db->query($sql);
 $result_total = $db->query($sql);
 $_SESSION['material_orderlist'] = $sql;
@@ -83,13 +83,6 @@ $result_id = $db->query($sqllist);
 			}
 			?>
           </select></td>
-        <th>现金：</th>
-        <td><select name="iscash">
-            <option value="">所有</option>
-            <?php foreach($array_is_status as $is_status_key=>$is_statua_value){ ?>
-            <option value="<?php echo $is_status_key; ?>"<?php if($is_status_key == $iscash && $iscash != NULL) echo " selected=\"selected\""; ?>><?php echo $is_statua_value; ?></option>
-            <?php } ?>
-          </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
           <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_orderlist.php'" /></td>
       </tr>
@@ -145,7 +138,6 @@ $result_id = $db->query($sqllist);
       <th>税率</th>
       <th>金额<br />
         (含税)</th>
-      <th>现金</th>
       <th>供应商</th>
       <th>订单日期</th>
       <th>计划<br />回厂时间</th>
@@ -181,7 +173,6 @@ $result_id = $db->query($sqllist);
       <td><?php echo $row['unit_price']; ?></td>
       <td><?php echo $row['tax_rate']*100; ?>%</td>
       <td><?php echo $amount; ?></td>
-      <td><?php echo $iscash ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo date('Y-m-d',strtotime($row['order_date'])); ?></td>
       <td><?php echo $row['plan_date']; ?></td>

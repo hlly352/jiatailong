@@ -10,7 +10,7 @@ if($_GET['submit']){
 	$entry_number = trim($_GET['entry_number']);
 	$sqlwhere = " AND `db_godown_entry`.`entry_number` LIKE '%$entry_number%'";
 }
-$sql = "SELECT `db_godown_entry`.`entryid`,`db_godown_entry`.`entry_number`,`db_godown_entry`.`entry_date`,`db_godown_entry`.`employeeid`,`db_godown_entry`.`dotime`,`db_employee`.`employee_name` FROM `db_godown_entry` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_godown_entry`.`employeeid` WHERE `db_godown_entry`.`dotype` = 'M' AND (`db_godown_entry`.`entry_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_godown_entry`.`entryid`,`db_godown_entry`.`entry_number`,`db_godown_entry`.`entry_date`,`db_godown_entry`.`employeeid`,`db_godown_entry`.`dotime`,`db_employee`.`employee_name` FROM `db_godown_entry` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_godown_entry`.`employeeid` WHERE `db_godown_entry`.`dotype` = 'O' AND (`db_godown_entry`.`entry_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -51,7 +51,7 @@ $result = $db->query($sqllist);
           --
           <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="添加" class="button" onclick="location.href='material_godown_entryae.php'" /></td>
+          <input type="button" name="button" value="添加" class="button" onclick="location.href='other_material_godown_entryae.php'" /></td>
       </tr>
     </table>
   </form>
@@ -64,7 +64,8 @@ $result = $db->query($sqllist);
 			$array_entryid .= $row_id['entryid'].','; 
 		}
 		$array_entryid = trim($array_entryid,',');
-		$sql_entry = "SELECT `db_godown_entry_list`.`entryid`,COUNT(*) AS `count` FROM `db_godown_entry_list` INNER JOIN `db_godown_entry` ON `db_godown_entry`.`entryid` = `db_godown_entry_list`.`entryid` WHERE `db_godown_entry_list`.`entryid` IN ($array_entryid) AND `db_godown_entry`.`dotype` = 'M' GROUP BY `db_godown_entry_list`.`entryid`";
+		$sql_entry = "SELECT `db_godown_entry_list`.`entryid`,COUNT(*) AS `count` FROM `db_godown_entry_list` INNER JOIN `db_godown_entry` ON `db_godown_entry`.`entryid` = `db_godown_entry_list`.`entryid` WHERE `db_godown_entry_list`.`entryid` IN ($array_entryid) AND `db_godown_entry`.`dotype` = 'O' GROUP BY `db_godown_entry_list`.`entryid`";
+   
 		$result_entry = $db->query($sql_entry);
 		if($result_entry->num_rows){
 			while($row_entry =$result_entry->fetch_assoc()){
@@ -98,9 +99,9 @@ $result = $db->query($sqllist);
         <td><?php echo $row['employee_name']; ?></td>
         <td><?php echo $row['dotime']; ?></td>
         <td><?php echo $count; ?></td>
-        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="material_godown_entry_list_add.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>
-        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="material_godown_entry_list.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a><?php } ?></td>
-        <td><?php if($count>0){ ?><a href="material_godown_entry_print.php?id=<?php echo $entryid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a><?php } ?></td>
+        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="other_godown_entry_list_add.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a><?php } ?></td>
+        <td><?php if($row['employeeid'] == $employeeid){ ?><a href="other_godown_entry_list.php?entryid=<?php echo $entryid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a><?php } ?></td>
+        <td><?php if($count>0){ ?><a href="other_godown_entry_print.php?id=<?php echo $entryid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a><?php } ?></td>
         <?php } ?>
     </table>
     <div id="checkall">

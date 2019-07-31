@@ -102,7 +102,7 @@ $(function(){
   if($action == "add"){
 	  $listid = fun_check_int($_GET['id']);
 	 // $sql = "SELECT (`db_material_order_list`.`order_quantity`-`db_material_order_list`.`in_quantity`) AS `quantity`,(`db_material_order_list`.`actual_quantity`-IF((SELECT SUM(`inout_quantity`) FROM `db_material_inout` WHERE `dotype` = 'I' AND `listid` = '$listid'),(SELECT SUM(`inout_quantity`) FROM `db_material_inout` WHERE `dotype` = 'I' AND `listid` = '$listid'),0)) AS `inout_quantity`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`unitid`,`db_material_order_list`.`tax_rate`,ROUND(((`db_material_order_list`.`actual_quantity`-IF((SELECT SUM(`inout_quantity`) FROM `db_material_inout` WHERE `dotype` = 'I' AND `listid` = '$listid'),(SELECT SUM(`inout_quantity`) FROM `db_material_inout` WHERE `dotype` = 'I' AND `listid` = '$listid'),0))*`db_material_order_list`.`unit_price`),2) AS `amount`,`db_material_order_list`.`process_cost`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit`.`unit_name`,`db_unit_actual`.`unit_name` AS `actual_unit_name` FROM `db_material_order_list` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` ON `db_unit`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_order`.`order_status` = 1 AND (`db_material_order_list`.`order_quantity`-`db_material_order_list`.`in_quantity`) > 0 AND `db_material_order_list`.`listid` = '$listid'";
-      $sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_supplier` ON `db_other_material_order`.`supplierid` = `db_other_supplier`.`other_supplier_id` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `db_other_material_orderlist`.`listid` = $listid"; 
+      $sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_supplier` ON `db_other_material_order`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `db_other_material_orderlist`.`listid` = $listid";
 	  $result = $db->query($sql);
 	  if($result->num_rows){
 		  $array = $result->fetch_assoc();
@@ -152,12 +152,14 @@ $(function(){
         <td colspan="3"><input type="text" name="remark" class="input_txt" /></td>
       </tr>
       <tr>
-        <th>&nbsp;</th>
-        <td colspan="7"><input type="submit" name="submit" id="submit" value="确定" class="button" />
+        <td colspan="7" style="text-align:center">
+          <input type="submit" name="submit" id="submit" value="确定" class="button" />
+          <input type="hidden" name="dataid" value="<?php echo $array['dataid'] ?>">
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="mould_other_id" value="<?php echo $array['mould_other_id'] ?>" />
           <input type="hidden" name="listid" id="listid" value="<?php echo $listid; ?>" />
-          <input type="hidden" name="action" id="action" value="<?php echo $action; ?>" /></td>
+          <input type="hidden" name="action" id="action" value="<?php echo $action; ?>" />
+        </td>
       </tr>
     </table>
   </form>

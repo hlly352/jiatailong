@@ -124,7 +124,7 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php
-  $sql_order = "SELECT `db_other_material_order`.`order_number`,`db_other_material_order`.`order_date`,`db_other_material_order`.`dotime`,`db_other_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_other_material_order` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_other_material_order`.`employeeid` WHERE `db_other_material_order`.`orderid` = '$orderid' AND `db_other_material_order`.`employeeid` = '$employeeid'";
+  $sql_order = "SELECT `db_other_material_order`.`order_number`,`db_other_material_order`.`order_date`,`db_other_material_order`.`dotime`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_other_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_other_material_order`.`employeeid` WHERE `db_other_material_order`.`orderid` = '$orderid' AND `db_other_material_order`.`employeeid` = '$employeeid'";
   $result_order = $db->query($sql_order);
   if($result_order->num_rows){
     $array_order = $result_order->fetch_assoc();
@@ -164,6 +164,7 @@ if($data_source == 'A'){
 }elseif($data_source == 'C'){
   $sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'E'";
 }
+$_SESSION['excel_other_material_order'];
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
 $sqllist = $sql . " ORDER BY `db_mould_other_material`.`mould_other_id` ASC" . $pages->limitsql;
@@ -248,7 +249,7 @@ $result = $db->query($sqllist);
       <?php } ?>
       <tr>
       <td colspan="14">
-          <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
+          <input type="button" name="button" value="返回" class="button" onclick="window.location.assign('other_material_order.php')" />
           <input type="hidden" name="orderid" value="<?php echo $orderid; ?>" />
       <input type="hidden" name="mould_other_id" value="<?php echo $row['mould_other_id'] ?>"/>
         </td>

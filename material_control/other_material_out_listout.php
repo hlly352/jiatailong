@@ -58,9 +58,8 @@ $(function(){
   <?php
   if($action == "add"){
 	  $listid = fun_check_int($_GET['id']);
-	  $sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid`  WHERE `db_other_material_orderlist`.`listid` = '$listid'";
+	  $sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_orderlist`.`listid` = '$listid'";
 	  $result = $db->query($sql);
-    echo $sql;
 	  if($result->num_rows){
 		  $array = $result->fetch_assoc();
   ?>
@@ -70,16 +69,14 @@ $(function(){
       <tr>
         <th width="10%">合同号：</th>
         <td width="15%"><?php echo $array['order_number']; ?></td>
-        <th width="10%">模具编号：</th>
-        <td width="15%"><?php echo $array['mould_no']; ?></td>
         <th width="10%">物料名称：</th>
         <td width="15%"><?php echo $array['material_name']; ?></td>
         <th width="10%">规格：</th>
         <td width="15%"><?php echo $array['material_specification']; ?></td>
-      </tr>
-      <tr>
         <th>供应商：</th>
         <td><?php echo $array['supplier_cname']; ?></td>
+      </tr>
+      <tr>
         <th>出库日期：</th>
         <td><input type="text" name="dodate" value="<?php echo date('Y-m-d'); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
         <th>库存数量</th>
@@ -89,10 +86,10 @@ $(function(){
         <th>出库数量：</th>
         <td><input type="text" name="actual_quantity" id="actual_quantity"  class="input_txt" />
           <?php echo $array['unit_name']; ?></td>
-      </tr>
-      <tr>
          <th>出库单号：</th>
         <td><input type="text" name="form_number" id="form_number" class="input_txt" /></td>
+      </tr>
+      <tr>
         <th>领料人：</th>
         <td><input type="text" name="taker" id="taker" class="input_txt" />
         <span class="tag">*</span></td>
@@ -100,8 +97,8 @@ $(function(){
         <td colspan="3"><input type="text" name="remark" class="input_txt" /></td>
       </tr>
       <tr>
-        <th>&nbsp;</th>
-        <td colspan="7"><input type="submit" name="submit" id="submit" value="确定" class="button" />
+        <td colspan="8" style="text-align:center"><input type="submit" name="submit" id="submit" value="确定" class="button" />
+          <input type="hidden" name="dataid" value="<?php echo $array['dataid'] ?>"> 
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="inoutid" id="inoutid" value="<?php echo $_GET['inoutid']; ?>" />
           <input type="hidden" name="listid" id="listid" value="<?php echo $listid ?>" />
