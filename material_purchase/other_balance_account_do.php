@@ -45,8 +45,6 @@ foreach($id as $v){
 				} else {
 					$account_number = 'A'.date('Ymd')."01";
 				}
-				echo $accountid;
-				echo $account_number;exit;
 				//没有则新建一条汇总
 				$time = date('Y-m-d');
 				$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`,`employeeid`,`account_number`,`account_type`) VALUES('$time',".$row['supplierid'].",'$employeeid','$account_number','O')";

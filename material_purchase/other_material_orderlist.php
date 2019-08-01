@@ -164,7 +164,7 @@ if($data_source == 'A'){
 }elseif($data_source == 'C'){
   $sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'E'";
 }
-$_SESSION['excel_other_material_order'];
+
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
 $sqllist = $sql . " ORDER BY `db_mould_other_material`.`mould_other_id` ASC" . $pages->limitsql;

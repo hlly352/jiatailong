@@ -55,7 +55,7 @@ $result = $db->query($sqllist);
           //遍历得到的数据
           for(var i = 0;i < data.length; i++){
             var in_out = data[i].dotype == 'I'?'入库':'出库';
-             var new_inout = '<tr class="new_tr'+index+'">      <td class="cutterid">'+data[i].inoutid+'</td>      <td>'+data[i].specification+'</td>      <td>'+data[i].hardness+'</td>      <td><?php echo $row['type']; ?></td>      <td>'+data[i].start_quantity+'</td>      <td>'+in_out+'</td>      <td>'+data[i].quantity+'</td>      <td>'+data[i].end_quantity+'</td>    </tr>';
+             var new_inout = '<tr class="new_tr'+index+'">      <td class="cutterid">'+data[i].inoutid+'</td>   <td>'+data[i].type+'</td>   <td>'+data[i].specification+'</td>      <td>'+data[i].hardness+'</td>      <td><?php echo $row['type']; ?></td>      <td>'+data[i].start_quantity+'</td>      <td>'+in_out+'</td>      <td>'+data[i].quantity+'</td>      <td>'+data[i].end_quantity+'</td>    </tr>';
             $('.show').eq(index).parent().parent().after(new_inout);
         }
         //更改按钮的颜色
@@ -115,6 +115,7 @@ $result = $db->query($sqllist);
   <table>
     <tr>
       <th width="">ID</th>
+      <th width="">类型</th>
       <th widht="">规格</th>
       <th width="">硬度</th>
       <th width="">标准库存</th>
@@ -127,10 +128,11 @@ $result = $db->query($sqllist);
     <?php
     while($row = $result->fetch_assoc()){
       //通过cutterid查询刀具的信息
-      $cutter_sql = "SELECT `db_cutter_specification`.`specification`,`db_cutter_hardness`.`hardness` FROM `db_mould_cutter` INNER JOIN `db_cutter_specification` ON `db_cutter_specification`.`specificationid` = `db_mould_cutter`.`specificationid` INNER JOIN `db_cutter_hardness` ON `db_mould_cutter`.`hardnessid` = `db_cutter_hardness`.`hardnessid` WHERE `db_mould_cutter`.`cutterid`=".$row['cutterid'];
+      $cutter_sql = "SELECT `db_cutter_type`.`type`,`db_cutter_specification`.`specification`,`db_cutter_hardness`.`hardness` FROM `db_mould_cutter` INNER JOIN `db_cutter_specification` ON `db_cutter_specification`.`specificationid` = `db_mould_cutter`.`specificationid` INNER JOIN `db_cutter_hardness` ON `db_mould_cutter`.`hardnessid` = `db_cutter_hardness`.`hardnessid` INNER JOIN `db_cutter_type` ON `db_cutter_specification`.`typeid` = `db_cutter_type`.`typeid` WHERE `db_mould_cutter`.`cutterid`=".$row['cutterid'];
       $result_cutter = $db->query($cutter_sql);
       if($result_cutter->num_rows){
         $row_cutter = $result_cutter->fetch_assoc();
+
       }
       //计算每一项包含多少条出入库记录
       $inout_sql = "SELECT COUNT(`db_cutter_inout`.`dotime`) FROM `db_cutter_purchase_list` INNER JOIN `db_cutter_order_list` ON `db_cutter_purchase_list`.`purchase_listid`= `db_cutter_order_list`.`purchase_listid` INNER JOIN `db_cutter_inout` ON `db_cutter_inout`.`listid` = `db_cutter_order_list`.`listid` WHERE `db_cutter_purchase_list`.`cutterid`= ".$row['cutterid']." GROUP BY `db_cutter_purchase_list`.`cutterid`";
@@ -141,6 +143,7 @@ $result = $db->query($sqllist);
     	?>
     <tr>
       <td class="cutterid"><?php echo $row['cutterid'] ?></td>
+      <td><?php echo $row_cutter['type'] ?></td>
       <td><?php echo $row_cutter['specification']; ?></td>
       <td><?php echo $row_cutter['hardness']; ?></td>
       <td><?php echo $row['type']; ?></td>
