@@ -158,7 +158,7 @@ $result = $db->query($sqllist);
           <?php } ?>
           </a></td>
         <td><?php if($employeeid == $row['employeeid'] && $list_count){ ?>
-          <a href="other_material_orderlist.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a>
+          <a href="other_material_orderlist.php?action=info&id=<?php echo $orderid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a>
           <?php } ?></td>
       </tr>
       <?php } ?>

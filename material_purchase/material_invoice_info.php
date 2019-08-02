@@ -78,29 +78,27 @@ $(function(){
   $accountid = $_GET['id'];
   if($action == "add"){
   //查找当前供应商的信息
-  $sql = "SELECT `db_material_account`.`accountid`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,`db_material_account`.`amount`,`db_material_account`.`supplierid`,`db_material_account`.`account_type` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `accountid` =".$accountid;
+  $sql = "SELECT `db_material_account`.`accountid`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_material_account`.`supplierid`,`db_material_account`.`account_type` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `accountid` =".$accountid;
   $result = $db->query($sql);
   if($result->num_rows){
     $row = $result->fetch_assoc();
+    //查询对账汇总表中的订单id
+    $orderidlist_sql = "SELECT `orderidlist` FROM `db_material_account` WHERE `accountid` = '$accountid'";
+    	$result_orderidlist = $db->query($orderidlist_sql);
+    	if($result_orderidlist->num_rows){
+    		$orderidlist = $result_orderidlist->fetch_row()[0];
+    	}
     //通过对账单号查询对应的合同号
     $account_type = $row['account_type'];
     if($account_type == 'M'){
-    	$order_sql = "SELECT `db_material_order`.`order_number` FROM `db_material_account_list` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_order_list` ON `db_material_inout`.`listid` = `db_material_order_list`.`listid` INNER JOIN `db_material_order` ON `db_material_order_list`.`orderid` = `db_material_order`.`orderid` WHERE `accountid`='".$row['accountid']."' GROUP BY `db_material_order`.`order_number`";
+    	$order_sql = "SELECT `order_number` FROM `db_material_order` WHERE `orderid` IN($orderidlist)";
     }elseif($account_type == 'C'){
-    	$order_sql = "SELECT `db_cutter_order`.`order_number` FROM `db_material_account_list` INNER JOIN `db_cutter_inout` ON `db_material_account_list`.`inoutid` = `db_cutter_inout`.`inoutid` INNER JOIN `db_material_order_list` ON `db_cutter_inout`.`listid` = `db_cutter_order_list`.`listid` INNER JOIN `db_cutter_order` ON `db_cutter_order_list`.`orderid` = `db_cutter_order`.`orderid` WHERE `accountid`='".$row['accountid']."' GROUP BY `db_cutter_order`.`order_number`";
+    	$order_sql = "SELECT `order_number` FROM `db_cutter_order` WHERE `orderid` IN($orderidlist)";
     }elseif($account_type == 'O'){
-    	$order_sql = "SELECT `db_other_material_order`.`order_number` FROM `db_material_account_list` INNER JOIN `db_other_material_inout` ON `db_material_account_list`.`inoutid` = `db_other_material_inout`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_inout`.`listid` = `db_other_material_orderlist`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` WHERE `accountid`='".$row['accountid']."' GROUP BY `db_other_material_order`.`order_number`";
+    	$order_sql = "SELECT `order_number` FROM `db_other_material_order` WHERE `orderid` IN($orderidlist)";
     }
-    $result_order = $db->query($order_sql);
-    //查询期间物料供应商
-    if($account_type == 'O'){
-    	$other_supplier_sql = "SELECT `supplier_cname` FROM `db_other_supplier` WHERE `other_supplier_id` =".$row['supplierid'];
-    	$res_supplier = $db->query($other_supplier_sql);
-    	if($res_supplier->num_rows){
-    		$row['supplier_cname'] = $res_supplier->fetch_row()[0];
-    	}
-    }
-    
+
+    $result_order = $db->query($order_sql);    
   ?>
   <h4>发票信息录入</h4>
   <form action="material_invoice_info_do.php?action=add" name="employee_goout" method="post">

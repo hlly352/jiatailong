@@ -125,6 +125,9 @@ $(function(){
 <div id="table_sheet">
   <?php
   $sql_order = "SELECT `db_other_material_order`.`order_number`,`db_other_material_order`.`order_date`,`db_other_material_order`.`dotime`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_other_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_other_material_order`.`employeeid` WHERE `db_other_material_order`.`orderid` = '$orderid' AND `db_other_material_order`.`employeeid` = '$employeeid'";
+//判断是否是查看详情
+$info = $_GET['action'];
+$str = empty($info)?"AND `status` = 'E'":"";
   $result_order = $db->query($sql_order);
   if($result_order->num_rows){
     $array_order = $result_order->fetch_assoc();
@@ -158,7 +161,7 @@ if($_GET['submit']){
 }
 if($data_source == 'A'){
   //$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
-  $sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_orderlist` ON `db_mould_other_material`.`mould_other_id`=`db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `orderid`='$orderid' AND `inquiryid` = '$employeeid' AND `status` = 'E'";
+  $sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_orderlist` ON `db_mould_other_material`.`mould_other_id`=`db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `orderid`='$orderid' AND `inquiryid` = '$employeeid' ".$str;
 }elseif($data_source == 'B'){
   $sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'E'";
 }elseif($data_source == 'C'){

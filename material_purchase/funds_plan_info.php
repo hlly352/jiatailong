@@ -77,6 +77,7 @@ $result = $db->query($sqllist);
 
       <?php
       while($row = $result->fetch_assoc()){
+
         //查询对应的发票号
         $invoice_sql = "SELECT `invoice_no`,`date` FROM `db_material_invoice_list` WHERE `accountid`=".$row['accountid'];
         $result_invoice = $db->query($invoice_sql);
@@ -97,7 +98,7 @@ $result = $db->query($sqllist);
             ?>    
         </td>      
         <td><?php echo $row['supplier_cname'] ?></td>
-        <td class="amount" id="amount-<?php echo $row['accountid'] ?>"><?php echo number_format($row['amount'],2,'.','') ?></td>
+        <td class="amount" id="amount-<?php echo $row['accountid'] ?>"><?php echo number_format($row['plan_amount'],2,'.','') ?></td>
         <td>
           <?php echo number_format($row['plan_amount'],2,'.','') ?>
         </td>

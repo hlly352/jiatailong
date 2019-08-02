@@ -15,7 +15,6 @@ $i = 0;
 if($action == 'add'){
 	foreach($invoice_no as $k=>$v){
 	$sql = "INSERT INTO `db_material_invoice_list`(`accountid`,`invoice_no`,`amount`,`date`,`employeeid`) VALUES('$accountid','$invoice_no[$k]','$invoice_amount[$k]','$invoice_date[$k]','$employeeid')";
-	echo $sql;
 	$db->query($sql);
 	if(!$db->affected_rows){
 			$i++;

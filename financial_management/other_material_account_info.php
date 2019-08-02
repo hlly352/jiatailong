@@ -125,8 +125,8 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php
-  //$sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `db_material_account_list`.`accountid`='$accountid' AND `db_other_material_inout`.`dotype` ='I' AND `db_other_material_inout`.`account_status` = 'F' $sqlwhere";
-  $sql_order = "SELECT * FROM `db_material_account_list` INNER JOIN `db_other_material_inout` ON `db_material_account_list`.`inoutid` = `db_other_material_inout`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_inout`.`listid` = `db_other_material_orderlist`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` INNER JOIN `db_other_supplier` ON `db_other_material_order`.`supplierid` = `db_other_supplier`.`other_supplier_id` INNER JOIN `db_material_account` ON `db_material_account_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_employee` ON `db_material_account`.`employeeid` = `db_employee`.`employeeid` WHERE `db_material_account_list`.`accountid` = '$accountid' AND `db_other_material_inout`.`dotype`='I' AND `db_other_material_inout`.`account_status` = 'F'";
+  //$sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `db_material_account_list`.`accountid`='$accountid' AND `db_other_material_inout`.`dotype` ='I' AND `db_other_material_inout`.`account_status` = 'F' $sqlwhere";
+  $sql_order = "SELECT * FROM `db_material_account_list` INNER JOIN `db_other_material_inout` ON `db_material_account_list`.`inoutid` = `db_other_material_inout`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_inout`.`listid` = `db_other_material_orderlist`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` INNER JOIN `db_supplier` ON `db_other_material_order`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account` ON `db_material_account_list`.`accountid` = `db_material_account`.`accountid`  WHERE `db_material_account_list`.`accountid` = '$accountid' AND `db_other_material_inout`.`dotype`='I' AND `db_other_material_inout`.`account_status` = 'F'";
   echo $sql_order;
 $sql = $sql.'ORDER BY `db_other_material_order`.`orderid`';
   $result_order = $db->query($sql_order);
@@ -186,38 +186,34 @@ $result = $db->query($sqllist);
       <th>合同号</th>
       <th>物料名称</th>
       <th>规格</th>
-      <th>需求数量</th>
-      <th>实际数量</th>
-      <th>单位</th>
-      <th>申请人</th>
+      <th>数量</th>
       <th>单价<br />
         (含税)</th>
+      <th>单位</th>
       <th>税率</th>
       <th>金额<br />
         (含税)</th>
       <th>现金</th>
       <th>供应商</th>
       <th>订单日期</th>
-      <th>计划<br />回厂时间</th>
+      <th>入库时间</th>
       <th>备注</th>
     </tr>
     <?php
   while($row = $result_order->fetch_assoc()){
-    $listid = $row['listid'];
+    $inoutid = $row['inoutid'];
     $iscash = $row['iscash'] == '0'?'否':'是';
     $remark = $row['remark'];
 
 
   ?>
     <tr>
-      <td><input type="checkbox" value="<?php echo $listid; ?>"></td>
+      <td><input type="checkbox" value="<?php echo $inoutid; ?>"></td>
       <td><?php echo $row['order_number']; ?></td>
       <td><?php echo $row['material_name']; ?></td>
       <td><?php echo $row['material_specification']; ?></td>
-      <td><?php echo $row['quantity']; ?></td>
       <td><?php echo $row['actual_quantity']; ?></td>
       <td><?php echo $row['unit']; ?></td>
-      <td><?php echo $row['employee_name']; ?></td>
       <td><?php echo $row['unit_price']; ?></td>
       <td><?php echo $row['tax_rate']*100; ?>%</td>
       <td><?php echo $amount; ?></td>

@@ -19,7 +19,8 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
 }
-$sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_supplier` ON `db_other_supplier`.`other_supplier_id` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_inout`.`dotype` = 'I' AND `db_other_material_inout`.`account_status` = 'P' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_other_material_inout`.`inoutid`,`db_other_material_order`.`order_number`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_specification`,`db_other_material_inout`.`actual_quantity`,`db_mould_other_material`.`unit`,`db_other_material_orderlist`.`unit_price`,`db_other_material_inout`.`amounts`,`db_supplier`.`supplier_cname`,`db_other_material_inout`.`form_number`,`db_other_material_inout`.`dodate` FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_inout`.`dotype` = 'I' AND `db_other_material_inout`.`account_status` = 'P' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+
 $result = $db->query($sql);
 $result_total = $db->query($sql);
 $_SESSION['material_inout_list_in'] = $sql;
@@ -79,8 +80,8 @@ $result = $db->query($sqllist);
   <?php
   if($result->num_rows){
 	  while($row_total = $result_total->fetch_assoc()){
-		  $total_amount += $row_total['amount'];
-		  $total_process_cost += $row_total['process_cost'];	
+		  $total_amount += $row_total['amounts'];
+		
 	  }																																				
   ?>
   <table>
@@ -89,13 +90,11 @@ $result = $db->query($sqllist);
       <th width="6%">合同号</th>
       <th width="8%">物料名称</th>
       <th width="12%">规格</th>
-      <th width="6%">订单<br />
-        数量</th>
       <th width="6%">实际<br />
         数量</th>
-      <th width="5%">单位</th>
       <th width="6%">单价<br />
         (含税)</th>
+      <th width="5%">单位</th>
       <th width="5%">金额<br />
         (含税)</th>
       <th width="5%">供应商</th>
@@ -115,10 +114,9 @@ $result = $db->query($sqllist);
       <td><?php echo $row['order_number']; ?></td>
       <td><?php echo $row['material_name']; ?></td>
       <td><?php echo $row['material_specification']; ?></td>
-      <td><?php echo $row['quantity']; ?></td>
-      <td><?php echo $row['inout_quantity']; ?></td>
-      <td><?php echo $row['unit']; ?></td>
+      <td><?php echo $row['actual_quantity']; ?></td>
       <td><?php echo $row['unit_price']; ?></td>
+      <td><?php echo $row['unit']; ?></td>
       <td><?php echo $row['amounts'] ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['form_number']; ?></td>
@@ -128,10 +126,13 @@ $result = $db->query($sqllist);
     </tr>
     <?php } ?>
     <tr>
-      <td colspan="9">Total</td>
+      <td colspan="7">合 计</td>
       <td><?php echo number_format($total_amount,2); ?></td>
       <td></td>
-      <td colspan="4">&nbsp;</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>&nbsp;</td>
     </tr>
   </table>
    <div id="checkall">

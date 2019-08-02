@@ -108,9 +108,6 @@ $result = $db->query($sqllist);
       <th width="6%">材质</th>
       <th width="7%">硬度</th>
       <th width="5%">品牌</th>
-      <th width="8%">表单号</th>
-      <th width="5%">订单<br />
-        数量</th>
       <th width="5%">入库<br />
         数量</th>
       <th width="4%">单位</th>
@@ -119,6 +116,7 @@ $result = $db->query($sqllist);
       <th width="6%">金额<br />
         (含税)</th>
       <th width="7%">供应商</th>
+      <th width="8%">表单号</th>
       <th width="6%">入库日期</th>
     <!--   <th width="4%">详情</th> -->
     </tr>
@@ -138,19 +136,18 @@ $result = $db->query($sqllist);
       <td><?php echo $array_cutter_texture[$row['texture']]; ?></td>
       <td><?php echo $row['hardness']; ?></td>
       <td><?php echo $row['brand']; ?></td>
-      <td><?php echo $row['form_number']; ?></td>
-      <td><?php echo $row['order_quantity']; ?></td>
       <td><?php echo $row['in_quantity']; ?></td>
       <td>件</td>
       <td><?php echo $row['unit_price']; ?></td>
       <td><?php echo $row['amount']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
+      <td><?php echo $row['form_number']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
  <!--      <td><a href="cutter_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td> -->
     </tr>
     <?php } ?>
     <tr>
-      <td colspan="12">Total</td>
+      <td colspan="10">Total</td>
       <td><?php echo number_format($total_amount,2); ?></td>
       <td colspan="4">&nbsp;</td>
     </tr>

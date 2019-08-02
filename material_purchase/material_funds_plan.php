@@ -174,7 +174,7 @@ $result = $db->query($sqllist);
               }
            } ?></td>
         <td><?php if($employeeid == $row['employeeid'] && $list_count && $row['plan_status'] == '3'){ ?>
-          <a href="funds_plan_list_print.php?id=<?php echo $planid; ?>"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a>
+          <a href="funds_plan_list_print.php?id=<?php echo $planid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
         <td><?php if($employeeid == $row['employeeid'] && $list_count && $row['plan_status'] == '3'){ ?>
           <a href="funds_plando.php?action=approval&id=<?php echo $planid; ?>">
