@@ -53,7 +53,7 @@
        <ul>   
         <li><a href="material_stock.php">模具物料</a></li>
         <li><a href="cutter_stock.php">加工刀具</a></li>
-        <li><a href="#">期间物料</a></li>
+        <li><a href="other_material_stock.php">期间物料</a></li>
       </ul>
     </li>
     <li class="menulevel"><a href="copper_material.php">铜料分析</a></li>

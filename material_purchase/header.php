@@ -41,6 +41,13 @@
         <li><a href="other_inout_list_in.php">期间物料</a></li> 
       </ul>
     </li>
+    <li class="menulevel"><a href="#">异常入库</a>
+      <ul>
+        <li><a href="material_abnormal_in.php">模具物料</a></li>
+        <li><a href="cutter_abnormal_in.php">加工刀具</a></li>
+        <li><a href="other_material_abnormal_in.php">期间物料</a></li> 
+      </ul>
+    </li>
     <li class="menulevel"><a href="mould_outward.php">外协加工</a></li>
     <li class="menulevel"><a href="#">采购对账</a>
       <ul>
