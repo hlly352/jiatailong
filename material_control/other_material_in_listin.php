@@ -136,10 +136,10 @@ $(function(){
       </tr>
       <tr>
         <th>订单数量：</th>
-        <td><input type="text" name="actual_quantity" id="quantity" value="<?php echo $array['actual_quantity']; ?>" readonly class="input_txt" />
+        <td><input type="text" name="actual_quantity" id="quantity" value="<?php echo $array['actual_quantity'] - $array['in_quantity']; ?>" readonly class="input_txt" />
           <?php echo $array['unit_name']; ?></td>
         <th>实际数量：</th>
-        <td><input type="text" name="inout_quantity" id="inout_quantity" value="<?php echo $array['actual_quantity']; ?>" class="input_txt" />
+        <td><input type="text" name="inout_quantity" id="inout_quantity" value="<?php echo $array['actual_quantity'] - $array['in_quantity']; ?>" class="input_txt" />
           <?php echo $array['unit']; ?></td>
         <th>单价：</th>
         <td><input type="text" name="unit_price" id="unit_price" value="<?php echo $array['unit_price']; ?>" class="input_txt" readonly="readonly" /></td>

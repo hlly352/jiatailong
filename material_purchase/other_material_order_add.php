@@ -222,7 +222,7 @@ $result = $db->query($sqllist);
         <td><?php echo $row['material_typename']; ?></td>
         <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
         <td><?php echo $row['material_specification']; ?></td>
-        <td><?php echo $row['quantity']; ?></td>
+        <td><input type="text" value="<?php echo $row['quantity']; ?>" name="order_quantity" readonly style="border:none;width:60px" ></td>
         <td>
         	<input type="text" name="actual_quantity[]" id="actual_quantity-<?php echo $row['mould_other_id'] ?>" value="<?php echo $row['material_quantity']; ?>" class="input_txt" size="8" />
         </td>

@@ -8,7 +8,7 @@ if($_POST['submit']){
 	$listid = $_POST['listid'];
 	$dodate = $_POST['dodate'];
 	$form_number = trim($_POST['form_number']);
-	$actual_quantity = $_POST['actual_quantity'];
+	$inout_quantity = trim($_POST['inout_quantity']);
 	$taker = trim($_POST['taker']);
 	$remark = trim($_POST['remark']);
 	$dataid = trim($_POST['dataid']);
@@ -20,14 +20,15 @@ if($_POST['submit']){
 		// if($result_list->num_rows){
 		// 	$sql_update = "UPDATE `db_material_order_list` SET `order_surplus` = `order_surplus` - '$quantity' WHERE `listid` = '$listid'";
 		// 	$db->query($sql_update);
+		
 		$inoutid = $_POST['inoutid'];
 			//if($db->affected_rows){
-				$sql = "INSERT INTO `db_other_material_inout` (`inoutid`,`dodate`,`dotype`,`form_number`,`actual_quantity`,`taker`,`remark`,`listid`,`employeeid`,`dotime`) VALUES (NULL,'$dodate','O','$form_number','$actual_quantity','$taker','$remark','$listid`','$employeeid','$dotime')";
+				$sql = "INSERT INTO `db_other_material_inout` (`inoutid`,`dodate`,`dotype`,`form_number`,`inout_quantity`,`taker`,`remark`,`listid`,`employeeid`,`dotime`) VALUES (NULL,'$dodate','O','$form_number','$inout_quantity','$taker','$remark','$listid`','$employeeid','$dotime')";
 				$db->query($sql);
 				if($db->insert_id){
-					$data_sql = "UPDATE `db_other_material_data` SET `stock` = `stock` - '$actual_quantity' WHERE `dataid` ='$dataid'";
+					$data_sql = "UPDATE `db_other_material_data` SET `stock` = `stock` - '$inout_quantity' WHERE `dataid` ='$dataid'";
 					$db->query($data_sql);
-					$update_sql = "UPDATE `db_other_material_inout` SET `inout_quantity` = `inout_quantity` - $actual_quantity WHERE `inoutid` =".$inoutid;
+					$update_sql = "UPDATE `db_other_material_orderlist` SET `in_quantity` = `in_quantity` - $inout_quantity WHERE `listid` =".$listid;
 
 					$db->query($update_sql);
 					header("location:other_inout_list_out.php");

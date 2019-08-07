@@ -19,9 +19,9 @@ $(function(){
 	$("#submit").click(function(){
 		var action = $("#action").val();
 		if(action == "add"){
-			var quantity = $("#actual_quantity").val();
+			var quantity = $("#inout_quantity").val();
 			if(!rf_b.test(quantity)){
-				$("#quantity").focus();
+				$("#inout_quantity").focus();
 				return false;
 			}
 		}
@@ -31,7 +31,7 @@ $(function(){
 			return false;
 		}
 	})
-	$("#actual_quantity").blur(function(){
+	$("#inout_quantity").blur(function(){
 		var default_quantity = this.defaultValue;
 		var quantity = $(this).val();
 		var listid = $("#listid").val();
@@ -40,7 +40,7 @@ $(function(){
 			$(this).val(this.defaultValue);
 		}else{
 			$(this).val(parseFloat($(this).val()).toFixed(2))
-			var inout_quantity = parseFloat($("#inout_quantity").val());
+			var inout_quantity = parseFloat($("#stock_quantity").val());
 			if(quantity > inout_quantity){
         alert('出库数量异常');
 
@@ -59,6 +59,7 @@ $(function(){
   if($action == "add"){
 	  $listid = fun_check_int($_GET['id']);
 	  $sql = "SELECT * FROM `db_other_material_orderlist` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_orderlist`.`listid` = '$listid'";
+
 	  $result = $db->query($sql);
 	  if($result->num_rows){
 		  $array = $result->fetch_assoc();
@@ -81,10 +82,10 @@ $(function(){
         <td><input type="text" name="dodate" value="<?php echo date('Y-m-d'); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" /></td>
         <th>库存数量</th>
         <td>
-          <input type="text" id="inout_quantity" value="<?php echo $_GET['inout'] ?>" />
+          <input type="text" readonly id="stock_quantity" value="<?php echo $array['in_quantity'] ?>" />
         </td>
         <th>出库数量：</th>
-        <td><input type="text" name="actual_quantity" id="actual_quantity"  class="input_txt" />
+        <td><input type="text" name="inout_quantity" id="inout_quantity"  class="input_txt" />
           <?php echo $array['unit_name']; ?></td>
          <th>出库单号：</th>
         <td><input type="text" name="form_number" id="form_number" class="input_txt" /></td>

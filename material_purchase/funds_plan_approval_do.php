@@ -30,6 +30,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 					$invoice_no = $row_plan['invoice_no'];
 					$supplierid = $row['supplierid'];
 					$funds_list_sql = "INSERT INTO `db_material_funds_list`(`accountid`,`approval_date`,`amount`,`apply_amount`,`invoice_no`,`employeeid`,`approval_status`,`supplierid`) VALUES('$accountid','$approval_date','$amount','$apply_amount','$invoice_no','$employeeid','Z','$supplierid')";
+					
 					$db->query($funds_list_sql);
 				}
 			}

@@ -117,7 +117,7 @@ $result = $db->query($sqllist);
 		  $array_order = array();
 	  }
   ?>
-  <form action="mould_materialdo.php" name="mould_other_material" method="post">
+  <form action="mould_other_materialdo.php" name="mould_other_material" method="post">
     <table>
       <tr>
         <th width="">ID</th>
@@ -163,7 +163,7 @@ $result = $db->query($sqllist);
 	  ?>
       <tr>
         <td>
-            <input type="checkbox" name="id[]" value="<?php echo $row['mould_other_id']; ?>"<?php if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> />
+            <input type="checkbox" name="id[]" value="<?php echo $row['mould_other_id']; ?>"<?php if(!($employeeid == $row['applyer'] || $employeeid == $row['approver'])) echo " disabled=\"disabled\""; ?> />
         </td>
         <td><?php echo $row['apply_date']; ?></td>
         <td><?php echo $row['requirement_date']; ?></td>
@@ -180,13 +180,13 @@ $result = $db->query($sqllist);
       </tr>
       <?php } ?>
     </table>
-    <!-- <div id="checkall">
+    <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
       <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" disabled="disabled" />
       <input type="hidden" name="action" value="del" />
-    </div> -->
+    </div>
   </form>
   <div id="page">
     <?php $pages->getPage();?>

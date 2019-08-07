@@ -13,7 +13,7 @@ if($_POST['submit']){
 	$sql = "INSERT INTO `db_godown_entry_list` VALUES $sqladd";
 	$db->query($sql);
 	if($db->insert_id){
-		header("location:material_godown_entry_list.php?entryid=".$entryid);
+		header("location:other_godown_entry_list.php?entryid=".$entryid);
 	}
 }
 ?>

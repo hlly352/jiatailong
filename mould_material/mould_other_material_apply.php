@@ -45,7 +45,9 @@ $(function(){
         var stock = data[k].stock;
         $('#standard_stock').val(standard_stock);
         $('#stock').val(stock);
-        $('#quantity').val(standard_stock - stock);
+         if((standard_stock - stock)>0){
+          $('#quantity').val(standard_stock - stock);
+        }
       }
     }
   },'json')
@@ -62,7 +64,9 @@ $(function(){
        var stock = data.stock;
        $('#standard_stock').val(standard_stock);
        $('#stock').val(stock);
-       $('#quantity').val(standard_stock - stock);
+       if((standard_stock - stock)>0){
+          $('#quantity').val(standard_stock - stock);
+        }
     },'json')
 
   })
@@ -70,69 +74,23 @@ $(function(){
   $("#material_type").live('change',function(){
     get_type();
   })
-	$("#submit").click(function(){
-		var part_number = $("#part_number").val();
-		if(!$.trim(part_number)){
-			$("#part_number").focus();
-			return false;
-		}
-		var workteamid = $("#workteamid").val();
-		if(!workteamid){
-			$("#workteamid").focus();
-			return false;
-		}
-		var order_number = $("#order_number").val();
-		if(!$.trim(order_number)){
-			$("#order_number").focus();
-			return false;
-		}else if(order_number.length != 7){
-			$("#order_number").focus();
-			return false;
-		}
+	$("#submi").click(function(){
+		
 		var quantity = $("#quantity").val();
 		if(!ri_b.test($.trim(quantity))){
 			$("#quantity").focus();
+      alert('数量异常');
 			return false;
 		}
-		var supplierid = $("#supplierid").val();
-		if(!supplierid){
-			$("#supplierid").focus();
+		var unit = $("input[name = unit]").val();
+		if(!unit){
+			$("input[name = unit]").focus();
+      alert('请填写单位');
 			return false;
 		}
-		var outward_typeid = $("#outward_typeid").val();
-		if(!outward_typeid){
-			$("#outward_typeid").focus();
-			return false;
-		}
-		var cost = $("#cost").val();
-		if(!rf_a.test($.trim(cost))){
-			$("#cost").focus();
-			return false;
-		}
-		var applyer = $("#applyer").val();
-		if(!$.trim(applyer)){
-			$("#applyer").focus();
-			return false;
-		}
-		var inout_status = $("#inout_status").val();
-		if(!$.trim(inout_status)){
-			$("#inout_status").focus();
-			return false;
-		}
-		var actual_date = $("#actual_date").val();
-		if(inout_status == 1 && actual_date == '0000-00-00'){
-			alert('请选择实际回厂时间');
-			return false;
-		}
+			
 	})
-	$("#inout_status").change(function(){
-		var inout_status = $(this).val();
-		if(inout_status == 1){
-			$("#actual_date").attr('disabled',false);
-		}else if(inout_status == 0){
-			$("#actual_date").attr('disabled',true);
-		}
-	})
+
 })
 </script>
 <title>模具加工-希尔林</title>

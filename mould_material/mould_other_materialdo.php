@@ -5,7 +5,6 @@ require_once '../function/function.php';
 require_once '../class/upload.php';
 require_once '../class/image.php';
 require_once 'shell.php';
-
 	$action = $_POST['action'];
 	$data = $_POST;
 	$employeeid = $data['applyer'];
@@ -97,6 +96,16 @@ require_once 'shell.php';
 				header('location:mould_other_fee.php');
 			}
 
+		}
+	}elseif($action == 'del'){
+		//接收数据
+		$id = $_POST['id'];
+		$other_material_id = fun_convert_checkbox($id);
+		$other_material_sql = "DELETE FROM `db_mould_other_material` WHERE `mould_other_id` IN($other_material_id)";
+		
+		$db->query($other_material_sql);
+		if($db->affected_rows){
+			header('location:'.$_SERVER['HTTP_REFERER']);
 		}
 	}
 

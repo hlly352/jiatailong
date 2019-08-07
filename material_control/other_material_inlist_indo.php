@@ -9,7 +9,7 @@ if($_POST['submit']){
 	$dodate = $_POST['dodate'];
 	$form_number = trim($_POST['form_number']);
 	$actual_quantity = $_POST['actual_quantity'];
-	$inout_quantity = $_POST['inout_quantity'];
+	$inout_quantity = trim($_POST['inout_quantity']);
 	$amount = $_POST['amount'];
  	$remark = trim($_POST['remark']);
  	$mould_other_id = $_POST['mould_other_id'];
@@ -26,6 +26,9 @@ if($_POST['submit']){
 		//更改库存量
 		$data_sql = "UPDATE `db_other_material_data` SET `stock` = `stock` + '$inout_quantity' WHERE `dataid` = '$dataid'";
 		$db->query($data_sql);
+		//更改入库数量
+		$order_list_sql = "UPDATE `db_other_material_orderlist` SET `in_quantity` = `in_quantity` + '$inout_quantity' WHERE `listid` = '$listid'";
+		$db->query($order_list_sql);
 				$sql = "INSERT INTO `db_other_material_inout` (`inoutid`,`dodate`,`dotype`,`form_number`,`actual_quantity`,`inout_quantity`,`amounts`,`remark`,`listid`,`employeeid`,`dotime`) VALUES (NULL,'$dodate','I','$form_number','$actual_quantity','$inout_quantity','$amount','$remark','$listid`','$employeeid','$dotime')";
 				$db->query($sql);
 				if($db->insert_id){

@@ -35,6 +35,7 @@ if($_POST['submit']){
 	$sql_list = rtrim($sql_list,',');
 	$enquiry_materialid = rtrim($enquiry_materialid,',');
 	$sql = "INSERT INTO `db_material_order_list` (`listid`,`orderid`,`materialid`,`order_quantity`,`actual_quantity`,`in_quantity`,`order_surplus`,`unitid`,`actual_unitid`,`unit_price`,`tax_rate`,`process_cost`,`iscash`,`plan_date`,`remark`) VALUES $sql_list";
+	
 	$db->query($sql);
 	if($db->insert_id){
 		header("location:material_order_list.php?id=".$orderid);

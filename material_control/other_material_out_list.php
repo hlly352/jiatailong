@@ -19,7 +19,7 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
 }
-$sql = $sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_inout`.`inout_quantity`>0 AND `db_other_material_inout`.`dotype` = 'I' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = $sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_orderlist`.`in_quantity`>0 AND `db_other_material_inout`.`inout_quantity`>0 AND `db_other_material_inout`.`dotype` = 'I' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_other_material_order`.`order_date` ASC,`db_other_material_orderlist`.`listid` ASC" . $pages->limitsql;
@@ -102,7 +102,7 @@ $result = $db->query($sqllist);
         <td><?php echo $row['order_number']; ?></td>
         <td><?php echo $row['material_name']; ?></td>
         <td><?php echo $row['material_specification']; ?></td>
-        <td><?php echo $row['inout_quantity']; ?></td>
+        <td><?php echo $row['in_quantity']; ?></td>
         <td><?php echo $row['unit']; ?></td>
         <td><?php echo $row['supplier_cname']; ?></td>
         <td><?php echo date('Y-m-d',strtotime($row['order_date'])); ?></td>
@@ -110,12 +110,12 @@ $result = $db->query($sqllist);
       </tr>
       <?php } ?>
     </table>
-    <div id="checkall">
+   <!--  <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
       <input type="submit" name="submit" id="submit" value="出库" class="select_button" />
-    </div>
+    </div> -->
   </form>
   <div id="page">
     <?php $pages->getPage();?>
