@@ -26,7 +26,7 @@ $sql = "SELECT * FROM `db_material_funds_plan` INNER JOIN `db_employee` ON `db_m
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_material_funds_plan`.`plan_number` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_material_funds_plan`.`planid` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -98,7 +98,7 @@ $result = $db->query($sqllist);
       ?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="添加计划" class="button" onclick="location.href='funds_plan.php?action=add'" /></td>
+          <input type="button" name="button" value="添加计划" class="button" onclick="location.href='funds_plando.php?action=add_plan'" /></td>
       </tr>
     </table>
   </form>
@@ -125,20 +125,24 @@ $result = $db->query($sqllist);
   <form action="material_funds_plando.php" name="material_order" method="post">
     <table>
       <tr>
-        <th width="4%">ID</th>
-        <th width="16%">计划单号</th>
-        <th width="10%">计划时间</th>
-        <th width="10%">操作人</th>
-        <th width="10%">操作时间</th>
-        <th width="6%">项数</th>
-        <th width="4%">付款添加</th>
-        <th width="6%">计划提交</th>
-        <th width="4%">财务审核</th>
-        <th width="4%">付款申请单</th>
-        <th width="4%">采购审批</th>
-        <th width="4%">财务审批</th>
-        <th width="4%">付款完成</th>
-        <th width="4%">详情</th>
+        <th rowspan="2">ID</th>
+        <th rowspan="2">计划单号</th>
+        <th rowspan="2">计划时间</th>
+        <th rowspan="2">操作人</th>
+        <th rowspan="2">操作时间</th>
+        <th rowspan="2">项数</th>
+        <th colspan="4" >付款计划</th>
+        <th colspan="3">付款执行</th>
+        <th rowspan="2">详情</th>
+      </tr>
+      <tr>
+        <th>付款计划</th>
+        <th>采购审核</th>
+        <th>财务审核</th>
+        <th>总经办审批</th>
+        <th>采购审核</th>
+        <th>财务审核</th>
+        <th>总经办审批</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){

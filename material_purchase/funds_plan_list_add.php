@@ -50,7 +50,7 @@ $(function(){
 		if(!$.trim(plan_amount)){
 			var id = $(this).attr('id');
 		 	var accountid = id.substr(id.indexOf('-')+1);
-		 	$(this).val($('#amount-'+accountid).html());
+		 	$(this).val($.trim($('#amount-'+accountid).html()));
 		}
 	})
 		//点击添加按钮
@@ -86,7 +86,7 @@ $(function(){
       <th width="10%">付款单号：</th>
       <td width="15%"><?php echo $array_plan['plan_number']; ?></td>
       <th width="10%">计划日期：</th>
-      <td width="15%"><?php echo $array_plan['plan_date']; ?></td>
+      <td width="15%"><input type="text" value="<?php echo $array_plan['plan_date']; ?>" name="plan_date" form="account" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})"></td>
       <th width="10%">操作人：</th>
       <td width="15%"><?php echo $array_plan['employee_name']; ?></td>
     </tr>
@@ -97,18 +97,90 @@ $(function(){
   }
   ?>
 </div>
+<div id="table_list">
+<h4 style="height: 30px;line-height: 30px;margin-bottom: 5px;font-size: 14px;
+    padding-left: 32px;background:#ddd">计划详情</h4>
 <?php
-$data_source = $_GET['data_source']?trim($_GET['data_source']):'A';
+	//查找当前计划单下面的所有计划内容
+	$plan_list_sql = "SELECT * FROM `db_funds_plan_list` WHERE `planid` = '$planid'";
+	$result_list = $db->query($plan_list_sql);
+	if($result_list->num_rows){
+		?>
+  	<table>
+  		<tr>
+  			<th>ID</th>
+  			<th>对账时间</th>
+  			<th>发票时间</th>
+  			<th>供应商名称</th>
+  			<th>对账金额</th>
+  			<th>计划金额</th>
+  			<th>操作</th>
+  		</tr>
+	<?php
+		while($row_list = $result_list->fetch_assoc()){
+			//判断是对账款还是预付款
+			if($row_list['accountid']){
+				$info_sql = "SELECT * FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_material_account`.`accountid` =".$row_list['accountid'];
+			} else{
+				$info_sql = "SELECT * FROM `db_funds_prepayment` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_funds_prepayment`.`prepayid` =".$row_list['preid'];
+			}
+			$result_info = $db->query($info_sql);
+			if($result_info->num_rows){
+				$row_info = $result_info->fetch_assoc();
+					
+		?>
+		<tr>
+      		<td>
+      			<input type="checkbox" value="<?php echo $row_list['listid'] ?>">
+      		</td>
+      		<td><?php echo $row_info['account_time'] ?></td>
+      		<td><?php echo $row_info['date'] ?></td>
+      		<td><?php echo $row_info['supplier_cname']?></td>
+      		<td>
+      			<?php 
+      				$account_amount =  $row_info['tot_amount'] + $row_info['tot_process_cost'] - $row_info['tot_cancel_amount'] - $row_info['tot_cut_payment'] - $row_info['tot_prepayment'];
+      				echo number_format($account_amount,2,'.','');
+      			?>		
+      		</td>
+      		<td>
+      			<?php 
+      				$plan_amount = $row_info['prepayment']?$row_info['prepayment']:$row_list['plan_amount'];
+      				echo number_format($plan_amount,2,'.','');
+      			?>
+      		</td>
+      		<td>
+      			<a href="funds_plando.php?action=del&id=<?php echo $row_list['listid'] ?>">删除</a>
+      		</td>
+    	</tr>	
+			
+	
+<?php
+		}
+	}
+?>
+	</table>
+
+<?php
+ }else{
+	  echo "<p class=\"tag\">系统提示：暂无付款计划！</p></div>";
+  }
+
+?>
+</div>
+<?php
+$data_source = $_GET['data_source']?trim($_GET['data_source']):'B';
 // if($_GET['submit']){
 // 	$mould_number = trim($_GET['mould_number']);
 // 	$material_name = trim($_GET['material_name']);
 // 	$specification = trim($_GET['specification']);
 // 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
 // }
-if($data_source == 'A'){
-//	$sql = "SELECT `db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND `db_material_account`.`status` !='C' AND `db_material_account`.`employeeid` = '$employeeid' AND (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_prepayment` - `db_material_account`.`apply_amount`)>0 AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
-	$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_invoice_list`.`date`,`db_supplier`.`supplier_cname`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_material_account`.`apply_amount` FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`-`db_material_account`.`apply_amount`)>0 AND `db_material_account`.`status` = 'F' AND `db_material_account`.`employeeid` = '$employeeid'";
-}elseif($data_source == 'B'){
+// if($data_source == 'A'){
+// //	$sql = "SELECT `db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND `db_material_account`.`status` !='C' AND `db_material_account`.`employeeid` = '$employeeid' AND (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_prepayment` - `db_material_account`.`apply_amount`)>0 AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
+// 	$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_invoice_list`.`date`,`db_supplier`.`supplier_cname`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_material_account`.`apply_amount` FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`-`db_material_account`.`apply_amount`)>0 AND `db_material_account`.`status` = 'F' AND `db_material_account`.`employeeid` = '$employeeid'";
+// }else
+
+if($data_source == 'B'){
 	$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_invoice_list`.`date`,`db_supplier`.`supplier_cname`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_material_account`.`apply_amount` FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`-`db_material_account`.`apply_amount`)>0 AND `db_material_account`.`status` = 'F'";
 }elseif($data_source == 'C'){
 		$sql = "SELECT * FROM `db_funds_prepayment` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_employee` ON `db_funds_prepayment`.`employeeid` = `db_employee`.`employeeid` WHERE `db_funds_prepayment`.`status` = '0'";
@@ -116,7 +188,7 @@ if($data_source == 'A'){
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
-if($data_source == 'A' || $data_source == 'B'){
+if($data_source == 'B'){
 $sqllist = $sql . " ORDER BY `db_material_account`.`account_time` DESC" . $pages->limitsql;
 }elseif($data_source == 'C'){
 	$sqllist = $sql."ORDER BY `db_funds_prepayment`.`dotime` DESC".$pages->limitsql;
@@ -134,8 +206,8 @@ $result = $db->query($sqllist);
         <td><input type="text" name="specification" class="input_txt" /></td> -->
         <th>应付款来源：</th>
         <td><select name="data_source" id="data_source">
-            <option value="A"<?php if($data_source == 'A') echo " selected=\"selected\""; ?>>我的应付账款</option>
-            <option value="B"<?php if($data_source == 'B') echo " selected=\"selected\""; ?>>所有应付账款</option>
+            <!-- <option value="A"<?php if($data_source == 'A') echo " selected=\"selected\""; ?>>我的应付账款</option> -->
+            <option value="B"<?php if($data_source == 'B') echo " selected=\"selected\""; ?>>对账应付账款</option>
             <option value="C"<?php if($data_source == 'C') echo " selected=\"selected\""; ?>>预付款</option>
           </select></td>
         <td><input type="submit" name="submit" id="submit" value="查询" class="button" />
@@ -146,10 +218,10 @@ $result = $db->query($sqllist);
 </div>
 <div id="table_list">
   <?php if($result->num_rows){ ?>
-  <form action="funds_plando.php" name="material_list" method="post">
+  <form action="funds_plando.php" name="material_list" id="account" method="post">
     <table>
     <?php
-    	if($data_source == 'A' || $data_source == 'B'){
+    	if($data_source == 'B'){
     ?>
       <tr>
       	<th>ID</th>
@@ -157,6 +229,7 @@ $result = $db->query($sqllist);
         <th>发票时间</th>
         <th>供应商名称</th>
         <th>对账金额</th>
+        <th>剩余金额</th>
         <th width="17%">计划金额</th>
         <th width="20%">发票号</th>
       </tr>
@@ -175,7 +248,17 @@ $result = $db->query($sqllist);
         <td><?php echo $row['account_time'] ?></td>
         <td><?php echo $row['date'] ?></td>
         <td><?php echo $row['supplier_cname'] ?></td>
-        <td class="amount" id="amount-<?php echo $row['accountid'] ?>"><?php echo number_format(($row['amount'] - $row['apply_amount']),2,'.','') ?></td>
+        <td >
+        	<?php 
+        		echo  number_format($row['amount'],2,'.','') 
+        	?>	
+        </td>
+        <td class="amount" id="amount-<?php echo $row['accountid'] ?>">
+        	<?php
+        		$surplus_amount = $row['amount'] - $row['apply_amount'];
+        		echo number_format($surplus_amount,2,'.','');
+        	?>
+        </td>
         <td>
         	<input type="text" name="plan_amount[]" id="plan_amount-<?php echo $row['accountid'] ?>" class="input_txt">
         </td>
@@ -183,7 +266,7 @@ $result = $db->query($sqllist);
         	<?php
         		if($result_invoice->num_rows){
         			while($row_invoice = $result_invoice->fetch_assoc()){
-        				echo ' PO:'.$row_invoice['invoice_no'];
+        				echo ' '.$row_invoice['invoice_no'];
         			}
         		}
         	?>
@@ -201,7 +284,7 @@ $result = $db->query($sqllist);
     <?php
   while($row = $result->fetch_assoc()){
   ?>
-  <form action="material_balance_account_do.php" method="post">
+  <form action="material_balance_account_do.php" id="account" method="post">
     <tr>
       <td>
         <input type="checkbox" name="id[]" value="<?php echo $row['prepayid']?>">
@@ -219,7 +302,7 @@ $result = $db->query($sqllist);
           <input type="hidden" name="action" value="add">
           <input type="hidden" name="data_source" value="<?php echo $data_source ?>">
           <input type="hidden" value="<?php echo $array_plan['planid'] ?>" name="planid"/>
-          <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
+          <input type="button" name="button" value="返回" class="button" onclick="window.location.href = 'material_funds_plan.php'" />
 
         </td>
       </tr>
@@ -231,6 +314,7 @@ $result = $db->query($sqllist);
   <?php
   }else{
 	  echo "<p class=\"tag\">系统提示：暂无未付款项</p>";
+	  echo '<p class="tag"><input type="button" name="button" value="返回" class="button" onclick="window.location.href = \'material_funds_plan.php\'" /></p>';
   }
   ?>
 </div>

@@ -49,8 +49,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 </div>
 <?php
 
-  $sql = "SELECT `db_funds_plan_list`.`plan_amount`,`db_material_account`.`apply_amount`,`db_material_invoice_list`.`date`,`db_material_account`.`accountid`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_supplier`.`supplier_cname` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_inout` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_funds_plan_list` ON `db_material_account`.`accountid` = `db_funds_plan_list`.`accountid` WHERE `db_material_inout`.`account_status` = 'M' AND `db_funds_plan_list`.`planid` = '$planid' AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate')".$sqlwhere."GROUP BY `db_material_account`.`accountid`";
-
+ $sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_funds_plan_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid`  WHERE `db_funds_plan_list`.`planid` = '$planid'";
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
 $sqllist = $sql . " ORDER BY `db_material_account`.`account_time` DESC" . $pages->limitsql;
@@ -117,7 +116,7 @@ $result = $db->query($sqllist);
   ?>
 <?php 
 //获取预付款项
-$pre_sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_funds_prepayment` ON `db_funds_plan_list`.`preid` = `db_funds_prepayment`.`prepayid` WHERE `db_funds_plan_list`.`planid` = '$planid'";
+$pre_sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_funds_prepayment` ON `db_funds_plan_list`.`preid` = `db_funds_prepayment`.`prepayid` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid'";
 $result_pre = $db->query($pre_sql);
         if($result_pre->num_rows){ ?>
            <div id="table_search">
@@ -140,7 +139,7 @@ $result_pre = $db->query($pre_sql);
           <tr>
             <td><?php echo $row_pre['prepayid'] ?></td>
             <td><?php echo $row_pre['dotime'] ?></td>
-            <td><?php echo $row_pre['supplierid'] ?></td>
+            <td><?php echo $row_pre['supplier_cname'] ?></td>
             <td><?php echo $row_pre['order_number'] ?></td>
             <td><?php echo $row_pre['prepayment'] ?></td>
           </tr>
