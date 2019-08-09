@@ -30,6 +30,12 @@ $(function(){
 			$("#delivery_cycle").focus();
 			return false;
 		}
+    //判断是否选择付款方式
+    var pay_type = $('input[name = pay_type]:checked').val();
+    if(!pay_type){
+      alert('请选择付款方式');
+      return false;
+    }
 	})
 })
 </script>
@@ -53,7 +59,7 @@ $(function(){
       </tr>
       <tr>
         <th>供应商：</th>
-        <td><select name="supplierid" id="supplierid">
+        <td><select name="supplierid" id="supplierid" class="input_txt txt">
             <option value="">请选择</option>
             <?php
             if($result_supplier->num_rows){
@@ -68,6 +74,14 @@ $(function(){
         <th>交货周期：</th>
         <td><input type="text" name="delivery_cycle" id="delivery_cycle" value="5" class="input_txt" />
           天</td>
+      </tr>
+      <tr>
+        <th>付款类型：</th>
+        <td>
+          <label><input type="radio" value="M" name="pay_type" />月结</label>
+          &nbsp;
+          <label><input type="radio" value="P" name="pay_type" />预付</label>
+        </td>
       </tr>
       <tr>
         <th>&nbsp;</th>

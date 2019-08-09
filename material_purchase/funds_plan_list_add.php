@@ -183,7 +183,7 @@ $data_source = $_GET['data_source']?trim($_GET['data_source']):'B';
 if($data_source == 'B'){
 	$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_invoice_list`.`date`,`db_supplier`.`supplier_cname`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_material_account`.`apply_amount` FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`-`db_material_account`.`apply_amount`)>0 AND `db_material_account`.`status` = 'F'";
 }elseif($data_source == 'C'){
-		$sql = "SELECT * FROM `db_funds_prepayment` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_employee` ON `db_funds_prepayment`.`employeeid` = `db_employee`.`employeeid` WHERE `db_funds_prepayment`.`status` = '0'";
+		$sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name`,SUM(`db_material_order_list`.`actual_quantity` * `db_material_order_list`.`unit_price`) AS `sum` FROM `db_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order`.`pay_type` = 'P' AND `db_material_order`.`order_status` = '1'";
 }
 
 $result = $db->query($sql);
@@ -191,7 +191,7 @@ $pages = new page($result->num_rows,10);
 if($data_source == 'B'){
 $sqllist = $sql . " ORDER BY `db_material_account`.`account_time` DESC" . $pages->limitsql;
 }elseif($data_source == 'C'){
-	$sqllist = $sql."ORDER BY `db_funds_prepayment`.`dotime` DESC".$pages->limitsql;
+	$sqllist = $sql."ORDER BY `db_material_order`.`dotime` DESC".$pages->limitsql;
 }
 $result = $db->query($sqllist);
 ?>
@@ -205,7 +205,7 @@ $result = $db->query($sqllist);
         <th>对账日期：</th>
         <td><input type="text" name="specification" class="input_txt" /></td> -->
         <th>应付款来源：</th>
-        <td><select name="data_source" id="data_source">
+        <td><select name="data_source" id="data_source" class="input_txt txt">
             <!-- <option value="A"<?php if($data_source == 'A') echo " selected=\"selected\""; ?>>我的应付账款</option> -->
             <option value="B"<?php if($data_source == 'B') echo " selected=\"selected\""; ?>>对账应付账款</option>
             <option value="C"<?php if($data_source == 'C') echo " selected=\"selected\""; ?>>预付款</option>
@@ -278,6 +278,7 @@ $result = $db->query($sqllist);
       <th width="">添加时间</th>
       <th width="">供应商</th>
       <th width="">合同号</th>
+      <th width="">订单金额</th>
       <th width="">预付金额</th>
       <th width="">操作人</th>
     </tr>
@@ -287,12 +288,15 @@ $result = $db->query($sqllist);
   <form action="material_balance_account_do.php" id="account" method="post">
     <tr>
       <td>
-        <input type="checkbox" name="id[]" value="<?php echo $row['prepayid']?>">
+        <input type="checkbox" name="id[]" value="<?php echo $row['orderid']?>">
       </td>
-      <td><?php echo $row['dotime']; ?></td>
+      <td><?php echo $row['order_date']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['order_number']; ?></td>
-      <td><?php echo $row['prepayment']; ?></td>
+      <td><?php echo number_format($row['sum'],2,'.',''); ?></td>
+      <td>
+      	<input type="text" value="<?php echo number_format($row['sum'],2,'.','') ?>" name="plan_amount" class="input_txt" />
+      </td>
       <td><?php echo $row['employee_name']; ?></td>
     </tr>
 

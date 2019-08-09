@@ -8,6 +8,7 @@ if($_POST['submit']){
 	$supplierid = $_POST['supplierid'];
 	$order_date = $_POST['order_date'];
 	$delivery_cycle = $_POST['delivery_cycle'];
+	$pay_type = $_POST['pay_type'];
 	if($action == "add"){
 		//自动生成编号
 		$sql_number = "SELECT MAX((SUBSTRING(`order_number`,-2)+0)) AS `max_number` FROM `db_material_order` WHERE DATE_FORMAT(`order_date`,'%Y-%m-%d') = '$order_date'";
@@ -22,7 +23,7 @@ if($_POST['submit']){
 		} 
 		$employeeid = $_SESSION['employee_info']['employeeid'];
 		$dotime = fun_gettime();
-		$sql = "INSERT INTO `db_material_order` (`orderid`,`order_number`,`order_date`,`delivery_cycle`,`supplierid`,`employeeid`,`dotime`,`order_status`) VALUES (NULL,'$order_number','$order_date','$delivery_cycle','$supplierid','$employeeid','$dotime',0)";
+		$sql = "INSERT INTO `db_material_order` (`orderid`,`order_number`,`order_date`,`delivery_cycle`,`supplierid`,`employeeid`,`dotime`,`order_status`,`pay_type`) VALUES (NULL,'$order_number','$order_date','$delivery_cycle','$supplierid','$employeeid','$dotime',0,'$pay_type')";
 		$db->query($sql);
 		if($orderid = $db->insert_id){
 			header('location:material_order_list_add.php?id='.$orderid);

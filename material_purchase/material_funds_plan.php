@@ -1,3 +1,4 @@
+<meta http-equiv="Content-Type" Content="text/html;charset=utf-8">
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
@@ -6,6 +7,11 @@ require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+
+//查询采购管理的管理员
+$isconfirm = $_SESSION['system_shell'][$system_dir]['isconfirm'];
+//查找总经办人员
+$isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
 //查询供应商
 $sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(1,`supplier_typeid`) >0 ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
@@ -44,13 +50,17 @@ $result = $db->query($sqllist);
     //动态更改提交状态
     var num = $('.status').size();
     for(var i=0;i<num;i++){
+      console.log($('.status').eq(i).html());
       if(($('.status').eq(i).html()) == 0){
-        $('.status').eq(i).html('未提交').css('cursor','pointer');
-      } else {
-        $('.status').eq(i).html('已提交').css('cursor','pointer');
+        $('.status').eq(i).html('提交').css('cursor','pointer');
+      } else if(($('.status').eq(i).html())==1) {
+        $('.status').eq(i).html('撤回').css('cursor','pointer');
       }
     }
+
     $('.status').live('click',function(){
+      var content = $(this).html();
+      if(content == '提交' || content == '撤回'){
       var id = $(this).attr('id');
       var planid = id.substr(id.indexOf('-')+1);
       var count = $("#count-"+planid).html();
@@ -59,13 +69,15 @@ $result = $db->query($sqllist);
       } else {
         $.post('../ajax_function/change_funds_plan_status.php',{planid:planid},function(data){
            var new_status = $("#status-"+data).html();
-           if(new_status == '已提交'){
-            $("#status-"+data).html('未提交');
+           if(new_status == '提交'){
+            $("#status-"+data).html('撤回');
            }else{
-            $("#status-"+data).html('已提交');
+            $("#status-"+data).html('提交');
            }
+           window.location.reload();
         })
       }
+    }
     })
   })
 </script>
@@ -132,7 +144,7 @@ $result = $db->query($sqllist);
         <th rowspan="2">操作时间</th>
         <th rowspan="2">项数</th>
         <th colspan="4" >付款计划</th>
-        <th colspan="3">付款执行</th>
+        <th colspan="4">付款执行</th>
         <th rowspan="2">详情</th>
       </tr>
       <tr>
@@ -140,6 +152,7 @@ $result = $db->query($sqllist);
         <th>采购审核</th>
         <th>财务审核</th>
         <th>总经办审批</th>
+        <th>付款申请</th>
         <th>采购审核</th>
         <th>财务审核</th>
         <th>总经办审批</th>
@@ -165,31 +178,51 @@ $result = $db->query($sqllist);
           <a href="funds_plan_list_add.php?id=<?php echo $planid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
         <td>
+          <?php if($row['plan_status'] == 0 || $row['plan_status'] == 1){ ?> 
           <span class="status" id="status-<?php echo $planid ?>">
-            <?php echo $row['plan_status']; ?>  
+            <?php
+                if($isconfirm == 1){
+                  echo $row['plan_status'];
+                }else{
+                  echo $row['plan_status'] == 0?'未提交':'已提交';
+                }
+            ?>  
           </span>
+            <?php  } ?>
         </td>
         <td>
-          <?php if ($employeeid == $row['employeeid']){ 
+          <?php
+          if($row['plan_status'] == 1 || $row['plan_status'] == 3){
               if($row['plan_status'] == '1'){
                 echo '待审核';
               } elseif($row['plan_status'] == '3'){
                 echo '通过';
               }
            } ?></td>
-        <td><?php if($employeeid == $row['employeeid'] && $list_count && $row['plan_status'] == '3'){ ?>
-          <a href="funds_plan_list_print.php?id=<?php echo $planid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a>
-          <?php } ?></td>
-        <td><?php if($employeeid == $row['employeeid'] && $list_count && $row['plan_status'] == '3'){ ?>
-          <a href="funds_plando.php?action=approval&id=<?php echo $planid; ?>">
-          申请
-          </a>
+        <td>
+          <?php if(($list_count && $row['plan_status'] == 3) || ($list_count  && $row['plan_status'] == '5')){ 
+              if($isadmin == 1 && $row['plan_status'] == 3){
+            ?>
+          <!-- <a href="funds_plan_list_print.php?id=<?php echo $planid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a> -->
+                
+              <a href="funds_plan_info.php?action=approval&id=<?php echo $row['planid'] ?>">审批</a>
+          <?php }elseif($admin != 1 && $row['plan_status'] == 3){ 
+              echo '待审核';
+            ?>
+          <?php } elseif($row['plan_status'] == 5){ 
+              echo '已审核';
+            }?>
+          <?php } ?>
+          </td>
+        <td><?php if($employeeid == $row['employeeid'] && $list_count && $row['plan_status'] == '5'){ ?>
+          <a href="funds_pay_apply.php?action=apply&id=<?php echo $planid; ?>">申请</a>
           <?php }elseif($row['plan_status'] == '4' ){
               echo '<a href="funds_plan_info.php?action=approval&id= '.$planid.'">审核</a>';
             } elseif($row['plan_status'] == '6') {
               echo '已审核';
               }  ?>
         </td>
+          <td></td>
         <td>
           <?php if($row['plan_status'] == 6){ ?>
              <a href="funds_plan_info.php?action=approval_edit&id=<?php echo $planid; ?>">审批</a>

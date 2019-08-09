@@ -2,7 +2,7 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
-$planid = fun_check_int($_GET['id']);
+$listid = fun_check_int($_GET['id']);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -46,6 +46,7 @@ body, html {
 <?php
 
 $sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_funds_plan_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid`  WHERE `db_funds_plan_list`.`planid` = '$planid'";
+
 	$result = $db->query($sql);
 	$result_amount = $db->query($sql);
 	if($count = $result->num_rows){

@@ -66,6 +66,7 @@ $action = $_GET['action'];
         <th>供应商名称</th>
         <th>对账金额</th>
         <th>计划金额</th>
+        <th>付款申请单</th>
       </tr>
   <?php
     while($row_list = $result_list->fetch_assoc()){
@@ -99,6 +100,9 @@ $action = $_GET['action'];
               echo number_format($plan_amount,2,'.','');
             ?>
           </td>
+          <td>
+            <a href="funds_plan_list_print.php?id=<?php echo $row_list['listid'] ?>">打印</a>
+          </td>
       </tr> 
       
   
@@ -107,7 +111,7 @@ $action = $_GET['action'];
   }
 ?>
   <tr>
-        <td colspan="6">
+        <td colspan="7">
         <?php 
           if($action == 'approval'){ ?>
           <input type="button" name="" class="button" value="通过" onclick="location.href='funds_plan_approval_do.php?action=approval&planid=<?php echo $planid ?>'" >

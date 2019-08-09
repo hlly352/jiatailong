@@ -47,20 +47,15 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
   }
   ?>
 </div>
-<?php
-
- $sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_funds_plan_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid`  WHERE `db_funds_plan_list`.`planid` = '$planid'";
-$result = $db->query($sql);
-$pages = new page($result->num_rows,10);
-$sqllist = $sql . " ORDER BY `db_material_account`.`account_time` DESC" . $pages->limitsql;
-$result = $db->query($sqllist);
-?>
-<div id="table_search">
-  <h4>计划付款</h4>
-</div>
 <div id="table_list">
-  <?php if($result->num_rows){ ?>
-  <form action="funds_plando.php" name="material_list" method="post">
+<h4 style="height: 30px;line-height: 30px;margin-bottom: 5px;font-size: 14px;
+    padding-left: 32px;background:#ddd">计划详情</h4>
+<?php
+  //查找当前计划单下面的所有计划内容
+  $plan_list_sql = "SELECT * FROM `db_funds_plan_list` WHERE `planid` = '$planid'";
+  $result_list = $db->query($plan_list_sql);
+  if($result_list->num_rows){
+    ?>
     <table>
       <tr>
         <th>ID</th>
@@ -68,94 +63,67 @@ $result = $db->query($sqllist);
         <th>发票时间</th>
         <th>供应商名称</th>
         <th>对账金额</th>
-        <th width="17%">计划金额</th>
-        <th width="20%">发票号</th>
+        <th>计划金额</th>
       </tr>
-
-      <?php
-      while($row = $result->fetch_assoc()){
-        //查询对应的发票号
-        $invoice_sql = "SELECT `invoice_no` FROM `db_material_invoice_list` WHERE `accountid`=".$row['accountid'];
-        $result_invoice = $db->query($invoice_sql);
-
-    ?>
-      <tr>
-        <td>
-          <input type="checkbox" class="accountid" value="<?php echo $row['accountid'] ?>">
-          <input type="hidden" name="accountid[]" value="<?php echo $row['accountid'] ?>">
-        </td>
-        <input type="hidden" value="<?php echo $array_plan['planid'] ?>" name="planid"/>
-        <td><?php echo $row['account_time'] ?></td>
-        <td><?php echo $row['date'] ?></td>
-        <td><?php echo $row['supplier_cname'] ?></td>
-        <td class="amount" id="amount-<?php echo $row['accountid'] ?>"><?php echo number_format($row['amount'],2,'.','') ?></td>
-        <td>
-          <?php echo number_format($row['plan_amount'],2,'.','') ?>
-        </td>
-        <td>
-          <?php
-            if($result_invoice->num_rows){
-              while($row_invoice = $result_invoice->fetch_assoc()){
-                echo ' PO:'.$row_invoice['invoice_no'];
-              }
-            }
-          ?>
-        </td>
-      </tr>
-      <?php } ?>
-     
-    </table>
-  </form>
-  <div id="page">
-    <?php $pages->getPage();?>
-  </div>
   <?php
-  }else{
-    echo "<p class=\"tag\">系统提示：暂无未付款项</p>";
+    while($row_list = $result_list->fetch_assoc()){
+      //判断是对账款还是预付款
+      if($row_list['accountid']){
+        $info_sql = "SELECT * FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_material_account`.`accountid` =".$row_list['accountid'];
+      } else{
+        $info_sql = "SELECT * FROM `db_funds_prepayment` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_funds_prepayment`.`prepayid` =".$row_list['preid'];
+      }
+
+      $result_info = $db->query($info_sql);
+      if($result_info->num_rows){
+        $row_info = $result_info->fetch_assoc();
+          
+    ?>
+    <tr>
+          <td>
+            <input type="checkbox" value="<?php echo $row_list['listid'] ?>">
+          </td>
+          <td><?php echo $row_info['account_time'] ?></td>
+          <td><?php echo $row_info['date'] ?></td>
+          <td><?php echo $row_info['supplier_cname']?></td>
+          <td>
+            <?php 
+              $account_amount =  $row_info['tot_amount'] + $row_info['tot_process_cost'] - $row_info['tot_cancel_amount'] - $row_info['tot_cut_payment'] - $row_info['tot_prepayment'];
+              echo number_format($account_amount,2,'.','');
+            ?>    
+          </td>
+          <td>
+            <?php 
+              $plan_amount = $row_info['prepayment']?$row_info['prepayment']:$row_list['plan_amount'];
+              echo number_format($plan_amount,2,'.','');
+            ?>
+          </td>
+      </tr> 
+      
+  
+<?php
+    }
   }
-  ?>
-<?php 
-//获取预付款项
-$pre_sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_funds_prepayment` ON `db_funds_plan_list`.`preid` = `db_funds_prepayment`.`prepayid` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid'";
-$result_pre = $db->query($pre_sql);
-        if($result_pre->num_rows){ ?>
-           <div id="table_search">
-            <h4>预付款</h4>
-           </div>
-        <table>
-           <tr>
-             <th>ID</th>
-             <th>添加时间</th>
-             <th>供应商</th>
-             <th>合同号</th>
-             <th>金额</th>
-           </tr>
-        <?php } ?>
-        <?php 
-          while($row_pre = $result_pre->fetch_assoc()){
-           // var_dump($row_pre);
-        
-      ?>
-          <tr>
-            <td><?php echo $row_pre['prepayid'] ?></td>
-            <td><?php echo $row_pre['dotime'] ?></td>
-            <td><?php echo $row_pre['supplier_cname'] ?></td>
-            <td><?php echo $row_pre['order_number'] ?></td>
-            <td><?php echo $row_pre['prepayment'] ?></td>
-          </tr>
-      </table>
-      <?php } ?>
-      <table>
-         <tr>
+?>
+  </table>
+  <table>
+    <tr>
         <td colspan="15">
           <input type="button" name="submit" class="button" value="通过" onclick="location.assign('funds_plan_approval_do.php?action=complete&planid=<?php echo $_GET['planid'] ?>')">
           <input type="button" class="button" onclick="location.assign('funds_plan_approval_do.php?action=back&planid=<?php echo $_GET['planid'] ?>')" value="退回">
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
 
         </td>
-      </tr>
-      </table>
+    </tr>
+  </table>
+<?php
+ }else{
+    echo "<p class=\"tag\">系统提示：暂无付款计划！</p></div>";
+  }
+
+?>
 </div>
+
 <?php include "../footer.php"; ?>
 </body>
 </html>
