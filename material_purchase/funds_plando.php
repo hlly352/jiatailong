@@ -15,19 +15,23 @@ $plan_date = trim($_POST['plan_date']);
 		$db->query($plan_date_sql);
 		if( $data_source == 'B'){
 		//接收数据
-		$accountid_array = $_POST['accountid'];
+		$id_array = $_POST['id'];
+		$cut_payment_array = $_POST['cut_payment'];
+		$cancel_amount_array = $_POST['cancel_amount'];
 		$plan_amount_array = $_POST['plan_amount'];
+		$accountid_array = $_POST['accountid'];
 		//添加计划列表
 		$i = 0;
-		foreach($plan_amount_array as $key=>$value){
+		foreach($id_array as $key=>$value){
 			if(trim($value)){
-				$sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`plan_amount`) VALUES('$planid','$accountid_array[$key]','$value')";
+				$sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`orderid`,`cancel_amount`,`cut_payment`,`plan_amount`) VALUES('$planid','$accountid_array[$key]','$value','$cancel_amount_array[$key]','$cut_payment_array[$key]','$plan_amount_array[$key]')";
+
 				$db->query($sql);
 				if(!$db->affected_rows){
 					$i++;
 				}else{
 					//更改对应的计划金额
-					$account_sql = "UPDATE `db_material_account` SET `apply_amount` = `apply_amount` + '$value'  WHERE `accountid`= $accountid_array[$key]";
+					$account_sql = "UPDATE `db_material_account` SET `apply_amount` = `apply_amount` + '$plan_amount_array[$key]'  WHERE `accountid`= $accountid_array[$key]";
 					$db->query($account_sql);
 
 				}
@@ -37,39 +41,33 @@ $plan_date = trim($_POST['plan_date']);
 			header('location:'.$_SERVER['HTTP_REFERER']);
 		}
 	  }elseif($data_source == 'C'){
-	  	$preid = $_POST['id'];
-	  	if(!empty($preid)){
-	  		//遍历得到计划金额
-
-	  		foreach($preid as $v){
-	  			$plan_amount_sql = "SELECT `prepayment` FROM `db_funds_prepayment` WHERE `prepayid` = '$v'";
-	  			$result_amount = $db->query($plan_amount_sql);
-	  			if($result_amount->num_rows){
-	  				$i = 0;
-	  				while($row = $result_amount->fetch_assoc()){
-	  					$plan_amount = $row['prepayment'];
-
-	  					//插入到付款计划中
-	  					$plan_sql = "INSERT INTO `db_funds_plan_list`(`planid`,`plan_amount`,`preid`) VALUES('$planid','$plan_amount','$v')";
-	  					
-	  					$db->query($plan_sql);
-	  					if(!$db->affected_rows){
-	  						$i++;
-	  					}else{
-	  						//更改预付款状态
-	  						$pre_status_sql = "UPDATE `db_funds_prepayment` SET `status` = '1' WHERE `prepayid` = '$v'";
-	  						$db->query($pre_status_sql);
-	  					}
-	  				}
-	  				if($i == 0){
-	  					header('location:'.$_SERVER['HTTP_REFERER']);
-	  				}
-	  			}
-	  			
+	  	$id_array = $_POST['id'];
+	  	$order_amount_array = $_POST['order_amount'];
+	  	$plan_amount_array = $_POST['plan_amount'];
+	  	
+	  	//遍历得到计划金
+	  	$i = 0;
+	  	foreach($id_array as $key=>$value){
+	  		$k1 = 'order_amount_'.$value;
+	  		$k2 = 'plan_amount_'.$value;
+	  		$order_amount = $_POST[$k1];
+	  		$plan_amount = $_POST[$k2];
+	  
+	  		//更改预付金额
+	  		$prepayment_sql = "UPDATE `db_material_order` SET `prepayment` = `prepayment` + '$plan_amount' WHERE `orderid` = '$value'";
+	  		$db->query($prepayment_sql);
+	  		//插入到计划列表中
+	  		$plan_sql = "INSERT INTO `db_funds_plan_list`(`planid`,`orderid`,`order_amount`,`plan_amount`) VALUES('$planid','$value','$order_amount','$plan_amount')";
+	  		
+	  		$db->query($plan_sql);
+	  		if(!$db->affected_rows){
+	  			$i++;
 	  		}
-	  	}else{
-	  		header('location:material_funds_plan.php');
 	  	}
+	  	if($i == 0){
+	  		header('location:'.$_SERVER['HTTP_REFERER']);
+	  		}
+	  
 	  }
 	}elseif($action == 'add_plan'){
 		$plan_date = date('Y-m-d');

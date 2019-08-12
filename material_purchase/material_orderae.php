@@ -30,12 +30,6 @@ $(function(){
 			$("#delivery_cycle").focus();
 			return false;
 		}
-    //判断是否选择付款方式
-    var pay_type = $('input[name = pay_type]:checked').val();
-    if(!pay_type){
-      alert('请选择付款方式');
-      return false;
-    }
 	})
 })
 </script>
@@ -46,6 +40,18 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php if($action == "add"){ ?>
+  <script type="text/javascript">
+    $(function(){
+      $('#submit').live('click',function(){
+        //判断是否选择付款方式
+        var pay_type = $('input[name = pay_type]:checked').val();
+        if(!pay_type){
+          alert('请选择付款方式');
+          return false;
+        }
+      })
+    })
+  </script>
   <h4>物料订单添加</h4>
   <form action="material_orderdo.php" name="material_order" method="post">
     <table>

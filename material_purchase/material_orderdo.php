@@ -31,6 +31,20 @@ if($_POST['submit']){
 	}elseif($action == "edit"){
 		$orderid = $_POST['orderid'];
 		$order_status = $_POST['order_status'];
+		//把每一项金额汇总到订单汇总表中
+		if($order_status == 1){
+			$amount_sql = "SELECT SUM(`actual_quantity` * `unit_price`) FROM `db_material_order_list` WHERE `orderid` = '$orderid'";
+			$result_amount = $db->query($amount_sql);
+			if($result_amount->num_rows){
+				$amounts = $result_amount->fetch_row()[0];
+			}
+			$order_amount_sql = "UPDATE `db_material_order` SET `order_amount` = '$amounts' WHERE `orderid` = '$orderid'";
+		}else{
+			$order_amount_sql = "UPDATE `db_material_order` SET `order_amount` = 0 WHERE `orderid` = '$orderid'";
+		}
+		$db->query($order_amount_sql);
+
+		//更改订单状态
 		$sql = "UPDATE `db_material_order` SET `delivery_cycle` = '$delivery_cycle',`supplierid` = '$supplierid',`order_status` = '$order_status' WHERE `orderid` = '$orderid'";
 		$db->query($sql);
 		if($db->affected_rows){

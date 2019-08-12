@@ -14,6 +14,7 @@ if($_POST['submit']){
 }
 $orderid_array = array();
 $nowmonth = date('Y-m');
+
 //通过inoutid查询供应商
 $account_array = array();
 foreach($id as $v){

@@ -21,8 +21,7 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_order_status";
 }
-$sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_material_order`.`delivery_cycle`,`db_material_order`.`dotime`,`db_material_order`.`order_status`,`db_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE (SELECT SUM(`db_material_order_list`.`actual_quantity` * `db_material_order_list`.`unit_price`) FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid`) > `db_material_order`.`prepayment` AND `db_material_order`.`pay_type` = 'P' AND `db_material_order`.`order_status` = '1' AND (`db_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
-echo $sql;
+$sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_material_order`.`delivery_cycle`,`db_material_order`.`dotime`,`db_material_order`.`order_status`,`db_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order`.`pay_type` = 'P' AND `db_material_order`.`order_status` = '1' AND (`db_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere GROUP BY `db_material_order`.`orderid`";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -109,7 +108,7 @@ $result = $db->query($sqllist);
         <th width="16%">合同号</th>
         <th width="10%">订单日期</th>
         <th width="10%">供应商</th>
-        <th width="10%">预付金额</th>
+        <th width="10%">总金额</th>
         <th width="10%">操作人</th>
         <th width="12%">操作时间</th>
         <th width="6%">项数</th>

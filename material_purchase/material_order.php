@@ -146,7 +146,7 @@ $result = $db->query($sqllist);
         <td><?php if(!in_array($orderid,$array_material_inout) && $employeeid == $row['employeeid']){ ?>
           <a href="material_orderae.php?id=<?php echo $orderid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
-        <td><?php if($employeeid == $row['employeeid'] && $list_count){ ?>
+        <td><?php if($list_count){ ?>
           <a href="excel_material_order.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/excel_10_10.png" width="10" height="10" />
           <?php } ?>
           </a></td>
