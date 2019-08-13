@@ -21,7 +21,8 @@ $accountid = $_GET['id'];
 <?php include "header.php"; ?>
 <?php
 //通过对账汇总表id查询详情
-$sql = "SELECT `db_material_inout`.`cancel_amount`,`db_material_inout`.`cut_payment`,`db_funds_prepayment`.`prepayment`,`db_material_account_list`.`accountid`,`db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` INNER JOIN `db_material_account_list` ON `db_material_inout`.`inoutid` = `db_material_account_list`.`inoutid` LEFT JOIN `db_funds_prepayment` ON `db_funds_prepayment`.`order_number` = `db_material_order`.`order_number`  WHERE `db_material_account_list`.`accountid`='$accountid' AND `db_material_inout`.`dotype` ='I' AND `db_material_inout`.`account_status` = 'F' $sqlwhere";
+$sql = "SELECT `db_material_inout`.`cancel_amount`,`db_material_inout`.`cut_payment`,`db_material_account_list`.`accountid`,`db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` INNER JOIN `db_material_account_list` ON `db_material_inout`.`inoutid` = `db_material_account_list`.`inoutid`  WHERE `db_material_account_list`.`accountid`='$accountid' AND `db_material_inout`.`dotype` ='I' $sqlwhere";
+
 $sql = $sql.'ORDER BY `db_material_order`.`orderid`';
 
 $result = $db->query($sql);
@@ -53,7 +54,6 @@ $result = $db->query($sql);
       <th width="4%">核销</th>
       <th width="4%">品质<br />
       扣款</th>
-      <th width="4">预付款</th>
       <th width="6%">供应商</th>
       <th width="7%">表单号</th>
       <th width="6%">入库日期</th>
@@ -84,7 +84,6 @@ $result = $db->query($sql);
       <td><?php echo $row['process_cost']; ?></td>
       <td><?php echo $row['cancel_amount']; ?></td>
       <td><?php echo $row['cut_payment']; ?></td>
-      <td><?php echo $row['prepayment']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['form_number']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
@@ -94,7 +93,6 @@ $result = $db->query($sql);
   $tot_process_cost += $row['process_cost'];
   $tot_cut_payment += $row['cut_payment'];
   $tot_cancel_amount += $row['cancel_amount'];
-  $tot_prepayment += $row['prepayment'];
   }
   ?>
     <tr>
@@ -103,7 +101,6 @@ $result = $db->query($sql);
       <td><?php echo number_format($tot_process_cost,2,'.',''); ?></td>
       <td><?php echo number_format($tot_cancel_amount,2,'.',''); ?></td>
       <td><?php echo number_format($tot_cut_payment,2,'.',''); ?></td>
-      <td><?php echo number_format($tot_prepayment,2,'.',''); ?></td>
       <td>&nbsp;</td>
       <td>&nbsp;</td>
       <td>&nbsp;</td>
@@ -120,7 +117,7 @@ $result = $db->query($sql);
   </table>
   <?php
   }else{
-	  echo "<p class=\"tag\">系统提示：暂无出入库记录</p>";
+	  echo "<p class=\"tag\">系统提示：暂无对账信息</p>";
   }
   ?>
 </div>

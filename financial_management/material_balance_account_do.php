@@ -7,15 +7,13 @@ $accountid = $_GET['accountid'];
 $action = $_GET['action'];
 //遍历accountid，更改对账状态
 if($action == 'complete'){
-	$sql = "UPDATE `db_material_inout` SET `account_status` = 'I' WHERE `inoutid` IN (SELECT `inoutid` FROM `db_material_account_list` WHERE `accountid` = '$accountid') ";
+	//更改对账汇总表的状态
+	$sql = "UPDATE `db_material_account` SET `status` = 'I' WHERE `accountid` = '$accountid'";
 	 $db->query($sql);
     if($db->affected_rows){
     	header('location:material_balance_account.php');
     	}
 } elseif($action == 'back'){
-		$sql = "UPDATE `db_material_inout` SET `account_status` = 'P' WHERE `inoutid` IN(SELECT `inoutid` FROM `db_material_account_list` WHERE `accountid` = '$accountid')";
-		$db->query($sql);
-		if($db->affected_rows){
 			//删除对账汇总表和对账列表中的信息
 			$sql_account = "DELETE FROM `db_material_account` WHERE `accountid`='$accountid'";
 			$db->query($sql_account);
@@ -24,6 +22,6 @@ if($action == 'complete'){
 			if($db->affected_rows){
 				header('location:material_balance_account.php');
 			}
-		}
+		
 	}
 ?>

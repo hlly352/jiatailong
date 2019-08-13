@@ -102,52 +102,57 @@ $(function(){
 <div id="table_list">
 <?php
 	//查找当前计划单下面的所有计划内容
-	$plan_list_sql = "SELECT * FROM `db_funds_plan_list` WHERE `planid` = '$planid'";
+	$plan_list_sql = "SELECT `db_funds_plan_list`.`listid`,`db_funds_plan_list`.`order_amount`,`db_funds_plan_list`.`process_cost`,`db_funds_plan_list`.`accountid`,`db_funds_plan_list`.`cancel_amount`,`db_funds_plan_list`.`cut_payment`,`db_funds_plan_list`.`plan_amount`,`db_supplier`.`supplier_cname`,`db_material_order`.`order_number`,`db_material_order`.`order_date` FROM `db_funds_plan_list` INNER JOIN `db_material_order` ON `db_funds_plan_list`.`orderid` = `db_material_order`.`orderid` INNER JOIN `db_supplier` ON `db_material_order`.`supplierid` = `db_supplier`.`supplierid` WHERE `planid` = '$planid'";
 	$result_list = $db->query($plan_list_sql);
 	if($result_list->num_rows){
 		?>
   	<table>
-  		<tr>
-  			<th>ID</th>
-  			<th>对账时间</th>
-  			<th>发票时间</th>
-  			<th>供应商名称</th>
-  			<th>对账金额</th>
-  			<th>计划金额</th>
-  			<th>操作</th>
-  		</tr>
+  	   	<tr>
+	      	<th>ID</th>
+	        <th>对账时间</th>
+	        <th>合同号</th>
+	        <th>供应商</th>
+	        <th>物料金额</th>
+	        <th>加工费</th>
+	        <th>核销金额</th>
+	        <th>品质扣款</th>
+	        <th>对账金额</th>
+	        <th>计划金额</th>
+	        <th>操作</th>
+      	</tr>
 	<?php
 		while($row_list = $result_list->fetch_assoc()){
-			//判断是对账款还是预付款
-			if($row_list['accountid']){
-				$info_sql = "SELECT * FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_material_account`.`accountid` =".$row_list['accountid'];
-			} else{
-				$info_sql = "SELECT * FROM `db_funds_prepayment` INNER JOIN `db_supplier` ON `db_funds_prepayment`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_funds_prepayment`.`prepayid` =".$row_list['preid'];
-			}
-			$result_info = $db->query($info_sql);
-			if($result_info->num_rows){
-				$row_info = $result_info->fetch_assoc();
+			// //判断是对账款还是预付款
+			// if($row_list['accountid']){
+			// 	$info_sql = "SELECT * FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_material_account`.`accountid` =".$row_list['accountid'];
+			// echo $info_sql.'<br>';
+			// $result_info = $db->query($info_sql);
+			// if($result_info->num_rows){
+			// 	$row_info = $result_info->fetch_assoc();
+			// } else{
+			// 	//$info_sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name`,`db_material_order`.`order_amount` AS `sum`,`db_material_order`.`prepayment` FROM `db_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order`.`orderid` =".$row_list['orderid'];
+				
+			//}
 					
 		?>
 		<tr>
       		<td>
       			<input type="checkbox" value="<?php echo $row_list['listid'] ?>">
       		</td>
-      		<td><?php echo $row_info['account_time'] ?></td>
-      		<td><?php echo $row_info['date'] ?></td>
-      		<td><?php echo $row_info['supplier_cname']?></td>
+      		<td><?php echo $row_list['order_date'] ?></td>
+      		<td><?php echo $row_list['order_number'] ?></td>
+      		<td><?php echo $row_list['supplier_cname']?></td>
+      		<td><?php echo $row_list['order_amount']?></td>
+      		<td><?php echo $row_list['process_cost'] ?></td>
+      		<td><?php echo $row_list['cancel_amount'] ?></td>
+      		<td><?php echo $row_list['cut_payment'] ?></td>
       		<td>
       			<?php 
-      				$account_amount =  $row_info['tot_amount'] + $row_info['tot_process_cost'] - $row_info['tot_cancel_amount'] - $row_info['tot_cut_payment'] - $row_info['tot_prepayment'];
+      				$account_amount = $row_list['order_amount'] + $row_list['process_cost'] - $row_list['cancel_amount'] - $row_list['cut_payment'];
       				echo number_format($account_amount,2,'.','');
       			?>		
       		</td>
-      		<td>
-      			<?php 
-      				$plan_amount = $row_info['prepayment']?$row_info['prepayment']:$row_list['plan_amount'];
-      				echo number_format($plan_amount,2,'.','');
-      			?>
-      		</td>
+      		<td><?php echo $row_list['plan_amount'] ?></td>
       		<td>
       			<a href="funds_plando.php?action=del&id=<?php echo $row_list['listid'] ?>">删除</a>
       		</td>
@@ -156,10 +161,10 @@ $(function(){
 	
 <?php
 		}
-	}
+	
 ?>
 	<tr>
-		<td colspan="7">
+		<td colspan="11">
 			<input type="button" class="button" value="确认" onclick="window.location.href='material_funds_plan.php'" />
 		</td>
 	</tr>
@@ -176,7 +181,7 @@ $(function(){
 //$data_source = $_GET['data_source']?trim($_GET['data_source']):'B';
 
 
-	$order_list_sql = "SELECT `orderidlist` FROM `db_material_account` WHERE `status` = 'F'";
+	$order_list_sql = "SELECT `orderidlist` FROM `db_material_account` WHERE `status` = 'P'";
 	$result_order_list = $db->query($order_list_sql);
 	if($result_order_list->num_rows){
 		$orderidlist = '';
@@ -222,9 +227,9 @@ $result = $db->query($sqllist);
         <th>合同号</th>
         <th>供应商</th>
         <th>物料金额</th>
+        <th>加工费</th>
         <th>核销金额</th>
         <th>品质扣款</th>
-        <th>加工费</th>
         <th>对账金额</th>
         <th>操作人</th>
       </tr>
@@ -232,7 +237,7 @@ $result = $db->query($sqllist);
       <?php
       while($row = $result->fetch_assoc()){
       	//查询对应的对账时间
-      	
+      	$orderid = $row['orderid'];
       	$account_sql = "SELECT `db_employee`.`employee_name`,`db_material_account`.`accountid`,`db_material_account`.`account_time` FROM `db_material_account` INNER JOIN `db_employee` ON `db_material_account`.`employeeid` = `db_employee`.`employeeid` WHERE FIND_IN_SET(".$row['orderid'].",`db_material_account`.`orderidlist`)" ;
       
       	$result_account = $db->query($account_sql);
@@ -243,24 +248,26 @@ $result = $db->query($sqllist);
 	  ?>
       <tr>
         <td>
-        	<input type="checkbox" value="<?php echo $row['orderid'] ?>" name="id[]" />
+        	<input type="checkbox" value="<?php echo $orderid ?>" name="id[]" />
         </td>
         <td><?php echo $row_account['account_time'] ?></td>
         <td><?php echo $row['order_number']?></td>
         <td><?php echo $row['supplier_cname'] ?></td>
         <td><?php echo $row['sum'] ?></td>
+        <td><?php echo $row['process_cost'] ?></td>
         <td><?php echo $row['cancel_amount'] ?></td>
         <td><?php echo $row['cut_payment'] ?></td>
-        <td><?php echo $row['process_cost'] ?></td>
         <td>
         	<?php
         		 echo number_format(($row['sum'] + $row['process_cost'] - $row['cancel_amount'] - $row['cut_payment']),2,'.','');
               	?>
         </td>
-      	<input type="hidden" value="<?php echo $row['sum'] + $row['process_cost'] - $row['cancel_amount'] - $row['cut_payment'] ?>" name="plan_amount[]" />
-      	<input type="hidden" value="<?php echo $row_account['accountid'] ?>" name="accountid[]" />			
-      	<input type="hidden" value="<?php echo $row['cancel_amount'] ?>" name="cancel_amount[]" />
-      	<input type="hidden" value="<?php echo $row['cut_payment'] ?>" name="cut_payment[]" />
+        <input type="hidden" value="<?php echo $row['sum'] ?>" name="order_amount_<?php echo $orderid ?>" />
+        <input type="hidden" value="<?php echo $row['process_cost'] ?>" name="process_cost_<?php echo $orderid ?>" />
+      	<input type="hidden" value="<?php echo $row['sum'] + $row['process_cost'] - $row['cancel_amount'] - $row['cut_payment'] ?>" name="plan_amount_<?php echo $orderid ?>" />
+      	<input type="hidden" value="<?php echo $row_account['accountid'] ?>" name="accountid_<?php echo $orderid ?>" />			
+      	<input type="hidden" value="<?php echo $row['cancel_amount'] ?>" name="cancel_amount_<?php echo $orderid ?>" />
+      	<input type="hidden" value="<?php echo $row['cut_payment'] ?>" name="cut_payment_<?php echo $orderid ?>" />
         <td><?php echo $row_account['employee_name'] ?></td>
       </tr>
       <?php } ?>
@@ -295,7 +302,7 @@ $sqllist = $sql."ORDER BY `db_material_order`.`dotime` DESC".$pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <div id="table_search">
-  <h4>应付账款</h4>
+  <h4>预付账款</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -344,7 +351,7 @@ $result = $db->query($sqllist);
       <td><?php echo number_format(($row['sum'] - $row['prepayment']),2,'.','') ?></td>
       <input type="hidden" value="<?php echo $row['sum'] ?>" name="order_amount_<?php echo $row['orderid'] ?>" />
       <td>
-      	<input type="text" value="<?php echo number_format($row['sum'],2,'.','') ?>" name="plan_amount_<?php echo $row['orderid'] ?>" class="input_txt" />
+      	<input type="text" value="<?php echo number_format(($row['sum'] - $row['prepayment']),2,'.','') ?>" name="plan_amount_<?php echo $row['orderid'] ?>" class="input_txt" />
       </td>
       <td><?php echo $row['employee_name']; ?></td>
     </tr>

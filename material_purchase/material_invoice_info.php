@@ -78,7 +78,7 @@ $(function(){
   $accountid = $_GET['id'];
   if($action == "add"){
   //查找当前供应商的信息
-  $sql = "SELECT `db_material_account`.`accountid`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_material_account`.`supplierid`,`db_material_account`.`account_type` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `accountid` =".$accountid;
+  $sql = "SELECT `db_material_account`.`account_time`,`db_material_account`.`accountid`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount`) AS `amount`,`db_material_account`.`supplierid`,`db_material_account`.`account_type` FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE `accountid` =".$accountid;
   $result = $db->query($sql);
   if($result->num_rows){
     $row = $result->fetch_assoc();
@@ -165,6 +165,52 @@ $(function(){
     }
   }
   ?>
+</div>
+<?php
+	$order_sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_supplier`.`supplier_cname`,SUM(`db_material_inout`.`amount`) AS `sum`,SUM(`db_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_material_inout`.`cut_payment`) AS `cut_payment`,SUM(`db_material_order_list`.`process_cost`) AS `process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_material_inout` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_material_order`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_material_inout`.`dotype` = 'I' AND `db_material_order`.`orderid` IN($orderidlist) GROUP BY `db_material_order`.`orderid`";
+
+	$result_order = $db->query($order_sql);
+	if($result_order->num_rows){ ?>
+	<div id="table_list">
+		<table>
+			<tr>
+				<th>ID</th>
+		        <th>对账时间</th>
+		        <th>合同号</th>
+		        <th>供应商</th>
+		        <th>物料金额</th>
+		        <th>加工费</th>
+		        <th>核销金额</th>
+		        <th>品质扣款</th>
+		        <th>对账金额</th>
+			</tr>
+	<?php
+		while($rows = $result_order->fetch_assoc()){
+	?>
+			<tr>
+				<td>
+        			<input type="checkbox" value="<?php echo $row['orderid'] ?>" name="id[]" />
+		        </td>
+		        <td><?php echo $row['account_time'] ?></td>
+		        <td><?php echo $rows['order_number']?></td>
+		        <td><?php echo $rows['supplier_cname'] ?></td>
+		        <td><?php echo $rows['sum'] ?></td>
+		        <td><?php echo $rows['process_cost'] ?></td>
+		        <td><?php echo $rows['cancel_amount'] ?></td>
+		        <td><?php echo $rows['cut_payment'] ?></td>
+		        <td>
+		        	<?php
+		        		 echo number_format(($rows['sum'] + $rows['process_cost'] - $rows['cancel_amount'] - $rows['cut_payment']),2,'.','');
+		            ?>
+		        </td>
+			</tr>
+	<?php }?>
+	</table>
+	<?php
+		}else{
+		 echo "<p class=\"tag\">系统提示：暂无记录</p>";
+	}
+?>
 </div>
 <?php include "../footer.php"; ?>
 </body>

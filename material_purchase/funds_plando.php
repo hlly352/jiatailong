@@ -16,22 +16,32 @@ $plan_date = trim($_POST['plan_date']);
 		if( $data_source == 'B'){
 		//接收数据
 		$id_array = $_POST['id'];
-		$cut_payment_array = $_POST['cut_payment'];
-		$cancel_amount_array = $_POST['cancel_amount'];
-		$plan_amount_array = $_POST['plan_amount'];
-		$accountid_array = $_POST['accountid'];
+	
 		//添加计划列表
 		$i = 0;
 		foreach($id_array as $key=>$value){
+			//获取当前数据的name值
+			 $k1 = 'process_cost_'.$value;
+  			 $k2 = 'plan_amount_'.$value;
+  			 $k3 = 'accountid_'.$value;
+  			 $k4 = 'cancel_amount_'.$value;
+  			 $k5 = 'cut_payment_'.$value;
+  			 $k6 = 'order_amount_'.$value;
+  	
+  			 $process_cost = $_POST[$k1];
+  			 $plan_amount = $_POST[$k2];
+  			 $accountid = $_POST[$k3];
+  			 $cancel_amount = $_POST[$k4];
+  			 $cut_payment = $_POST[$k5];
+  			 $order_amount = $_POST[$k6];
 			if(trim($value)){
-				$sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`orderid`,`cancel_amount`,`cut_payment`,`plan_amount`) VALUES('$planid','$accountid_array[$key]','$value','$cancel_amount_array[$key]','$cut_payment_array[$key]','$plan_amount_array[$key]')";
-
+				$sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`orderid`,`cancel_amount`,`cut_payment`,`plan_amount`,`order_amount`,`process_cost`) VALUES('$planid','$accountid','$value','$cancel_amount','$cut_payment','$plan_amount','$order_amount','$process_cost')";
 				$db->query($sql);
 				if(!$db->affected_rows){
 					$i++;
 				}else{
 					//更改对应的计划金额
-					$account_sql = "UPDATE `db_material_account` SET `apply_amount` = `apply_amount` + '$plan_amount_array[$key]'  WHERE `accountid`= $accountid_array[$key]";
+					$account_sql = "UPDATE `db_material_account` SET `apply_amount` = `apply_amount` + '$plan_amount'  WHERE `accountid`= $accountid";
 					$db->query($account_sql);
 
 				}
@@ -156,6 +166,7 @@ $plan_date = trim($_POST['plan_date']);
 		}
 		$plan_amount = $row_list['plan_amount'];
 		$listid = $row_list['listid'];
+		$orderid = $row_list['orderid'];
 		$accountid = $row_list['accountid'];
 		
 		//对账单中的项目，删除之后更改申请金额
@@ -172,7 +183,8 @@ $plan_date = trim($_POST['plan_date']);
 			
 		} else {
 			//更改状态
-			$prepayment_sql = "UPDATE `db_funds_prepayment` SET `status` = '0' WHERE `prepayid` = ".$row_list['preid'];
+			$prepayment_sql = "UPDATE `db_material_order` SET `prepayment` = `prepayment` - '$plan_amount' WHERE `orderid` = '$orderid'";
+
 			$db->query($prepayment_sql);
 			//直接删除预付款项
 			$list_del_sql = "DELETE FROM `db_funds_plan_list` WHERE `listid` = '$plan_listid'";

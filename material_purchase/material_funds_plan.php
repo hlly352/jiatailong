@@ -110,7 +110,7 @@ $result = $db->query($sqllist);
       ?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="添加计划" class="button" onclick="location.href='funds_plando.php?action=add_plan'" /></td>
+          <input type="button" name="button" value="新建计划" class="button" onclick="location.href='funds_plando.php?action=add_plan'" /></td>
       </tr>
     </table>
   </form>
