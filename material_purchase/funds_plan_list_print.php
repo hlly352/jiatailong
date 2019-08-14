@@ -45,7 +45,7 @@ body, html {
 <body>
 <?php
 
-$sql = "SELECT * FROM `db_funds_plan_list` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_funds_plan_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_invoice_list` ON `db_material_invoice_list`.`accountid` = `db_material_account`.`accountid`  WHERE `db_funds_plan_list`.`planid` = '$planid'";
+$sql = "SELECT * FROM `db_funds_plan_list` WHERE `listid` = '$listid'";
 
 	$result = $db->query($sql);
 	$result_amount = $db->query($sql);

@@ -103,6 +103,7 @@ $result = $db->query($sqllist);
   while($row = $result->fetch_assoc()){
     $accountid = $row['accountid'];
     $listid = $row['listid'];
+  var_dump($row);
     //通过对账单id查询对应的发票
     $invoice_sql = "SELECT * FROM `db_material_invoice_list` WHERE `accountid`=".$row['accountid'];
     $result_invoice = $db->query($invoice_sql);

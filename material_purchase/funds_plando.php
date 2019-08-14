@@ -7,12 +7,8 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 $action = $_REQUEST['action'];
 $plan_date = date('Y-m-d'); 
 $data_source = $_POST['data_source'];
-$plan_date = trim($_POST['plan_date']);
 	if($action == "add"){
 		$planid = $_POST['planid'];
-		//更改计划日期
-		$plan_date_sql = "UPDATE `db_material_funds_plan` SET `plan_date` = '$plan_date' WHERE `planid` = '$planid'";
-		$db->query($plan_date_sql);
 		if( $data_source == 'B'){
 		//接收数据
 		$id_array = $_POST['id'];
@@ -27,6 +23,8 @@ $plan_date = trim($_POST['plan_date']);
   			 $k4 = 'cancel_amount_'.$value;
   			 $k5 = 'cut_payment_'.$value;
   			 $k6 = 'order_amount_'.$value;
+  			 $k7 = 'supplierid_'.$value;
+  			 $k8 = 'account_type_'.$value;
   	
   			 $process_cost = $_POST[$k1];
   			 $plan_amount = $_POST[$k2];
@@ -34,8 +32,10 @@ $plan_date = trim($_POST['plan_date']);
   			 $cancel_amount = $_POST[$k4];
   			 $cut_payment = $_POST[$k5];
   			 $order_amount = $_POST[$k6];
+  			 $supplierid = $_POST[$k7];
+  			 $account_type = $_POST[$k8];
 			if(trim($value)){
-				$sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`orderid`,`cancel_amount`,`cut_payment`,`plan_amount`,`order_amount`,`process_cost`) VALUES('$planid','$accountid','$value','$cancel_amount','$cut_payment','$plan_amount','$order_amount','$process_cost')";
+				$sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`orderid`,`cancel_amount`,`cut_payment`,`plan_amount`,`order_amount`,`process_cost`,`supplierid`,`account_type`) VALUES('$planid','$accountid','$value','$cancel_amount','$cut_payment','$plan_amount','$order_amount','$process_cost','$supplierid','$account_type')";
 				$db->query($sql);
 				if(!$db->affected_rows){
 					$i++;
@@ -60,14 +60,19 @@ $plan_date = trim($_POST['plan_date']);
 	  	foreach($id_array as $key=>$value){
 	  		$k1 = 'order_amount_'.$value;
 	  		$k2 = 'plan_amount_'.$value;
+	  		$k3 = 'supplierid_'.$value;
+	  		$k4 = 'account_type_'.$value;
+
 	  		$order_amount = $_POST[$k1];
 	  		$plan_amount = $_POST[$k2];
+	  		$supplierid = $_POST[$k3];
+	  		$account_type = $_POST[$k4];
 	  
 	  		//更改预付金额
 	  		$prepayment_sql = "UPDATE `db_material_order` SET `prepayment` = `prepayment` + '$plan_amount' WHERE `orderid` = '$value'";
 	  		$db->query($prepayment_sql);
 	  		//插入到计划列表中
-	  		$plan_sql = "INSERT INTO `db_funds_plan_list`(`planid`,`orderid`,`order_amount`,`plan_amount`) VALUES('$planid','$value','$order_amount','$plan_amount')";
+	  		$plan_sql = "INSERT INTO `db_funds_plan_list`(`planid`,`orderid`,`order_amount`,`plan_amount`,`supplierid`,`account_type`) VALUES('$planid','$value','$order_amount','$plan_amount','$supplierid','$account_type')";
 	  		
 	  		$db->query($plan_sql);
 	  		if(!$db->affected_rows){

@@ -140,9 +140,9 @@ $result = $db->query($sqllist);
         <th rowspan="2">ID</th>
         <th rowspan="2">计划单号</th>
         <th rowspan="2">计划时间</th>
-        <th rowspan="2">操作人</th>
-        <th rowspan="2">操作时间</th>
+        <th rowspan="2">计划金额</th>
         <th rowspan="2">项数</th>
+        <th rowspan="2">操作人</th>
         <th colspan="4" >付款计划</th>
         <th colspan="4">付款执行</th>
         <th rowspan="2">详情</th>
@@ -161,22 +161,24 @@ $result = $db->query($sqllist);
       while($row = $result->fetch_assoc()){
       $planid = $row['planid'];
       //查找项数
-      $list_sql  = "SELECT COUNT(*) FROM `db_funds_plan_list` WHERE `planid` = '$planid'";
+      $list_sql  = "SELECT COUNT(*) AS `count`,SUM(`plan_amount`) AS `plan_amount` FROM `db_funds_plan_list` WHERE `planid` = '$planid'";
       $result_list = $db->query($list_sql);
       if($result_list->num_rows){
-        $list_count = $result_list->fetch_row()[0];
+        $list_count = $result_list->fetch_assoc();
       }
     ?>
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $planid; ?>"<?php if( $employeeid != $row['employeeid']) echo " disabled=\"disabled\""; ?> /></td>
         <td><?php echo $row['plan_number']; ?></td>
         <td><?php echo $row['plan_date']; ?></td>
+        <td><?php echo $list_count['plan_amount']; ?></td>
+        <td class="count" id="count-<?php echo $planid ?>"><?php echo $list_count['count']; ?></td>
         <td><?php echo $row['employee_name']; ?></td>
-        <td><?php echo $row['dodate']; ?></td>
-        <td class="count" id="count-<?php echo $planid ?>"><?php echo $list_count; ?></td>
-        <td><?php if($employeeid == $row['employeeid'] && $row['plan_status'] < 3){ ?>
+        <td><?php if($employeeid == $row['employeeid'] && $row['plan_status'] == 0){ ?>
           <a href="funds_plan_list_add.php?id=<?php echo $planid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
-          <?php } ?></td>
+          <?php }else{ ?>
+            <img src="../images/system_ico/dui.png"  />
+          <?php  } ?></td>
         <td>
           <?php if($row['plan_status'] == 0 || $row['plan_status'] == 1){ ?> 
           <span class="status" id="status-<?php echo $planid ?>">
@@ -188,7 +190,9 @@ $result = $db->query($sqllist);
                 }
             ?>  
           </span>
-            <?php  } ?>
+            <?php  }else{ ?>
+             <img src="../images/system_ico/dui.png"  />
+             <?php } ?>
         </td>
         <td>
           <?php
@@ -198,7 +202,11 @@ $result = $db->query($sqllist);
               } elseif($row['plan_status'] == '3'){
                 echo '通过';
               }
-           } ?></td>
+              
+           }elseif($row['plan_status'] != 0){
+            ?>
+               <img src="../images/system_ico/dui.png"  />
+            <?php } ?></td>
         <td>
           <?php if(($list_count && $row['plan_status'] == 3) || ($list_count  && $row['plan_status'] == '5')){ 
               if($isadmin == 1 && $row['plan_status'] == 3){

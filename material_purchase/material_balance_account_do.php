@@ -44,14 +44,15 @@ $nowmonth = date('Y-m');
 				$accountid = $db->insert_id;
 			}
 			//查询当前供应商对应的对账信息
-				$inout_sql = "SELECT `db_material_inout`.`inoutid` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_inout`.`listid` = `db_material_order_list`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order`.`supplierid` = '$v' AND `db_material_inout`.`inoutid` IN($inoutid)";
+				$inout_sql = "SELECT `db_material_inout`.`inoutid`,`db_material_order`.`orderid` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_inout`.`listid` = `db_material_order_list`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order`.`supplierid` = '$v' AND `db_material_inout`.`inoutid` IN($inoutid)";
 				
 			$result_inout = $db->query($inout_sql);
 			if($result_inout->num_rows){
 				$inout_list = array();
 				while($row_inout = $result_inout->fetch_assoc()){
 					//加入到对账详情表中
-					$list_sql = "INSERT INTO `db_material_account_list`(`accountid`,`inoutid`) VALUES('$accountid',".$row_inout['inoutid'].")";
+					$list_sql = "INSERT INTO `db_material_account_list`(`accountid`,`inoutid`,`orderid`) VALUES('$accountid','".$row_inout['inoutid']."','".$row_inout['orderid']."')";
+					
 					$db->query($list_sql);
 				}
 			}
