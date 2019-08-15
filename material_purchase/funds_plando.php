@@ -7,12 +7,49 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 $action = $_REQUEST['action'];
 $plan_date = date('Y-m-d'); 
 $data_source = $_POST['data_source'];
+
 	if($action == "add"){
 		$planid = $_POST['planid'];
 		if( $data_source == 'B'){
 		//接收数据
-		$id_array = $_POST['id'];
-	
+		$accountid = $_POST['accountid'];
+		//遍历对账id查找对应的信息
+		$i = 0;
+		foreach($accountid as $v){
+			//查找对账单对应的订单
+			 $order_sql = "SELECT `listid` FROM `db_account_order_list` WHERE `accountid` = '$v'";
+			 $result_order = $db->query($order_sql);
+			 if($result_order->num_rows){
+			 	//分别把对账单中的每个订单的信息插入到计划详情中
+			 	while($row = $result->fetch_assoc()){
+			 		$orderid = $row['orderid'];
+			 		$cancel_amount = $row['cancel_amount'];
+			 		$cut_payment = $row['cut_payment'];
+			 		$process_cost = $row['process_cost'];
+			 		$order_amount = $row['sum'] + $process_cost - $cut_payment - $cancel_amount;
+			 		$plan_amount = $order_amount;
+			 		$k1 = 'supplierid_'.$v;
+			 		$k2 = 'account_type_'.$v;
+					$supplierid = $_POST[$k1];
+					$account_type = $_POST[$k2];
+			 		$plan_sql = "INSERT INTO `db_funds_plan_list`(`planid`,`accountid`,`orderid`,`cancel_amount`,`cut_payment`,`plan_amount`,`order_amount`,`process_cost`,`supplierid`,`account_type`) VALUES('$planid','$v','$orderid','$cancel_amount','$cut_payment','$plan_amount','$order_amount','$process_cost','$supplierid','$account_type')";
+			 		
+			 		$db->query($plan_sql);
+			 		if(!$db->affected_rows){
+			 			$i++;
+			 		}
+
+			 	}
+			//更改对账单状态
+			$account_sql = "UPDATE `db_material_account` SET `status` = 'X' WHERE `accountid` = '$v'";
+			echo $account_sql;
+			 }
+		}
+		if($i == 0){
+			$db->query($account_sql);
+			header('location:'.$_SERVER['HTTP_REFERER']);
+		}
+	exit;
 		//添加计划列表
 		$i = 0;
 		foreach($id_array as $key=>$value){
@@ -83,6 +120,8 @@ $data_source = $_POST['data_source'];
 	  		header('location:'.$_SERVER['HTTP_REFERER']);
 	  		}
 	  
+	  }else{
+	  	var_dump($_GET);
 	  }
 	}elseif($action == 'add_plan'){
 		$plan_date = date('Y-m-d');
@@ -176,7 +215,7 @@ $data_source = $_POST['data_source'];
 		
 		//对账单中的项目，删除之后更改申请金额
 		if(!empty($accountid)){
-			$account_sql = "UPDATE `db_material_account` SET `apply_amount` = `apply_amount` - '$plan_amount' WHERE `accountid` = '$accountid'";
+			$account_sql = "UPDATE `db_material_account` SET `apply_amount` = `apply_amount` - '$plan_amount',`status`='P' WHERE `accountid` = '$accountid'";
 			
 			$db->query($account_sql);
 			

@@ -17,6 +17,8 @@ if($action == 'complete'){
 			//删除对账汇总表和对账列表中的信息
 			$sql_account = "DELETE FROM `db_material_account` WHERE `accountid`='$accountid'";
 			$db->query($sql_account);
+			$sql_order = "DELETE FROM `db_account_order_list` WHERE `accountid` = '$accountid'";
+			$db->query($sql_order);
 			$sql_list = "DELETE FROM `db_material_account_list` WHERE `accountid` = '$accountid'";
 			$db->query($sql_list);
 			if($db->affected_rows){
