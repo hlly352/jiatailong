@@ -52,7 +52,7 @@ $result = $db->query($sqllist);
     for(var i=0;i<num;i++){
       console.log($('.status').eq(i).html());
       if(($('.status').eq(i).html()) == 0){
-        $('.status').eq(i).html('提交').css('cursor','pointer');
+        $('.status').eq(i).html('审核').css('cursor','pointer').css('color','blue');
       } else if(($('.status').eq(i).html())==1) {
         $('.status').eq(i).html('撤回').css('cursor','pointer');
       }
@@ -60,7 +60,7 @@ $result = $db->query($sqllist);
 
     $('.status').live('click',function(){
       var content = $(this).html();
-      if(content == '提交' || content == '撤回'){
+      if(content == '审核' || content == '撤回'){
       var id = $(this).attr('id');
       var planid = id.substr(id.indexOf('-')+1);
       var count = $("#count-"+planid).html();
@@ -69,10 +69,10 @@ $result = $db->query($sqllist);
       } else {
         $.post('../ajax_function/change_funds_plan_status.php',{planid:planid},function(data){
            var new_status = $("#status-"+data).html();
-           if(new_status == '提交'){
+           if(new_status == '审核'){
             $("#status-"+data).html('撤回');
            }else{
-            $("#status-"+data).html('提交');
+            $("#status-"+data).html('审核');
            }
            window.location.reload();
         })
@@ -144,7 +144,7 @@ $result = $db->query($sqllist);
         <th rowspan="2">项数</th>
         <th rowspan="2">操作人</th>
         <th colspan="4" >付款计划</th>
-        <th colspan="4">付款执行</th>
+        <th colspan="5">付款执行</th>
         <th rowspan="2">详情</th>
       </tr>
       <tr>
@@ -156,6 +156,7 @@ $result = $db->query($sqllist);
         <th>采购审核</th>
         <th>财务审核</th>
         <th>总经办审批</th>
+        <th>支付状态</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
@@ -238,6 +239,7 @@ $result = $db->query($sqllist);
               echo "已审批";
            } ?>
         </td>
+        <td></td>
         <td></td>
         <td><?php if($list_count){ ?>
           <a href="funds_plan_info.php?id=<?php echo $planid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a>
