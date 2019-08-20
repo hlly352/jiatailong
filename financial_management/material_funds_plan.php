@@ -81,7 +81,7 @@ $result = $db->query($sqllist);
     })
   })
 </script>
-<title>采购管理-嘉泰隆</title>
+<title>财务管理-嘉泰隆</title>
 </head>
 
 <body>
@@ -120,6 +120,7 @@ $result = $db->query($sqllist);
   if($result->num_rows){
     while($row_id = $result_id->fetch_assoc()){
       $array_orderid .= $row_id['orderid'].',';
+      
     }
     $array_orderid = rtrim($array_orderid,',');
     //订单明细数量
@@ -142,12 +143,11 @@ $result = $db->query($sqllist);
         <th rowspan="2">计划时间</th>
         <th rowspan="2">计划金额</th>
         <th rowspan="2">项数</th>
-        <th colspan="4" >付款计划</th>
+        <th colspan="3" >付款计划</th>
         <th colspan="5">付款执行</th>
         <th rowspan="2">详情</th>
       </tr>
       <tr>
-        <th>付款计划</th>
         <th>采购审核</th>
         <th>财务审核</th>
         <th>总经办审批</th>
@@ -160,11 +160,7 @@ $result = $db->query($sqllist);
       <?php
       while($row = $result->fetch_assoc()){
       $planid = $row['planid'];
-      //查找采购是否已经申请过付款
-      $purchase_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status`='B' AND `planid` = '$planid'";
-      $result_purchase = $db->query($purchase_sql);
-      $count_purchase = $result_purchase->num_rows;
-      //查找财务是否审核过付款
+       //查找财务是否审核过付款
       $financial_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status`= 'C' AND `planid` = '$planid'";
       $result_financial = $db->query($financial_sql);
       $count_financial = $result_financial->num_rows;
@@ -185,58 +181,40 @@ $result = $db->query($sqllist);
         <td><?php echo $row['plan_date']; ?></td>
         <td><?php echo $list_count['plan_amount']; ?></td>
         <td class="count" id="count-<?php echo $planid ?>"><?php echo $list_count['count']; ?></td>
-        <td><?php if($employeeid == $row['employeeid'] && $row['plan_status'] == 0){ ?>
-          <a href="funds_plan_list_add.php?id=<?php echo $planid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
-          <?php }else{ ?>
-            <img src="../images/system_ico/dui.png"  />
-          <?php  } ?></td>
         <td>
-          <?php if($row['plan_status'] == 0 || $row['plan_status'] == 1){ ?> 
+          
           <span class="status" id="status-<?php echo $planid ?>">
             <?php
-                if($isconfirm == 1){
-                  echo $row['plan_status'];
-                }else{
-                  echo $row['plan_status'] == 0?'未提交':'已提交';
-                }
+              if($row['plan_status'] == 0){
+                echo '未提交';
+              }elseif($row['plan_status'] >0){
+                echo ' <img src="../images/system_ico/dui.png"  />';
+              }
             ?>  
           </span>
-            <?php  }else{ ?>
-             <img src="../images/system_ico/dui.png"  />
-             <?php } ?>
+          
         </td>
         <td>
           <?php
-          if($row['plan_status'] == 1 || $row['plan_status'] == 3){
-              if($row['plan_status'] == '1'){
-                echo '待审核';
-              } elseif($row['plan_status'] == '3'){
-                echo '通过';
-              }
-              
-           }elseif($row['plan_status'] != 0){
-            ?>
-               <img src="../images/system_ico/dui.png"  />
-            <?php } ?></td>
+            if($row['plan_status'] == 1){
+              echo '<a href="funds_plan_info.php?action=financial&planid='.$planid.'">审核</a>';
+            }elseif($row['plan_status'] >1){
+              echo '<img src="../images/system_ico/dui.png"  />';
+            }
+          ?>
+        </td>
         <td>
-          <?php if(($list_count && $row['plan_status'] == 3) || ($list_count  && $row['plan_status'] == '5')){ 
-              if($isadmin == 1 && $row['plan_status'] == 3){
-            ?>
-          <!-- <a href="funds_plan_list_print.php?id=<?php echo $planid; ?>" target="_blank"><img src="../images/system_ico/print_10_10.png" width="10" height="10" /></a> -->
-                
-              <a href="funds_plan_info.php?action=approval&id=<?php echo $row['planid'] ?>">审批</a>
-          <?php }elseif($admin != 1 && $row['plan_status'] == 3){ 
+          <?php
+            if($row['plan_status'] == '3'){
               echo '待审核';
-            ?>
-          <?php } elseif($row['plan_status'] == 5){ 
-              echo '已审核';
-            }?>
-          <?php }elseif($row['plan_status'] > 5){
-            echo '<img src="../images/system_ico/dui.png"  />';
-            } ?>
-          </td>
+            }elseif($row['plan_status'] > 3){
+              echo '<img src="../images/system_ico/dui.png"  />';
+
+            }
+          ?>  
+        </td>
         <td><?php if($row['plan_status'] == '5'){ ?>
-          <a href="funds_pay_apply.php?action=apply&id=<?php echo $planid; ?>">申请</a>
+            待申请
           <?php }elseif($row['plan_status'] > 5){
               echo '<img src="../images/system_ico/dui.png"  />';
             }
@@ -244,28 +222,21 @@ $result = $db->query($sqllist);
         </td>
           <td>
             <?php
-              if($row['plan_status'] == 5 || $row['plan_status'] == 7){
-                if($count_purchase > 0){
-                 echo  '<a href="funds_pay_apply.php?action=purchase&id='.$planid.'">审核</a>';
-                }
-              }elseif($row['plan_status'] > 7){
-                echo  '<img src="../images/system_ico/dui.png"  />';
-              }
-            ?>
-            <!-- <?php
               if($row['plan_status'] == 7){
             ?>
-              <a href="funds_pay_apply.php?action=purchase&id=<?php echo $planid; ?>">审核</a>
+              待审核
+              <!-- <a href="funds_pay_apply.php?action=purchase&id=<?php echo $planid; ?>">审核</a> -->
             <?php }elseif($row['plan_status'] > 7){
                 echo '<img src="../images/system_ico/dui.png"  />';
-            } ?> -->
+            } ?>
           </td>
         <td>
-          <?php if($row['plan_status'] == 9){ ?>
-            待审核
-             <!-- <a href="funds_plan_info.php?action=approval_edit&id=<?php echo $planid; ?>">审批</a> -->
-          <?php }elseif($row['plan_status'] > '8'){
-              echo "<img src=\"../images/system_ico/dui.png\"  />";
+          <?php if($row['plan_status'] == 9){ 
+              if($count_financial >0){
+          ?>
+             <a href="funds_pay_apply.php?action=approval&id=<?php echo $planid; ?>">审核</a>
+          <?php }}elseif($row['plan_status'] > 7){
+               echo '<img src="../images/system_ico/dui.png"  />';
            } ?>
         </td>
         <td></td>

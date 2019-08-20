@@ -160,13 +160,18 @@ $data_source = $_POST['data_source'];
 			header('location:material_funds_plan.php');
 		}
 	}elseif($action == 'approval'){
-		//申请到采购主管审批
-		$planid = $_GET['id'];
+		$method = $_GET['method'];
+		//总经办审批
+		$planid = $_GET['planid'];
 		//更改付款计划的状态
-		$sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '4' WHERE `planid` = '$planid'";
+		if($method == 'complete'){
+			$sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '5' WHERE `planid` = '$planid'";
+		}elseif($method == 'back'){
+			$sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '1' WHERE `planid` = '$planid'"; 
+		}
 		$db->query($sql);
 		if($db->affected_rows){
-			header('location:'.$_SERVER['HTTP_REFERER']);
+			header('location:material_funds_plan.php');
 		}
 	}elseif($action == "edit"){
 		$orderid = $_POST['orderid'];

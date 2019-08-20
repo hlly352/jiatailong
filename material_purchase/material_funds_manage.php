@@ -7,6 +7,18 @@ $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 $planid = $_GET['id'];
 $employeeid = $_SESSION['employee_info']['employeeid'];
+//查找供应商
+$supplier_sql = "SELECT `supplierid`,`supplier_cname`,`supplier_code` FROM `db_supplier` ORDER BY `supplier_code` ASC";
+$result_supplier = $db->query($supplier_sql);
+if($_GET['submit']){
+  $account_number = trim($_GET['account_number']);
+  $supplierid = $_GET['supplierid'];
+  if($supplierid){
+    $sql_supplierid = " AND `db_material_account`.`supplierid` = '$supplierid'";
+  }
+  $sqlwhere = " AND `db_material_account`.`account_number` LIKE '%$account_number%' $sql_supplierid";
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -33,11 +45,26 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
         <th>对账日期：</th>
         <td><input type="text" name="specification" class="input_txt" /></td> -->
         <th>供应商：</th>
-        <td><select name="data_source" id="data_source" class="input_txt txt">
-            <!-- <option value="A"<?php if($data_source == 'A') echo " selected=\"selected\""; ?>>我的应付账款</option> -->
-            <option value="B"<?php if($data_source == 'B') echo " selected=\"selected\""; ?>>应付账款</option>
-            <option value="C"<?php if($data_source == 'C') echo " selected=\"selected\""; ?>>预付帐款</option>
-          </select></td>
+        <td>
+          <select name="supplierid" class="input_txt txt">
+            <option value="">所有</option>
+            <?php
+
+              while($row_supplier = $result_supplier->fetch_assoc()){
+                echo '<option value="'.$row_supplier['supplierid'].'">'.$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname'].'</option>';
+              }
+            ?>  
+          </select>
+        <th>对账单号</th>
+        <td>
+          <input type="text" name="account_number" class="input_txt" />
+        </td>
+        <th>对账时间</th>
+        <td>
+          <input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
+          --
+          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
+        </td>
         <td><input type="submit" name="submit" id="submit" value="查询" class="button" />
           <input type="hidden" name="id" value="<?php echo $planid; ?>" /></td>
       </tr>
@@ -48,58 +75,55 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 //$data_source = $_GET['data_source']?trim($_GET['data_source']):'B';
 
 
-  $order_list_sql = "SELECT `db_material_account`.`orderidlist`,`db_material_account`.`accountid`,`db_material_account`.`account_number`,`db_material_account`.`orderidlist`,`db_material_account`.`account_time`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name`  FROM `db_material_account`INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_material_invoice_list` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_account`.`employeeid` WHERE `db_material_account`.`status` = 'P' GROUP BY `db_material_account`.`accountid`";
+  $order_list_sql = "SELECT `db_material_account`.`tot_plan_amount`,`db_material_account`.`account_type`,`db_material_account`.`supplierid`,`db_material_account`.`orderidlist`,`db_material_account`.`accountid`,`db_material_account`.`account_number`,`db_material_account`.`orderidlist`,`db_material_account`.`account_time`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount`) AS `total_amount`  FROM `db_material_account`INNER JOIN `db_material_account_list` ON `db_material_account`.`accountid` = `db_material_account_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_account`.`employeeid` WHERE `db_material_account`.`status` = 'P' AND `db_material_account`.`tot_plan_amount` < (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate') $sqlwhere GROUP BY `db_material_account`.`accountid`";
 
   $result = $db->query($order_list_sql);
-  $pages = new page($result->num_rows,5);
+  $pages = new page($result->num_rows,10);
   $sqllist = $order_list_sql . " ORDER BY `db_material_account`.`accountid` DESC" . $pages->limitsql;
   $result_order_list = $db->query($sqllist);
-  if($result_order_list->num_rows){ ?>
+  ?>
     <div id="table_list">
+      <form action="funds_plando.php" method="post">
+   <?php 
+  if($result_order_list->num_rows){ ?>
         <table>
           <tr>
             <th>ID</th>
+            <th>供应商</th>
             <th>对账单号</th>
             <th>对账时间</th>
             <th>发票号</th>
             <th>发票时间</th>
-            <th>供应商</th>
-            <th>合同号</th>
-            <th>物料金额</th>
-            <th>加工费</th>
-            <th>核销金额</th>
-            <th>品质扣款</th>
-            <th>对账金额</th>
-            <th>操作人</th>
+            <th>总金额</th>
+            <th>计划金额</th>
+            <th>应付余额</th>
+            <th>操作</th>
           </tr>
   <?php
     while($row_order_list = $result_order_list->fetch_assoc()){
       $accountid = $row_order_list['accountid'];
+      $total_amount += $row_order_list['total_amount'];
+      $total_plan_amount += $row_order_list['tot_plan_amount'];
       //查找发票号
       $invoice_sql = "SELECT `invoice_no`,`date` FROM `db_material_invoice_list` WHERE `accountid` = '$accountid'";
       $result_invoice = $db->query($invoice_sql);
-      //查找合并单元格的个数
-      $order_sql = "SELECT COUNT(`orderid`) AS `count` FROM `db_account_order_list` WHERE `accountid` = '$accountid' AND `plan_status` = 'A'";
-      
-      $result_order = $db->query($order_sql);
-      if($result_order->num_rows){
-        $count = $result_order->fetch_assoc()['count'];
-      }
-      $count = $count + 1;
   ?>
       <tr>
-        <td rowspan="<?php echo $count ?>">
-          <input type="checkbox" value="<?php echo $row_order_list['accountid'] ?>" name="accountid" />
+        <td>
+          <input type="checkbox" value="<?php echo $row_order_list['accountid'] ?>" name="accountid[]" />
         </td>
-        <td rowspan="<?php echo $count ?>">
+        <td>
+          <?php echo $row_order_list['supplier_cname'] ?>
+        </td>
+        <td>
           <?php echo $row_order_list['account_number'] ?>
             
         </td>
-        <td rowspan="<?php echo $count ?>">
+        <td>
           <?php echo $row_order_list['account_time'] ?>
             
         </td>
-        <td rowspan="<?php echo $count ?>">
+        <td>
          <?php 
             if($result_invoice->num_rows){
               while($row_invoice = $result_invoice->fetch_assoc()){
@@ -108,7 +132,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
           }
           ?>
         </td>
-        <td rowspan="<?php echo $count ?>">
+        <td>
           <?php
             $result_invoice = $db->query($invoice_sql);
             if($result_invoice->num_rows){
@@ -118,39 +142,39 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
             }
           ?>
         </td>
-        <td rowspan="<?php echo $count ?>">
-          <?php echo $row_order_list['supplier_cname'] ?>
-        </td>
-      </tr>
-  <?php
-
-      //通过对账单号在对账详情表中查找订单信息
-      // $sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_supplier`.`supplier_cname`,SUM(`db_material_inout`.`amount`) AS `sum`,SUM(`db_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_material_inout`.`cut_payment`) AS `cut_payment`,SUM(`db_material_order_list`.`process_cost`) AS `process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_material_inout` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_material_order`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` WHERE `db_material_account_list`.`accountid` = '$accountid' AND `db_material_order`.`orderid` NOT IN(SELECT `orderid` FROM `db_funds_plan_list` GROUP BY `orderid`) GROUP BY `db_material_order`.`orderid`";
-       $order_sql = "SELECT `db_account_order_list`.`order_amount`,`db_material_order`.`order_number`,`db_account_order_list`.`process_cost`,`db_account_order_list`.`cancel_amount`,`db_account_order_list`.`cut_payment` FROM `db_account_order_list` INNER JOIN `db_material_order` ON `db_account_order_list`.`orderid` = `db_material_order`.`orderid` WHERE `accountid` = '$accountid' AND `plan_status` = 'A'";
-        $result = $db->query($order_sql);
-        if($result->num_rows){
-          while($row_list = $result->fetch_assoc()){
-      ?>
-        <tr>
-          <td><?php echo $row_list['order_number'] ?></td>
-          <td><?php echo $row_list['order_amount'] ?></td>
-          <td><?php echo $row_list['process_cost'] ?></td>
-          <td><?php echo $row_list['cancel_amount'] ?></td>
-          <td><?php echo $row_list['cut_payment'] ?></td>
-          <td>
-          <?php
-             echo number_format(($row_list['order_amount'] + $row_list['process_cost'] - $row_list['cancel_amount'] - $row_list['cut_payment']),2,'.','');
-                ?>
+        <td>
+          <?php echo $row_order_list['total_amount'] ?>
         </td>
         <td>
-          <?php echo $row_order_list['employee_name'] ?>
+          <?php echo $row_order_list['tot_plan_amount'] ?>
         </td>
-        </tr>
-    <?php  
-          }
-        }
-   }?>
+        <td>
+          <?php echo number_format(($row_order_list['total_amount'] - $row_order_list['tot_plan_amount']),2,'.','') ?>
+        </td>
+        <td>
+          <a href="funds_plan_order_info.php?action=show&planid=<?php echo $planid ?>&accountid=<?php echo $row_order_list['accountid'] ?>">详情</a>
+        </td>
+      </tr>
+      <?php } ?>
+        <tr>
+        <td colspan="6">合 计</td>
+        <td><?php echo $total_amount ?></td>
+        <td><?php echo $total_plan_amount ?></td>
+        <td><?php echo $total_amount - $total_plan_amount ?></td>
+        <td></td>
+      </tr>
+       <!--  <tr>
+        <td colspan="15">
+          <input type="submit" name="submit" value="添加" class="button" />
+          <input type="hidden" name="action" value="add">
+          <input type="hidden" name="data_source" value="B">
+          <input type="hidden" value="<?php echo $array_plan['planid'] ?>" name="planid"/>
+          <input type="button" name="button" value="返回" class="button" onclick="window.location.href = 'material_funds_plan.php'" />
+
+        </td>
+      </tr> -->
     </table>
+    </form>
     </div>
    <div id="page">
     <?php $pages->getPage();?>
@@ -167,17 +191,22 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 </table>
 </div>
 <?php
-    $sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name`,`db_material_order`.`order_amount` AS `sum`,`db_material_order`.`prepayment` FROM `db_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order`.`pay_type` = 'P' AND `db_material_order`.`order_status` = '1' AND `db_material_order`.`order_amount` > `db_material_order`.`prepayment` GROUP BY `db_material_order`.`orderid`";
-
+   if($_GET['submits']){
+  $supplierid = $_GET['supplierids'];
+  if($supplierid){
+    $sql_supplierid = " AND `db_material_account`.`supplierid` = '$supplierid'";
+  }
+}
+     $sql = "SELECT `db_material_account`.`tot_plan_amount`,`db_material_account`.`account_type`,`db_material_account`.`supplierid`,`db_material_account`.`orderidlist`,`db_material_account`.`accountid`,`db_material_account`.`account_number`,`db_material_account`.`orderidlist`,`db_material_account`.`account_time`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount`) AS `total_amount`  FROM `db_material_account` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_account`.`employeeid` WHERE  `db_material_account`.`status` = 'Y' AND `db_material_account`.`tot_plan_amount` < (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AND (`db_material_account`.`account_time` BETWEEN '$sdate' AND '$edate') $sql_supplierid GROUP BY `db_material_account`.`accountid`";
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
-$sqllist = $sql."ORDER BY `db_material_order`.`dotime` DESC".$pages->limitsql;
+$sqllist = $sql."ORDER BY `db_material_account`.`account_time` DESC".$pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <div id="table_search">
   <h4>预付账款</h4>
-  <form action="" name="search" method="get">
+   <form action="" name="search" method="get">
     <table>
       <tr>
        <!--  <th>供应商名称：</th>
@@ -185,12 +214,23 @@ $result = $db->query($sqllist);
         <th>对账日期：</th>
         <td><input type="text" name="specification" class="input_txt" /></td> -->
         <th>供应商：</th>
-        <td><select name="data_source" id="data_source" class="input_txt txt">
-            <!-- <option value="A"<?php if($data_source == 'A') echo " selected=\"selected\""; ?>>我的应付账款</option> -->
-            <option value="B"<?php if($data_source == 'B') echo " selected=\"selected\""; ?>>应付账款</option>
-            <option value="C"<?php if($data_source == 'C') echo " selected=\"selected\""; ?>>预付帐款</option>
-          </select></td>
-        <td><input type="submit" name="submit" id="submit" value="查询" class="button" />
+        <td>
+          <select name="supplierids" class="input_txt txt">
+            <option value="">所有</option>
+            <?php
+              $result_suppliers = $db->query($supplier_sql);
+              while($row_supplier = $result_suppliers->fetch_assoc()){
+                echo '<option value="'.$row_supplier['supplierid'].'">'.$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname'].'</option>';
+              }
+            ?>  
+          </select>
+        <th>对账时间</th>
+        <td>
+          <input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
+          --
+          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
+        </td>
+        <td><input type="submit" name="submits" id="submit" value="查询" class="button" />
           <input type="hidden" name="id" value="<?php echo $planid; ?>" /></td>
       </tr>
     </table>
@@ -201,43 +241,50 @@ $result = $db->query($sqllist);
   <form action="funds_plando.php" name="material_list" id="account" method="post">
     <table>
      <tr>
-      <th width="">ID</th>
-      <th width="">添加时间</th>
-      <th width="">合同号</th>
-      <th width="">供应商</th>
-      <th width="">订单金额</th>
-      <th width="">剩余金额</th>
-      <th width="">操作人</th>
+      <th>ID</th>
+        <th>供应商</th>
+        <th>对账单号</th>
+        <th>对账时间</th>
+        <th>发票号</th>
+        <th>发票时间</th>
+        <th>总金额</th>
+        <th>计划金额</th>
+        <th>未排余额</th>
+        <th>操作</th>
     </tr>
     <?php
   while($row = $result->fetch_assoc()){
+      
   ?>
   <form action="funds_plando.php" id="account" method="post">
-    <tr>
-      <td>
-        <input type="checkbox" name="id[]" value="<?php echo $row['orderid']?>">
-      </td>
-      <td><?php echo $row['order_date']; ?></td>
-      <td><?php echo $row['order_number']; ?></td>
-      <td><?php echo $row['supplier_cname']; ?></td>
-      <td><?php echo number_format($row['sum'],2,'.',''); ?></td>
-      <td><?php echo number_format(($row['sum'] - $row['prepayment']),2,'.','') ?></td>
-      <input type="hidden" value="<?php echo $row['sum'] ?>" name="order_amount_<?php echo $row['orderid'] ?>" />
-      <td><?php echo $row['employee_name']; ?></td>
-     <!--  <td>
-          <a href="prepayment_list.php?from=material&id=<?php echo $row['orderid']; ?>">
-            <img src="../images/system_ico/info_8_10.png" width="8" height="10" />
-          </a>
-        </td> -->
-    </tr>
-
-      <?php }  ?>
-      <tr>
-        <td colspan="15">
-          <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
-
+  <tr>
+        <td>
+          <input type="checkbox" value="<?php echo $row_order_list['accountid'] ?>" name="accountid[]" />
+        </td>
+        <td>
+          <?php echo $row['supplier_cname'] ?>
+        </td>
+        <td></td>
+        <td>
+          <?php echo $row['account_time'] ?>   
+        </td>
+        <td></td>
+        <td></td>
+        <td>
+          <?php echo $row['total_amount'] ?>
+        </td>
+        <td>
+          <?php echo $row['tot_plan_amount'] ?>
+        </td>
+        <td>
+          <?php echo number_format(($row['total_amount'] - $row['tot_plan_amount']),2,'.','') ?>
+        </td>
+        <td>
+          <a href="funds_plan_order_info.php?action=show&planid=<?php echo $planid ?>&accountid=<?php echo $row['accountid'] ?>">详情</a>
         </td>
       </tr>
+      <?php } ?>
+
     </table>
   </form>
   <div id="page">

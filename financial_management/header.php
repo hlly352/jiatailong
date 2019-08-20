@@ -34,8 +34,8 @@
       </ul>
      </li>
       <li class="menulevel"><a href="material_invoice_manage.php">发票接收</a></li>
-     <li class="menulevel"><a href="funds_plan_approval.php">付款审核</a></li>
-     <li class="menulevel"><a href="material_funds_summary.php">应付账款管理</a></li>
+     <li class="menulevel"><a href="material_funds_plan.php">付款审核</a></li>
+     <li class="menulevel"><a href="material_funds_summary.php">账款管理</a></li>
      <li class="menulevel"><a href="mould_cost.php">模具成本</a></li>
     <li class="menulevel"><a href="/myjtl/">内网首页</a></li>
   </ul>

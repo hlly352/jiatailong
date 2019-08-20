@@ -93,13 +93,13 @@ $result = $db->query($sqllist);
   <table>
     <tr>
       <th width="">ID</th>
-      <th width="">对账时间</th>
       <th width="">供应商</th>
+      <th width="">对账时间</th>
+      <th width="">对账金额</th>
       <th width="">物料金额</th>
       <th width="">加工费</th>
       <th width="">核销金额</th>
       <th width="">品质扣款</th>
-      <th width="">对账金额</th>
       <th width="">操作</th>
     </tr>
     <?php
@@ -112,13 +112,13 @@ $result = $db->query($sqllist);
       <td>
         <input type="checkbox" name="id[]" value="<?php echo $accountid?>">
       </td>
-      <td><?php echo $row['account_time']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
+      <td><?php echo $row['account_time']; ?></td>
+      <td><?php echo $row['amount']; ?></td>
       <td><?php echo $row['tot_amount']; ?></td>
       <td><?php echo $row['tot_process_cost']; ?></td>
       <td><?php echo $row['tot_cancel_amount']; ?></td>
       <td><?php echo $row['tot_cut_payment']; ?></td>
-      <td><?php echo $row['amount']; ?></td>
       <td><a href="material_account_info.php?id=<?php echo $row['accountid']; ?>">审核</a></td>
     </tr>
     <?php 
@@ -127,11 +127,11 @@ $result = $db->query($sqllist);
     <tr>
 
       <td colspan="3">Total</td>
-      <td><?php echo number_format($total_material_amount,2,'.',''); ?></td>
+      <td><?php echo number_format($total_account_amount,2,'.',''); ?></td>
       <td><?php echo number_format($total_process_cost,2,'.',''); ?></td>
       <td><?php echo number_format($total_cancel_amount,2,'.',''); ?></td>
       <td><?php echo number_format($total_cut_payment,2,'.',''); ?></td>
-      <td><?php echo number_format($total_account_amount,2,'.',''); ?></td>
+      <td><?php echo number_format($total_material_amount,2,'.',''); ?></td>
       <td><?php //echo number_format($total_process_cost,2); ?></td>
     </tr>
   </table>
