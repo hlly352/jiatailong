@@ -109,8 +109,9 @@ $result = $db->query($sqllist);
       }
       ?>
           </select></td>
-        <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="新建计划" class="button" onclick="location.href='funds_plando.php?action=add_plan'" /></td>
+        <td>
+          <input type="submit" name="submit" value="查询" class="button" />
+        </td>
       </tr>
     </table>
   </form>
@@ -138,36 +139,53 @@ $result = $db->query($sqllist);
   <form action="material_funds_plando.php" name="material_order" method="post">
     <table>
       <tr>
-        <th rowspan="2">ID</th>
-        <th rowspan="2">计划单号</th>
-        <th rowspan="2">计划时间</th>
-        <th rowspan="2">计划金额</th>
-        <th rowspan="2">项数</th>
+        <th rowspan="3">ID</th>
+        <th rowspan="3">计划单号</th>
+        <th rowspan="3">计划时间</th>
+        <th rowspan="3">计划金额</th>
+        <th rowspan="3">项数</th>
         <th colspan="3" >付款计划</th>
-        <th colspan="5">付款执行</th>
-        <th rowspan="2">详情</th>
+        <th colspan="6">付款执行</th>
+        <th rowspan="3">详情</th>
       </tr>
       <tr>
-        <th>采购审核</th>
-        <th>财务审核</th>
-        <th>总经办审批</th>
-        <th>付款申请</th>
-        <th>采购审核</th>
-        <th>财务审核</th>
-        <th>总经办审批</th>
-        <th>支付状态</th>
+        <th rowspan="2">采购审核</th>
+        <th rowspan="2">财务审核</th>
+        <th rowspan="2">总经办审批</th>
+        <th rowspan="2">付款申请</th>
+        <th rowspan="2">采购审核</th>
+        <th rowspan="2">财务审核</th>
+        <th rowspan="2">总经办审批</th>
+        <th colspan="2">支付状态</th>
+      </tr>
+      <tr>
+        <th>出纳</th>
+        <th>会计</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
       $planid = $row['planid'];
-       //查找财务是否审核过付款
+      //判断采购是否审核过付款
+      $purchase_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'B' AND `planid` = '$planid'";
+      $result_purchase  = $db->query($purchase_sql);
+      $count_purchase = $result_purchase->num_rows;
+       //查找采购是否审核过付款
       $financial_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status`= 'C' AND `planid` = '$planid'";
       $result_financial = $db->query($financial_sql);
       $count_financial = $result_financial->num_rows;
-      //查找总经办是否审批过付款
+      //查找财务是否审批过付款
       $boss_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'D' AND `planid` = '$planid'";
       $result_boss = $db->query($boss_sql);
       $count_boss = $result_boss->num_rows;
+      //查找总经办是否审核过付款
+      $pay_sql  = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'E' AND `planid` = '$planid'";
+      $result_pay = $db->query($pay_sql);
+      $count_pay = $result_pay->num_rows;
+      //查找已经付款的项目
+      $payment_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_amount` >= `tot_payment` AND `tot_payment` > 0 AND `planid` = '$planid'";
+
+      $result_payment = $db->query($payment_sql);
+      $count_payment = $result_payment->num_rows;
       //查找项数
       $list_sql  = "SELECT COUNT(*) AS `count`,SUM(`plan_amount`) AS `plan_amount` FROM `db_funds_plan_list` WHERE `planid` = '$planid'";
       $result_list = $db->query($list_sql);
@@ -222,27 +240,63 @@ $result = $db->query($sqllist);
         </td>
           <td>
             <?php
-              if($row['plan_status'] == 7){
-            ?>
-              待审核
-              <!-- <a href="funds_pay_apply.php?action=purchase&id=<?php echo $planid; ?>">审核</a> -->
-            <?php }elseif($row['plan_status'] > 7){
+              if($row['plan_status'] == 5 || $row['plan_status'] == 7){
+                if($count_purchase > 0){
+                    echo '待审核';
+                 }
+              }elseif($row['plan_status'] > 7){
+
                 echo '<img src="../images/system_ico/dui.png"  />';
-            } ?>
+              }
+            ?>
           </td>
         <td>
-          <?php if($row['plan_status'] == 9){ 
-              if($count_financial >0){
+          <?php
+            if($row['plan_status'] <= 9){
+              if($count_financial >0){  
+               echo '<a href="funds_pay_apply.php?action=approval&id='.$planid.'">审核</a>';
+              }
+            }elseif($row['plan_status'] >9){
+              echo '<img src="../images/system_ico/dui.png" />';
+            }
           ?>
-             <a href="funds_pay_apply.php?action=approval&id=<?php echo $planid; ?>">审核</a>
-          <?php }}elseif($row['plan_status'] > 7){
-               echo '<img src="../images/system_ico/dui.png"  />';
-           } ?>
         </td>
-        <td></td>
-        <td></td>
+        <td>
+          <?php
+             if($row['plan_status'] < 13){
+              if($count_boss >0){  
+               echo '待审核';
+              }
+            }elseif($row['plan_status'] >= 13){
+              echo '<img src="../images/system_ico/dui.png" />';
+            }
+          ?>
+        </td>
+        <td>
+         <?php
+             if($row['plan_status'] < 15){
+              if($count_pay >0){  
+               echo '<a href="funds_pay_apply.php?action=pay&id='.$planid.'">支付</a>';
+              }
+            }elseif($row['plan_status'] >= 15){
+              echo '<img src="../images/system_ico/dui.png" />';
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if($row['plan_status'] < 17){
+              if($count_payment > 0){
+                 echo '<a href="funds_pay_apply.php?action=over&id='.$planid.'">审核</a>';
+              }
+            }elseif($row['plan_status'] =17){
+              echo '<img src="../images/system_ico/dui.png" />';
+
+            }
+          ?>
+        </td>
         <td><?php if($list_count){ ?>
-          <a href="funds_plan_info.php?id=<?php echo $planid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a>
+          <a href="funds_plan_content.php?id=<?php echo $planid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a>
           <?php } ?></td>
       </tr>
       <?php } ?>

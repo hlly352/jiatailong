@@ -172,6 +172,10 @@ $result = $db->query($sqllist);
       $boss_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'D' AND `planid` = '$planid'";
       $result_boss = $db->query($boss_sql);
       $count_boss = $result_boss->num_rows;
+      //查找总经办是否审核过付款
+      $pay_sql  = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'E' AND `planid` = '$planid'";
+      $result_pay = $db->query($pay_sql);
+      $count_pay = $result_pay->num_rows;
       //查找项数
       $list_sql  = "SELECT COUNT(*) AS `count`,SUM(`plan_amount`) AS `plan_amount` FROM `db_funds_plan_list` WHERE `planid` = '$planid'";
       $result_list = $db->query($list_sql);
@@ -261,15 +265,38 @@ $result = $db->query($sqllist);
             } ?> -->
           </td>
         <td>
-          <?php if($row['plan_status'] == 9){ ?>
-            待审核
-             <!-- <a href="funds_plan_info.php?action=approval_edit&id=<?php echo $planid; ?>">审批</a> -->
-          <?php }elseif($row['plan_status'] > '8'){
-              echo "<img src=\"../images/system_ico/dui.png\"  />";
-           } ?>
+          <?php
+            if($row['plan_status'] <= 9){
+              if($count_financial >0){  
+               echo '待审核';
+              }
+            }elseif($row['plan_status'] >9){
+              echo '<img src="../images/system_ico/dui.png" />';
+            }
+          ?>
         </td>
-        <td></td>
-        <td></td>
+        <td>
+          <?php
+             if($row['plan_status'] < 13){
+              if($count_boss >0){  
+               echo '<a href="funds_pay_apply.php?action=boss&id='.$planid.'">审核</a>';
+              }
+            }elseif($row['plan_status'] >= 13){
+              echo '<img src="../images/system_ico/dui.png" />';
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if($row['plan_status'] < 15){
+                if($count_pay >0){  
+                 echo '<a href="funds_pay_apply.php?action=boss&id='.$planid.'">审核</a>';
+                }
+              }elseif($row['plan_status'] >= 15){
+                echo '<img src="../images/system_ico/dui.png" />';
+              }
+          ?>
+        </td>
         <td><?php if($list_count){ ?>
           <a href="funds_plan_info.php?id=<?php echo $planid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a>
           <?php } ?></td>

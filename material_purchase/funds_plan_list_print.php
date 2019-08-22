@@ -43,14 +43,17 @@ body, html {
   word-wrap:break-all;
 }
 </style>
-<title>物料入库单打印-希尔林</title>
+<title>付款申请单-嘉泰隆</title>
 </head>
 
 <body>
 <?php
 
-      $sql = "SELECT `db_funds_plan_list`.`listid` AS `plan_listid`,`db_material_invoice_list`.`invoice_no`,`db_material_account`.`account_number`,`db_material_account`.`account_type`,`db_account_order_list`.`listid`,`db_material_order`.`order_number`,(`db_account_order_list`.`order_amount` + `db_account_order_list`.`process_cost` - `db_account_order_list`.`cancel_amount` - `db_account_order_list`.`cut_payment`) AS `account_amount`,`db_funds_plan_list`.`plan_amount`,`db_supplier`.`supplier_name` FROM `db_account_order_list` INNER JOIN `db_material_order` ON `db_account_order_list`.`orderid` = `db_material_order`.`orderid` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_account_order_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` LEFT JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_funds_plan_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` WHERE `db_material_account`.`accountid` = '$accountid' AND `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'A'";
-  
+     $sql = "SELECT `db_funds_plan_list`.`listid` AS `plan_listid`,`db_material_invoice_list`.`invoice_no`,`db_material_account`.`account_number`,`db_material_account`.`account_type`,`db_account_order_list`.`listid`,`db_material_order`.`order_number`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AS `account_amount`,`db_funds_plan_list`.`plan_amount`,`db_supplier`.`supplier_name` FROM `db_account_order_list` INNER JOIN `db_material_order` ON `db_account_order_list`.`orderid` = `db_material_order`.`orderid` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_account_order_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` LEFT JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_funds_plan_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` WHERE `db_material_account`.`accountid` = '$accountid' AND `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'A' GROUP BY `db_funds_plan_list`.`listid`";
+
+   // $sql = "SELECT `db_funds_plan_list`.`planid`,`db_material_account`.`accountid`,`db_funds_plan_list`.`plan_amount`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount`) AS `account_amount`,`db_material_funds_plan`.`plan_number`,`db_supplier`.`supplier_name`,`db_material_account`.`account_type`,`db_material_account`.`account_number` FROM `db_material_funds_plan` INNER JOIN `db_funds_plan_list` ON `db_material_funds_plan`.`planid` = `db_funds_plan_list`.`planid` INNER JOIN `db_account_order_list` ON `db_account_order_list`.`listid` = `db_funds_plan_list`.`order_listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_account_order_list`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_material_account`.`accountid` = '$accountid'";
+    //$sql = "SELECT  `db_funds_plan_list`.`planid`,`db_material_account`.`accountid` FROM `db_material_funds_plan` INNER JOIN `db_funds_plan_list` ON `db_material_funds_plan`.`planid` = `db_funds_plan_list`.`planid` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid`  INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_account_order_list`.`accountid` WHERE `db_material_account`.`accountid` = '$accountid' AND `db_funds_plan_list`.`planid` = '$planid' ";
+
       $plan_sql = "SELECT `plan_number` FROM `db_material_funds_plan` WHERE `planid` = '$planid'";
       $result_plan = $db->query($plan_sql);
   $result = $db->query($sql);
@@ -70,14 +73,14 @@ body, html {
     $plan_listid = fun_convert_checkbox($plan_listid);
     $total_amount = number_format($total_amount,2);
     //更改计划状态
-    $plan_sql = "UPDATE `db_funds_plan_list` SET `plan_status` = 'B' WHERE `listid` IN($plan_listid)";
-    $db->query($plan_sql);
-?>
+     $plan_sql = "UPDATE `db_funds_plan_list` SET `plan_status` = 'B' WHERE `listid` IN($plan_listid)";
+     $db->query($plan_sql);
+?> 
 <table id="main">
   <tr>
     <td valign="top"><table id="sheet">
         <caption style=" font-size:18px; line-height:25px; margin-bottom:-15px;">
-        苏州希尔林实业有限公司<br />
+        苏州嘉泰隆实业有限公司<br />
         付款申请单
         </caption>
         <tr>
@@ -99,6 +102,7 @@ body, html {
         <?php
     $i = 1;
         while($row = $result->fetch_assoc()){
+         
          if($i == 1){
     ?>
         <tr>
@@ -187,7 +191,7 @@ body, html {
 <?php } ?>
 <?php
   //判断是否全部申请付款
-    $plan_count_sql = "SELECT COUNT(*) FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'A' GROUP BY `db_material_account`.`accountid`";
+     $plan_count_sql = "SELECT COUNT(*) FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'A' GROUP BY `db_material_account`.`accountid`";
 
     $result_count = $db->query($plan_count_sql);
     $count =  $result_count->num_rows;

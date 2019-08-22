@@ -119,6 +119,16 @@ foreach($account_array as $value){
 	$insert_orderid_sql = "UPDATE `db_material_account` SET `orderidlist` = '$orderlist',`tot_amount` = '$tot_amount',`tot_cancel_amount` = '$tot_cancel_amount',`tot_process_cost` = '$tot_process_cost',`tot_cut_payment` = '$tot_cut_payment' WHERE `accountid` = '$value'";
 
 	$db->query($insert_orderid_sql);
+	//查询对账信息，加入到账款管理表中
+	$account_info_sql = "SELECT `account_time`,`accountid`,`supplierid`,(`tot_amount` + `tot_process_cost` - `tot_cancel_amount` - `tot_cut_payment`) AS `amount` FROM `db_material_account` WHERE `accountid` = '$value'";
+
+	$result_account_info = $db->query($account_info_sql);
+	if($result_account_info->num_rows){	
+		$row_info = $result_account_info->fetch_assoc();
+		}
+	
+		$funds_sql = "INSERT INTO `db_material_funds_list`(`accountid`,`supplierid`,`amount`,`approval_date`) VALUES('".$row_info['accountid']."','".$row_info['supplierid']."','".$row_info['amount']."','".$row_info['account_time']."')";
+		$db->query($funds_sql);
 	     //通过对账单号在对账详情表中查找订单信息
        $order_sql = "SELECT `db_material_order`.`orderid`,SUM(`db_material_inout`.`amount`) AS `sum`,SUM(`db_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_material_inout`.`cut_payment`) AS `cut_payment`,SUM(`db_material_order_list`.`process_cost`) AS `process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_material_inout` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_material_order`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` WHERE `db_material_account_list`.`accountid` = '$value' GROUP BY `db_material_order`.`orderid`";
       $result_order = $db->query($order_sql);

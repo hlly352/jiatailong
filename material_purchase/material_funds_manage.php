@@ -152,7 +152,7 @@ if($_GET['submit']){
           <?php echo number_format(($row_order_list['total_amount'] - $row_order_list['tot_plan_amount']),2,'.','') ?>
         </td>
         <td>
-          <a href="funds_plan_order_info.php?action=show&planid=<?php echo $planid ?>&accountid=<?php echo $row_order_list['accountid'] ?>">详情</a>
+          <a href="funds_plan_order_info.php?action=funds&planid=<?php echo $planid ?>&accountid=<?php echo $row_order_list['accountid'] ?>">详情</a>
         </td>
       </tr>
       <?php } ?>
@@ -280,7 +280,7 @@ $result = $db->query($sqllist);
           <?php echo number_format(($row['total_amount'] - $row['tot_plan_amount']),2,'.','') ?>
         </td>
         <td>
-          <a href="funds_plan_order_info.php?action=show&planid=<?php echo $planid ?>&accountid=<?php echo $row['accountid'] ?>">详情</a>
+          <a href="funds_plan_order_info.php?action=funds&planid=<?php echo $planid ?>&accountid=<?php echo $row['accountid'] ?>">详情</a>
         </td>
       </tr>
       <?php } ?>

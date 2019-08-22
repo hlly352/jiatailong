@@ -9,6 +9,7 @@ $plan_date = date('Y-m-d');
 $data_source = $_POST['data_source'];
 
 	if($action == "add"){
+
 			$planid = $_POST['planid'];
 			$accountid = $_POST['accountid'];
 			if( $data_source == 'B'){
@@ -19,8 +20,21 @@ $data_source = $_POST['data_source'];
 			foreach($listid_array as $v){
 				$k = 'plan_amount_'.$v;
 				$plan_amount = $_POST[$k];
-				//对账订单信息插入到计划详情表中
-				$sqllist .= "('$planid','$v','$plan_amount','$employeeid'),";
+				//查找计划详情中是否存在
+				$plan_sql = "SELECT `listid` FROM `db_funds_plan_list` WHERE `planid` = '$planid' AND `order_listid` = '$v'";
+				$result_plan = $db->query($plan_sql);
+				if($result_plan->num_rows){
+					$listid = $result_plan->fetch_assoc()['listid'];
+					//累加到原来的计划中
+					$plan_insert_sql = "UPDATE `db_funds_plan_list` SET `plan_amount` = `plan_amount` + '$plan_amount' WHERE `listid` = '$listid'";
+					$db->query($plan_insert_sql);
+				}else{
+					//对账订单信息插入到计划详情表中
+					$list_sql = "INSERT INTO `db_funds_plan_list`(`planid`,`order_listid`,`plan_amount`,`employeeid`) VALUES ('$planid','$v','$plan_amount','$employeeid') ";
+	
+					$db->query($list_sql);
+				}
+		
 				//把计划金额累计到对账详情表中的订单中
 				$order_sql = "UPDATE `db_account_order_list` SET `plan_amount` = `plan_amount` + '$plan_amount' WHERE `listid` = '$v'";
 				$db->query($order_sql);
@@ -29,13 +43,11 @@ $data_source = $_POST['data_source'];
 
 				$db->query($account_sql);
 			}
-			$sqllist = rtrim($sqllist,',');
-			$list_sql = "INSERT INTO `db_funds_plan_list`(`planid`,`order_listid`,`plan_amount`,`employeeid`) VALUES $sqllist ";
-	
-			$db->query($list_sql);
-			if($db->affected_rows){
+			
+			
+			
 				header('location:'.$_SERVER['HTTP_REFERER']);
-			}
+			
 	 	 }elseif($data_source == 'C'){
 		  	$id_array = $_POST['id'];
 		  	$order_amount_array = $_POST['order_amount'];
@@ -74,8 +86,20 @@ $data_source = $_POST['data_source'];
 	  	$data = $_GET;
 	  	$plan_amount = $data['plan_amount'];
 	  	$accountid = $data['accountid'];
+	  	$order_listid = $data['order_listid'];
+	  	$planid = $data['planid'];
 	  	unset($data['action']);
 	  	unset($data['accountid']);
+	  	//查询是否存在计划信息
+	  	$plan_sql = "SELECT `listid` FROM `db_funds_plan_list` WHERE `planid` = '$planid' AND `order_listid` = '$order_listid'";
+	  	$result_plan = $db->query($plan_sql);
+	  	if($result_plan->num_rows){
+	  		$listid = $result_plan ->fetch_assoc()['listid'];
+	  		//加入金额
+	  		$plan_insert_sql = "UPDATE `db_funds_plan_list` SET `plan_amount` = `plan_amount` + '$plan_amount' WHERE `listid` = '$listid'";
+	  		$db->query($plan_insert_sql);
+	  	}else{
+
 	  	foreach($data as $k=>$v){
 	  		$keylist .= '`'.$k.'`,';
 	  		$valuelist .= '"'.$v.'",';
@@ -86,7 +110,7 @@ $data_source = $_POST['data_source'];
 	  	$list_sql = "INSERT INTO `db_funds_plan_list`($keylist) VALUES($valuelist)";
 
 	  	$db->query($list_sql);
-	  	
+	  		}
 	  		//把计划金额累计到对账详情表中的订单中
 			$order_sql = "UPDATE `db_account_order_list` SET `plan_amount` = `plan_amount` + '$plan_amount' WHERE `listid` = ".$data['order_listid'];
 

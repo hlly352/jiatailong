@@ -57,7 +57,7 @@ $action = $_GET['action'];
 <?php
   //查找当前计划单下面的所有计划内容
   if($action == 'apply'){
-      $plan_list_sql = "SELECT `db_funds_plan_list`.`listid`,`db_funds_plan_list`.`planid`,`db_account_order_list`.`accountid`,`db_account_order_list`.`accountid`,`db_material_account`.`account_number`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AS `total_amount`,`db_material_account`.`tot_plan_amount` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'A' GROUP BY `db_material_account`.`accountid`";
+      $plan_list_sql = "SELECT SUM(`db_funds_plan_list`.`plan_amount`) AS `plan_amount`,`db_funds_plan_list`.`listid`,`db_funds_plan_list`.`planid`,`db_account_order_list`.`accountid`,`db_account_order_list`.`accountid`,`db_material_account`.`account_number`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AS `total_amount` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'A' GROUP BY `db_material_account`.`accountid`";
 
   $result_list = $db->query($plan_list_sql);
   if($result_list->num_rows){
@@ -78,7 +78,7 @@ $action = $_GET['action'];
       while($row_list = $result_list->fetch_assoc()){
         //计算总计
         $total_tot_amount += $row_list['total_amount'];
-        $total_plan_amount += $row_list['tot_plan_amount'];
+        $total_plan_amount += $row_list['plan_amount'];
         //查找发票信息
         $invoice_sql = "SELECT `invoice_no`,`date` FROM `db_material_invoice_list` WHERE `accountid` =".$row_list['accountid'];
         $result_invoice = $db->query($invoice_sql);
@@ -105,7 +105,7 @@ $action = $_GET['action'];
          } ?>
       </td>
       <td><?php echo $row_list['total_amount'] ?></td>
-      <td><?php echo $row_list['tot_plan_amount'] ?></td>
+      <td><?php echo $row_list['plan_amount'] ?></td>
           <td>
             <a href="funds_plan_list_print.php?action=excel&planid=<?php echo $row_list['planid'] ?>&accountid=<?php echo $row_list['accountid'] ?>" target="_blank">打印</a>
           </td>
@@ -218,8 +218,89 @@ $action = $_GET['action'];
 
 ?>
 </div>
- <?php }?>
+ <?php }elseif($action == 'boss'){
+  $plan_list_sql = "SELECT `db_funds_plan_list`.`listid`,`db_funds_plan_list`.`planid`,`db_account_order_list`.`accountid`,`db_account_order_list`.`accountid`,`db_material_account`.`account_number`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AS `total_amount`,`db_material_account`.`tot_plan_amount` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'D' GROUP BY `db_material_account`.`accountid`";
 
+  $result_list = $db->query($plan_list_sql);
+  if($result_list->num_rows){
+    ?>
+    <table>
+        <tr>
+           <th>ID</th>
+           <th>供应商</th>
+           <th>对账单号</th>
+           <th>对账时间</th>
+           <th>发票号</th>
+           <th>发票时间</th>
+           <th>总金额</th>
+           <th>计划金额</th>
+           <th>操作</th>
+        </tr>
+    <?php
+      while($row_list = $result_list->fetch_assoc()){
+        //计算总计
+        $total_tot_amount += $row_list['total_amount'];
+        $total_plan_amount += $row_list['tot_plan_amount'];
+        //查找发票信息
+        $invoice_sql = "SELECT `invoice_no`,`date` FROM `db_material_invoice_list` WHERE `accountid` =".$row_list['accountid'];
+        $result_invoice = $db->query($invoice_sql);
+    ?>
+    <tr>
+      <td><input type="checkbox" value="<?php echo $row_list['accountid'] ?>" /></td>
+      <td><?php echo $row_list['supplier_cname'] ?></td>
+      <td><?php echo $row_list['account_number'] ?></td>
+      <td><?php echo $row_list['account_time'] ?></td>
+      <td>
+        <?php if($result_invoice->num_rows){
+          while($row_invoice = $result_invoice->fetch_assoc()){
+            echo $row_invoice['invoice_no'].'<br>';
+          }
+         } ?>
+      </td>
+      <td>
+        <?php
+          $result_invoice = $db->query($invoice_sql);
+          if($result_invoice->num_rows){
+          while($row_invoice = $result_invoice->fetch_assoc()){
+            echo $row_invoice['date'].'<br>';
+          }
+         } ?>
+      </td>
+      <td><?php echo $row_list['total_amount'] ?></td>
+      <td><?php echo $row_list['tot_plan_amount'] ?></td>
+          <td>
+            <a href="funds_plan_order_info.php?action=boss&planid=<?php echo $row_list['planid'] ?>&accountid=<?php echo $row_list['accountid'] ?>">详情</a>
+          </td>
+      </tr> 
+      
+  
+<?php
+    }
+  
+?>  
+  <tr>
+    <td colspan="6">总计</td>
+    <td><?php echo number_format($total_tot_amount,2,'.','') ?></td>
+    <td><?php echo number_format($total_plan_amount,2,'.','') ?></td>
+    
+    <td></td>
+  </tr>
+  <tr>
+    <td colspan="12">
+      <input type="button" class="button" value="返回" onclick="window.location.href='material_funds_plan.php'" />
+    </td>
+  </tr>
+  </table>
+
+<?php
+ }else{
+    echo "<p class=\"tag\">系统提示：暂无付款计划！</p></div>";
+  }
+
+?>
+</div>
+
+<?php }?>
 <?php include "../footer.php"; ?>
 </body>
 </html>

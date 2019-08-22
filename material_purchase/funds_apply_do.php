@@ -38,20 +38,37 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 			//撤回审核
 			$sql = "UPDATE `db_funds_plan_list` SET `plan_status` = 'A' WHERE `listid` IN($listid)";
 			$db->query($sql);
-			//判断是否完全撤回审核
-			$plan_sql = "SELECT COUNT(*) FROM `db_funds_plan_list` WHERE `plan_status`='B' AND `planid` = '$planid'";
+			
+			header('location:material_funds_plan.php');
+			
+			
+			
+		}
+	}elseif($from == 'boss'){
+		if($action == 'complete'){
+			 //更改计划详情的状态
+			 $sql = "UPDATE `db_funds_plan_list` SET `plan_status` = 'E' WHERE `listid` IN($listid)";
+			 $db->query($sql);
+			 //判断当前计划是否完全通过审核
+			 $plan_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` IN('A','B','C','D') AND `planid` = '$planid'";
 			 $result_plan= $db->query($plan_sql);
-			 if($result_plan->num_rows){
-			 	$count = $result_plan->fetch_row()[0];
-			 }
+			 $count = $result_plan->num_rows;
+			
 			 if($count == 0){
 			 	//更改计划状态
-			 	$status_sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '5' WHERE `planid`='$planid'";
+			 	$status_sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '13' WHERE `planid`='$planid'";
 			 	$db->query($status_sql);
 			 	header('location:material_funds_plan.php');
 			 }else{
 			 	header('location:funds_pay_apply.php?action=purchase&id='.$planid);
 			 }
+		}elseif($action == 'back'){
+			//撤回审核
+			$sql = "UPDATE `db_funds_plan_list` SET `plan_status` = 'C' WHERE `listid` IN($listid)";
+			$db->query($sql);
+			
+			header('location:material_funds_plan.php');
+			
 			
 			
 		}

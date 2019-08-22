@@ -214,7 +214,7 @@ $(function(){
        ?>
           
         </table>
-        <div id="checkall">
+      <!--   <div id="checkall">
           <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
           <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
           <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
@@ -223,7 +223,7 @@ $(function(){
           <input type="hidden" value="<?php echo $planid ?>" name="planid"/>
           <input type="hidden" value="<?php echo $accountid ?>" name = "accountid" />
           <input type="hidden" name="action" value="del" />
-        </div>
+        </div> -->
       </form>
       <table>
           <tr>
@@ -309,12 +309,14 @@ $(function(){
 
   </table>
   </div>
-  <?php }elseif($action == 'show'){
-        
+  <?php }elseif($action == 'boss'){ 
+      $accountid = $_GET['accountid'];
         //通过对账单号在对账详情表中查找订单信息
-         $order_sql = "SELECT `db_account_order_list`.`listid`,`db_account_order_list`.`order_amount`,`db_material_order`.`order_number`,`db_account_order_list`.`process_cost`,`db_account_order_list`.`cancel_amount`,`db_account_order_list`.`cut_payment`,`db_account_order_list`.`plan_amount` FROM `db_account_order_list` INNER JOIN `db_material_order` ON `db_account_order_list`.`orderid` = `db_material_order`.`orderid` WHERE `accountid` = '$accountid' AND `plan_status` = 'A' AND `db_account_order_list`.`plan_amount` < (`db_account_order_list`.`order_amount` + `db_account_order_list`.`process_cost` - `db_account_order_list`.`cancel_amount` - `db_account_order_list`.`cut_payment`)";
+         $order_sql = "SELECT `db_funds_plan_list`.`listid`,`db_material_order`.`order_number`,`db_account_order_list`.`order_amount`,`db_account_order_list`.`process_cost`,`db_account_order_list`.`cancel_amount`,`db_account_order_list`.`cut_payment`,(`db_account_order_list`.`order_amount` + `db_account_order_list`.`process_cost` - `db_account_order_list`.`cancel_amount` - `db_account_order_list`.`cut_payment`) AS `total_amount`,`db_funds_plan_list`.`plan_amount` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid`  INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_account_order_list`.`orderid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_account_order_list`.`accountid` = '$accountid'";
+
           $result = $db->query($order_sql);
           if($result->num_rows){ ?>
+        <div id="table_list">
         <form action="funds_plando.php" method="post">
             <table>
               <tr>
@@ -324,12 +326,12 @@ $(function(){
                 <th width="13%">加工费</th>
                 <th width="13%">核销金额</th>
                 <th width="13%">品质扣款</th>
-                <th width="13%">对账金额</th>
+                <th width="13%">应付金额</th>
                 <th width="13%">计划金额</th>
               </tr>
              
              <?php 
-               while($row_list = $result->fetch_assoc()){    
+               while($row_list = $result->fetch_assoc()){
               ?>
             <tr>
               <td><input type="checkbox" value="<?php echo $row_list['listid'] ?>" id="order_listid_<?php echo $row_list['listid'] ?>" name="id[]" ?></td>
@@ -338,14 +340,10 @@ $(function(){
               <td><?php echo $row_list['process_cost'] ?></td>
               <td><?php echo $row_list['cancel_amount'] ?></td>
               <td><?php echo $row_list['cut_payment'] ?></td>
-              <td id="order_amount_<?php echo $row_list['listid'] ?>" class="amount">
-              <?php
-                 echo number_format(($row_list['order_amount'] + $row_list['process_cost'] - $row_list['cancel_amount'] - $row_list['cut_payment'] - $row_list['plan_amount']),2,'.','');
-                    ?>
+              <td id="order_amount_<?php echo $row_list['listid'] ?>">
+                <?php echo $row_list['total_amount'] ?>
             </td>
-            <td>
-              <?php echo $row_list['plan_amount'] ?>
-            </td> 
+            <td><?php echo $row_list['plan_amount'] ?></td>   
            </tr>
         <?php  
               }
@@ -358,20 +356,145 @@ $(function(){
       <table>
           <tr>
             <td colspan="15">
+              <input type="button" name="" value="审核" class="button" onclick="window.location.href='funds_apply_do.php?from=boss&action=complete&planid=<?php echo $planid ?>&accountid=<?php echo $accountid ?>'" />
+              <input type="button" name="" value="撤回" class="button"  onclick="window.location.href='funds_apply_do.php?from=boss&action=back&planid=<?php echo $planid ?>&accountid=<?php echo $accountid ?>'" />
               <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
             </td>
           </tr>
       </table>
+      </div>
       <?php
       }else{
-
         echo "<p class=\"tag\">系统提示：暂无未付款项</p>";
-         echo '<p class="tag"><input type="button" name="button" value="返回" class="button" onclick="window.location.href = \'material_funds_plan.php\'" /></p>';
+        echo '<p class="tag"><input type="button" name="button" value="返回" class="button" onclick="window.location.href = \'funds_plan_list_add.php?id='.$planid.'\'" /></p>';   
     }
     ?>
-    </div>
+   
 
-  <?php } ?>
+
+  </table>
+  </div>
+  <?php }elseif($action == 'funds'){
+     $accountid = $_GET['accountid'];
+        //通过对账单号在对账详情表中查找订单信息
+            $order_sql = "SELECT `db_account_order_list`.`listid`,`db_material_order`.`order_number`,`db_account_order_list`.`order_amount`,`db_account_order_list`.`process_cost`,`db_account_order_list`.`cancel_amount`,`db_account_order_list`.`cut_payment`,(`db_account_order_list`.`order_amount` + `db_account_order_list`.`process_cost` - `db_account_order_list`.`cancel_amount` - `db_account_order_list`.`cut_payment`) AS `total_amount` FROM `db_account_order_list` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_account_order_list`.`orderid` WHERE `db_account_order_list`.`accountid` = '$accountid'";
+        
+          $result = $db->query($order_sql);
+          if($result->num_rows){ ?>
+        <div id="table_list">
+        <form action="funds_plando.php" method="post">
+            <table>
+              <tr>
+                <th>ID</th>
+                <th width="13%">合同号</th>
+                <th width="13%">物料金额</th>
+                <th width="13%">加工费</th>
+                <th width="13%">核销金额</th>
+                <th width="13%">品质扣款</th>
+                <th width="13%">应付金额</th>
+                <th width="13%">计划金额</th>
+              </tr>
+             
+             <?php 
+               while($row_list = $result->fetch_assoc()){
+                $listid = $row_list['listid'];
+                //查询计划金额
+                $plan_sql = "SELECT `plan_amount` FROM `db_funds_plan_list` WHERE `order_listid` = '$listid'";
+                $result_plan = $db->query($plan_sql);
+                if($result_plan->num_rows){
+                  $plan_amount = $result_plan->fetch_assoc()['plan_amount'];
+                }else{
+                  $plan_amount = 0;
+                }
+              ?>
+            <tr>
+              <td><input type="checkbox" value="<?php echo $row_list['listid'] ?>" id="order_listid_<?php echo $row_list['listid'] ?>" name="id[]" ?></td>
+              <td><?php echo $row_list['order_number'] ?></td>
+              <td><?php echo $row_list['order_amount'] ?></td>
+              <td><?php echo $row_list['process_cost'] ?></td>
+              <td><?php echo $row_list['cancel_amount'] ?></td>
+              <td><?php echo $row_list['cut_payment'] ?></td>
+              <td id="order_amount_<?php echo $row_list['listid'] ?>">
+                <?php
+                 echo number_format(($row_list['order_amount'] + $row_list['process_cost'] - $row_list['cancel_amount'] - $row_list['cut_payment'] - $row_list['plan_amount']),2,'.','');
+                    ?>
+            </td>
+            <td><?php echo $plan_amount ?></td>
+           </tr>
+        <?php  
+          }
+       ?> 
+          <tr>
+            <td colspan="15">
+              <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
+            </td>
+          </tr>
+      </table>
+      </div>
+      <?php }else{
+
+        echo "<p class=\"tag\">系统提示：暂无未付款项</p>";
+        echo '<p class="tag"><input type="button" name="button" value="返回" class="button" onclick="window.location.href = \'material_funds_manage.php\'" /></p>';
+          }   ?>
+
+
+
+  <?php }elseif($action == 'show'){
+        
+         $accountid = $_GET['accountid'];
+        //通过对账单号在对账详情表中查找订单信息
+            $order_sql = "SELECT `db_funds_plan_list`.`listid`,`db_material_order`.`order_number`,`db_account_order_list`.`order_amount`,`db_account_order_list`.`process_cost`,`db_account_order_list`.`cancel_amount`,`db_account_order_list`.`cut_payment`,(`db_account_order_list`.`order_amount` + `db_account_order_list`.`process_cost` - `db_account_order_list`.`cancel_amount` - `db_account_order_list`.`cut_payment`) AS `total_amount`,`db_funds_plan_list`.`plan_amount` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid`  INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_account_order_list`.`orderid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_account_order_list`.`accountid` = '$accountid' AND `db_funds_plan_list`.`plan_amount` > 0";
+          $result = $db->query($order_sql);
+          if($result->num_rows){ ?>
+        <div id="table_list">
+        <form action="funds_plando.php" method="post">
+            <table>
+              <tr>
+                <th>ID</th>
+                <th width="13%">合同号</th>
+                <th width="13%">物料金额</th>
+                <th width="13%">加工费</th>
+                <th width="13%">核销金额</th>
+                <th width="13%">品质扣款</th>
+                <th width="13%">应付金额</th>
+                <th width="13%">计划金额</th>
+              </tr>
+             
+             <?php 
+               while($row_list = $result->fetch_assoc()){
+               
+              ?>
+            <tr>
+              <td><input type="checkbox" value="<?php echo $row_list['listid'] ?>" id="order_listid_<?php echo $row_list['listid'] ?>" name="id[]" ?></td>
+              <td><?php echo $row_list['order_number'] ?></td>
+              <td><?php echo $row_list['order_amount'] ?></td>
+              <td><?php echo $row_list['process_cost'] ?></td>
+              <td><?php echo $row_list['cancel_amount'] ?></td>
+              <td><?php echo $row_list['cut_payment'] ?></td>
+              <td id="order_amount_<?php echo $row_list['listid'] ?>">
+                <?php
+                 echo number_format(($row_list['order_amount'] + $row_list['process_cost'] - $row_list['cancel_amount'] - $row_list['cut_payment'] - $row_list['plan_amount']),2,'.','');
+                    ?>
+            </td>
+            <td><?php echo $row_list['plan_amount'] ?></td>
+           </tr>
+        <?php  
+          }
+       ?> 
+          <tr>
+            <td colspan="15">
+              <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
+            </td>
+          </tr>
+      </table>
+      </div>
+      <?php }}else{
+
+        echo "<p class=\"tag\">系统提示：暂无未付款项</p>";
+        echo '<p class="tag"><input type="button" name="button" value="返回" class="button" onclick="window.location.href = \'material_funds_manage.php\'" /></p>';
+          }   ?>
+
+
 <?php include "../footer.php"; ?>
 </body>
 </html>
