@@ -6,6 +6,8 @@
     <!-- <li class="menulevel"><a href="/mould_processing/">首页</a></li> -->
     <li class="menulevel"><a href="mould.php">模具数据</a></li>
     <li class="menulevel"><a href="mould_outward.php">外协加工</a></li>
+    <li class="menulevel"><a href="mould_material.php">模具物料</a></li>
+    <li class="menulevel"><a href="mould_outward_apply.php">加工申请</a></li>
     <li class="menulevel"><a href="mould_weld.php">零件烧焊</a></li>
     <li class="menulevel"><a href="#">模具试模</a>
       <ul>

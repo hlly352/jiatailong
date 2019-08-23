@@ -38,8 +38,18 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 			//撤回审核
 			$sql = "UPDATE `db_funds_plan_list` SET `plan_status` = 'A' WHERE `listid` IN($listid)";
 			$db->query($sql);
-			
-			header('location:material_funds_plan.php');
+			//判断是不是完全撤回
+			 $plan_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` IN('B','C','D','E','F','G') AND `planid` = '$planid'";
+			 $result_plan= $db->query($plan_sql);
+			 $count = $result_plan->num_rows;
+			if($count == 0){
+				//更改计划状态
+			 	$status_sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '5' WHERE `planid`='$planid'";
+			 	$db->query($status_sql);
+			 	header('location:material_funds_plan.php');
+			}else{
+				header('location:material_funds_plan.php');
+			}
 			
 			
 			

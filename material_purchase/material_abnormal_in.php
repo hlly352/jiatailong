@@ -21,14 +21,15 @@ if($_GET['submit']){
 }
 // $sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`plan_date`,DATEDIFF(`db_material_order_list`.`plan_date`,`db_material_inout`.`dodate`) AS `diff_date`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND DATEDIFF(`db_material_order_list`.`plan_date`,`db_material_inout`.`dodate`) < 0 $sqlwhere";
 
-$sql = "SELECT `db_material_order`.`orderid` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND `db_material_order_list`.`actual_unitid` !='3'  AND (`db_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') AND (`db_material_order_list`.`order_quantity` - `db_material_inout`.`inout_quantity` - `db_material_inout`.`cancel_num`) > 0 $sqlwhere";
+//$sql = "SELECT `db_material_order`.`orderid` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND `db_material_order_list`.`actual_unitid` !='3'  AND (`db_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') AND (`db_material_order_list`.`order_quantity` - `db_material_inout`.`inout_quantity` - `db_material_inout`.`cancel_num`) > 0 $sqlwhere";
+$sql = "SELECT DISTINCT(`db_material_order`.`orderid`) FROM `db_material_inout`  INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order_list`.`order_quantity` != (`db_material_order_list`.`in_quantity` + `db_material_order_list`.`cancel_num`) AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') GROUP BY `db_material_order`.`orderid`";
 
 //查询入库异常的订单
-
 $result = $db->query($sql);
-$_SESSION['material_abnormal_entry'] = $sql;
-$sqllist = $sql . " ORDER BY `db_material_inout`.`inoutid` DESC" . $pages->limitsql;
+$pages = new page($result->num_rows,15);
+$sqllist = $sql . " ORDER BY `db_material_order`.`orderid` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
+$_SESSION['material_abnormal_entry'] = $sql;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -106,14 +107,11 @@ $result = $db->query($sqllist);
       <th width="4%">核销单</th>
       <th width="4%">操作</th>
     </tr>
-    <?php $row = $result->fetch_assoc();
-      $order_sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`plan_date`,IF(`db_material_order_list`.`actual_unitid`='3',0.00,`db_material_order_list`.`order_quantity`-`db_material_inout`.`inout_quantity`- `db_material_inout`.`cancel_num`) AS `diff`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_order_list`.`order_quantity` - `db_material_inout`.`inout_quantity` - `db_material_inout`.`cancel_num`) > 0 AND `db_material_order`.`orderid`=".$row['orderid'];
+    <?php while($row = $result->fetch_assoc()){
+      $order_sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_order_list`.`order_quantity`,`db_material_order_list`.`in_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`plan_date`,(`db_material_order_list`.`order_quantity`-`db_material_order_list`.`in_quantity`- `db_material_inout`.`cancel_num`) AS `diff`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`dotype` = 'I' AND (`db_material_order_list`.`order_quantity` - `db_material_order_list`.`in_quantity` - `db_material_inout`.`cancel_num`) > 0 AND `db_material_order`.`orderid`=".$row['orderid'];
         $result_order = $db->query($order_sql);
-        $pages = new page($result_order->num_rows,15);
-        $sqllist = $order_sql . " ORDER BY `db_material_order_list`.`orderid` DESC" . $pages->limitsql;
-        $result_order = $db->query($sqllist);
         if($result_order->num_rows){
-          while($rows = $result_order->fetch_assoc()){
+          $rows = $result_order->fetch_assoc();
       
      ?>
     <tr>
@@ -123,8 +121,8 @@ $result = $db->query($sqllist);
       <td><?php echo $rows['material_name']; ?></td>
       <td><?php echo $rows['specification']; ?></td>
       <td><?php echo $rows['texture']; ?></td>
-      <td><?php echo $rows['quantity'].$rows['unit_name_order']; ?></td>
-      <td><?php echo $rows['inout_quantity'].$rows['unit_name_actual']; ?></td>
+      <td><?php echo $rows['order_quantity'].$rows['unit_name_order']; ?></td>
+      <td><?php echo $rows['in_quantity'].$rows['unit_name_actual']; ?></td>
       <td><?php echo $rows['unit_price']; ?></td>
       <td><?php echo $rows['amount']; ?></td>
       <td><?php echo $rows['process_cost']; ?></td>
@@ -136,7 +134,7 @@ $result = $db->query($sqllist);
       <td>
       <?php
           if($rows['diff'] != 0){
-            echo '<a href="material_cancel_order_print.php?listid='.$rows['listid'].'&diff='.$rows['diff'].'&inoutid='.$rows['inoutid'].'">打印</a>';
+            echo '<a target="_blank" href="material_cancel_order_print.php?listid='.$rows['listid'].'&diff='.$rows['diff'].'&inoutid='.$rows['inoutid'].'">打印</a>';
           }
         ?>
       </td>
@@ -149,13 +147,16 @@ $result = $db->query($sqllist);
         
       </td>
     </tr>
-    <?php } ?>
+    <?php
+     }
+    } 
+    ?>
   </table>
   <div id="page">
     <?php $pages->getPage();?>
   </div>
   <?php
-  }}else{
+  }else{
 	  echo "<p class=\"tag\">系统提示：暂无记录</p>";
   }
   ?>

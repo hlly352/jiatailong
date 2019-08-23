@@ -51,7 +51,7 @@ body, html {
 
 <body>
 <?php
-    $sql_order = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`plan_date`,IF(`db_material_order_list`.`actual_unitid`='3',0.00,`db_material_order_list`.`order_quantity`-`db_material_inout`.`inout_quantity`) AS `diff_date`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`inoutid`= $inoutid";
+    $sql_order = "SELECT `db_material_inout`.`inoutid`,`db_material_order_list`.`in_quantity`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_order_list`.`order_quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order_list`.`plan_date`,(`db_material_order_list`.`order_quantity`-`db_material_order_list`.`in_quantity`) AS `diff`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_inout`.`inoutid`= $inoutid";
 	$result = $db->query($sql_order);
 	$result_amount = $db->query($sql_order);
 	if($count = $result->num_rows){
@@ -107,16 +107,16 @@ body, html {
             <td><?php echo $row['material_name']; ?></td>
             <td><?php echo $row['specification']; ?></td>
             <td><?php echo $row['texture']; ?></td>
-            <td><?php echo $row['quantity'].$rows['unit_name_order']; ?></td>
-            <td><?php echo $row['inout_quantity'].$rows['unit_name_actual']; ?></td>
+            <td><?php echo $row['order_quantity'].$rows['unit_name_order']; ?></td>
+            <td><?php echo $row['in_quantity'].$rows['unit_name_actual']; ?></td>
             <td><?php echo $row['unit_price']; ?></td>
-            <td><?php echo $row['amount']; ?></td>
+            <td><?php echo $row['diff'] * $row['unit_price']; ?></td>
             <td><?php echo $row['process_cost']; ?></td>
             <td><?php echo $row['supplier_cname']; ?></td>
             <td><?php echo $row['dodate']; ?></td>
             <td><?php echo $row['form_number']; ?></td>
             <!-- <td><?php echo $row['plan_date']; ?></td> -->
-            <td><?php echo $row['diff_date']; ?></td>       
+            <td><?php echo $row['diff']; ?></td>       
        </tr>
         <?php
 		if($i%10 ==0 && $i != $result->num_rows){

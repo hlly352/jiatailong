@@ -9,6 +9,9 @@ $inoutid = trim($_GET['inoutid']);
 //更改核销数量
 $cancel_num_sql = "UPDATE `db_material_inout` SET `cancel_num` = '$diff' WHERE `inoutid` = '$inoutid'";
 $db->query($cancel_num_sql);
+//更改订单明细中的核销数量
+$order_sql = "UPDATE `db_material_order_list` SET `cancel_num` = '$diff' WHERE `listid` = '$listid'";
+$db->query($order_sql);
 //查找物料的核销金额
 $cancel_amount_sql = "SELECT (`db_material_order_list`.`unit_price` * `db_material_inout`.`cancel_num`) AS `cancel_amount` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_inout`.`listid` = `db_material_order_list`.`listid` WHERE `db_material_inout`.`inoutid` = '$inoutid'";
 

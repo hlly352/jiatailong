@@ -150,7 +150,7 @@ body, html {
           foreach($order_number as $k=>$v){
         ?>
           <tr>
-            <td colspan="2" class="bor"><?php echo $v ?></td>
+            <td colspan="2" class="bor"><?php echo 'PO:'.$v ?></td>
             <td class="bor"><?php echo $plan[$k] ?></td>
             <?php if($k==0){ ?>
             <td rowspan="<?php echo $count ?>">
@@ -177,7 +177,7 @@ body, html {
           <tr> 
             <td>合计金额</td>
             <td colspan="3" style="border-right:none;text-align:left">&yen;<?php echo number_format($plan_amount,2,'.','').'&nbsp;&nbsp;&nbsp;人民币大写：'.$toSuperCase::ParseNumber($plan_amount); ?></td>
-            <td colspan="2">附件单据（ ）张</td>
+            <td colspan="2">附件单据（&nbsp;&nbsp; ）张</td>
           </tr>
           <tr>
             <td style="border:none;text-align:left">经办人</td>
