@@ -12,6 +12,7 @@
         <li><a href="material_in_list.php">模具物料</a></li>
         <li><a href="cutter_in_list.php">加工刀具</a></li>
         <li><a href="other_material_in_list.php">期间物料</a></li>
+        <li><a href="outward_in_list.php">外协加工</a></li>
       </ul>
     </li>
   <!--   <li class="menulevel"><a href="#">入库处理</a>
