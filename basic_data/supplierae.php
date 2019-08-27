@@ -78,7 +78,14 @@ $(function(){
       <tr>
         <th>地址：</th>
         <td><input type="text" name="supplier_address" class="input_txt" size="35" /></td>
+      </tr><tr>
+      <th>开户银行：</th>
+        <td><input type="text" name="supplier_blank" class="input_txt" size="35" /></td>
+      </tr><tr>
+      <th>银行帐号：</th>
+        <td><input type="text" name="supplier_account" class="input_txt" size="35" /></td>
       </tr>
+
       <tr>
         <th>类型：</th>
         <td><?php
@@ -144,6 +151,13 @@ $(function(){
       <tr>
         <th>地址：</th>
         <td><input type="text" name="supplier_address" value="<?php echo $array['supplier_address']; ?>" class="input_txt" size="35" /></td>
+      </tr>
+      </tr><tr>
+      <th>开户银行：</th>
+        <td><input type="text" name="supplier_blank" value="<?php echo $array['supplier_blank']; ?>" class="input_txt" size="35" /></td>
+      </tr><tr>
+      <th>银行帐号：</th>
+        <td><input type="text" name="supplier_account" value="<?php echo $array['supplier_account']; ?>" class="input_txt" size="35" /></td>
       </tr>
       <tr>
         <th>类型：</th>

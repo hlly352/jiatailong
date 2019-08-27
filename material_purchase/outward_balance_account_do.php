@@ -7,16 +7,15 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 //获取对账成功的记录id
 if($_POST['submit']){
 	$id = $_POST['id'];
-	$inoutid = fun_convert_checkbox($id);
+	$listids = fun_convert_checkbox($id);
 } else{
-	$inoutid = $_GET['id'];
+	$listids = $_GET['id'];
 	$id[] = $_GET['id'];
 }
 $orderid_array = array();
 $nowmonth = date('Y-m');
-
 //查询有供应商的id
- 	$supplier_sql = "SELECT `db_other_material_order`.`supplierid` FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_inout`.`listid` = `db_other_material_orderlist`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` WHERE `db_other_material_inout`.`inoutid` IN($inoutid)";
+ 	$supplier_sql = "SELECT `db_outward_order`.`supplierid` FROM `db_outward_order_list` INNER JOIN `db_outward_order` ON `db_outward_order`.`orderid` = `db_outward_order_list`.`orderid` WHERE `db_outward_order_list`.`listid` IN($listids)";
  	$result_supplier = $db->query($supplier_sql);
  	if($result_supplier->num_rows){
  		$supplier_list = array();
@@ -39,21 +38,20 @@ $nowmonth = date('Y-m');
 
 			//没有则新建一条汇总
 			$time = date('Y-m-d');
-			$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`,`employeeid`,`account_number`,`account_type`) VALUES('$time','$v','$employeeid','$account_number','O')";
+			$add_sql = "INSERT INTO `db_material_account`(`account_time`,`supplierid`,`employeeid`,`account_number`,`account_type`) VALUES('$time','$v','$employeeid','$account_number','W')";
 			$db->query($add_sql);
 			if($db->affected_rows){
 				$accountid = $db->insert_id;
 			}
 			//查询当前供应商对应的对账信息
-				$inout_sql = "SELECT `db_other_material_inout`.`inoutid`,`db_other_material_order`.`orderid` FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_inout`.`listid` = `db_other_material_orderlist`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` WHERE `db_other_material_order`.`supplierid` = '$v' AND `db_other_material_inout`.`inoutid` IN($inoutid)";
+				$inout_sql = "SELECT `db_outward_order_list`.`listid`,`db_outward_order`.`orderid` FROM  `db_outward_order_list` INNER JOIN `db_outward_order` ON `db_outward_order`.`orderid` = `db_outward_order_list`.`orderid` WHERE `db_outward_order`.`supplierid` = '$v' AND `db_outward_order_list`.`listid` IN($listids)";
 				
 			$result_inout = $db->query($inout_sql);
 			if($result_inout->num_rows){
 				$inout_list = array();
 				while($row_inout = $result_inout->fetch_assoc()){
 					//加入到对账详情表中
-					$list_sql = "INSERT INTO `db_material_account_list`(`accountid`,`inoutid`,`orderid`) VALUES('$accountid','".$row_inout['inoutid']."','".$row_inout['orderid']."')";
-					
+					$list_sql = "INSERT INTO `db_material_account_list`(`accountid`,`inoutid`,`orderid`) VALUES('$accountid','".$row_inout['listid']."','".$row_inout['orderid']."')";
 					$db->query($list_sql);
 				}
 			}
@@ -62,22 +60,17 @@ $nowmonth = date('Y-m');
 
 //通过对账汇总表id 查询明细
 foreach($account_array as $value){
-	$account_list_sql = "SELECT `db_material_account_list`.`accountid`,`db_other_material_order`.`orderid`,`db_other_material_inout`.`process_cost`,`db_other_material_inout`.`cancel_amount`,`db_other_material_inout`.`cut_payment`,`db_other_material_inout`.`amounts` FROM `db_material_account_list` INNER JOIN `db_other_material_inout` ON `db_material_account_list`.`inoutid` = `db_other_material_inout`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_inout`.`listid` = `db_other_material_orderlist`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` WHERE `db_material_account_list`.`accountid` = '$value'";
-
+	$account_list_sql = "SELECT `db_material_account_list`.`accountid`,`db_outward_order`.`orderid`,`db_outward_order_list`.`amount` FROM `db_material_account_list` INNER JOIN `db_outward_order_list` ON `db_outward_order_list`.`listid` = `db_material_account_list`.`inoutid` INNER JOIN `db_outward_order` ON `db_outward_order_list`.`orderid` = `db_outward_order`.`orderid` WHERE `db_material_account_list`.`accountid` = '$value'";
 	$result_account_list = $db->query($account_list_sql);
 	$orderid_array = array();
-	$tot_amount = $tot_cancel_amount = $tot_cut_payment = $tot_process_cost = 0;
-	if($result_account_list->num_rows){
+	$tot_amount = 0;
+	if($result_account_list){
 		$orderid_array = array();
 		while($row_account_list = $result_account_list->fetch_assoc()){
-		
 			//获取订单id
 			$orderid_array[] = $row_account_list['orderid'];
 			//获取总金额，加工费，核销，品质扣款
-			$tot_amount += $row_account_list['amounts'];
-			$tot_cancel_amount += $row_account_list['cancel_amount'];
-			$tot_cut_payment += $row_account_list['cut_payment'];
-			$tot_process_cost += $row_account_list['process_cost'];
+			$tot_amount += $row_account_list['amount'];
 		}
 	}
 	//查询原来的orderidlist值
@@ -109,7 +102,7 @@ foreach($account_array as $value){
 	$orderlist = trim($orderidlist,',');
 
 	//查询是否有预付款
-	// $prepayment_sql = "SELECT `prepayment` FROM `db_funds_prepayment` WHERE `order_number` IN(SELECT `order_number` FROM `db_other_material_order` WHERE `orderid` IN($orderlist)) AND `status` = '1' AND `account_type` = 'M'";
+	// $prepayment_sql = "SELECT `prepayment` FROM `db_funds_prepayment` WHERE `order_number` IN(SELECT `order_number` FROM `db_material_order` WHERE `orderid` IN($orderlist)) AND `status` = '1' AND `account_type` = 'M'";
 	// $result_prepayment = $db->query($prepayment_sql);
 	// if($result_prepayment->num_rows){
 	// 	while($row_prepayment = $result_prepayment->fetch_assoc()){
@@ -117,7 +110,7 @@ foreach($account_array as $value){
 	// 	}
 	// }
 	//把对账详情表中的汇总信息填入汇总表中
-	$insert_orderid_sql = "UPDATE `db_material_account` SET `orderidlist` = '$orderlist',`tot_amount` = '$tot_amount',`tot_cancel_amount` = '$tot_cancel_amount',`tot_process_cost` = '$tot_process_cost',`tot_cut_payment` = '$tot_cut_payment' WHERE `accountid` = '$value'";
+	$insert_orderid_sql = "UPDATE `db_material_account` SET `orderidlist` = '$orderlist',`tot_amount` = '$tot_amount' WHERE `accountid` = '$value'";
 
 	$db->query($insert_orderid_sql);
 	//查询对账信息，加入到账款管理表中
@@ -131,31 +124,24 @@ foreach($account_array as $value){
 		$funds_sql = "INSERT INTO `db_material_funds_list`(`accountid`,`supplierid`,`amount`,`approval_date`) VALUES('".$row_info['accountid']."','".$row_info['supplierid']."','".$row_info['amount']."','".$row_info['account_time']."')";
 		$db->query($funds_sql);
 	     //通过对账单号在对账详情表中查找订单信息
-       $order_sql = "SELECT `db_other_material_order`.`orderid`,`db_other_material_order`.`order_number`,SUM(`db_other_material_inout`.`amounts`) AS `sum`,SUM(`db_other_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_other_material_inout`.`cut_payment`) AS `cut_payment` FROM `db_other_material_order` INNER JOIN `db_other_material_orderlist` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_material_inout` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_other_material_order`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account_list`.`inoutid` = `db_other_material_inout`.`inoutid` WHERE `db_material_account_list`.`accountid` = '$value' GROUP BY `db_other_material_order`.`orderid`";
-
+       $order_sql = "SELECT `db_outward_order`.`orderid`,`db_outward_order`.`order_number`,SUM(`db_outward_order_list`.`amount`) AS `sum` FROM `db_outward_order` INNER JOIN `db_outward_order_list` ON `db_outward_order`.`orderid` = `db_outward_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_outward_order`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account_list`.`inoutid` = `db_outward_order_list`.`listid` WHERE `db_material_account_list`.`accountid` = '$value' GROUP BY `db_outward_order`.`orderid`";
       $result_order = $db->query($order_sql);
       $sqllist = '';
       if($result_order->num_rows){
       	while($row_order = $result_order->fetch_assoc()){
-
       		$orderid = $row_order['orderid'];
       		$order_number = $row_order['order_number'];
       		$order_amount = $row_order['sum'];
-      		$cancel_amount = $row_order['cancel_amount'];
-      		$cut_payment = $row_order['cut_payment'];
-      		$process_cost = 0;
-      		$sqllist .= "('$value','$orderid','$order_number','$order_amount','$process_cost','$cancel_amount','$cut_payment'),";
+      		$sqllist .= "('$value','$orderid','$order_number','$order_amount'),";
       	}
       }
 	$sqllist = rtrim($sqllist,',');
 
 	//插入对账订单信息
-    $order_list_sql = "INSERT INTO `db_account_order_list`(`accountid`,`orderid`,`order_number`,`order_amount`,`process_cost`,`cancel_amount`,`cut_payment`) VALUES $sqllist";
-
+    $order_list_sql = "INSERT INTO `db_account_order_list`(`accountid`,`orderid`,`order_number`,`order_amount`) VALUES $sqllist";
    $db->query($order_list_sql);
 }
     
 	header("location:".$_SERVER['HTTP_REFERER']);
-		
 
  ?>

@@ -247,7 +247,7 @@ $(function(){
   <?php }elseif($action == 'financial'){ 
         
     //查找当前计划单下面的所有计划内容
-  $plan_list_sql = "SELECT SUM(`db_funds_plan_list`.`plan_amount`) AS `plan_amount`,`db_account_order_list`.`accountid`,`db_material_account`.`account_number`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AS `total_amount` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' GROUP BY `db_material_account`.`accountid`";
+  $plan_list_sql = "SELECT `db_material_account`.`account_type`,SUM(`db_funds_plan_list`.`plan_amount`) AS `plan_amount`,`db_account_order_list`.`accountid`,`db_material_account`.`account_number`,`db_supplier`.`supplier_cname`,`db_material_account`.`account_time`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AS `total_amount` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_material_account`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' GROUP BY `db_material_account`.`accountid`";
   $result_list = $db->query($plan_list_sql);
   if($result_list->num_rows){
     ?>
@@ -296,7 +296,7 @@ $(function(){
       <td><?php echo $row_list['total_amount'] ?></td>
       <td><?php echo $row_list['plan_amount'] ?></td>
           <td>
-            <a href="funds_plan_order_info.php?action=show&planid=<?php echo $planid ?>&accountid=<?php echo $row_list['accountid'] ?>">详情</a>
+            <a href="funds_plan_order_info.php?action=show&account_type=<?php echo $row_list['account_type'] ?>&planid=<?php echo $planid ?>&accountid=<?php echo $row_list['accountid'] ?>">详情</a>
           </td>
       </tr> 
       

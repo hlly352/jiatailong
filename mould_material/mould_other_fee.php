@@ -92,7 +92,7 @@ $result = $db->query($sqllist);
         </td>
         <td>
             <input type="submit" name="submit" value="查询" class="button" />
-            <input type="button" id="excel_material" name="button" value="导出" class="button" onclick="location.href='excel_mould_other_material.php'" />
+        <!--     <input type="button" id="excel_material" name="button" value="导出" class="button" onclick="location.href='excel_mould_other_material.php'" /> -->
             <input type="button" name="button" value="申请" class="button" onclick="location.href='mould_other_material_apply.php?action=add'" />
 
         </td>

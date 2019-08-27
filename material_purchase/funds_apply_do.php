@@ -8,7 +8,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 	$from = $_GET['from'];
 	$planid = $_GET['planid'];
 	$accountid = $_GET['accountid'];
-	$order_sql = "SELECT `db_funds_plan_list`.`listid` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid`  INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_account_order_list`.`orderid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_account_order_list`.`accountid` = '$accountid'";
+	$order_sql = "SELECT `db_funds_plan_list`.`listid` FROM `db_funds_plan_list` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_account_order_list`.`accountid` = '$accountid'";
 	$result_order = $db->query($order_sql);
 	if($result_order->num_rows){
 		while($row_order = $result_order->fetch_assoc()){
@@ -25,7 +25,7 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 			 $plan_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status`='B' OR `plan_status` = 'A' AND `planid` = '$planid'";
 			 $result_plan= $db->query($plan_sql);
 			 $count = $result_plan->num_rows;
-			
+		
 			 if($count == 0){
 			 	//更改计划状态
 			 	$status_sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '9' WHERE `planid`='$planid'";
@@ -38,14 +38,11 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
 			//撤回审核
 			$sql = "UPDATE `db_funds_plan_list` SET `plan_status` = 'A' WHERE `listid` IN($listid)";
 			$db->query($sql);
-			//判断是不是完全撤回
-			 $plan_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` IN('B','C','D','E','F','G') AND `planid` = '$planid'";
-			 $result_plan= $db->query($plan_sql);
-			 $count = $result_plan->num_rows;
-			if($count == 0){
+	
 				//更改计划状态
 			 	$status_sql = "UPDATE `db_material_funds_plan` SET `plan_status` = '5' WHERE `planid`='$planid'";
 			 	$db->query($status_sql);
+			 if($db->affected_rows){
 			 	header('location:material_funds_plan.php');
 			}else{
 				header('location:material_funds_plan.php');

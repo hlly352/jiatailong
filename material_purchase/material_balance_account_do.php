@@ -130,23 +130,24 @@ foreach($account_array as $value){
 		$funds_sql = "INSERT INTO `db_material_funds_list`(`accountid`,`supplierid`,`amount`,`approval_date`) VALUES('".$row_info['accountid']."','".$row_info['supplierid']."','".$row_info['amount']."','".$row_info['account_time']."')";
 		$db->query($funds_sql);
 	     //通过对账单号在对账详情表中查找订单信息
-       $order_sql = "SELECT `db_material_order`.`orderid`,SUM(`db_material_inout`.`amount`) AS `sum`,SUM(`db_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_material_inout`.`cut_payment`) AS `cut_payment`,SUM(`db_material_order_list`.`process_cost`) AS `process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_material_inout` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_material_order`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` WHERE `db_material_account_list`.`accountid` = '$value' GROUP BY `db_material_order`.`orderid`";
+       $order_sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,SUM(`db_material_inout`.`amount`) AS `sum`,SUM(`db_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_material_inout`.`cut_payment`) AS `cut_payment`,SUM(`db_material_order_list`.`process_cost`) AS `process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_material_inout` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_material_order`.`supplierid` = `db_supplier`.`supplierid` INNER JOIN `db_material_account_list` ON `db_material_account_list`.`inoutid` = `db_material_inout`.`inoutid` WHERE `db_material_account_list`.`accountid` = '$value' GROUP BY `db_material_order`.`orderid`";
       $result_order = $db->query($order_sql);
       $sqllist = '';
       if($result_order->num_rows){
       	while($row_order = $result_order->fetch_assoc()){
       		$orderid = $row_order['orderid'];
+      		$order_number = $row_order['order_number'];
       		$order_amount = $row_order['sum'];
       		$cancel_amount = $row_order['cancel_amount'];
       		$cut_payment = $row_order['cut_payment'];
       		$process_cost = $row_order['process_cost'];
-      		$sqllist .= "('$value','$orderid','$order_amount','$process_cost','$cancel_amount','$cut_payment'),";
+      		$sqllist .= "('$value','$orderid','$order_number','$order_amount','$process_cost','$cancel_amount','$cut_payment'),";
       	}
       }
 	$sqllist = rtrim($sqllist,',');
 
 	//插入对账订单信息
-    $order_list_sql = "INSERT INTO `db_account_order_list`(`accountid`,`orderid`,`order_amount`,`process_cost`,`cancel_amount`,`cut_payment`) VALUES $sqllist";
+    $order_list_sql = "INSERT INTO `db_account_order_list`(`accountid`,`orderid`,`order_number`,`order_amount`,`process_cost`,`cancel_amount`,`cut_payment`) VALUES $sqllist";
    $db->query($order_list_sql);
 }
     

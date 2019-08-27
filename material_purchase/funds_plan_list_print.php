@@ -49,7 +49,7 @@ body, html {
 <body>
 <?php
 
-     $sql = "SELECT `db_funds_plan_list`.`listid` AS `plan_listid`,`db_material_invoice_list`.`invoice_no`,`db_material_account`.`account_number`,`db_material_account`.`account_type`,`db_account_order_list`.`listid`,`db_material_order`.`order_number`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AS `account_amount`,`db_funds_plan_list`.`plan_amount`,`db_supplier`.`supplier_name` FROM `db_account_order_list` INNER JOIN `db_material_order` ON `db_account_order_list`.`orderid` = `db_material_order`.`orderid` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_account_order_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` LEFT JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_funds_plan_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` WHERE `db_material_account`.`accountid` = '$accountid' AND `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'A' GROUP BY `db_funds_plan_list`.`listid`";
+     $sql = "SELECT `db_funds_plan_list`.`listid` AS `plan_listid`,`db_material_invoice_list`.`invoice_no`,`db_material_account`.`account_number`,`db_material_account`.`account_type`,`db_account_order_list`.`listid`,`db_account_order_list`.`order_number`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_cut_payment`) AS `account_amount`,`db_funds_plan_list`.`plan_amount`,`db_supplier`.`supplier_name`,`db_supplier`.`supplier_blank`,`db_supplier`.`supplier_account` FROM `db_account_order_list` INNER JOIN `db_material_account` ON `db_material_account`.`accountid` = `db_account_order_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` LEFT JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_funds_plan_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid` WHERE `db_material_account`.`accountid` = '$accountid' AND `db_funds_plan_list`.`planid` = '$planid' AND `db_funds_plan_list`.`plan_status` = 'A' GROUP BY `db_funds_plan_list`.`listid`";
 
    // $sql = "SELECT `db_funds_plan_list`.`planid`,`db_material_account`.`accountid`,`db_funds_plan_list`.`plan_amount`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount`) AS `account_amount`,`db_material_funds_plan`.`plan_number`,`db_supplier`.`supplier_name`,`db_material_account`.`account_type`,`db_material_account`.`account_number` FROM `db_material_funds_plan` INNER JOIN `db_funds_plan_list` ON `db_material_funds_plan`.`planid` = `db_funds_plan_list`.`planid` INNER JOIN `db_account_order_list` ON `db_account_order_list`.`listid` = `db_funds_plan_list`.`order_listid` INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_account_order_list`.`accountid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_account`.`supplierid` WHERE `db_funds_plan_list`.`planid` = '$planid' AND `db_material_account`.`accountid` = '$accountid'";
     //$sql = "SELECT  `db_funds_plan_list`.`planid`,`db_material_account`.`accountid` FROM `db_material_funds_plan` INNER JOIN `db_funds_plan_list` ON `db_material_funds_plan`.`planid` = `db_funds_plan_list`.`planid` INNER JOIN `db_account_order_list` ON `db_funds_plan_list`.`order_listid` = `db_account_order_list`.`listid`  INNER JOIN `db_material_account` ON `db_account_order_list`.`accountid` = `db_account_order_list`.`accountid` WHERE `db_material_account`.`accountid` = '$accountid' AND `db_funds_plan_list`.`planid` = '$planid' ";
@@ -84,7 +84,7 @@ body, html {
         付款申请单
         </caption>
         <tr>
-          <td colspan="2" style="border:none;box-sizing:content-box;padding-right:72px">
+          <td colspan="2" style="border:none;box-sizing:content-box;padding-right:93px">
               申请编号：<?php 
               if($result_plan->num_rows){
                 echo $result_plan->fetch_row()[0];
@@ -123,13 +123,17 @@ body, html {
         </tr>
         <tr>
           <th>开户银行</th>
-          <td colspan="3"></td>
+          <td colspan="3">
+            <?php echo $row['supplier_blank'] ?>
+          </td>
           <th>对账单号</th>
           <td><?php echo $row['account_number'] ?></td>
         </tr>
         <tr>
           <th>开户账号</th>
-          <td colspan="3"></td>
+          <td colspan="3">
+            <?php echo $row['supplier_account'] ?>
+          </td>
           <th>对账金额</th>
           <td><?php echo $total_amount ?></td>
         </tr>

@@ -99,7 +99,7 @@ $result = $db->query($sqllist);
 		  $array_order_list = array();
 	  }
 	  //订单是否有出入库记录
-	  $sql_material_inout = "SELECT `db_material_order_list`.`orderid` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` GROUP BY `db_material_order_list`.`orderid`";
+	  $sql_material_inout = "SELECT `db_other_material_orderlist`.`orderid` FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` GROUP BY `db_other_material_orderlist`.`orderid`";
 	  $result_material_inout = $db->query($sql_material_inout);
 	  if($result_material_inout->num_rows){
 		  while($row_material_inout = $result_material_inout->fetch_assoc()){

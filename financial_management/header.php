@@ -31,6 +31,7 @@
         <li><a href="material_balance_account.php">模具物料</a></li>
         <li><a href="cutter_balance_account.php">加工刀具</a></li>
         <li><a href="other_material_balance_account.php">期间物料</a></li>
+        <li><a href="outward_balance_account.php">外协加工</a></li>
       </ul>
      </li>
       <li class="menulevel"><a href="material_invoice_manage.php">发票接收</a></li>

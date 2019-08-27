@@ -140,7 +140,7 @@ $result = $db->query($sqllist);
         <td><?php echo $row['dotime']; ?></td>
         <td><?php echo $list_count; ?></td>
         <td><?php echo $array_order_status[$row['order_status']]; ?></td>
-        <td><?php if($employeeid == $row['employeeid']){ ?>
+        <td><?php if($employeeid == $row['employeeid'] && $row['order_status'] == '0'){ ?>
           <a href="outward_order_list_add.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
         <td><?php if($list_count >0 && $employeeid == $row['employeeid']){ ?>

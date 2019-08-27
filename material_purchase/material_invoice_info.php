@@ -96,6 +96,8 @@ $(function(){
     	$order_sql = "SELECT `order_number` FROM `db_cutter_order` WHERE `orderid` IN($orderidlist)";
     }elseif($account_type == 'O'){
     	$order_sql = "SELECT `order_number` FROM `db_other_material_order` WHERE `orderid` IN($orderidlist)";
+    }elseif($account_type == 'W'){
+      $order_sql = "SELECT `order_number` FROM `db_outward_order` WHERE `orderid` IN($orderidlist)";
     }
 
     $result_order = $db->query($order_sql);    
@@ -167,7 +169,13 @@ $(function(){
   ?>
 </div>
 <?php
-	$order_sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_supplier`.`supplier_cname`,SUM(`db_material_inout`.`amount`) AS `sum`,SUM(`db_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_material_inout`.`cut_payment`) AS `cut_payment`,SUM(`db_material_order_list`.`process_cost`) AS `process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_material_inout` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_material_order`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_material_inout`.`dotype` = 'I' AND `db_material_order`.`orderid` IN($orderidlist) GROUP BY `db_material_order`.`orderid`";
+  if($account_type == 'M'){
+	 $order_sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_supplier`.`supplier_cname`,SUM(`db_material_inout`.`amount`) AS `sum`,SUM(`db_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_material_inout`.`cut_payment`) AS `cut_payment`,SUM(`db_material_order_list`.`process_cost`) AS `process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_material_inout` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_material_order`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_material_inout`.`dotype` = 'I' AND `db_material_order`.`orderid` IN($orderidlist) GROUP BY `db_material_order`.`orderid`";
+  }elseif($account_type == 'W'){
+       $order_sql = "SELECT `db_outward_order`.`orderid`,`db_outward_order`.`order_number`,`db_supplier`.`supplier_cname`,SUM(`db_outward_order_list`.`amount`) AS `sum` FROM `db_outward_order` INNER JOIN `db_outward_order_list` ON `db_outward_order`.`orderid` = `db_outward_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_outward_order`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_outward_order`.`orderid` IN($orderidlist) GROUP BY `db_outward_order`.`orderid`";
+  }elseif($account_type == 'O'){
+      $order_sql = "SELECT `db_other_material_order`.`orderid`,`db_other_material_order`.`order_number`,`db_supplier`.`supplier_cname`,SUM(`db_other_material_inout`.`amount`) AS `sum`,SUM(`db_other_material_inout`.`cancel_amount`) AS `cancel_amount`,SUM(`db_other_material_inout`.`cut_payment`) AS `cut_payment`,SUM(`db_other_material_orderlist`.`process_cost`) AS `process_cost` FROM `db_other_material_order` INNER JOIN `db_other_material_orderlist` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_other_material_inout` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_supplier` ON `db_other_material_order`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_other_material_inout`.`dotype` = 'I' AND `db_other_material_order`.`orderid` IN($orderidlist) GROUP BY `db_other_material_order`.`orderid`";
+  }
 
 	$result_order = $db->query($order_sql);
 	if($result_order->num_rows){ ?>
