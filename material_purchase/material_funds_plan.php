@@ -239,8 +239,9 @@ $result = $db->query($sqllist);
             echo '<img src="../images/system_ico/dui.png"  />';
             } ?>
           </td>
-        <td><?php if($row['plan_status'] == '5'){ ?>
-          <a href="funds_pay_apply.php?action=apply&id=<?php echo $planid; ?>">申请</a>
+        <td>
+          <?php if($row['plan_status'] == '5'){ ?>
+            <a href="funds_pay_apply.php?action=apply&id=<?php echo $planid; ?>">申请</a>
           <?php }elseif($row['plan_status'] > 5){
               echo '<img src="../images/system_ico/dui.png"  />';
             }
@@ -290,7 +291,7 @@ $result = $db->query($sqllist);
           <?php
             if($row['plan_status'] < 15){
                 if($count_pay >0){  
-                 echo '<a href="funds_pay_apply.php?action=boss&id='.$planid.'">审核</a>';
+                 echo '<a href="funds_pay_apply.php?action=pay&id='.$planid.'">查看</a>';
                 }
               }elseif($row['plan_status'] >= 15){
                 echo '<img src="../images/system_ico/dui.png" />';

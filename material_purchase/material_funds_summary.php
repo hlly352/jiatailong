@@ -50,7 +50,7 @@ $sql = "SELECT GROUP_CONCAT(`db_material_funds_list`.`fundsid`) AS `fundsid`,`db
              }
             }
             
-         // var_dump($info);exit;
+        
           
           foreach($date as $v){
             $mon_amount_tot[$v] += $info[$v]['amount'];
@@ -61,6 +61,7 @@ $sql = "SELECT GROUP_CONCAT(`db_material_funds_list`.`fundsid`) AS `fundsid`,`db
           $tot_no_pay += number_format((${'amount_tot'.$row['supplierid']} - ${'apply_amount_tot'.$row['supplierid']}),2,'.','');
 
           }}
+
 $pages = new Page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_material_funds_list`.`approval_date` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
@@ -122,7 +123,7 @@ $result = $db->query($sqllist);
       <tr>
         <th rowspan="2">ID</th>
         <th rowspan="2">供应商</th>
-        <th rowspan="2">上期结余</th>
+        <!-- <th rowspan="2">上期结余</th> -->
         <th colspan="3">一月</th>
         <th colspan="3">二月</th>
         <th colspan="3">三月</th>
@@ -199,9 +200,9 @@ $result = $db->query($sqllist);
              foreach($date as $v){
               if($v == $row_supplier['date']){
                 $info[$v]['date'] = $row_supplier['date'];
-                $info[$v]['amount'] = $row_supplier['amount'];
-                $info[$v]['apply_amount'] = $row_supplier['apply_amount'];
-                $info[$v]['invoice_no'] = $row_supplier['invoice_no'];
+                $info[$v]['amount'] += $row_supplier['amount'];
+                $info[$v]['apply_amount'] += $row_supplier['apply_amount'];
+                $info[$v]['invoice_no'][] = $row_supplier['invoice_no'];
               //  ${'amount_tot'.$row['supplierid']} += $row_supplier['amount'];
                // ${'apply_amount_tot'.$row['supplierid']} += $row_supplier['apply_amount'];
               }
@@ -210,6 +211,7 @@ $result = $db->query($sqllist);
             
          // var_dump($info);exit;
           }
+      
        ?>
       <tr> 
         <td>
@@ -218,13 +220,20 @@ $result = $db->query($sqllist);
         <td>
           <?php echo $row['supplier_cname'] ?>
         </td>
-        <td></td>
+        <!-- <td></td> -->
         <?php
           foreach($date as $v){
           //  $mon_amount_tot[$v] += $info[$v]['amount'];
           //  $mon_apply_amount_tot[$v] += $info[$v]['apply_amount'];
             if($info[$v]['date'] == $v){
-              echo '<td>'.$info[$v]['amount'].'</td><td>'.$info[$v]['apply_amount'].'</td><td>'.$info[$v]['invoice_no'].'</td>';
+              $invoice_no_str = '';
+              foreach($info[$v]['invoice_no'] as $value){
+                if(!empty($value)){
+                  $invoice_no_str .= $value.',';
+                }
+              }
+              $invoice_no_str = rtrim($invoice_no_str,',');
+              echo '<td>'.$info[$v]['amount'].'</td><td>'.$info[$v]['apply_amount'].'</td><td>'.$invoice_no_str.'</td>';
             } else {
               echo '<td></td><td></td><td></td>';
             }
@@ -251,7 +260,6 @@ $result = $db->query($sqllist);
       </tr>
       <?php } ?>
         <tr>
-          <td></td>
           <td></td>
           <td></td>
       <?php

@@ -75,9 +75,9 @@ $result = $db->query($sql);
     </tr>
     <tr>
       <td colspan="19">
-        <input type="button" class="button" name="" value="确定" onclick="window.location.assign('material_balance_account_do.php?accountid=<?php echo $accountid; ?>&action=complete')">
+        <input type="button" class="button" name="" value="确定" onclick="window.location.assign('outward_balance_account_do.php?accountid=<?php echo $accountid; ?>&action=complete')">
         &nbsp;
-        <input type="button" class="button" name="" value="退回" onclick="window.location.assign('material_balance_account_do.php?accountid=<?php echo $accountid; ?>&action=back')">
+        <input type="button" class="button" name="" value="退回" onclick="window.location.assign('outward_balance_account_do.php?accountid=<?php echo $accountid; ?>&action=back')">
         &nbsp;
         <input type="button" class="button" onclick="window.history.go(-1)" value="返回">
       </td>

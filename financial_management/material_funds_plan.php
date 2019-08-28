@@ -182,7 +182,7 @@ $result = $db->query($sqllist);
       $result_pay = $db->query($pay_sql);
       $count_pay = $result_pay->num_rows;
       //查找已经付款的项目
-      $payment_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_amount` >= `tot_payment` AND `tot_payment` > 0 AND `planid` = '$planid'";
+      $payment_sql = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'F' AND `tot_payment` > 0 AND `planid` = '$planid'";
 
       $result_payment = $db->query($payment_sql);
       $count_payment = $result_payment->num_rows;

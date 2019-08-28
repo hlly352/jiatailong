@@ -3,6 +3,7 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
+$employeeid = $_SESSION['employee_info']['employeeid'];
 
 if($_POST['submit']){
 	$action = $_POST['action'];
@@ -10,6 +11,7 @@ if($_POST['submit']){
 	$order_date = $_POST['order_date'];
 	$delivery_cycle = $_POST['delivery_cycle'];
 	if($action == "add"){
+		$pay_type = $_POST['pay_type'];
 		//自动生成编号
 		$sql_number = "SELECT MAX((SUBSTRING(`order_number`,-2)+0)) AS `max_number` FROM `db_other_material_order` WHERE DATE_FORMAT(`order_date`,'%Y-%m-%d') = '$order_date'";
 		$result_number = $db->query($sql_number);
@@ -23,8 +25,7 @@ if($_POST['submit']){
 		}
 		$employeeid = $_SESSION['employee_info']['employeeid'];
 		$dotime = time();
-		$sql = "INSERT INTO `db_other_material_order` (`orderid`,`order_number`,`order_date`,`delivery_cycle`,`supplierid`,`employeeid`,`dotime`,`order_status`) VALUES (NULL,'$order_number','$order_date','$delivery_cycle','$supplierid','$employeeid','$dotime',0)";
-		
+		$sql = "INSERT INTO `db_other_material_order` (`orderid`,`order_number`,`order_date`,`delivery_cycle`,`supplierid`,`employeeid`,`dotime`,`order_status`,`pay_type`) VALUES (NULL,'$order_number','$order_date','$delivery_cycle','$supplierid','$employeeid','$dotime',0,'$pay_type')";
 		$db->query($sql);
 		if($orderid = $db->insert_id){
 			header('location:other_material_order_add.php?id='.$orderid);
@@ -32,6 +33,56 @@ if($_POST['submit']){
 	}elseif($action == "edit"){
 		$orderid = $_POST['orderid'];
 		$order_status = $_POST['order_status'];
+		//查找是否是预付订单
+		$order_sql = "SELECT `pay_type` FROM `db_other_material_order` WHERE `orderid` = '$orderid'";
+		$result_order = $db->query($order_sql);
+		if($result_order->num_rows){
+			$pay_type = $result_order->fetch_row()[0];
+		}
+		// 预付订单则添加到对账单中
+		if($pay_type == 'P'){
+			//通过订单状态，插入或删除订单汇总表中的内容
+			if($order_status == 1){
+				//查询当前订单金额
+				$order_amount_sql = "SELECT `db_other_material_order`.`order_number`,`db_other_material_order`.`supplierid`,SUM(`db_other_material_orderlist`.`actual_quantity` * `db_other_material_orderlist`.`unit_price`) AS `order_amount` FROM `db_other_material_order` INNER JOIN `db_other_material_orderlist` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` WHERE `db_other_material_order`.`orderid` = '$orderid'";
+				$result_order_amount = $db->query($order_amount_sql);
+				if($result_order_amount->num_rows){
+					$order_array = $result_order_amount->fetch_assoc();
+					$order_number = $order_array['order_number'];
+					$order_amount = $order_array['order_amount'];
+					$supplierid = $order_array['supplierid'];
+					$time = date('Y-m-d');
+					//把订单信息插入到对账汇总表中
+					$account_sql = "INSERT INTO `db_material_account`(`account_time`,`tot_amount`,`supplierid`,`employeeid`,`orderidlist`,`account_type`,`status`) VALUES(DATE_FORMAT(NOW(),'%Y-%m-%d'),'$order_amount','$supplierid','$employeeid','$orderid','O','Y')";
+					$db->query($account_sql);
+					$accountid = $db->insert_id;
+					//插入到对账订单表中
+					$order_sql = "INSERT INTO `db_account_order_list`(`accountid`,`orderid`,`order_amount`,`order_number`) VALUES('$accountid','$orderid','$order_amount','$order_number')";
+
+					$db->query($order_sql);
+					//把账款信息添加到金额管理表中
+					$funds_sql = "INSERT INTO `db_material_funds_list`(`accountid`,`supplierid`,`amount`,`approval_date`) VALUES('$accountid','$supplierid','$order_amount',DATE_FORMAT(NOW(),'%Y-%m-%d'))";
+					$db->query($funds_sql);
+					}
+				}elseif($order_status == 0){
+					//查找对账单id
+					$accountid_sql = "SELECT `accountid` FROM `db_account_order_list` WHERE `orderid` = '$orderid'";
+					$result_accountid = $db->query($accountid_sql);
+					if($result_accountid->num_rows){
+						$accountid = $result_accountid->fetch_row()[0];
+					}
+					//删除对账单中的信息
+					$account_sql = "DELETE FROM `db_material_account` WHERE `accountid` = '$accountid'";
+					$db->query($account_sql);
+					$order_sql = "DELETE FROM `db_account_order_list` WHERE `orderid` = '$orderid'";
+					$db->query($order_sql);
+					//删除账款信息表中的数据
+					$funds_sql = "DELETE FROM `db_material_funds_list` WHERE `accountid` = '$accountid'";
+					$db->query($funds_sql);
+				}
+			}
+		
+
 		$sql = "UPDATE `db_other_material_order` SET `delivery_cycle` = '$delivery_cycle',`supplierid` = '$supplierid',`order_status` = '$order_status' WHERE `orderid` = '$orderid'";
 		$db->query($sql);
 		if($db->affected_rows){

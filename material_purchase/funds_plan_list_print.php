@@ -84,17 +84,23 @@ body, html {
         付款申请单
         </caption>
         <tr>
-          <td colspan="2" style="border:none;box-sizing:content-box;padding-right:93px">
-              申请编号：<?php 
+          <th width="17%" style="border:none;">
+              申请编号
+          </th>
+          <td width="16%" style="text-align:left;border:none;padding-right:20px;box-sizing:border-box">
+            <?php 
               if($result_plan->num_rows){
-                echo $result_plan->fetch_row()[0];
+                echo '<p style="margin-left:-40px">'.$result_plan->fetch_row()[0].'</p>';
               }
-           ?>
+            ?>
           </td>
           <td colspan="2" style="border:none"></td>
-          <td colspan="2"  style="border:none;box-sizing:content-box;padding-right:75px">
-              申请日期：<?php echo date('Y-m-d') ?>
+          <th width="17%"  style="border:none;">
+              申请日期
               
+          </th>
+          <td width="16.5%" style="border:none;text-align:left;padding-left:20px">
+            <?php echo '<p style="margin-left:-40px">'.date('Y-m-d').'</p>'; ?>
           </td>
           <td style="border:none"></td>
         </tr>
@@ -116,6 +122,8 @@ body, html {
               echo '加工刀具';
             }elseif($row['account_type'] == 'O'){
               echo '期间物料';
+            }elseif($row['account_type'] == 'W'){
+              echo '外协加工';
             }
 
             ?>
@@ -180,7 +188,7 @@ body, html {
         <?php } ?>
           <tr> 
             <td>合计金额</td>
-            <td colspan="3" style="border-right:none;text-align:left">&yen;<?php echo number_format($plan_amount,2,'.','').'&nbsp;&nbsp;&nbsp;人民币大写：'.$toSuperCase::ParseNumber($plan_amount); ?></td>
+            <td colspan="3" style="border-right:none;text-align:left">&nbsp;&yen;<?php echo number_format($plan_amount,2,'.','').'&nbsp;&nbsp;&nbsp;人民币大写：'.$toSuperCase::ParseNumber($plan_amount); ?></td>
             <td colspan="2">附件单据（&nbsp;&nbsp; ）张</td>
           </tr>
           <tr>

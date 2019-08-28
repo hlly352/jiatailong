@@ -100,8 +100,7 @@ $result = $db->query($sqllist);
       <th width="5%">供应商</th>
       <th width="6%">表单号</th>
       <th width="6%">入库日期</th>
-      <th width="5%">Edit</th>
-      <th width="5%">Info</th>
+      <th width="5%">操作</th>
     </tr>
     <?php
 	while($row = $result->fetch_assoc()){
@@ -121,7 +120,6 @@ $result = $db->query($sqllist);
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['form_number']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
-      <td><a href="material_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td>
       <td><a href="other_balance_account_do.php?id=<?php echo $inoutid; ?>&action=edit">对账</a></td>
     </tr>
     <?php } ?>
@@ -132,7 +130,6 @@ $result = $db->query($sqllist);
       <td></td>
       <td></td>
       <td></td>
-      <td>&nbsp;</td>
     </tr>
   </table>
    <div id="checkall">

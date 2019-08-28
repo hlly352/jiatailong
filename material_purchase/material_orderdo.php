@@ -43,10 +43,11 @@ if($_POST['submit']){
 			//通过订单状态，插入或者删除对账汇总表中的内容
 			if($order_status == 1){
 				//查询当前订单金额
-				$order_amount_sql = "SELECT `db_material_order`.`supplierid`,SUM(`db_material_order_list`.`actual_quantity` * `db_material_order_list`.`unit_price`) AS `order_amount`,`db_material_order_list`.`process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order`.`orderid` = '$orderid' ";
+				$order_amount_sql = "SELECT `db_material_order`.`order_number`,`db_material_order`.`supplierid`,SUM(`db_material_order_list`.`actual_quantity` * `db_material_order_list`.`unit_price`) AS `order_amount`,`db_material_order_list`.`process_cost` FROM `db_material_order` INNER JOIN `db_material_order_list` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order`.`orderid` = '$orderid' ";
 				$result_order_amount = $db->query($order_amount_sql);
-				if($result_order_amount){
+				if($result_order_amount->num_rows){
 					$order_array = $result_order_amount->fetch_assoc();
+					$order_number = $order_array['order_number'];
 					$order_amount = $order_array['order_amount'];
 					$supplierid = $order_array['supplierid'];
 					$process_cost = $order_array['process_cost'];
@@ -57,9 +58,12 @@ if($_POST['submit']){
 					$db->query($account_sql);
 					$accountid = $db->insert_id;
 					//插入到对账订单表中
-					$order_sql = "INSERT INTO `db_account_order_list`(`accountid`,`orderid`,`order_amount`,`process_cost`) VALUES('$accountid','$orderid','$order_amount','$process_cost')";
+					$order_sql = "INSERT INTO `db_account_order_list`(`accountid`,`orderid`,`order_amount`,`process_cost`,`order_number`) VALUES('$accountid','$orderid','$order_amount','$process_cost','$order_number')";
 
 					$db->query($order_sql);
+					//把账款信息添加到金额管理表中
+					$funds_sql = "INSERT INTO `db_material_funds_list`(`accountid`,`supplierid`,`amount`,`approval_date`) VALUES('$accountid','$supplierid','$order_amount',DATE_FORMAT(NOW(),'%Y-%m-%d'))";
+					$db->query($funds_sql);
 				}
 			}elseif($order_status == 0){
 				//查找对账单id
@@ -73,6 +77,9 @@ if($_POST['submit']){
 				$db->query($account_sql);
 				$order_sql = "DELETE FROM `db_account_order_list` WHERE `orderid` = '$orderid'";
 				$db->query($order_sql);
+				//删除账款信息表中的信息
+				$funds_sql = "DELETE FROM `db_material_funds_list` WHERE `accountid` = '$accountid'";
+				$db->query($funds_sql);
 			}
 		}
 	
