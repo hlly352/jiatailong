@@ -230,10 +230,10 @@ $result = $db->query($sqllist);
                 
               <a href="funds_plan_info.php?action=approval&id=<?php echo $row['planid'] ?>">审批</a>
           <?php }elseif($admin != 1 && $row['plan_status'] == 3){ 
-              echo '待审核';
+              echo '待审批';
             ?>
           <?php } elseif($row['plan_status'] == 5){ 
-              echo '已审核';
+              echo '已审批';
             }?>
           <?php }elseif($row['plan_status'] > 5){
             echo '<img src="../images/system_ico/dui.png"  />';

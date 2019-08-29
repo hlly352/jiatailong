@@ -68,7 +68,7 @@ $result = $db->query($sqllist);
 		  $array_moulid .= $row_id['mouldid'].',';
 	  }
 	  $array_moulid = rtrim($array_moulid,',');
-	  $sql_material = "SELECT `mouldid`,COUNT(*) AS `count` FROM `db_mould_material` WHERE `mouldid` IN ($array_moulid) GROUP BY `mouldid`";
+	  $sql_material = "SELECT `mouldid`,COUNT(*) AS `count` FROM `db_mould_material` WHERE  `mouldid` IN ($array_moulid) AND `type` != 'D' GROUP BY `mouldid`";
 	  $result_material = $db->query($sql_material);
 	  if($result_material->num_rows){
 		  while($row_material = $result_material->fetch_assoc()){
@@ -77,6 +77,7 @@ $result = $db->query($sqllist);
 	  }else{
 		  $array_material = array();
 	  }
+   
   ?>
   <table>
     <tr>

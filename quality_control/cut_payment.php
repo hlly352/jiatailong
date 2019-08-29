@@ -11,19 +11,21 @@ $result_supplier = $db->query($sql_supplier);
 if($_GET['submit']){
   $supplierid = $_GET['supplierid'];
   if($supplierid){
-    $sql_supplierid = " AND `db_material_account`.`supplierid` = '$supplierid'";
+    $sql_supplierid = " AND `db_cut_payment`.`supplierid` = '$supplierid'";
   }
-  $sqlwhere = "$sql_supplierid";
+  $cut_payment_type = $_GET['cut_payment_type'];
+  $sqlwhere = "$sql_supplierid AND `db_cut_payment`.`cut_payment_type` LIKE '%$cut_payment_type%'";
 }
-$cut_type = isset($_GET['cut_payment_type'])?$_GET['cut_payment_type']:'M';
-$sql = "SELECT `db_material_account`.`accountid`,`db_material_account`.`account_time`,`db_material_invoice_list`.`date`,`db_supplier`.`supplier_cname`,(`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`) AS `amount`,`db_material_account`.`apply_amount` FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` INNER JOIN `db_supplier` ON `db_material_account`.`supplierid` = `db_supplier`.`supplierid` WHERE (`db_material_account`.`tot_amount` + `db_material_account`.`tot_process_cost` - `db_material_account`.`tot_cut_payment` - `db_material_account`.`tot_cancel_amount` - `db_material_account`.`tot_prepayment`-`db_material_account`.`apply_amount`)>0 AND `db_material_account`.`status` = 'F'";
+
+$sql = "SELECT `db_cut_payment`.`cutid`,`db_cut_payment`.`order_number`,`db_cut_payment`.`material_name`,`db_cut_payment`.`specification`,`db_cut_payment`.`image`,`db_cut_payment`.`cut_cause`,`db_cut_payment`.`cut_payment`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name`,`db_cut_payment`.`add_time` FROM `db_cut_payment` INNER JOIN `db_employee` ON `db_cut_payment`.`employeeid` = `db_employee`.`employeeid` INNER JOIN `db_supplier` ON `db_cut_payment`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_cut_payment`.`add_time` BETWEEN '$sdate' AND '$edate' $sqlwhere";
 
 $result = $db->query($sql);
 $result_total = $db->query($sql);
 $_SESSION['material_inout_list_in'] = $sql;
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_material_account`.`account_time` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_cut_payment`.`add_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -97,9 +99,11 @@ $result = $db->query($sqllist);
   <table>
     <tr>
       <th width="">ID</th>
-      <th width="">扣款类型</th>
+      <th width="">合同号</th>
       <th width="">名称</th>
-      <th width="">图片</th>
+      <th width="15%">图片</th>
+      <th width="">规格</th>
+      <th width="">扣款金额</th>
       <th width="">扣款原因</th>
       <th width="">供应商</th>
       <th width="">扣款人</th>
@@ -108,30 +112,26 @@ $result = $db->query($sqllist);
     </tr>
     <?php
   while($row = $result->fetch_assoc()){
-    $accountid = $row['accountid'];
-    $listid = $row['listid'];
+    $cutid = $row['cutid'];
+    $image = '<img width="150" height="80" src='.$row['image'].'>';
   ?>
   <form action="material_balance_account_do.php" method="post">
     <tr>
       <td>
-        <input type="checkbox" name="id[]" value="<?php echo $accountid?>">
+        <input type="checkbox" name="id[]" value="<?php echo $cutid?>">
       </td>
-      <td><?php echo $row['account_time']; ?></td>
-      <td><?php echo $row['date']; ?></td>
+      <td><?php echo $row['order_number']; ?></td>
+      <td><?php echo $row['material_name']; ?></td>
+      <td><?php echo $image; ?></td>
+      <td><?php echo $row['specification']; ?></td>
+      <td><?php echo $row['cut_payment'];?></td>
+      <td><?php echo $row['cut_cause'];?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
-      <td><?php echo $row['amount']; ?></td>
-      <td><?php echo $row['amount'] - $row['apply_amount']; ?></td>
+      <td><?php echo $row['employee_name'] ?></td>
+      <td><?php echo $row['add_time'] ?></td>
+      <td><a href="cut_payment_print.php?cutid=<?php echo $cutid; ?>">打印</a></td>
     </tr>
-    <?php 
-      $amount += $row['amount'];
-      $no_amount += $row['amount'] - $row['apply_amount'];
-    } ?>
-    <tr>
-      <td colspan="3">Total</td>
-      <td></td>
-      <td><?php echo number_format($amount,2,'.',''); ?></td>
-      <td><?php echo number_format($no_amount,2,'.',''); ?></td>
-    </tr>
+    <?php } ?>
   </table>
   <!-- <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />

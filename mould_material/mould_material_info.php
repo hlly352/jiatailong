@@ -45,7 +45,7 @@ $result_mould = $db->query($sql_mould);
   ?>
 </div>
 <?php
-$sql_mould_material = "SELECT `material_date`,`material_list_number`,`material_list_sn`,`material_number`,`material_name`,`specification`,`material_quantity`,`texture`,`hardness`,`brand`,`spare_quantity`,`remark`,`complete_status`,SUBSTRING(`material_number`,1,1) AS `material_number_code` FROM `db_mould_material` WHERE `mouldid` = '$mouldid' ORDER BY `material_date` DESC,`materialid` DESC";
+$sql_mould_material = "SELECT `material_date`,`material_list_number`,`material_list_sn`,`material_number`,`material_name`,`specification`,`material_quantity`,`texture`,`hardness`,`brand`,`spare_quantity`,`remark`,`complete_status`,SUBSTRING(`material_number`,1,1) AS `material_number_code` FROM `db_mould_material` WHERE `mouldid` = '$mouldid' AND `type` != 'D' ORDER BY `material_date` DESC,`materialid` DESC";
 $result_mould_material = $db->query($sql_mould_material);
 ?>
 <div id="table_list">

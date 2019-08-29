@@ -145,6 +145,7 @@ $(function(){
       <th width="5%">加工费</th>
       <th width="6%">供应商</th>
       <th width="6%">入库日期</th>
+      <th width="4">操作</th>
     </tr>
     <?php
   while($row = $result->fetch_assoc()){
@@ -170,6 +171,7 @@ $(function(){
       <td><?php echo $row['process_cost']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
+      <td><a href="insert_cut_payment.php?action=add&inoutid=<?php echo $inoutid ?>&cut_payment_type=<?php echo $cut_payment_type; ?>">扣款</a></td>
       <!-- <td><a href="material_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td> -->
     </tr>
     <?php } ?>
@@ -218,6 +220,7 @@ $(function(){
         (含税)</th>
       <th width="8%">供应商</th>
       <th width="6%">入库日期</th>
+      <th width="4">操作</th>
     </tr>
     <?php
     while($row = $result->fetch_assoc()){
@@ -240,6 +243,7 @@ $(function(){
       <td><?php echo $row['amount']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
+      <td><a href="insert_cut_payment.php?action=add&inoutid=<?php echo $inoutid; ?>&cut_payment_type=<?php echo $cut_payment_type; ?>">扣款</a></td>
 <!--       <td><a href="cutter_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td> -->
     </tr>
     <?php } ?>
@@ -285,6 +289,7 @@ $(function(){
         (含税)</th>
       <th width="5%">供应商</th>
       <th width="6%">入库日期</th>
+      <th width="4%">操作</th>
     </tr>
     <?php
   while($row = $result->fetch_assoc()){
@@ -306,6 +311,7 @@ $(function(){
       <td><?php echo $row['amounts'] ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
+      <td><a href="insert_cut_payment.php?action=add&inoutid=<?php echo $inoutid ?>&cut_payment_type=<?php echo $cut_payment_type; ?>">扣款</a></td>
     <?php } ?>
     <tr>
       <td colspan="9">Total</td>
@@ -324,12 +330,12 @@ $(function(){
   ?>
 </div>
 <?php } ?>
-<div id="checkall">
+<!-- <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
       <input type="submit" name="submit" id="submit" value="添加" class="select_button"  disabled="disabled" />
-  </div>
+  </div> -->
       <input type="hidden" value="<?php echo $cut_payment_type ?>" name="cut_payment_type">
 </form>
 <?php include "../footer.php"; ?>

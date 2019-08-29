@@ -125,7 +125,7 @@ $action = $_GET['action'];
   </tr>
   <tr>
     <td colspan="12">
-      <input type="button" class="button" value="确认" onclick="window.location.href='material_funds_plan.php'" />
+      <input type="button" class="button" value="返回" onclick="window.location.href='material_funds_plan.php'" />
     </td>
   </tr>
   </table>

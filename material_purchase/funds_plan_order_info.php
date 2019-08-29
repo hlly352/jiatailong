@@ -294,7 +294,7 @@ $(function(){
           <tr>
             <td colspan="15">
               <input type="button" name="" value="审核" class="button" onclick="window.location.href='funds_apply_do.php?from=purchase&action=complete&planid=<?php echo $planid ?>&accountid=<?php echo $accountid ?>'" />
-              <input type="button" name="" value="撤回" class="button"  onclick="window.location.href='funds_apply_do.php?from=purchase&action=back&planid=<?php echo $planid ?>&accountid=<?php echo $accountid ?>'" />
+             <!--  <input type="button" name="" value="撤回" class="button"  onclick="window.location.href='funds_apply_do.php?from=purchase&action=back&planid=<?php echo $planid ?>&accountid=<?php echo $accountid ?>'" /> -->
               <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
             </td>
           </tr>
@@ -359,7 +359,7 @@ $(function(){
           <tr>
             <td colspan="15">
               <input type="button" name="" value="审核" class="button" onclick="window.location.href='funds_apply_do.php?from=boss&action=complete&planid=<?php echo $planid ?>&accountid=<?php echo $accountid ?>'" />
-              <input type="button" name="" value="撤回" class="button"  onclick="window.location.href='funds_apply_do.php?from=boss&action=back&planid=<?php echo $planid ?>&accountid=<?php echo $accountid ?>'" />
+            <!--   <input type="button" name="" value="撤回" class="button"  onclick="window.location.href='funds_apply_do.php?from=boss&action=back&planid=<?php echo $planid ?>&accountid=<?php echo $accountid ?>'" /> -->
               <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
             </td>
           </tr>
