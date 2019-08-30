@@ -16,7 +16,7 @@ $sql_order = "SELECT `db_outward_order`.`order_number`,`db_supplier`.`supplier_n
 $result_order = $db->query($sql_order);
 if($result_order->num_rows){
 	$array_order = $result_order->fetch_assoc();
-	$sql = "SELECT `db_outward_order_list`.`order_quantity`,`db_outward_order_list`.`unit_price`,`db_outward_order_list`.`remark`,`db_outward_order_list`.`amount`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number` FROM `db_outward_order_list` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_outward_order_list`.`orderid` = '$orderid' ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC";
+	$sql = "SELECT `db_mould_outward_type`.`outward_typename`,`db_outward_order_list`.`order_quantity`,`db_outward_order_list`.`unit_price`,`db_outward_order_list`.`remark`,`db_outward_order_list`.`amount`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_outward_order_list`.`remark` FROM `db_outward_order_list` INNER JOIN `db_outward_order` ON `db_outward_order`.`orderid` = `db_outward_order_list`.`orderid` INNER JOIN `db_mould_outward_type` ON `db_outward_order`.`outward_typeid` = `db_mould_outward_type`.`outward_typeid`  INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_outward_order_list`.`orderid` = '$orderid' ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC";
 	$result = $db->query($sql);
 	if($result->num_rows){
 		$i = 6;
@@ -26,17 +26,18 @@ if($result_order->num_rows){
 			$objWorksheet->getCell('B'.$i)->setValue($row['material_name']);
 			$objWorksheet->getCell('C'.$i)->setValue($row['specification']);
 			$objWorksheet->getCell('D'.$i)->setValue($row['texture']);
-			$objWorksheet->getCell('E'.$i)->setValue($row['order_quantity']);
-			$objWorksheet->getCell('F'.$i)->setValue($row['unit_price']);
-			$objWorksheet->getCell('G'.$i)->setValue($row['amount']);
-			$objWorksheet->getCell('H'.$i)->setValue($row['remark']);
+			$objWorksheet->getCell('E'.$i)->setValue($row['outward_typename']);
+			$objWorksheet->getCell('F'.$i)->setValue($row['order_quantity']);
+			$objWorksheet->getCell('G'.$i)->setValue($row['unit_price']);
+			$objWorksheet->getCell('H'.$i)->setValue($row['amount']);
+			$objWorksheet->getCell('I'.$i)->setValue($row['remark']);
 			$total_amount += $row['amount'];
 			$i++;
 		}
 	}
-	$objWorksheet->getCell('G3')->setValue("合同号：".$array_order['order_number']);
-	$objWorksheet->getCell('E4')->setValue("乙方：".$array_order['supplier_name']);
-	$objWorksheet->getCell('G31')->setValue($total_amount);
+	$objWorksheet->getCell('H3')->setValue("合同号：".$array_order['order_number']);
+	$objWorksheet->getCell('F4')->setValue("乙方：".$array_order['supplier_name']);
+	$objWorksheet->getCell('H31')->setValue($total_amount);
 	/*
 	$objWorksheet->getStyle('A5:I'.($i-1))->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN); //设置单元格为实线
 	$objWorksheet->getStyle('A5:I'.($i-1))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);  //水平居中
@@ -45,7 +46,7 @@ if($result_order->num_rows){
 	*/
 	
 	//设置字体   
-	$objStyle1 = $objWorksheet->getStyle('A6:H'.($i)); 
+	$objStyle1 = $objWorksheet->getStyle('A6:I'.($i)); 
 	$objFont1 = $objStyle1->getFont();   
 	$objFont1->setName('微软雅黑','宋体');  
 	$objFont1->setSize(10);   

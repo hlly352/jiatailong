@@ -21,7 +21,7 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_outward_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_order_status";
 }
-$sql = "SELECT `db_outward_order`.`orderid`,`db_outward_order`.`order_number`,`db_outward_order`.`order_date`,`db_outward_order`.`delivery_cycle`,`db_outward_order`.`dotime`,`db_outward_order`.`order_status`,`db_outward_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_outward_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_outward_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_outward_order`.`employeeid` WHERE (`db_outward_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_mould_outward_type`.`outward_typename`,`db_outward_order`.`orderid`,`db_outward_order`.`order_number`,`db_outward_order`.`order_date`,`db_outward_order`.`delivery_cycle`,`db_outward_order`.`dotime`,`db_outward_order`.`order_status`,`db_outward_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_outward_order` INNER JOIN `db_mould_outward_type` ON `db_outward_order`.`outward_typeid` = `db_mould_outward_type`.`outward_typeid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_outward_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_outward_order`.`employeeid` WHERE (`db_outward_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -112,11 +112,12 @@ $result = $db->query($sqllist);
     <table>
       <tr>
         <th width="4%">ID</th>
-        <th width="16%">合同号</th>
-        <th width="10%">订单日期</th>
-        <th width="10%">供应商</th>
-        <th width="10%">交货周期(天)</th>
-        <th width="10%">操作人</th>
+        <th width="12%">合同号</th>
+        <th width="8%">订单日期</th>
+        <th width="8%">供应商</th>
+        <th width="8%">加工类型</th>
+        <th width="8%">交货周期(天)</th>
+        <th width="8%">操作人</th>
         <th width="12%">操作时间</th>
         <th width="6%">项数</th>
         <th width="6%">订单状态</th>
@@ -135,6 +136,7 @@ $result = $db->query($sqllist);
         <td><?php echo $row['order_number']; ?></td>
         <td><?php echo $row['order_date']; ?></td>
         <td><?php echo $row['supplier_cname']; ?></td>
+        <td><?php echo $row['outward_typename']; ?></td>
         <td><?php echo $row['delivery_cycle']; ?></td>
         <td><?php echo $row['employee_name']; ?></td>
         <td><?php echo $row['dotime']; ?></td>

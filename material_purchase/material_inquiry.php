@@ -25,7 +25,7 @@ $result = $db->query($sqllist);
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<title>采购管理-希尔林</title>
+<title>采购管理-嘉泰隆</title>
 </head>
 
 <body>

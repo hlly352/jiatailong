@@ -12,6 +12,7 @@ $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -
 $isconfirm = $_SESSION['system_shell'][$system_dir]['isconfirm'];
 //查找总经办人员
 $isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
+
 //查询供应商
 $sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(1,`supplier_typeid`) >0 ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
@@ -279,8 +280,12 @@ $result = $db->query($sqllist);
         <td>
           <?php
              if($row['plan_status'] < 13){
-              if($count_boss >0){  
-               echo '<a href="funds_pay_apply.php?action=boss&id='.$planid.'">审核</a>';
+              if($count_boss >0){ 
+                if($isadmin == 1){
+                  echo '<a href="funds_pay_apply.php?action=boss&id='.$planid.'">审核</a>';
+                }else{
+                  echo '待审核';
+                }
               }
             }elseif($row['plan_status'] >= 13){
               echo '<img src="../images/system_ico/dui.png" />';

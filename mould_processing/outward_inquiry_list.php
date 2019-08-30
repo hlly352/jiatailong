@@ -10,9 +10,9 @@ if($_GET['submit']){
 	$specification = trim($_GET['specification']);
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
 }
-$sql = "SELECT `db_material_inquiry`.`inquiryid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould`.`mould_number` FROM `db_material_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC";
+$sql = "SELECT `db_outward_inquiry`.`inquiryid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould`.`mould_number` FROM `db_outward_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_outward_inquiry`.`employeeid` = '$employeeid' $sqlwhere ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC";
 $result = $db->query($sql);
-$_SESSION['material_inquiry_list'] = $sql;
+$_SESSION['outward_inquiry_list'] = $sql;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -23,7 +23,7 @@ $_SESSION['material_inquiry_list'] = $sql;
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<title>采购管理-希尔林</title>
+<title>采购管理-嘉泰隆</title>
 </head>
 
 <body>
@@ -42,7 +42,7 @@ $_SESSION['material_inquiry_list'] = $sql;
         <th>规格：</th>
         <td><input type="text" name="specification" class="input_txt" /></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_inquiry.php'" /></td>
+          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_outward_inquiry.php'" /></td>
       </tr>
     </table>
   </form>
@@ -72,7 +72,7 @@ $_SESSION['material_inquiry_list'] = $sql;
 		  $inquiryid = $row['inquiryid'];
 	  ?>
       <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $inquiryid; ?>" checked="checked" /></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $inquiryid; ?>" /></td>
         <td><?php echo $row['mould_number']; ?></td>
         <td><?php echo $row['material_date']; ?></td>
         <td><?php echo $row['material_list_number']; ?></td>

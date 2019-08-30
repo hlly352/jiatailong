@@ -4,7 +4,18 @@
 <div id="menu">
   <ul>
     <!-- <li class="menulevel"><a href="/mould_processing/">首页</a></li> -->
-    <li class="menulevel"><a href="mould.php">模具数据</a></li>
+    <li class="menulevel"><a href="#">加工工艺</a></li>
+    <li class="menulevel"><a href="#">生产进度</a></li>
+    <li class="menulevel"><a href="#">外协加工</a>
+        <ul>
+          <li><a href="mould_material.php">待询物料</a></li>
+          <li><a href="outward_inquiry_list.php">询价单</a></li>
+          <li><a href="mould_outward_order.php">外协订单</a></li>
+          <li><a href="mould_outward_order_list.php">订单明细</a></li>
+        </ul>
+    </li>
+    <li class="menulevel"><a href="mould.php">外协成本</a></li>
+   <!--  <li class="menulevel"><a href="mould.php">模具数据</a></li>
     <li class="menulevel"><a href="mould_outward.php">外协加工</a></li>
     <li class="menulevel"><a href="mould_material.php">模具物料</a></li>
     <li class="menulevel"><a href="mould_outward_order.php">加工申请</a></li>
@@ -44,7 +55,7 @@
           </ul>
         </li>
       </ul>
-    </li>
+    </li> -->
     <li class="menulevel"><a href="/myjtl/">内网首页</a></li>
   </ul>
   <span><?php echo $_SESSION['employee_info']['employee_name']; ?> <a href="../passport/logout.php">登出</a></span>

@@ -10,16 +10,18 @@ if($_POST['submit']){
 	$array_order_quantity = $_POST['order_quantity'];
 	$array_unit_price = $_POST['unit_price'];
 	$array_amount = $_POST['amount'];
+	$array_remark = $_POST['remark'];
 	foreach($array_materialid as $key=>$materialid){
 		$order_quantity = $array_order_quantity[$key];
 		$unit_price = $array_unit_price[$key];
 		$amount = $array_amount[$key];
+		$remark = $array_remark[$key];
 		if($order_quantity && $unit_price){
-			$sql_list .= "(NULL,'$orderid','$materialid','$order_quantity','$unit_price','$amount'),";
+			$sql_list .= "(NULL,'$orderid','$materialid','$order_quantity','$unit_price','$amount','$remark'),";
 		}
 	}
 	$sql_list = rtrim($sql_list,',');
-	$sql = "INSERT INTO `db_outward_order_list` (`listid`,`orderid`,`materialid`,`order_quantity`,`unit_price`,`amount`) VALUES $sql_list";
+	$sql = "INSERT INTO `db_outward_order_list` (`listid`,`orderid`,`materialid`,`order_quantity`,`unit_price`,`amount`,`remark`) VALUES $sql_list";
 	
 	$db->query($sql);
 	if($db->insert_id){

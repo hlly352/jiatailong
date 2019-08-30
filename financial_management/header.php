@@ -4,7 +4,15 @@
 <div id="menu">
   <ul>
     <!-- <li class="menulevel"><a href="/financial_management/">首页</a></li> -->
-    <li class="menulevel"><a href="#">物料订单</a>
+      <li class="menulevel"><a href="#">订单明细</a>
+      <ul>
+        <li><a href="wait_material_order_payment_list.php">物料待付</a></li>
+        <li><a href="material_order_payment_list.php">物料已付</a></li>
+        <li><a href="wait_mould_outward_payment_list.php">外协待付</a></li>
+        <li><a href="mould_outward_payment_list.php">外协已付</a></li>
+      </ul>
+    </li>
+   <!--  <li class="menulevel"><a href="#">物料订单</a>
       <ul>
         <li><a href="wait_material_order_payment_list.php">待付订单</a></li>
         <li><a href="material_order_payment_list.php">已付订单</a></li>
@@ -25,7 +33,7 @@
         <li><a href="wait_mould_outward_payment_list.php">待付加工</a></li>
         <li><a href="mould_outward_payment_list.php">已付加工</a></li> 
       </ul>
-    </li>
+    </li> -->
      <li class="menulevel"><a href="#">对账审核</a>
       <ul>
         <li><a href="material_balance_account.php">模具物料</a></li>
