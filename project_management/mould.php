@@ -1,8 +1,22 @@
+<meta http-equiv="content-Type" content="text/html;charset=utf-8">
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+//查找旧的
+$old_sql = "SELECT * FROM `db_mould` INNER JOIN `db_client` ON `db_mould_old`.`clientid` = `db_client`.`clientid`";
+$old_res = $db->query($old_sql);
+$info = array();
+while($rows = $old_res->fetch_assoc()){
+ // var_dump($rows);
+  $str = "('".$rows['mouldid']."','".$rows['client_code']."','".$rows['project_name']."','".$rows['mould_number']."','".$rows['part_name']."','".$rows['plastic_material']."','".$rows['shrinkage_rate']."','".$rows['surface']."//','".$rows['cavity_number']."','".$rows['gate_type']."//','".$rows['core_material']."//','".$rows['isexport']."','".$rows['quality_grade']."//','".$rows['difficulty_degree']."//','".$rows['projecter']."','".$rows['designer']."','".$rows['first_time']."','".$rows['mould_statusid']."','../upload/mould_image/".$rows['image_filedir']."/".$rows['image_filename']."','1','1'),";
+}
+$str = rtrim($str,',');
+
+//插入到新表中
+$new_sql = "INSERT INTO `db_mould_specification`(`mould_specification_id`,`customer_code`,`project_name`,`mould_no`,`mould_name`,`material_other`,`shrink`,`surface_require`,`cavity_num`,`injection_type`,`material_specification`,`is_export`,`quality_degree`,`difficulty_degree`,`projecter`,`designer`,`check_time`,`mould_statusid`,`image_filepath`,`is_start`,`is_approval`) VALUES{$str}";
+echo $new_sql;
 //查询模具状态
 $sql_mould_status = "SELECT `mould_statusid`,`mould_statusname` FROM `db_mould_status` ORDER BY `mould_statusid` ASC";
 $result_mould_status = $db->query($sql_mould_status);

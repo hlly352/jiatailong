@@ -56,10 +56,10 @@ $result = $db->query($sqllist);
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-		  $material_typeid = $row['material_typeid'];
+		  $dataid = $row['dataid'];
 	  ?>
       <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $material_typeid; ?>" /></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $dataid; ?>" /></td>
         <td><?php echo $row['material_typecode']; ?></td>
         <td><?php echo $row['material_typename']; ?></td>
         <td><?php echo $row['material_name']; ?></td>

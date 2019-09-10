@@ -14,9 +14,9 @@
           <li><a href="mould_outward_order_list.php">订单明细</a></li>
         </ul>
     </li>
+    <li class="menulevel"><a href="mould_outward.php">外协加工（旧）</a></li>
     <li class="menulevel"><a href="mould.php">外协成本</a></li>
    <!--  <li class="menulevel"><a href="mould.php">模具数据</a></li>
-    <li class="menulevel"><a href="mould_outward.php">外协加工</a></li>
     <li class="menulevel"><a href="mould_material.php">模具物料</a></li>
     <li class="menulevel"><a href="mould_outward_order.php">加工申请</a></li>
     <li class="menulevel"><a href="mould_weld.php">零件烧焊</a></li>

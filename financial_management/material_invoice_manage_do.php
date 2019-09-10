@@ -18,7 +18,7 @@ if($action == 'edit'){
 		}elseif($type == 'C'){
 			$inout_sql = "UPDATE `db_cutter_inout` SET `account_status` = 'M' WHERE `inoutid` IN(SELECT `inoutid` FROM `db_material_account_list` WHERE `accountid` = '$accountid')";
 		}
-	$db->query($inout_sql);
+	//$db->query($inout_sql);
 	//对账汇总表中更改状态
 	$account_sql = "UPDATE `db_material_account` SET `status` = 'P' WHERE `accountid` = '$accountid'";
 	$db->query($account_sql);

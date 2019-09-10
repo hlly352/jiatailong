@@ -73,7 +73,7 @@ $result = $db->query($sqllist);
               ?>
           </select>
         </td>
-        <th>类型：</th>
+       <!--  <th>类型：</th>
         <td>
             <select name="material_type" class="input_txt txt">
               <option value="">所有</option>
@@ -83,7 +83,7 @@ $result = $db->query($sqllist);
         	    	}
         	   	?>
             </select>
-        </td>
+        </td> -->
         <th>日期：</th>
         <td>
           <input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt"/>

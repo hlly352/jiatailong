@@ -13,7 +13,8 @@ class upload{
 	private $upload_file_size;           //上传文件的大小
 	private $allow_uploaded_maxsize;     //允许上传文件大小最大值
 	private $upload_error;               //上传错误代码
-	public  $upload_file_arr;            //上传成功文件数组
+	public  $upload_file_arr;           //上传成功文件数组
+	public  $array_upload_file;
 
 	function __construct(){
 
@@ -50,7 +51,7 @@ class upload{
 		if($this->upload_error == 0){
 			if(is_uploaded_file($this->upload_tmp_name)){
 				if(move_uploaded_file($this->upload_tmp_name, $this->upload_target_path . $this->upload_final_name . $this->get_fileinfo($this->upload_name,1))){
-					$this->array_upload_file= array('upload_name' => $this->upload_name,'upload_file_size' => $this->upload_file_size,'upload_final_name' => $this->upload_final_name . $this->get_fileinfo($this->upload_name,1));
+					$this->array_upload_file = array('upload_name' => $this->upload_name,'upload_file_size' => $this->upload_file_size,'upload_final_name' => $this->upload_final_name . $this->get_fileinfo($this->upload_name,1));
 				}
 			}
 		}

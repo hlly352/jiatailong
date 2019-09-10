@@ -71,7 +71,7 @@ $result = $db->query($sqllist);
 			?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_inout_in.php'" /></td>
+          <!-- <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_inout_in.php'" /></td> -->
       </tr>
     </table>
   </form>

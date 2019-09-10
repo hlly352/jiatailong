@@ -48,7 +48,7 @@ body, html {
 <?php
 if($result_entry->num_rows){
 	$array_entry = $result_entry->fetch_assoc();
-	$sql = "SELECT `db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_inout`.`remark`,`db_material_order_list`.`unit_price`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit`.`unit_name` FROM `db_outdown_list` INNER JOIN `db_outdown` ON `db_outdown`.`entryid` = `db_outdown_list`.`entryid` INNER JOIN `db_material_inout` ON `db_material_inout`.`inoutid` = `db_outdown_list`.`inoutid` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` ON `db_unit`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_outdown_list`.`entryid` = '$entryid' AND `db_outdown`.`dotype` = 'M' ORDER BY `db_outdown_list`.`listid` ASC";
+	$sql = "SELECT `db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_inout`.`remark`,`db_material_order_list`.`unit_price`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit`.`unit_name` FROM `db_outdown_list` INNER JOIN `db_outdown` ON `db_outdown`.`entryid` = `db_outdown_list`.`entryid` INNER JOIN `db_material_inout` ON `db_material_inout`.`inoutid` = `db_outdown_list`.`inoutid` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` ON `db_unit`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_outdown_list`.`entryid` = '$entryid' AND `db_outdown`.`dotype` = 'M' ORDER BY `db_outdown_list`.`listid` ASC";
 	$result = $db->query($sql);
 	$result_amount = $db->query($sql);
 	if($count = $result->num_rows){
@@ -56,11 +56,9 @@ if($result_entry->num_rows){
 		$page = 1;
 		$total_amount = 0;
 		while($row_amount = $result_amount->fetch_assoc()){
-			$total_amount += $row_amount['amount'];
-			$total_process_cost += $row_amount['process_cost'];
+			$total_quantity += $row_amount['quantity'];
 		}
-		$total_amount = number_format($total_amount,2);
-		$total_process_cost = number_format($total_process_cost,2);
+		$total_quantity = number_format($total_quantity,2);
 ?>
 <table id="main">
   <tr>
@@ -70,7 +68,7 @@ if($result_entry->num_rows){
         物料出库单
         </caption>
         <tr>
-          <td colspan="14" style="border:none; text-align:right;">出库单号：<?php echo $array_entry['entry_number']; ?></td>
+          <td colspan="12" style="border:none; text-align:right;">出库单号：<?php echo $array_entry['entry_number']; ?></td>
         </tr>
         <tr>
           <th width="4%">序号</th>
@@ -83,8 +81,8 @@ if($result_entry->num_rows){
           <th width="6%">单价</th>
           <th width="6%">数量</th>
           <th width="4%">单位</th>
-          <th width="6%">金额</th>
-          <th width="6%">加工费</th>
+          <!-- <th width="6%">金额</th> -->
+          <!-- <th width="6%">加工费</th> -->
           <th width="8%">供应商</th>
           <th width="6%">备注</th>
         </tr>
@@ -101,10 +99,10 @@ if($result_entry->num_rows){
           <td><?php echo $row['form_number']; ?></td>
           <td><?php echo $row['dodate']; ?></td>
           <td><?php echo $row['unit_price']; ?></td>
-          <td><?php echo $row['inout_quantity']; ?></td>
+          <td><?php echo $row['quantity']; ?></td>
           <td><?php echo $row['unit_name']; ?></td>
-          <td><?php echo $row['amount']; ?></td>
-          <td><?php echo $row['process_cost']; ?></td>
+          <!-- <td><?php echo $row['amount']; ?></td> -->
+          <!-- <td><?php echo $row['process_cost']; ?></td> -->
           <td><?php echo $row['supplier_cname']; ?></td>
           <td><?php echo $row['remark']; ?></td>
         </tr>
@@ -113,7 +111,7 @@ if($result_entry->num_rows){
 			$page++;
 		?>
         <tr>
-          <td colspan="2">合计金额</td>
+          <td colspan="2">合计</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
@@ -122,14 +120,11 @@ if($result_entry->num_rows){
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
-          <td><?php echo $total_amount; ?></td>
-          <td><?php echo $total_process_cost; ?></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
+          <td><?php echo $total_quantity; ?></td>
         </tr>
         <tr>
           <td colspan="2" style="border:none;">仓管：</td>
-          <td colspan="11" style="border:none;">&nbsp;</td>
+          <td colspan="8" style="border:none;">&nbsp;</td>
           <td style="border:none;">第<?php echo ($page-1).'/'.$toal_page; ?>页</td>
         </tr>
       </table></td>
@@ -169,23 +164,22 @@ if($result_entry->num_rows){
 		}
 		?>
         <tr>
-          <td colspan="2">合计金额</td>
+          <td colspan="2">合计</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
+          <td><?php echo $total_quantity; ?></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
-          <td><?php echo $total_amount; ?></td>
-          <td><?php echo $total_process_cost; ?></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
+          <td></td>
+
         </tr>
         <tr>
           <td colspan="2" style="border:none;">仓管：</td>
-          <td colspan="11" style="border:none;">&nbsp;</td>
+          <td colspan="8" style="border:none;">&nbsp;</td>
           <td style="border:none;">第<?php echo $page.'/'.$toal_page; ?>页</td>
         </tr>
       </table></td>

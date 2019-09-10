@@ -66,7 +66,7 @@ if($result_entry->num_rows){
   <tr>
     <td valign="top"><table id="sheet">
         <caption style=" font-size:18px; line-height:25px; margin-bottom:-15px;">
-        苏州希尔林实业有限公司<br />
+        苏州嘉泰隆实业有限公司<br />
         物料入库单
         </caption>
         <tr>

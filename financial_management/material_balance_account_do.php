@@ -9,6 +9,7 @@ $action = $_GET['action'];
 if($action == 'complete'){
 	//更改对账汇总表的状态
 	$sql = "UPDATE `db_material_account` SET `status` = 'I' WHERE `accountid` = '$accountid'";
+	
 	 $db->query($sql);
     if($db->affected_rows){
     	header('location:material_balance_account.php');

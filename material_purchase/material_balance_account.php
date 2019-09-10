@@ -3,8 +3,8 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
-$sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
-$edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+$sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01',strtotime("- 3 month"));
+$edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+ 4 month -1 day"));
 //查询供应商
 $sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(2,`supplier_typeid`) >=0 ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);

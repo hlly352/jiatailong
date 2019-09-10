@@ -92,11 +92,63 @@ $(function(){
 	  //待审批期间物料
 	  $sql_mould_other_material = "SELECT * FROM `db_mould_other_material` WHERE `status` ='A' AND `approver` = '$employeeid'";
 	  $result_other_material = $db->query($sql_mould_other_material);
+	  //付款计划采购审核
+	  $purchase_isconfirm = $_SESSION['system_shell']['/material_purchase/']['isconfirm'];
+	  if($purchase_isconfirm == '1'){
+		  $sql_funds_plan = "SELECT * FROM `db_material_funds_plan` WHERE `plan_status` = '0'";
+		  $result_funds_plan = $db->query($sql_funds_plan);
+		  $purchase_isconfirm_num = $result_funds_plan->num_rows;
+		  //采购付款审核
+		  $sql_funds_pay = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'B' GROUP BY `planid`";
+		  $result_funds_pay = $db->query($sql_funds_pay);
+		  $pay_isconfirm_num = $result_funds_pay->num_rows;
+		}else{
+			$purchase_isconfirm_num = 0;
+			$pay_isconfirm_num = 0;
+		}
+	  //付款计划总经办
+	  $purchase_isadmin = $_SESSION['system_shell']['/material_purchase/']['isadmin'];
+	  if($purchase_isadmin == '1'){
+	  	$sql_funds_plan = "SELECT * FROM `db_material_funds_plan` WHERE `plan_status` = '3'";
+	  	$result_funds_plan = $db->query($sql_funds_plan);
+	  	$purchase_isadmin_num = $result_funds_plan->num_rows;
+	  	//付款审核
+	  	$sql_funds_pay = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'D' GROUP BY `planid`";
+	  	$result_pay = $db->query($sql_funds_pay);
+	  	$pay_num = $result_pay->num_rows;
+	  }else{
+	  	$purchase_isadmin_num = 0;
+	  	$pay_num = 0;
+	  }
+	  //付款计划财务审核
+	  $financial_isconfirm = $_SESSION['system_shell']['/financial_management/']['isconfirm'];
+	  if($financial_isconfirm == '1'){
+	  	$sql_funds_plan = "SELECT * FROM `db_material_funds_plan` WHERE `plan_status` = '1'";
+	  	$result_funds_plan = $db->query($sql_funds_plan);
+	  	$financial_isconfirm_num = $result_funds_plan->num_rows;
+	  	//财务付款审核
+	  	$sql_funds_pay = "SELECT * FROM `db_funds_plan_list` WHERE `plan_status` = 'C' GROUP BY `planid`";
+	  	$result_funds_pay = $db->query($sql_funds_pay);
+	  	$pay_financial_num = $result_funds_pay->num_rows;
+	    //财务对账审核
+	    $sql_financial_account = "SELECT * FROM `db_material_account` WHERE `status` = 'F'";
+	    $result_financial_account = $db->query($sql_financial_account);
+	    $financial_account_num = $result_financial_account->num_rows;
+	    //财务发票接收
+		$sql_invoice = "SELECT * FROM `db_material_account` INNER JOIN `db_material_invoice_list` ON `db_material_account`.`accountid` = `db_material_invoice_list`.`accountid` WHERE `db_material_account`.`status` = 'I' AND `db_material_invoice_list`.`status` = 'A'";
+		$result_invoice = $db->query($sql_invoice);
+		$invoice_num = $result_invoice->num_rows;	    
+	  }else{
+	  	$financial_isconfirm_num = 0;
+	  	$pay_financial_num = 0;
+	  	$financial_account_num = 0;
+	  	$invoice_num = 0;
+	  }
 	  //带审批报价
 	  $sql_mould_quote_approve = "SELECT `db_mould_data`.`mould_dataid` FROM `db_mould_data` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = '5020'  INNER JOIN `db_system_employee` ON `db_system_employee`.`employeeid` = `db_employee`.`employeeid` WHERE `db_system_employee`.`systemid` = '19' AND `db_system_employee`.`isadmin`='1' AND `db_mould_data`.`is_approval`='0'";
 	  //echo $sql_mould_quote_approve;
 	  $result_mould_try_approve = $db->query($sql_mould_try_approve);
-	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows;
+	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows+$purchase_isadmin_num+$purchase_isconfirm_num+$financial_isconfirm_num+$pay_isconfirm_num+$pay_financial_num+$pay_num+$financial_account_num+$invoice_num;
 	  //计划任务
 	  $sql_plan = "SELECT `planid`,`plan_content`,`start_date` FROM `db_job_plan` WHERE `employeeid` = '$employeeid' AND `plan_status` = 1 AND `plan_result` = 0";
 	  $result_plan = $db->query($sql_plan);
@@ -179,6 +231,15 @@ $(function(){
 			}
 		}
 		?>
+        <?php
+		if($result_leave->num_rows){
+			while($row_leave = $result_leave->fetch_assoc()){
+		?>
+        <li><a href="/my_office/employee_leave_approve.php?id=<?php echo $row_leave['leaveid']; ?>">【请假】<?php echo $row_leave['employee_name'].'/请假单号:'.$row_leave['leave_num']; ?></a></li>
+        <?php
+			}
+		}
+		?>
 		<?php
 			if($result_other_material->num_rows){
 				while($row_other_material = $result_other_material->fetch_assoc()){
@@ -190,15 +251,46 @@ $(function(){
 			}
 		}
 		?>
-        <?php
-		if($result_leave->num_rows){
-			while($row_leave = $result_leave->fetch_assoc()){
+		<?php
+			if($purchase_isconfirm_num>0){
 		?>
-        <li><a href="/my_office/employee_leave_approve.php?id=<?php echo $row_leave['leaveid']; ?>">【请假】<?php echo $row_leave['employee_name'].'/请假单号:'.$row_leave['leave_num']; ?></a></li>
-        <?php
-			}
-		}
+			<li><a href="/material_purchase/material_funds_plan.php">付款计划<?php echo $purchase_isconfirm_num ?>项</a></li>
+		<?php }?>
+		<?php
+			if($purchase_isadmin_num>0){
 		?>
+			<li><a href="/material_purchase/material_funds_plan.php">付款计划<?php echo $purchase_isadmin_num ?>项</a></li>
+		<?php } ?>
+		<?php
+			if($financial_isconfirm_num>0){
+		?>
+			<li><a href="/financial_management/material_funds_plan.php">付款计划<?php echo $financial_isconfirm_num ?>项</a></li>
+		<?php } ?>
+		<?php
+			if($pay_isconfirm_num >0){
+		?>
+			<li><a href="/material_purchase/material_funds_plan.php">付款审核<?php echo $pay_isconfirm_num ?>项</a></li>
+		<?php } ?>
+		<?php 
+			if($pay_financial_num>0){
+		?>
+			<li><a href="/financial_management/material_funds_plan.php">付款审核<?php echo $pay_financial_num ?>项</a></li>
+		<?php } ?>
+		<?php
+			if($pay_num >0){
+		?>
+			<li><a href="/material_purchase/material_funds_plan.php">付款审批<?php echo $pay_num; ?>项</a></li>
+		<?php }?>
+		<?php 
+			if($financial_account_num >0){
+		?>	
+			<li><a href="/financial_management/material_balance_account.php">对账审核<?php echo $financial_account_num ?>项</a></li>
+		<?php } ?>
+		<?php 
+			if($invoice_num >0){
+		?>
+			<li><a href="/financial_management/material_invoice_manage.php">发票接收<?php echo $invoice_num ?>项</a></li>
+		<?php } ?>
         <?php
 		if($result_overtime->num_rows){
 			while($row_overtime = $result_overtime->fetch_assoc()){

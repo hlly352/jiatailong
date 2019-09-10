@@ -26,7 +26,7 @@ if($_POST['submit']){
 	}elseif($action == "del"){
 		$array_id = $_POST['id'];
 		$material_typeid = fun_convert_checkbox($array_id);
-		$sql = "DELETE FROM `db_other_material_type` WHERE `material_typeid` IN ($material_typeid)";
+		$sql = "DELETE FROM `db_other_material_data` WHERE `dataid` IN ($material_typeid)";
 		$db->query($sql);
 		if($db->affected_rows){
 			header("location:".$_SERVER['HTTP_REFERER']);

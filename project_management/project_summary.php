@@ -4,6 +4,29 @@ require_once '../function/function.php';
 require_once '../config/config.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+//查看当前用户是否是管理员
+//获取当前页面的路径
+$employeeid = $_SESSION['employee_info']['employeeid'];
+  $system_url =  dirname(__FILE__);
+
+  $system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
+  $system_url = substr($system_url,$system_pos);
+  //通过路径查询对应的模块id
+  $system_id_sql = "SELECT `systemid` FROM `db_system` WHERE `system_dir` LIKE '%$system_url%'";
+  $system_id_res = $db->query($system_id_sql);
+  $system_id = $system_id_res->fetch_row()[0];
+  if($system_id ==' '){
+    header('location:../myjtl/index.php');
+  }
+  //查询登录用户是否是客户管理的管理员
+  $system_sql = "SELECT `isadmin` FROM `db_system_employee` WHERE `employeeid`='$employeeid' AND `systemid`=".$system_id;
+  $system_res = $db->query($system_sql);
+
+  $system_info = [];
+  while($system_admin = $system_res->fetch_row()){
+    $system_info = $system_admin;
+  }
+
 //查询模具状态
 $sql_mould_status = "SELECT `mould_statusid`,`mould_statusname` FROM `db_mould_status` ORDER BY `mould_statusid` ASC";
 $result_mould_status = $db->query($sql_mould_status);
@@ -28,7 +51,7 @@ if($_GET['submit']){
   }
   $sqlwhere = " WHERE `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_client`.`client_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
-$sql = "SELECT *,`db_mould_data`.`upload_final_path` as image_filepath,`db_designer`.`employee_name` as designer,`db_projecter`.`employee_name` as projecter,`db_saler`.`employee_name` as saler,`db_assembler`.`employee_name` as assembler,`db_programming`.`employee_name` as programming FROM `db_mould_specification` INNER JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_saler` ON `db_saler`.`employeeid`=`db_mould_specification`.`saler` LEFT JOIN `db_employee` AS `db_projecter` ON `db_projecter`.`employeeid` = `db_mould_specification`.`projecter` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`designer` LEFT JOIN `db_employee` AS `db_programming` ON `db_programming`.`employeeid` = `db_mould_specification`.`programming` LEFT JOIN `db_employee` AS `db_assembler` ON `db_mould_specification`.`assembler` = `db_assembler`.`employeeid` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
+$sql = "SELECT *,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths,`db_designer`.`employee_name` as designer,`db_projecter`.`employee_name` as projecter,`db_saler`.`employee_name` as saler,`db_assembler`.`employee_name` as assembler,`db_programming`.`employee_name` as programming FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_saler` ON `db_saler`.`employeeid`=`db_mould_specification`.`saler` LEFT JOIN `db_employee` AS `db_projecter` ON `db_projecter`.`employeeid` = `db_mould_specification`.`projecter` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`designer` LEFT JOIN `db_employee` AS `db_programming` ON `db_programming`.`employeeid` = `db_mould_specification`.`programming` LEFT JOIN `db_employee` AS `db_assembler` ON `db_mould_specification`.`assembler` = `db_assembler`.`employeeid` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
 
 $result = $db->query($sql);
 $result_id = $db->query($sql);
@@ -81,13 +104,13 @@ $result = $db->query($sqllist);
 
 })
 </script>
-<title>项目管理-嘉泰隆</title>
+<title>项目管理-希尔林</title>
 </head>
 
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>模具数据</h4>
+  <h4></h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -201,17 +224,42 @@ $result = $db->query($sqllist);
       //处理表面要求
       if(strpos($row['surface_require'],'$$')){
         $surface_require = explode('$$',$row['surface_require'])[4];
+      }elseif(strpos($row['surface_require'],'//')){
+        $surface_requires = substr($row['surface_require'],0,strlen($row['surface_require'])-2);
       }else{
         $surface_require = '';
       }
+
+      //查找型芯和型腔的材质
+      $cavity_sql = "SELECT `material_specification` FROM `db_mould_data` WHERE `mould_dataid`=".$row['mould_id'];
+      $res = $db->query($cavity_sql);
+      if($res->num_rows){
+        $cavity = $res->fetch_row();
+      }
+      //处理是否出口
+      if(strlen($row['is_export']) == 0){
+        $export = '';
+      }else{
+        $export = $row['is_export'] == '1'?'是':'否';
+      }
+      //转换为数组
+       $cavity = explode('$$',$cavity[0]);
+      //图片处理
       $image_filedir = $row['image_filedir'];
       $image_filename = $row['image_filename'];
       //$image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
-      $image_filepath = $row['image_filepath'];
+      $image_filepath = empty($row['image_filepath'])?$row['image_filepaths']:$row['image_filepath'];
+      
       if(is_file($image_filepath)){
         $image_file = "<img src=\"".$image_filepath."\" width=\"85\" height=\"45\"/>";
       }else{
         $image_file = "<img src=\"../images/no_image_85_45.png\" width=\"85\" height=\"45\" />";
+      }
+      //查询模具状态
+      $mould_status_sql = "SELECT `mould_statusname` FROM `db_mould_status` WHERE `mould_statusid`=".$row['mould_statusid'];
+      $result_status = $db->query($mould_status_sql);
+      if($result_status->num_rows){
+        $mould_status = $result_status->fetch_assoc()['mould_statusname'];
       }
     ?>
       <tr>
@@ -226,21 +274,21 @@ $result = $db->query($sqllist);
         <td class="img"><?php echo $image_file; ?></td>
         <td><?php echo $row['material_other']; ?></td>
         <td><?php echo $row['shrink']; ?></td>
-        <td><?php echo $array_surface_require[$surface_require]; ?></td>
+        <td><?php echo isset($surface_requires)?$surface_requires:$array_surface_require[$surface_require]; ?></td>
         <td><?php echo $row['cavity_num']; ?></td>
-        <td><?php echo $array_injection_type[$row['injection_type']]; ?></td>
-        <td><?php echo $row['core_material']; ?></td>
-        <td><?php echo $row['is_export'] == '1'?'是':'否'; ?></td>
-        <td><?php echo $array_quality_degree[$row['quality_degree']]; ?></td>
-        <td><?php echo $array_difficulty_degree[$row['difficulty_degree']]; ?></td>
+        <td><?php echo strpos($row['injection_type'],'//')?substr($row['injection_type'],0,strlen($row['injection_type'])-2):$array_injection_type[$row['injection_type']]; ?></td>
+        <td><?php echo strpos($row['material_specification'],'//')?substr($row['material_specification'],0,strlen($row['material_specification'])-2):$cavity[1].'/'.$cavity[2]; ?></td>
+        <td><?php echo $export ?></td>
+        <td><?php echo strpos($row['quality_degree'],'//')?substr($row['quality_degree'],0,strlen($row['quality_degree'])-2):$array_quality_degree[$row['quality_degree']]; ?></td>
+        <td><?php echo strpos($row['difficulty_degree'],'//')?substr($row['difficulty_degree'],0,strlen($row['difficulty_degree'])-2):$array_difficulty_degree[$row['difficulty_degree']]; ?></td>
         <td><?php echo $row['projecter']; ?></td>
         <td><?php echo $row['designer']; ?></td>
         <td><?php echo $row['programming']; ?></td>
         <td><?php echo $row['assembler']; ?></td>
-        <td><?php echo $row['checkbox_time']; ?></td>
+        <td><?php echo $row['check_time']; ?></td>
         <td><?php ?></td>
-        <td><?php echo $row['mould_statusname']; ?></td>
-        <td><a href="mould_specification_edit.php?action=edit&from=summary&specification_id=<?php echo $row['mould_specification_id'] ?>">更新</a></td>
+        <td><?php echo $mould_status ?></td>
+        <td><a href="<?php echo $system_info[0] == '1'?'mould_specification_edit.php?action=edit&from=summary&specification_id='.$row['mould_specification_id']:'#' ?>">更新</a></td>
       </tr>
       <?php } ?>
     </table>
