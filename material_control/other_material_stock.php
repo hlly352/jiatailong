@@ -9,16 +9,16 @@ $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -
 $sql_type = "SELECT `material_typeid`,`material_typename` FROM `db_other_material_type` ORDER BY `material_typeid` ASC";
 $result_type = $db->query($sql_type);
 if($_GET['submit']){
-	$apply_number = rtrim($_GET['apply_number']);
+	$material_name = rtrim($_GET['material_name']);
 	$specification = rtrim($_GET['specification']);
 	$typeid = $_GET['typeid'];
 	if($typeid){
-		$sql_typeid = " AND `db_cutter_specification`.`typeid` = '$typeid'";
+		$sql_typeid = " AND `db_other_material_data`.`material_typeid` = '$typeid'";
 	}
-	$sqlwhere = " AND `db_cutter_apply`.`apply_number` LIKE '%$apply_number%' AND `db_cutter_specification`.`specification` LIKE '%$specification%' $sql_typeid ";
+	$sqlwhere = " AND `db_other_material_data`.`material_name` LIKE '%$material_name%' $sql_typeid";
 }
 // $sql = "SELECT `db_cutter_inout`.`inoutid`,`db_cutter_inout`.`listid`,`db_cutter_inout`.`quantity`,`db_cutter_inout`.`old_quantity`,`db_cutter_inout`.`dodate`,`db_cutter_inout`.`remark`,`db_cutter_apply`.`apply_number`,`db_cutter_apply`.`employeeid`,`db_cutter_type`.`type`,`db_cutter_specification`.`specification`,`db_cutter_hardness`.`texture`,`db_cutter_hardness`.`hardness`,`db_mould`.`mould_number`,`db_employee`.`employee_name` FROM `db_cutter_inout` INNER JOIN `db_cutter_apply_list` ON `db_cutter_apply_list`.`apply_listid` = `db_cutter_inout`.`apply_listid` INNER JOIN `db_cutter_apply` ON `db_cutter_apply`.`applyid` = `db_cutter_apply_list`.`applyid` INNER JOIN `db_mould_cutter` ON `db_mould_cutter`.`cutterid` = `db_cutter_apply_list`.`cutterid` INNER JOIN `db_cutter_specification` ON `db_cutter_specification`.`specificationid` = `db_mould_cutter`.`specificationid` INNER JOIN `db_cutter_type` ON `db_cutter_type`.`typeid` = `db_cutter_specification`.`typeid` INNER JOIN `db_cutter_hardness` ON `db_cutter_hardness`.`hardnessid` = `db_mould_cutter`.`hardnessid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_cutter_apply_list`.`mouldid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_cutter_apply`.`employeeid` WHERE (`db_cutter_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND `db_cutter_inout`.`dotype` = 'O' $sqlwhere";
-$sql = "SELECT * FROM `db_other_material_data` INNER JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_other_material_data`.`stock` > 0";
+$sql = "SELECT * FROM `db_other_material_data` INNER JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid`  WHERE `db_other_material_data`.`stock` > 0 $sqlwhere";
 
 $result = $db->query($sql);
 $_SESSION['cutter_inout_list_out'] = $sql;
@@ -43,12 +43,12 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>加工刀具库存管理</h4>
+  <h4>期间物料库存管理</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
         <th>物料名称：</th>
-        <td><input type="text" name="apply_number" class="input_txt" /></td>
+        <td><input type="text" name="material_name" class="input_txt" /></td>
         <th>规格：</th>
         <td><input type="text" name="specification" class="input_txt" /></td>
         <th>类型：</th>
@@ -64,10 +64,10 @@ $result = $db->query($sqllist);
 			}
 			?>
           </select></td>
-        <th>出库日期：</th>
+<!--         <th>出库日期：</th>
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
           --
-          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" /></td>
+          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" /></td> -->
         <td><input type="submit" name="submit" value="查询" class="button" />
           <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_cutter_inout_out.php'" /></td>
       </tr>

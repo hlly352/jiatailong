@@ -27,14 +27,23 @@ $result_supplier = $db->query($sql_supplier);
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script language="javascript" type="text/javascript">
 $(function(){
-	$("#submit").click(function(){
-   
+  $("#submit").click(function(){
+    var title = $.trim($('input[name = title]').val());
+    var patt = /^.{1,8}$/;
+    if(!title){
+      alert('请填写标题');
+      return false;
+    }
+    if(!patt.test(title)){
+      alert('标题长度超过限制');
+      return false;
+    }
     var file = $('input[name = file]').val();
     if(!file){
       alert('请选择文件');
       return false;
     }
-	})
+  })
 })
 </script>
 <title>采购管理-希尔林</title>
@@ -64,6 +73,10 @@ $(function(){
       <tr>
         <th>模具名称：</th>
         <td><?php echo $mould_info['mould_name'] ?></td>
+      </tr>
+      <tr>
+        <th>标题：</th>
+        <td><input type="text" name="title" placeholder="不能超过八个字符"</td></td>
       </tr>
       <tr>
         <th>文件来源：</th>
@@ -97,7 +110,7 @@ $(function(){
           <input type="hidden" name="mouldid" vlaue="<?php echo $mouldid ?>">
           <input type="hidden" name="specification_id" value="<?php echo $specification_id ?>">
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-          <input type="hidden" name="action" value="<?php echo $action; ?>" />
+          <input type="hidden" name="action" value="add" />
         </td>
       </tr>
     </table>

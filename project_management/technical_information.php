@@ -107,9 +107,38 @@ $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_mould_specification`.`specification_time` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
 
 $result = $db->query($sqllist);
+//获取地址每个资料的地址信息
+function show($row,$from){
+          $title_key = $from.'_title';
+          $count = substr_count($row[$from],'&');
+
+  $data = explode('&',$row[$title_key]);
+  $new_data = array();
+  foreach($data as $ks=>$vs){
+    if(!empty($vs)){
+      $new_data[$ks] = $vs;
+    }
+  }
+              foreach($new_data as $k=>$v){
+              if($k<3){
+                if (preg_match('/[\x{4e00}-\x{9fa5}]+/u',$v)) {
+                  $num = 20;
+                } else {
+                  $num = 10;
+                }
+                $title .= substr($v,0,$num).'<br>';
+              }
+          }
+          if($count >0){
+            $str = '<a href="technical_data_list.php?action=show&data='.$from.'&informationid='.$row['information_id'].'">'.$title.'</a>';
+          }else{
+            $str = '<a href="http://'.$_SERVER['HTTP_HOST'].substr($row[$from],2).'">'.$title.'</a>';
+          }
+         return $str;
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -244,18 +273,17 @@ $result = $db->query($sqllist);
         <th rowspan="2" width="6%">零件名称</th>
         <th rowspan="2" width="6%">零件图片</th>
         <th colspan="3" width="6%">客户</th>
-        <th colspan="2" width="4%">项目</th>
-        <th colspan="2" width="5%">模具</th>
-        <th rowspan="2" width="4%">目前状态</th>
+        <th colspan="4" width="4%">内部</th>
+        <!-- <th rowspan="2" width="4%">目前状态</th> -->
         <th rowspan="2" width="4%">操作</th>
       </tr>
       <tr>
         <th width="4%">项目资料</th>
         <th width="4%">模具资料</th>
+        <th width="4%">2D图纸</th>
         <th width="4%">跟进流程</th>
         <th width="4%">总结报告</th>
         <th width="4%">设计标准</th>
-        <th width="4%">2D图纸</th>
         <th width="4%">模具规格书</th>
       </tr>
       <?php
@@ -311,30 +339,30 @@ $result = $db->query($sqllist);
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
         <td>
-        	<a href="http://localhost/<?php echo substr($row['project_data'],2) ?>"><?php echo $row['project_data']?'查看':'' ?></a>
+          <?php echo show($row,'project_data') ?>
         </td>
         <td>
-        	<a href="http://localhost/<?php echo substr($row['mould_data'],2) ?>"><?php echo $row['mould_data']?'查看':'' ?></a>
+          <?php echo show($row,'mould_data'); ?>
         </td>
         <td>
-        	<a href="http://localhost/<?php echo substr($row['flow'],2) ?>"><?php echo $row['flow']?'查看':'' ?></a>
+          <?php echo show($row,'drawing'); ?>
         </td>
         <td>
-        	<a href="http://localhost/<?php echo substr($row['report'],2) ?>"><?php echo $row['report']?'查看':'' ?></a>
+          <?php echo show($row,'flow'); ?>
         </td>
         <td>
-        	<a href="http://localhost/<?php echo substr($row['standard'],2) ?>"><?php echo $row['standard']?'查看':'' ?></a>
+          <?php echo show($row,'report'); ?>
         </td>
         <td>
-        	<a href="http://localhost/<?php echo substr($row['drawing'],2) ?>"><?php echo $row['drawing']?'查看':'' ?></a>
+          <?php echo show($row,'standard'); ?>
         </td>
         <td class="detail">
-        	查看
+          查看
         <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
-       <td>
-        	
-        </td>
+      <!--  <td>
+          
+        </td> -->
         <td><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
       </tr>
       <?php } ?>

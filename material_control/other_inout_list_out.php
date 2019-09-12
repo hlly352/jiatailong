@@ -100,7 +100,7 @@ $result = $db->query($sqllist);
       <td><?php echo $row['order_number']; ?></td>
       <td><?php echo $row['material_name']; ?></td>
       <td><?php echo $row['material_specification']; ?></td>
-      <td><?php echo $row['actual_quantity']; ?></td>
+      <td><?php echo $row['inout_quantity']; ?></td>
       <td><?php echo $row['unit']; ?></td>
       <td><?php echo $row['taker']; ?></td>
       <td><?php echo $row['supplier_cname']; ?></td>

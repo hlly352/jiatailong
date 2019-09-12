@@ -57,7 +57,7 @@ $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_mould_specification`.`specification_time` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
 
 $result = $db->query($sqllist);
 ?>

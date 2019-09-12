@@ -17,9 +17,9 @@ if($_GET['submit']){
 	if($supplierid){
 		$sql_supplierid = " AND `db_material_order`.`supplierid` = '$supplierid'";
 	}
-	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
+	$sqlwhere = " AND `db_other_material_data`.`material_name` LIKE '%$material_name%' AND `db_mould_other_material`.`material_specification` LIKE '%$specification%'";
 }
-$sql = $sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_orderlist`.`in_quantity`>0 AND `db_other_material_inout`.`inout_quantity`>0 AND `db_other_material_inout`.`dotype` = 'I' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+ $sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_orderlist`.`in_quantity`>0 AND `db_other_material_inout`.`inout_quantity`>0 AND `db_other_material_inout`.`dotype` = 'I' $sqlwhere";
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_other_material_order`.`order_date` ASC,`db_other_material_orderlist`.`listid` ASC" . $pages->limitsql;
@@ -62,7 +62,7 @@ $result = $db->query($sqllist);
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
           --
           <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" /></td>
-        <th>供应商：</th>
+       <!--  <th>供应商：</th>
         <td><select name="supplierid">
             <option value="">所有</option>
             <?php
@@ -72,7 +72,7 @@ $result = $db->query($sqllist);
 				}
 			}
 			?>
-          </select></td>
+          </select></td> -->
         <td><input type="submit" name="submit" value="查询" class="button" /></td>
       </tr>
     </table>
