@@ -7,10 +7,11 @@ require_once '../class/image.php';
 require_once 'shell.php';
 	$action = $_POST['action'];
 	$data = $_POST;
-	$employeeid = $data['applyer'];
-	unset($data['action']);
 	if($action == 'add'){
-	unset($data['submit']);
+		unset($data['submit']);
+		unset($data['action']);
+		$applyerid = $data['applyer'];
+		$approver = approver($db,$applyerid);
 		//拼接添加数据库的sql语句
 		$key_sql = '';
 		$val_sql = '';
@@ -18,77 +19,56 @@ require_once 'shell.php';
 			$key_sql .= '`'.$k.'`,';
 			$val_sql .= '"'.$v.'",';
 		}
-		
-		//查询审批人
-		$sql_employee = "SELECT `position_type` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
-
-		$result_employee = $db->query($sql_employee);
-		
-		if($result_employee->num_rows){
-			$array_employee = $result_employee->fetch_assoc();
-			$position_type = $array_employee['position_type'];
-			
-			if($position_type != 'A'){
-				if($position_type == 'D'){
-					$sql_super ="SELECT `db_superior`.`position_type`,`db_employee`.`superior` FROM `db_employee` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` =".$employeeid;
-					$result_super = $db->query($sql_super);
-					if($result_super->num_rows){
-						$array_superior = $result_super->fetch_assoc();
-						$position_types = $array_superior['position_type'];
-						$employeeid = $array_superior['superior'];
-						
-							}
-						if($position_types == 'D'){
-
-							$sql ="SELECT `db_superior`.`position_type`,`db_employee`.`superior` FROM `db_employee` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` =".$employeeid;
-							$result = $db->query($sql);
-							if($result->num_rows){
-									$array_superior = $result->fetch_assoc();
-									$position_type = $array_superior['position_type'];
-									$employeeid = $array_superior['superior'];
-									
-								}
-							}
-				} else{
-					$sql_superior ="SELECT `db_superior`.`position_type`,`db_employee`.`superior` FROM `db_employee` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` =".$employeeid;
-					$result_superior = $db->query($sql_superior);
-					if($result_superior->num_rows){
-						$array_superior = $result_superior->fetch_assoc();
-						$position_type = $array_superior['position_type'];
-
-					}
-					$employeeid = $array_superior['superior'];
-				}
-			}
-			$approver = $array_superior['superior']?$array_superior['superior']:$employeeid;
-		}
 		//添加时间戳和审批人
 		$key_sql .='`add_time`,`approver`,`status`';
 		$val_sql .='"'.time().'","'.$approver.'","A"';
 		$add_sql = "INSERT INTO `db_mould_other_material`($key_sql) VALUES($val_sql)";
-
 		$db->query($add_sql);
 		if($db->affected_rows){
 			header('location:mould_other_fee.php');
 		}
-	} elseif($action == 'edit') {
+	}elseif($action == 'material_control'){
+		$array_specificationid = $data['specificationid'];
+		$array_applyer = $data['applyer'];
+		$array_quantity = $data['quantity'];
+		$array_apply_team = $data['apply_team'];
+		$array_apply_date = $data['apply_date'];
+		$array_requirement_date = $data['requirement_date'];
+		$array_remark = $data['remark'];
+		//添加数据
+		$sql_str = '';
+		foreach($array_quantity as $k=>$v){
+			if(!empty($v)){
+				//查询上级领导
+				$approver = approver($db,$array_applyer[$k]);
+
+				$sql_str .= '(\''.$array_specificationid[$k].'\',\''.$array_apply_team[$k].'\',\''.$array_apply_date[$k].'\',\''.$v.'\',\''.$array_applyer[$k].'\',\''.$approver.'\',\''.$array_remark[$k].'\',\''.time().'\',\'A\',\''.$array_requirement_date[$k].'\'),';
+			}
+		}
+		$sql_str = rtrim($sql_str,',');
+		//把批量申购的物料信息插入到物料信息表中
+		$sql = "INSERT INTO `db_mould_other_material`(`material_name`,`apply_team`,`apply_date`,`quantity`,`applyer`,`approver`,`remark`,`add_time`,`status`,`requirement_date`) VALUES$sql_str";
+		$db->query($sql);
+		if($db->affected_rows){
+			header('location:mould_other_material_apply.php?action=add');
+		}
+	}elseif($action == 'edit') {
 		$id = $data['mould_other_id'];
-		unset($data['mould_other_id']);
+		$to = $data['to'];
+		$remark = $data['remark'];
 		//判断是否通过审评
-		
 		if($data['submit'] == '退回'){
-			$no_approval_sql = "UPDATE `db_mould_other_material` SET `status`='C',`do_time`=".time()." WHERE `mould_other_id`=".$id;
-			
+			$no_approval_sql = "UPDATE `db_mould_other_material` SET `remark`='$remark',`status`='D',`do_time`=".time()." WHERE `mould_other_id`=".$id;
 			$db->query($no_approval_sql);
 			if($db->affected_rows){
 				header('location:mould_other_fee.php');
 			}
 		}elseif($data['submit'] == '通过'){
-			unset($data['submit']);
-			foreach($data as $k=>$v){
-				$sql_value .= '`'.$k.'`="'.$v.'",';
+			if($to == 'B'){
+				$sql_value = '`status`=\'B\',`remark`=\''.$remark.'\',`do_time`='.time();
+			}elseif($to == 'C'){
+				$sql_value = '`status`=\'C\',`remark`=\''.$remark.'\',`do_time`='.time();
 			}
-			$sql_value .= '`status`=\'B\',`do_time`='.time();
 			$approval_sql = "UPDATE `db_mould_other_material` SET {$sql_value} WHERE `mould_other_id`=".$id;
 	
 			$db->query($approval_sql);

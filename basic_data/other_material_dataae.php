@@ -24,10 +24,10 @@ $(function(){
 			$("#material_typename").focus();
 			return false;
 		}
-    var standard_stock = $('#standard_stock').val();
-    if(!ri_a.test(standard_stock)){
-      alert('请填写正确的数字');
-      $('#standard_stock').focus();
+    var unit = $('#unit').val();
+    if(!unit){
+      $('#unit').focus();
+      alert('请填写单位');
       return false;
     }
 	})
@@ -80,9 +80,11 @@ $(function(){
           <span class="tag"> *必填</span></td>
       </tr>
       <tr>
-        <th>标准库存：</th>
-        <td><input type="text" name="standard_stock" id="standard_stock" class="input_txt" />
+        <th>单位：</th>
+        <td>
+          <input type="text" name="unit" id="unit" class="input_txt" />
           <span class="tag"> *必填</span></td>
+        </td>
       </tr>
       <tr>
         <th>&nbsp;</th>

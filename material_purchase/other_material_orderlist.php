@@ -153,20 +153,14 @@ $str = empty($info)?"AND `status` = 'E'":"";
   ?>
 </div>
 <?php
-$data_source = $_GET['data_source']?trim($_GET['data_source']):'A';
 if($_GET['submit']){
   $material_name = trim($_GET['material_name']);
   $specification = trim($_GET['material_specification']);
   $sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
 }
-if($data_source == 'A'){
-  //$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
-  $sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_orderlist` ON `db_mould_other_material`.`mould_other_id`=`db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `orderid`='$orderid'";
-}elseif($data_source == 'B'){
-  $sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'E'";
-}elseif($data_source == 'C'){
-  $sql = "SELECT * FROM `db_mould_other_material` WHERE `status` = 'E'";
-}
+
+ $sql = "SELECT `db_mould_other_material`.`material_name` AS `name`,`db_other_material_data`.`material_name`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_orderlist`.`actual_quantity`,`db_other_material_orderlist`.`unit_price`,`db_other_material_orderlist`.`tax_rate`,(`db_other_material_orderlist`.`actual_quantity` * `db_other_material_orderlist`.`unit_price`) AS `amount`,`db_other_material_orderlist`.`iscash`,`db_other_material_orderlist`.`plan_date` FROM `db_other_material_orderlist`  INNER JOIN `db_mould_other_material` ON `db_other_material_orderlist`.`materialid` = `db_mould_other_material`.`mould_other_id` LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid`  WHERE `db_other_material_orderlist`.`orderid` = '$orderid'";
+
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
 $sqllist = $sql . " ORDER BY `db_mould_other_material`.`mould_other_id` ASC" . $pages->limitsql;
@@ -186,8 +180,6 @@ $result = $db->query($sqllist);
         <th >需求数量</th>
         <th >实际数量</th>
         <th>单位</th>
-        <th>申请人</th>
-        <th>申请部门</th>
         <th width="">单价(含税)</th>
         <th width="">税率</th>
         <th width="">金额(含税)</th>
@@ -197,32 +189,16 @@ $result = $db->query($sqllist);
       </tr>
       
       <?php
-      while($row = $result->fetch_assoc()){
-      //获取申请部门
-      $dept_sql = "SELECT `dept_name` FROM `db_department` WHERE `deptid`=".$row['apply_team'];
-      $res_dept = $db->query($dept_sql);
-      if($res_dept->num_rows){
-        $department = $res_dept->fetch_row()[0];
-      }
-    ?>
+        while($row = $result->fetch_assoc()){
+      ?>
       <tr>
-        <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
-        <td><?php echo $row['material_specification']; ?></td>
+        <td><?php echo $row['unit']?$row['material_name']:$row['name']; ?></td>
+        <td><?php echo $row['specification_name']; ?></td>
         <td><?php echo $row['quantity']; ?></td>
         <td>
          <?php echo $row['actual_quantity'] ?>
         </td>
-        <td><?php echo $row['unit'] ?></td>
-        <td>
-          <?php
-            echo getName($row['applyer'],$db);
-          ?>
-        </td>
-        <td>
-      <?php
-        echo $department;
-      ?>
-        </td>
+        <td><?php echo $row['unit']?$row['unit']:$row['material_unit'] ?></td>
         <td>
           <?php echo $row['unit_price'] ?>
         </td>

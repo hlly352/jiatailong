@@ -91,15 +91,7 @@ if($_POST['submit']){
 	}elseif($action == "del"){
 		$array_id = $_POST['id'];
 		$orderid = fun_convert_checkbox($array_id);
-		// 把物料退回通过状态
-		$material_sql = "SELECT `materialid` FROM `db_other_material_orderlist` WHERE `orderid` IN ($orderid)";
-		$res_material = $db->query($material_sql);
-		if($res_material->num_rows){
-			while($row_material = $res_material->fetch_assoc()){
-				$status_sql = "UPDATE `db_mould_other_material` SET `status`='B' WHERE `mould_other_id` =".$row_material['materialid'];
-				$db->query($status_sql);
-			}
-		}
+		//删除订单清单中的内容
 		$sql_order_list = "DELETE FROM `db_other_material_orderlist` WHERE `orderid` IN ($orderid)";
 		$db->query($sql_order_list);
 		$sql = "DELETE FROM `db_other_material_order` WHERE `orderid` IN ($orderid)";

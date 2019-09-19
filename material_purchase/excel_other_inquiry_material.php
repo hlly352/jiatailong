@@ -11,24 +11,24 @@ $objPHPexcel = PHPExcel_IOFactory::load('../template_file/other_material_inquiry
 $objWorksheet = $objPHPexcel->getActiveSheet();
 $objPHPexcel->getActiveSheet()->getDefaultRowDimension()->setRowHeight(-1);
 
-$sql = $_SESSION['excel_other_inquiry_material'];
+$sql = $_SESSION['other_material_inquiry'];
 $result = $db->query($sql);
 if($result->num_rows){
 	$i = 6;
 	while($row = $result->fetch_assoc()){
 		$objWorksheet->getCell('A'.$i)->setValue($row['apply_date']);
-		$objWorksheet->getCell('B'.$i)->setValue($row['mould_no']);
-		$objWorksheet->getCell('C'.$i)->setValue($row['material_name']);
-		$objWorksheet->getCell('D'.$i)->setValue($row['material_specification']);
+		$objWorksheet->getCell('B'.$i)->setValue($row['material_typename']);
+		$objWorksheet->getCell('C'.$i)->setValue($row['unit']?$row['material_name']:$row['name']);
+		$objWorksheet->getCell('D'.$i)->setValue($row['specification_name']);
 		$objWorksheet->getCell('E'.$i)->setValue($row['quantity']);
-		$objWorksheet->getCell('F'.$i)->setValue($row['unit']);
+		$objWorksheet->getCell('F'.$i)->setValue($row['unit']?$row['unit']:$row['material_unit']);
 		$objWorksheet->getCell('I'.$i)->setValue($row['remark']);
 		$i++;
 	}
 }
-$objWorksheet->getCell('B'.$i)->setValue("编制：");
-$objWorksheet->getCell('D'.$i)->setValue("审核：");
-$objWorksheet->getCell('G'.$i)->setValue("价格批准：");
+// $objWorksheet->getCell('B'.$i)->setValue("编制：");
+// $objWorksheet->getCell('D'.$i)->setValue("审核：");
+// $objWorksheet->getCell('G'.$i)->setValue("价格批准：");
 $objWorksheet->getStyle('A5:I'.($i-1))->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN); //设置单元格为实线
 $objWorksheet->getStyle('A5:I'.($i-1))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);  //水平居中
 $objWorksheet->getStyle('A5:I'.($i-1))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);// 竖直居中

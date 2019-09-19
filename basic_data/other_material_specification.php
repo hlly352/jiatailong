@@ -3,15 +3,16 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+$materialid = $_GET['id'];
 if($_GET['submit']){
 	$material_typename = trim($_GET['material_typename']);
 	$sqlwhere = " WHERE `material_name` LIKE '%$material_typename%'";
 }
-$sql = "SELECT * FROM `db_other_material_data` INNER JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` $sqlwhere";
+$sql = "SELECT * FROM `db_other_material_specification` INNER JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid` WHERE `db_other_material_specification`.`materialid` = '$materialid'";
 
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `add_time` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `dataid` ASC" . $pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -29,14 +30,11 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>期间物料</h4>
+  <h4>期间物料规格</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
-        <th>物料名称：</th>
-        <td><input type="text" name="material_typename" class="input_txt" /></td>
-        <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="添加" class="button" onclick="location.href='other_material_dataae.php?action=add'" />
+          <input type="button" name="button" value="添加" class="button" onclick="location.href='other_material_typeae.php?action=specification&id=<?php echo $materialid ?>'" />
           <input type="text" style="display:none;" /></td>
       </tr>
     </table>
@@ -44,29 +42,23 @@ $result = $db->query($sqllist);
 </div>
 <div id="table_list">
   <?php if($result->num_rows){ ?>
-  <form action="other_material_datado.php" name="material_type_list" method="post">
+  <form action="other_material_typedo.php" name="material_type_list" method="post">
     <table>
       <tr>
-        <th width="">ID</th>
-        <th width="">类型代码</th>
-        <th width="">物料类型</th>
-        <th width="">物料名称</th>
-        <th width="">单位</th>
-        <th width="">规格</th>
-        <!-- <th width="1>Edit</th> -->
+        <th width="10%">ID</th>
+        <th width="25%">物料名称</th>
+        <th width="20%">物料规格</th>
+        <th width="10%">Edit</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-		  $dataid = $row['dataid'];
+		  $specificationid = $row['specificationid'];
 	  ?>
       <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $dataid; ?>" /></td>
-        <td><?php echo $row['material_typecode']; ?></td>
-        <td><?php echo $row['material_typename']; ?></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $specificationid; ?>" /></td>
         <td><?php echo $row['material_name']; ?></td>
-        <td><?php echo $row['unit']; ?></td>
-        <td><a href="other_material_specification.php?id=<?php echo $dataid; ?>&action=specification">查看</a></td>
-       <!--  <td width="4%"><a href="other_material_typeae.php?id=<?php echo $dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td> -->
+        <td><?php echo $row['specification_name']; ?></td>
+        <td width="4%"><a href="other_material_typeae.php?id=<?php echo $dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       </tr>
       <?php } ?>
     </table>
@@ -75,7 +67,7 @@ $result = $db->query($sqllist);
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
       <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" disabled="disabled" />
-      <input type="hidden" name="action" value="del" />
+      <input type="hidden" name="action" value="del_specification" />
     </div>
   </form>
   <div id="page">

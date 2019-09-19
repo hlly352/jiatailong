@@ -35,12 +35,38 @@ if($_POST['submit']){
 				return false;
 			}
 			}
-		}
+		}elseif($action == 'specification'){
+			$materialid = $_POST['materialid'];
+			$specification = trim($_POST['specification']);
+			$array_specification = explode('|',$specification);
+			foreach($array_specification as $val){
+				if(!empty($val)){
+					$sql_str .= '(\''.$materialid.'\',\''.$val.'\'),';
+				}
+			}
+			$sql_str = rtrim($sql_str,',');
+			$sql = "INSERT INTO `db_other_material_specification`(`materialid`,`specification_name`) VALUES{$sql_str}";
+			$db->query($sql);
+			if($db->affected_rows){
+				header("location:other_material_data.php");
+			}
+		}elseif($action == 'delete'){
 		$sql = "DELETE FROM `db_other_material_type` WHERE `material_typeid` IN ($material_typeid)";
 
 		$db->query($sql);
 		if($db->affected_rows){
 			header("location:".$_SERVER['HTTP_REFERER']);
+		}
+		}elseif($action == 'del_specification'){
+			$array_id = $_POST['id'];
+			
+			$id = fun_convert_checkbox($array_id);
+			$sql = "DELETE FROM `db_other_material_specification` WHERE `specificationid` IN($id)";
+
+			$db->query($sql);
+			if($db->affected_rows){
+				header('location:'.$_SERVER['HTTP_REFERER']);
+			}
 		}
 	}
 

@@ -7,14 +7,18 @@ if($_POST['submit']){
 	$action = $_POST['action'];
 	$material_typeid = trim($_POST['material_typeid']);
 	$material_name = trim($_POST['material_name']);
-	$standard_stock = trim($_POST['standard_stock']);
+	$unit = trim($_POST['unit']);
 
 	if($action == "add"){
-		$sql = "INSERT INTO `db_other_material_data` (`material_typeid`,`material_name`,`standard_stock`) VALUES ('$material_typeid','$material_name','$standard_stock')";
+		$sql = "INSERT INTO `db_other_material_data` (`material_typeid`,`material_name`,`unit`,`add_time`) VALUES ('$material_typeid','$material_name','$unit',date_format(now(),'%Y-%m-%d %H:%i:$s'))";
 		$db->query($sql);
-		if($db->insert_id){
+		$materialid = $db->insert_id;
+		$specification_sql = "INSERT INTO `db_other_material_specification`(`materialid`,`specification_name`) VALUES('$materialid','无')";
+		$db->query($specification_sql);
+		if($db->affected_rows){
 			header("location:other_material_data.php");
 		}
+		
 	}elseif($action == "edit"){
 		$material_typeid = $_POST['material_typeid'];
 		$material_typestatus = $_POST['material_typestatus'];

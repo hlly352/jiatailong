@@ -5,6 +5,10 @@ require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
 $informationid = $_GET['informationid'];
 $data = $_GET['data'];
+
+
+$isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
+
 //查询对应信息
 $information_sql = "SELECT `{$data}`,`{$data}_name`,`specification_id`,`{$data}_date`,`{$data}_title` FROM `db_technical_information` WHERE `information_id` = '$informationid'";
 
@@ -59,7 +63,13 @@ $data_title = explode('&',$information_info[4]);
         <td width="15"><?php echo $data_name[$k] ?></td>
         <th width="5%">时间：</th>
         <td width="15"><?php echo $data_date[$k] ?></td>
-        <td width="20%"><a href="<?php echo 'http://'.$_SERVER['HTTP_HOST'].substr($v,2) ?>">查看</a>&nbsp;&nbsp;<a href="technical_information_do.php?action=del&informationid=<?php echo $_GET['informationid'] ?>&key=<?php echo $k ?>&data=<?php echo $_GET['data'] ?>">删除</a></td>
+        <td width="20%">
+          <a href="<?php echo 'http://'.$_SERVER['HTTP_HOST'].substr($v,2) ?>">查看</a>
+          &nbsp;&nbsp;
+          <?php if($isadmin == 1){ ?>
+          <a href="technical_information_do.php?action=del&informationid=<?php echo $_GET['informationid'] ?>&key=<?php echo $k ?>&data=<?php echo $_GET['data'] ?>" onclick="javascript:return confirm('确认删除?');">删除</a>
+        <?php }?>
+        </td>
       </tr>
      
      <?php } }?>

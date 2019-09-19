@@ -5,16 +5,9 @@ require_once '../class/page.php';
 require_once 'shell.php';
 $orderid = fun_check_int($_GET['id']);
 $employeeid = $_SESSION['employee_info']['employeeid'];
-//查询计量单位
-$sql_unit = "SELECT `unitid`,`unit_name` FROM `db_unit` ORDER BY `unitid` ASC";
-$result_unit = $db->query($sql_unit);
-if($result_unit->num_rows){
-	while($row_unit = $result_unit->fetch_assoc()){
-		$array_unit[$row_unit['unitid']] = $row_unit['unit_name'];
-	}
-}else{
-	$array_unit = array();
-}
+//查询物料类型
+$sql_type = "SELECT `material_typeid`,`material_typename` FROM `db_other_material_type` ORDER BY `material_typeid`";
+$result_type = $db->query($sql_type);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -149,18 +142,28 @@ $(function(){
 <?php
 $data_source = $_GET['data_source']?trim($_GET['data_source']):'A';
 if($_GET['submit']){
-	$material_name = trim($_GET['material_name']);
-	$specification = trim($_GET['material_specification']);
-	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
+    $material_type = trim($_GET['material_type']);
+    if($material_type){
+        $sqlwhere = ' AND `db_other_material_data`.`material_typeid` ='.$material_type;
+    }
+    $material_name = trim($_GET['material_name']);
+    if($material_name){
+      $sqlwhere .= " AND (`db_mould_other_material`.`material_name` LIKE '%$material_name%' OR `db_other_material_data`.`material_name` LIKE '%$material_name%')";
+    }
+
+    $material_specification = trim($_GET['material_specification']);
+    if($material_specification){
+      $sqlwhere .=  " AND `db_other_material_specification`.`specification_name` LIKE '%$material_specification%'";
+    }
 }
 if($data_source == 'A'){
-	//$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
-	$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `inquiryid` = '$employeeid' AND `status` = 'D'";
+	    $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_name` AS `name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`status` = 'E' AND `db_mould_other_material`.`inquiryid` = '$employeeid' $sqlwhere";
 }elseif($data_source == 'B'){
-	$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `status` = 'D'";
+      $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_name` AS `name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`status` = 'E' $sqlwhere";
 }elseif($data_source == 'C'){
-	$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `status` = 'D' OR `status` = 'B'";
+	      $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_name` AS `name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`status` IN('C','E') $sqlwhere";
 }
+
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
 $sqllist = $sql . " ORDER BY `db_mould_other_material`.`mould_other_id` ASC" . $pages->limitsql;
@@ -171,9 +174,25 @@ $result = $db->query($sqllist);
   <form action="" name="search" method="get">
     <table>
       <tr>
+         <th>类型：</th>
+        <td>
+            <select name="material_type" class="input_txt txt">
+              <option value="">所有</option>
+              <?php
+                if($result_type->num_rows){
+                  while($row = $result_type->fetch_assoc()){
+                    echo '<option value="'.$row['material_typeid'].'">'.$row['material_typename'].'</option>';
+                    $typeid .= $row['material_typeid'].',';
+                  }
+                }
+                
+                $typeid = rtrim($typeid,',');
+              ?>
+            </select>
+        </td>
         <th>物料名称：</th>
         <td><input type="text" name="material_name" class="input_txt" /></td>
-        <th>规格：</th>
+        <th>物料规格：</th>
         <td><input type="text" name="material_specification" class="input_txt" /></td>
         <th>物料来源：</th>
         <td><select name="data_source" id="data_source">
@@ -199,8 +218,6 @@ $result = $db->query($sqllist);
         <th >需求数量</th>
         <th >实际数量</th>
         <th>单位</th>
-        <th>申请人</th>
-        <th>申请部门</th>
         <th width="">单价(含税)</th>
         <th width="">税率</th>
         <th width="">金额(含税)</th>
@@ -220,23 +237,13 @@ $result = $db->query($sqllist);
 	  ?>
       <tr>
         <td><?php echo $row['material_typename']; ?></td>
-        <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
-        <td><?php echo $row['material_specification']; ?></td>
+        <td<?php echo $material_name_bg; ?>><?php echo $row['unit']?$row['material_name']:$row['name']; ?></td>
+        <td><?php echo $row['specification_name']; ?></td>
         <td><input type="text" value="<?php echo $row['quantity']; ?>" name="order_quantity" readonly style="border:none;width:60px" ></td>
         <td>
         	<input type="text" name="actual_quantity[]" id="actual_quantity-<?php echo $row['mould_other_id'] ?>" value="<?php echo $row['material_quantity']; ?>" class="input_txt" size="8" />
         </td>
-        <td><?php echo $row['unit'] ?></td>
-        <td>
-        	<?php
-        		echo getName($row['applyer'],$db);
-        	?>
-        </td>
-        <td>
-			<?php
-				echo $department;
-			?>
-        </td>
+        <td><?php echo $row['unit']?$row['unit']:$row['material_unit'] ?></td>
         <td>
         	<input type="text" id="unit_price-<?php echo $row['mould_other_id'] ?>" name="unit_price[]" class="input_txt" size="8"/>
         </td>
@@ -257,7 +264,8 @@ $result = $db->query($sqllist);
             <?php } ?>
           </select></td>
         <td>
-        	<input type="text" name="plan_date[]" value="<?php echo date('Y-m-d',strtotime($plan_date)); ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="12" />
+        	<?php echo date('Y-m-d',strtotime($plan_date)); ?>
+          <input type="hidden" name="plan_date" value="<?php echo date('Y-m-d',strtotime($plan_date)) ?>" />
         </td>
         <td><input type="text" name="remark[]" class="input_txt" size="12" />
           <input type="hidden" name="materialid[]" value="<?php echo $row['mould_other_id']; ?>" /></td>

@@ -87,7 +87,7 @@
 				$sql = "UPDATE `db_technical_information` SET `mould_data` = CONCAT_WS('&',`mould_data`,'$file_path'),`mould_data_name` = CONCAT_WS('&',`mould_data_name`,'$file_name'),`mould_data_date` = CONCAT_WS('&',`mould_data_date`,'$date'),`mould_data_title` = CONCAT_WS('&',`mould_data_title`,'$title') WHERE `information_id` = '$informationid'";
 			break;
 			case 'flow':
-				$sql = "UPDATE `db_technical_information` SET `flow` = CONCAT_WS('&',`flow`,'$file_path'),`mouldflow` = CONCAT_WS('&',`flow_name`,'$file_name'),`flow_date` = CONCAT_WS('&',`flow_date`,'$date'),`flow_title` = CONCAT_WS('&',`flow_title`,'$title') WHERE `information_id` = '$informationid'";
+				$sql = "UPDATE `db_technical_information` SET `flow` = CONCAT_WS('&',`flow`,'$file_path'),`flow_name` = CONCAT_WS('&',`flow_name`,'$file_name'),`flow_date` = CONCAT_WS('&',`flow_date`,'$date'),`flow_title` = CONCAT_WS('&',`flow_title`,'$title') WHERE `information_id` = '$informationid'";
 			break;
 			case 'report':
 				$sql = "UPDATE `db_technical_information` SET `report` = CONCAT_WS('&',`report`,'$file_path'),`report_name` = CONCAT_WS('&',`report_name`,'$file_name'),`report_date` = CONCAT_WS('&',`report_date`,'$date'),`report_title` = CONCAT_WS('&',`report_title`,'$title') WHERE `information_id` = '$informationid'";
@@ -99,7 +99,7 @@
 				$sql = "UPDATE `db_technical_information` SET `drawing` = CONCAT_WS('&',`drawing`,'$file_path'),`drawing_name` = CONCAT_WS('&',`drawing_name`,'$file_name'),`drawing_date` = CONCAT_WS('&',`drawing_date`,'$date'),`drawing_title` = CONCAT_WS('&',`drawing_title`,'$title') WHERE `information_id` = '$informationid'";
 			break;
 		}
-		
+
 	$db->query($sql);
 	if($db->affected_rows){
 		header('location:technical_information.php');

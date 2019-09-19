@@ -4,22 +4,37 @@ require_once '../function/function.php';
 require_once '../config/config.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+$employeeid = $_SESSION['employee_info']['employeeid'];
 //查询部门
 $sql_department = "SELECT `deptid`,`dept_name` FROM `db_department` ORDER BY `deptid` ASC";
 $result_department = $db->query($sql_department);
+//获取所有物料类型
+$sql_type = "SELECT `material_typeid`,`material_typename` FROM `db_other_material_type` ORDER BY `material_typeid`";
+$result_type = $db->query($sql_type);
 if($_GET['submit']){
-    $material_name = trim($_GET['material_name']);
-    $material_specification = trim($_GET['material_specification']);
-    $apply_team = trim($_GET['apply_team']);
     $material_type = trim($_GET['material_type']);
+    if($material_type){
+        $sqlwhere = ' AND `db_other_material_data`.`material_typeid` ='.$material_type;
+    }
+    $material_name = trim($_GET['material_name']);
+    if($material_name){
+      $sqlwhere .= " AND (`db_mould_other_material`.`material_name` LIKE '%$material_name%' OR `db_other_material_data`.`material_name` LIKE '%$material_name%')";
+    }
 
-   $sqlwhere = " AND `material_name` LIKE '%$material_name%' AND `material_specification` LIKE '%$material_specification%' AND `material_type` LIKE '%$material_type%' AND `apply_team` LIKE '%$apply_team%'";
+    $material_specification = trim($_GET['material_specification']);
+    if($material_specification){
+      $sqlwhere .=  " AND `db_other_material_specification`.`specification_name` LIKE '%$material_specification%'";
+    }
+
+    $apply_team = trim($_GET['apply_team']);
+   $sqlwhere .= " AND `apply_team` LIKE '%$apply_team%' $sqltype";
 }
 
-$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` WHERE `status`='D' $sqlwhere";
+    $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_name` AS `name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`status` = 'E' AND `db_mould_other_material`.`inquiryid` = '$employeeid' AND `db_mould_other_material`.`mould_other_id` NOT IN(SELECT `materialid` FROM `db_other_material_orderlist`) $sqlwhere";
+
 $result = $db->query($sql);
 $result_id = $db->query($sql);
-$_SESSION['mould_material_list'] = $sql;
+$_SESSION['other_material_inquiry'] = $sql;
 $pages = new page($result->num_rows,20);
 $sqllist = $sql . " ORDER BY `db_mould_other_material`.`add_time` DESC" . $pages->limitsql;
 $_SESSION['excel_other_inquiry_material'] = $sqllist;
@@ -44,6 +59,22 @@ $result = $db->query($sqllist);
   <form action="" name="search" method="get">
     <table>
       <tr>
+        <th>类型：</th>
+        <td>
+            <select name="material_type" class="input_txt txt">
+              <option value="">所有</option>
+              <?php
+                if($result_type->num_rows){
+                  while($row = $result_type->fetch_assoc()){
+                    echo '<option value="'.$row['material_typeid'].'">'.$row['material_typename'].'</option>';
+                    $typeid .= $row['material_typeid'].',';
+                  }
+                }
+                
+                $typeid = rtrim($typeid,',');
+              ?>
+            </select>
+        </td>
         <th>物料名称：</th>
         <td><input type="text" name="material_name" class="input_txt" /></td>
         <th>物料规格：</th>
@@ -61,20 +92,9 @@ $result = $db->query($sqllist);
               ?>
           </select>
         </td>
-        <th>类型：</th>
         <td>
-            <select name="material_type" class="input_txt txt">
-              <option value="">所有</option>
-              <?php
-              foreach($array_mould_other_material as $key=>$value){
-                echo "<option value=\"".$key."\">".$value."</option>";
-                }
-              ?>
-            </select>
-        </td>
-        <td>
-            <input type="submit" name="submit" value="查询" class="button" />
-            <!-- <input type="button"  name="button" value="导出" class="button" onclick="location.href='excel_other_inquiry_material.php'" /> -->
+          <input type="submit" name="submit" value="查询" class="button" />
+          <input type="button" value="导出" class="button" onclick="window.location.href='excel_other_inquiry_material.php'"/>
         </td>
       </tr>
     </table>
@@ -101,33 +121,19 @@ $result = $db->query($sqllist);
     <table>
        <tr>
         <th width="">ID</th>
-        <th width="">申请日期</th>
+        <th width="">申购日期</th>
         <th width="">需求日期</th>
         <th width="">物料类型</th>
         <th width="">物料名称</th>
         <th width="">物料规格</th>
-        <th width="">申购量</th>
+        <th width="">申购数量</th>
         <th width="">单位</th>
-        <th width="">库存量</th>
-        <th width="">申请人</th>
-        <th width="">申请部门</th>
+        <th width="">部门</th>
         <th width="">备注</th>
-        <th width="5%">状态</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-        //查询组别
-        $sql_department = "SELECT `dept_name` FROM `db_department` WHERE `deptid`=".$row['apply_team'];
-        $result_department = $db->query($sql_department);
-        if($result_department->num_rows){
-          $apply_team = $result_department->fetch_row();
-        }
-      //查询申请人
-       $sql_applyer = "SELECT `employee_name` FROM `db_employee` WHERE `employeeid`=".$row['applyer'];
-       $result_applyer = $db->query($sql_applyer);
-       if($result_applyer->num_rows){
-        $applyer = $result_applyer->fetch_row();
-       }
+       
        //如果是未审批状态，则可以点击审批
        if($row['status'] == 'A'){
         $status = '<a href="mould_other_material_apply.php?action=edit&id='.$row['mould_other_id'].'">'.$array_mould_material_status[$row['status']].'</a>';
@@ -136,21 +142,18 @@ $result = $db->query($sqllist);
        }
 	  ?>
    <tr>
-        <td>
+       <td>
             <input type="checkbox" name="id[]" value="<?php echo $row['mould_other_id']; ?>"<?php if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> />
         </td>
         <td><?php echo $row['apply_date']; ?></td>
         <td><?php echo $row['requirement_date']; ?></td>
         <td><?php echo $row['material_typename']; ?></td>
-        <td><?php echo $row['material_name']; ?></td>
-        <td><?php echo $row['material_specification']; ?></td>
+        <td><?php echo $row['unit']?$row['material_name']:$row['name']; ?></td>
+        <td><?php echo $row['specification_name']; ?></td>
         <td><?php echo $row['quantity'] ?></td>
-        <td><?php echo $row['unit']; ?></td>
-        <td><?php echo $row['stock']; ?></td>
-        <td><?php echo $applyer[0]; ?></td>
-        <td><?php echo $apply_team[0]; ?></td>
+        <td><?php echo $row['unit']?$row['unit']:$row['material_unit']; ?></td>
+        <td><?php echo $row['dept_name']; ?></td>
         <td><?php echo $row['remark']; ?></td>
-        <td><?php echo $status ?></td>
       </tr>
       <?php } ?>
     </table>

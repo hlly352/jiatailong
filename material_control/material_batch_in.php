@@ -137,7 +137,7 @@ $(function(){
 		  $amount = round($row['unit_price']*$inout_quantity,2);
 	  ?>
       <tr>
-        <td><?php echo $row['order_number']; ?></td>
+        <td><?php echo $row['listid']; ?></td>
         <td><?php echo $row['mould_number']; ?></td>
         <td><?php echo $row['material_name']; ?></td>
         <td><?php echo $row['specification']; ?></td>

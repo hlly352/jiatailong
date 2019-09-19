@@ -214,65 +214,34 @@ function show($row,$from){
     }else{
       $array_mould_material = array();
     }
-
     //print_r($array_mould_material);
   ?>
   <form action="moulddo.php" name="mould_list" method="post">
     <table>
       <tr>
-        <th rowspan="2" width="2%">ID</th>
-        <th rowspan="2" width="2%">代码</th>
+        <th rowspan="2" width="3%">ID</th>
+        <th rowspan="2" width="3%">代码</th>
         <th rowspan="2" width="4%">项目名称</th>
-        <th rowspan="2" width="4%" >模具编号</th>
-        <th rowspan="2" width="4%">零件名称</th>
-        <th rowspan="2" width="4%">零件图片</th>
-      <?php if($isconfirm == 1||$isadmin == 1){ ?>
-        <th colspan="4">技术资料</th>
-        <?php }?>
-        <th colspan="4">项目启动会</th>
-        <th colspan="3">设计输出</th>
-        <th colspan="4">加工制造</th>
-        <th colspan="3">模具试模</th>
-        <th colspan="3">品质控制</th>
-        <th colspan="2">模具修改</th>
-        <th colspan="6">模具交付及售后</th>
-        <th>项目总结</th>
+        <th rowspan="2" width="5%" >模具编号</th>
+        <th rowspan="2" width="6%">零件名称</th>
+        <th rowspan="2" width="6%">零件图片</th>
+        <?php if($isconfirm == 1 || $isadmin == 1){ ?>
+          <th colspan="3" width="6%">客户</th>
+        <?php } ?>
+        <th colspan="4" width="4%">内部</th>
         <!-- <th rowspan="2" width="4%">目前状态</th> -->
-        <th rowspan="2">操作</th>
+        <th rowspan="2" width="4%">操作</th>
       </tr>
       <tr>
         <?php if($isconfirm == 1 || $isadmin == 1){ ?>
-        <th>客户<br/>项目<br />资料</th>
-        <th>客户<br/>模具<br />资料</th>
-        <th>客户<br/>2D<br />图纸</th>
+        <th width="4%">项目资料</th>
+        <th width="4%">模具资料</th>
+        <th width="4%">2D图纸</th>
         <?php } ?>
-        <th>模具<br>规格书</th>
-        <th>评审<br />记录</th>
-        <th>DFM<br />报告</th>
-        <th>进度<br />规划</th>
-        <th>客户<br />确认</th>
-        <th>设计<br/>计划</th>
-        <th>设计<br/>评审</th>
-        <th>图纸<br/>联络单</th>
-        <th>加工<br/>工艺</th>
-        <th>加工<br/>计划</th>
-        <th>红丹<br/>照片</th>
-        <th>装模前<br/>检查<br/>报告</th>
-        <th>机上<br/>红丹<br/>照片</th>
-        <th>走水板<br/>样品<br/>照片</th>
-        <th>试模<br/>报告</th>
-        <th>零件<br/>检测<br/>报告</th>
-        <th>产品<br/>检测<br/>报告</th>
-        <th>出错<br/>报告</th>
-        <th>客户<br/>改模<br />资料</th>
-        <th>内部<br />改模<br/>资料</th>
-        <th>客户<br />确认</th>
-        <th>出厂<br />检查表</th>
-        <th>装箱<br />装车<br />照片</th>
-        <th>放行<br />送货单</th>
-        <th>售后<br />服务表</th>
-        <th>客户<br />交付<br />指示</th>
-        <th>总结<br />报告</th>
+        <th width="4%">跟进流程</th>
+        <th width="4%">总结报告</th>
+        <th width="4%">设计标准</th>
+        <th width="4%">模具规格书</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
@@ -337,33 +306,6 @@ function show($row,$from){
           <?php echo show($row,'drawing'); ?>
         </td>
       <?php } ?>
-        <td class="detail">
-          查看
-        <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
-        </td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
         <td>
           <?php echo show($row,'flow'); ?>
         </td>
@@ -373,6 +315,13 @@ function show($row,$from){
         <td>
           <?php echo show($row,'standard'); ?>
         </td>
+        <td class="detail">
+          查看
+        <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
+        </td>
+      <!--  <td>
+          
+        </td> -->
         <td><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
       </tr>
       <?php } ?>

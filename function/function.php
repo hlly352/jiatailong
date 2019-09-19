@@ -220,4 +220,49 @@ function getName($id,$db){
 		return $employee_name;
 	}
 }
+//查询员工上级领导
+function approver($db,$applyerid){
+		//查询审批人
+		$sql_employee = "SELECT `position_type` FROM `db_employee` WHERE `employeeid` = '$applyerid'";
+		$result_employee = $db->query($sql_employee);
+		
+		if($result_employee->num_rows){
+			$array_employee = $result_employee->fetch_assoc();
+			$position_type = $array_employee['position_type'];
+			if($position_type != 'A'){
+				if($position_type == 'D'){
+					$sql_super ="SELECT `db_superior`.`position_type`,`db_employee`.`superior` FROM `db_employee` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` =".$applyerid;
+					$result_super = $db->query($sql_super);
+					if($result_super->num_rows){
+						$array_superior = $result_super->fetch_assoc();
+						$position_types = $array_superior['position_type'];
+						$employeeid = $array_superior['superior'];
+						
+							}
+						if($position_types == 'D'){
+
+							$sql ="SELECT `db_superior`.`position_type`,`db_employee`.`superior` FROM `db_employee` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` =".$applyerid;
+							$result = $db->query($sql);
+							if($result->num_rows){
+									$array_superior = $result->fetch_assoc();
+									$position_type = $array_superior['position_type'];
+									$employeeid = $array_superior['superior'];
+									
+								}
+							}
+				} else{
+					$sql_superior ="SELECT `db_superior`.`position_type`,`db_employee`.`superior` FROM `db_employee` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` =".$applyerid;
+					$result_superior = $db->query($sql_superior);
+					if($result_superior->num_rows){
+						$array_superior = $result_superior->fetch_assoc();
+						$position_type = $array_superior['position_type'];
+
+					}
+					$employeeid = $array_superior['superior'];
+				}
+			}
+			$approver = $array_superior['superior']?$array_superior['superior']:$employeeid;
+		}
+		return $approver;
+}
 ?>

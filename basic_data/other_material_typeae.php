@@ -2,7 +2,8 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
-$action = fun_check_action($_GET['action']);
+$action = $_GET['action'];
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -75,7 +76,44 @@ $(function(){
     </table>
   </form>
   <?php
-  }elseif($action == "edit"){
+    }elseif($action == "specification"){
+      $id = $_GET['id'];
+      //查找物料名称
+      $sql = "SELECT * FROM `db_other_material_data` WHERE `dataid` = '$id'";
+      $result = $db->query($sql);
+      if($result->num_rows){
+        $row = $result->fetch_assoc();
+      }
+  ?>
+      <h4>物料规格添加</h4>
+    <form action="other_material_typedo.php" name="" method="post">
+      <table>
+        <tr>
+          <th width="20%">物料名称：</th>
+          <td width="80%">
+            <?php echo $row['material_name'] ?>
+            <!-- <span class="tag"> *必填,如0，1</span></td> -->
+        </tr>
+        <tr>
+          <th>物料规格：</th>
+          <td>
+              <textarea name="specification" rows="5" cols="20">
+                
+              </textarea>
+            <br>
+            <span class="tag">多种规格中间用“|”隔开</span></td>
+        </tr>
+        <tr>
+          <th>&nbsp;</th>
+          <td><input type="submit" name="submit" id="submits" value="确定" class="button" />
+            <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
+            <input type="hidden" name="materialid" value="<?php echo $_GET['id'] ?>"/>
+            <input type="hidden" name="action" id="action" value="<?php echo $action; ?>" /></td>
+        </tr>
+      </table>
+    </form>
+  <?php
+    }elseif($action == "edit"){
 	  $material_typeid = fun_check_int($_GET['id']);
 	  $sql = "SELECT * FROM `db_other_material_type` WHERE `material_typeid` = '$material_typeid'";
 	  $result = $db->query($sql);

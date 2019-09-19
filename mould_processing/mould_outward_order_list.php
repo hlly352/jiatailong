@@ -30,13 +30,12 @@ if($_GET['submit']){
   $material_name = trim($_GET['material_name']);
   $specification = trim($_GET['specification']);
   $outward_typeid = trim($_GET['outward_typeid']);
-  $sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_outward_order`.`outward_typeid` LIKE '%$outward_typeid%'";
+  $sqlwhere = " AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_outward_order`.`outward_typeid` LIKE '%$outward_typeid%'";
 }
-$sql = "SELECT ```db_outward_order_list`.`listid`,`db_outward_order_list`.`order_quantity`,`db_outward_order_list`.`unit_price`,`db_outward_order_list`.`amount`,`db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code` FROM `db_outward_order_list` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_outward_order` ON `db_outward_order`.`orderid` = `db_outward_order_list`.`orderid` INNER JOIN `db_mould_outward_type` ON `db_mould_outward_type`.`outward_typeid` = `db_outward_order`.`outward_typeid` WHERE `db_outward_order`.`order_status` = '1'  $sqlwhere ";
-
+$sql = "SELECT `db_outward_order_list`.`listid`,`db_outward_order_list`.`order_quantity`,`db_outward_order_list`.`unit_price`,`db_outward_order_list`.`amount`,`db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould_specification`.`mould_no`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code`,`db_mould_outward_type`.`outward_typename` FROM `db_outward_order_list` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_order_list`.`materialid` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_material`.`mouldid` INNER JOIN `db_outward_order` ON `db_outward_order`.`orderid` = `db_outward_order_list`.`orderid` INNER JOIN `db_mould_outward_type` ON `db_mould_outward_type`.`outward_typeid` = `db_mould_material`.`outward_typeid` WHERE `db_outward_order`.`order_status` = '1'  $sqlwhere ";
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql." ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC".$pages->limitsql;
+$sqllist = $sql." ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_material`.`materialid` ASC".$pages->limitsql;
 
 $result = $db->query($sqllist);
 ?>
@@ -86,7 +85,7 @@ $result = $db->query($sqllist);
         <th width="">物料名称</th>
         <th width="">规格</th>
         <th width="">材质</th>
-        <th width="">数量</th>
+        <th width="">加工类型</th>
         <th width="">加工数量</th>
         <th width="">单价</th>
         <th width="">金额</th>
@@ -102,14 +101,14 @@ $result = $db->query($sqllist);
         <td>
           <input type="checkbox" name="id[]" value="<?php echo $listid; ?>"<?php //if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> />
         </td>
-        <td><?php echo $row['mould_number']; ?></td>
+        <td><?php echo $row['mould_no']; ?></td>
         <td><?php echo $row['material_list_number']; ?></td>
         <td><?php echo $row['material_list_sn']; ?></td>
         <td><?php echo $row['material_number']; ?></td>
         <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
         <td<?php echo $specification_bg; ?>><?php echo $row['specification'] ?></td>
         <td><?php echo $row['texture']; ?></td>
-        <td><?php echo $row['material_quantity']; ?></td>
+        <td><?php echo $row['outward_typename']; ?></td>
         <td><?php echo $row['order_quantity'] ?></td>
         <td><?php echo $row['unit_price'] ?></td>
         <td><?php echo $row['amount'] ?></td>

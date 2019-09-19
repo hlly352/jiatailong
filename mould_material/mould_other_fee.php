@@ -7,26 +7,38 @@ require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
+
+$isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
 $before_date = strtotime($sdate);
 $after_date  = strtotime($edate);
 //查询部门
 $sql_department = "SELECT `deptid`,`dept_name` FROM `db_department` ORDER BY `deptid` ASC";
 $result_department = $db->query($sql_department);
+//查找最终审批人的id
+$sql_approver = "SELECT `employeeid` FROM `db_employee` WHERE `employee_name` LIKE '%何志武%'";
+$result_approver = $db->query($sql_approver);
+if($result_approver->num_rows){
+  $approverid = $result_approver->fetch_row()[0];
+}
 if($_GET['submit']){
     $material_name = trim($_GET['material_name']);
     $material_specification = trim($_GET['material_specification']);
     $apply_team = trim($_GET['apply_team']);
     $material_type = trim($_GET['material_type']);
 
-	 $sqlwhere = " WHERE `material_name` LIKE '%$material_name%' AND `material_specification` LIKE '%$material_specification%' AND `material_type` LIKE '%$material_type%' AND `apply_team` LIKE '%$apply_team%' AND (`add_time` BETWEEN '$before_date' AND '$after_date')";
+	 $sqlwhere = " AND `db_other_material_data`.`material_name` LIKE '%$material_name%' AND `db_mould_other_material``material_name` LIKE '%$material_name%' AND `db_other_material_specification`.`specification_name` LIKE '%$material_specification%' AND `material_type` LIKE '%$material_type%' AND `apply_team` LIKE '%$apply_team%' AND (`add_time` BETWEEN '$before_date' AND '$after_date')";
+}
+if($isadmin == 1){
+  $sql = "SELECT *,`db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_mould_other_material`.`material_name`,`db_other_material_specification`.`specification_name`,`db_other_material_data`.`material_name` AS `name`,`db_mould_other_material`.`unit` AS `material_unit` FROM `db_mould_other_material`  LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`applyer` != 0 $sqlwhere";
+}else{
+  $sql = "SELECT *,`db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_mould_other_material`.`material_name`,`db_other_material_specification`.`specification_name`,`db_other_material_data`.`material_name` AS `name`,`db_mould_other_material`.`unit` AS `material_unit` FROM `db_mould_other_material`  LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE (`db_mould_other_material`.`applyer` = '$employeeid' OR `db_mould_other_material`.`approver` = '$employeeid') $sqlwhere";
 }
 
-$sql = "SELECT * FROM `db_mould_other_material` INNER JOIN `db_other_material_type` ON `db_mould_other_material`.`material_type` = `db_other_material_type`.`material_typeid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid` $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould_other_material'] = $sql;
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . "ORDER BY `add_time` DESC" . $pages->limitsql;
+$sqllist = $sql . "ORDER BY `db_mould_other_material`.`add_time` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -136,12 +148,6 @@ $result = $db->query($sqllist);
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-        //获取当前物料的审批人
-        if($row['approver'] == $employeeid){
-          $approver = true;
-        } else {
-          $approver = false;
-        }
         //查询组别
         $sql_department = "SELECT `dept_name` FROM `db_department` WHERE `deptid`=".$row['apply_team'];
         $result_department = $db->query($sql_department);
@@ -155,11 +161,27 @@ $result = $db->query($sqllist);
         $applyer = $result_applyer->fetch_row();
        }
        //如果是未审批状态，则可以点击审批
-       if($row['status'] == 'A' && $approver){
-         $status = '<a href="mould_other_material_apply.php?action=edit&id='.$row['mould_other_id'].'">'.$array_mould_material_status[$row['status']].'</a>';
-       } else {
-        $status = $array_mould_material_status[$row['status']];
-       }
+        switch ($row['status'])
+          {
+            case 'A':
+              if($row['approver'] == $employeeid && $row['approver'] != $approverid){
+                $status = '<a href="mould_other_material_apply.php?to=B&action=edit&id='.$row['mould_other_id'].'">审核</a>';
+              }elseif($row['approver'] == $approverid && $employeeid == $approverid){
+                $status = '<a href="mould_other_material_apply.php?to=C&action=edit&id='.$row['mould_other_id'].'">审批</a>';
+              }else{
+                $status = '待审核';
+              }
+            break;
+            case 'B':
+              if($employeeid == $approverid){
+                $status = '<a href="mould_other_material_apply.php?to=C&action=edit&id='.$row['mould_other_id'].'">审批</a>';
+              }else{
+                $status = '待审批';
+              }
+            break;
+            default;
+              $status = $array_mould_material_status[$row['status']];
+          }
 	  ?>
       <tr>
         <td>
@@ -168,10 +190,10 @@ $result = $db->query($sqllist);
         <td><?php echo $row['apply_date']; ?></td>
         <td><?php echo $row['requirement_date']; ?></td>
         <td><?php echo $row['material_typename']; ?></td>
-        <td><?php echo $row['material_name']; ?></td>
-        <td><?php echo $row['material_specification']; ?></td>
+        <td><?php echo is_numeric($row['material_name'])?$row['name']:$row['material_name']; ?></td>
+        <td><?php echo $row['specification_name']; ?></td>
         <td><?php echo $row['quantity'] ?></td>
-        <td><?php echo $row['unit']; ?></td>
+        <td><?php echo $row['material_unit']?$row['material_unit']:$row['unit']; ?></td>
         <td><?php echo $row['stock']; ?></td>
         <td><?php echo $applyer[0]; ?></td>
         <td><?php echo $apply_team[0]; ?></td>
