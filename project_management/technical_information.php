@@ -92,6 +92,17 @@ function show($row,$from){
           // }
          return $str;
 }
+//显示所有有信息的资料
+function display($row,$array_project_data_type,$index){
+        	foreach($array_project_data_type[$index][1] as $k=>$v){
+        		if(!empty($row[$k])){
+        			$str .= '<td><a href="technical_data_list.php?action=show&data='.$k.'&informationid='.$row['information_id'].'"><img src="../images/system_ico/article_12_16.png" /></a></td>';	
+        		}else{
+        			$str .= '<td></td>';
+        		}
+        	}
+        	return $str;
+        }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -104,6 +115,22 @@ function show($row,$from){
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script type="text/javascript">
   $(function(){
+  	var num = $('.trs').size();
+  	var tr = $('.trs');
+  	for(var i=0;i<num;i++){
+  		var td_num = tr.eq(i).children('td').not('.default').size();
+  		var td = tr.eq(i).children('td').not('.default');
+  		for(var j=0;j<td_num;j++){
+  			if(td.eq(j).children().size()>0){
+  				var last = td.eq(j);
+  			}
+  		} 
+  		last.prevAll().not('.default').css('background','yellow');
+  		
+  	}
+
+  	
+  
     //鼠标滑过
     $('.detail').css('color','blue').hover(function(){
         $(this).css('cursor','pointer');
@@ -317,17 +344,16 @@ function show($row,$from){
         $mould_status = $result_status->fetch_assoc()['mould_statusname'];
       }
     ?>
-      <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $mouldid; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
-        <td><?php echo $row['customer_code']; ?></td>
-        <td><?php echo $row['project_name']; ?></td>
-        <td ><!-- <?php if($_SESSION['system_shell'][$system_dir]['isadmin']){ ?><a href="mouldae.php?id=<?php echo $mouldid; ?>&action=edit"><?php echo $row['mould_number']; ?></a><?php }else{ echo $row['mould_number']; }; ?> -->
+      <tr class="trs">
+        <td class="default"><input type="checkbox" name="id[]" value="<?php echo $mouldid; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
+        <td class="default"><?php echo $row['customer_code']; ?></td>
+        <td class="default"><?php echo $row['project_name']; ?></td>
+        <td class="default" ><!-- <?php if($_SESSION['system_shell'][$system_dir]['isadmin']){ ?><a href="mouldae.php?id=<?php echo $mouldid; ?>&action=edit"><?php echo $row['mould_number']; ?></a><?php }else{ echo $row['mould_number']; }; ?> -->
           <?php echo $row['mould_no'] ?>
         </td>
-        <td><?php echo $row['mould_name']; ?></td>
-        <td class="img"><?php echo $image_file; ?></td>
-        <?php if($isconfirm == 1 || $isadmin == 1){ ?>
-        <td>
+        <td class="default"><?php echo $row['mould_name']; ?></td>
+        <td class="img default"><?php echo $image_file; ?></td>
+       <!--  <td>
           <?php echo show($row,'project_data') ?>
         </td>
         <td>
@@ -335,12 +361,15 @@ function show($row,$from){
         </td>
         <td>
           <?php echo show($row,'drawing'); ?>
-        </td>
-      <?php } ?>
+        </td> -->
+        <?php if($isconfirm == 1 || $isadmin == 1){ 
+         	echo display($row,$array_project_data_type,0);
+     		} ?>
         <td class="detail">
           查看
-        <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
+        	<input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
+        <?php echo display($row,$array_project_data_type,1); ?>
         <td></td>
         <td></td>
         <td></td>
@@ -348,23 +377,18 @@ function show($row,$from){
         <td></td>
         <td></td>
         <td></td>
+        <?php
+        	echo display($row,$array_project_data_type,2);
+        ?>
         <td></td>
         <td></td>
         <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td>
+        <?php
+        	echo display($row,$array_project_data_type,3);
+        	echo display($row,$array_project_data_type,4);
+        	echo display($row,$array_project_data_type,5);
+        ?>
+        <!-- <td>
           <?php echo show($row,'flow'); ?>
         </td>
         <td>
@@ -372,8 +396,9 @@ function show($row,$from){
         </td>
         <td>
           <?php echo show($row,'standard'); ?>
-        </td>
-        <td><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
+        </td> -->
+       <td class="default"><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a>
+       </td> 
       </tr>
       <?php } ?>
     </table>

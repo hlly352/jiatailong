@@ -7,9 +7,9 @@
     <li class="menulevel"><a href="project_summary.php">项目汇总</a></li>
     <!-- <li class="menulevel"><a href="mould.php">项目汇总(旧)</a></li> -->
     <li class="menulevel"><a href="technical_information.php">项目信息</a></li>
+    <li class="menulevel"><a href="technical_info.php">技术资料</a></li>
     <li class="menulevel"><a href="#">项目启动会</a>
       <ul>
-        <li><a href="technical_info.php">技术资料</a></li>
         <li><a href="#">评审记录</a></li>
         <li><a href="#">DFM报告</a></li>
         <li><a href="#">进度规划</a></li>

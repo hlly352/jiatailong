@@ -18,8 +18,8 @@
 	}
 	if($action == 'add'){
 	//获取上传的文件类型
-	$file_type = $_POST['file_type'];
-	$mouldid = $_POST['mouldid'];
+	$file_type = $_POST['data_type'];
+	$doc_type = $_POST['doc_type'];
 	$title = $_POST['title'];
 	$specification_id = $_POST['specification_id'];
 	//查找是否有信息
@@ -27,13 +27,18 @@
 	$result_exists = $db->query($is_exists_sql);
 	$is_exists = $result_exists->num_rows;
 	if($is_exists == 0){
-		$sql = "INSERT INTO `db_technical_information`(`mouldid`,`specification_id`) VALUES('$mouldid','$specification_id')";
+		$sql = "INSERT INTO `db_technical_information`(`specification_id`) VALUES('$specification_id')";
 		$db->query($sql);
 		if($db->affected_rows){
 			$informationid = $db->insert_id;
 		}
 	}else{
 		$informationid = $result_exists->fetch_assoc()['information_id'];
+	}
+	//限制上传文件的大小
+	if($_FILES['file']['size'] > 106132773 || $_FILES['file']['size'] == 0){
+		echo '文件超大，请重新上传<a href="technical_information_edit.php?action=add&from=technology&specification_id='.$specification_id.'">返回</a>';
+		return false;
 	}
 	//上传文件
 	if($_FILES['file']['name']){
@@ -46,60 +51,46 @@
 		    $file_name = $array_upload_file['upload_name'];
 		}
 		$date = date('Y-m-d');
+		$data_info = $title.'#'.$file_name.'#'.$date.'#'.$file_type;
 	//把地址填入到对应的表中
-	switch($file_type)
-		{
-			case 'project_data':
-				//搜索已有的资料id
-				$info_sql = "SELECT `specification_id` FROM `db_technical_information`";
-				$result_info = $db->query($info_sql);
-				if($result_info->num_rows){
-					$arr_info = array();
-					while($row_info = $result_info ->fetch_assoc()){
-						$arr_info[] = $row_info['specification_id'];
-					}
-				}
-				//查找当前项目的所有模具
-				$keyword_sql = "SELECT `db_mould_specification`.`project_name` FROM `db_mould_specification` INNER JOIN `db_technical_information` ON `db_technical_information`.`specification_id` = `db_mould_specification`.`mould_specification_id` WHERE `db_technical_information`.`information_id` = '$informationid'";
-				$result_keyword = $db->query($keyword_sql);
-				if($result_keyword->num_rows){
-					$keyword = $result_keyword->fetch_row()[0];
-				}
-				$project_sql = "SELECT `db_mould_specification`.`mould_specification_id`,`mould_id` FROM `db_mould_specification` WHERE `project_name` LIKE '%$keyword%'";
-				$result_project = $db->query($project_sql);
-				if($result_project->num_rows){
-					$array_specification_id = array();
-					while($row = $result_project->fetch_assoc()){
-						$array_specification_id[] = $row['mould_specification_id'];
-						$specification_ids = $row['mould_specification_id'];
-						//新建技术资料
-						if(!in_array($specification_ids,$arr_info)){
-							$information_sql = "INSERT INTO `db_technical_information`(`specification_id`,`mouldid`) VALUES('".$row['mould_specification_id']."','".$row['mould_id']."')";
-							$db->query($information_sql);
-						}
-					}
-				}
-				$specification_id_str = fun_convert_checkbox($array_specification_id);
-				$sql = "UPDATE `db_technical_information` SET `project_data` = CONCAT_WS('&',`project_data`,'$file_path'),`project_data_name` = CONCAT_WS('&',`project_data_name`,'$file_name'),`project_data_date` = CONCAT_WS('&',`project_data_date`,'$date'),`project_data_title` = CONCAT_WS('&',`project_data_title`,'$title') WHERE  FIND_IN_SET(specification_id,'$specification_id_str')";
-		
-			break;
-			case 'mould_data':
-				$sql = "UPDATE `db_technical_information` SET `mould_data` = CONCAT_WS('&',`mould_data`,'$file_path'),`mould_data_name` = CONCAT_WS('&',`mould_data_name`,'$file_name'),`mould_data_date` = CONCAT_WS('&',`mould_data_date`,'$date'),`mould_data_title` = CONCAT_WS('&',`mould_data_title`,'$title') WHERE `information_id` = '$informationid'";
-			break;
-			case 'flow':
-				$sql = "UPDATE `db_technical_information` SET `flow` = CONCAT_WS('&',`flow`,'$file_path'),`flow_name` = CONCAT_WS('&',`flow_name`,'$file_name'),`flow_date` = CONCAT_WS('&',`flow_date`,'$date'),`flow_title` = CONCAT_WS('&',`flow_title`,'$title') WHERE `information_id` = '$informationid'";
-			break;
-			case 'report':
-				$sql = "UPDATE `db_technical_information` SET `report` = CONCAT_WS('&',`report`,'$file_path'),`report_name` = CONCAT_WS('&',`report_name`,'$file_name'),`report_date` = CONCAT_WS('&',`report_date`,'$date'),`report_title` = CONCAT_WS('&',`report_title`,'$title') WHERE `information_id` = '$informationid'";
-			break;
-			case 'standard':
-				$sql = "UPDATE `db_technical_information` SET `standard` = CONCAT_WS('&',`standard`,'$file_path'),`standard_name` = CONCAT_WS('&',`standard_name`,'$file_name'),`standard_date` = CONCAT_WS('&',`standard_date`,'$date'),`standard_title` = CONCAT_WS('&',`standard_title`,'$title') WHERE `information_id` = '$informationid'";
-			break;
-			case 'drawing':
-				$sql = "UPDATE `db_technical_information` SET `drawing` = CONCAT_WS('&',`drawing`,'$file_path'),`drawing_name` = CONCAT_WS('&',`drawing_name`,'$file_name'),`drawing_date` = CONCAT_WS('&',`drawing_date`,'$date'),`drawing_title` = CONCAT_WS('&',`drawing_title`,'$title') WHERE `information_id` = '$informationid'";
-			break;
+	if($doc_type == 'project_data' || $doc_type == 'project_sum'){
+		//搜索已有的资料id
+		$info_sql = "SELECT `specification_id` FROM `db_technical_information`";
+		$result_info = $db->query($info_sql);
+		if($result_info->num_rows){
+			$arr_info = array();
+			while($row_info = $result_info ->fetch_assoc()){
+				$arr_info[] = $row_info['specification_id'];
+			}
 		}
-
+	//查找当前项目的项目名称
+		$keyword_sql = "SELECT `db_mould_specification`.`project_name` FROM `db_mould_specification` INNER JOIN `db_technical_information` ON `db_technical_information`.`specification_id` = `db_mould_specification`.`mould_specification_id` WHERE `db_technical_information`.`information_id` = '$informationid'";
+		$result_keyword = $db->query($keyword_sql);
+		if($result_keyword->num_rows){
+			$keyword = $result_keyword->fetch_row()[0];
+			}
+	//当前项目的所有项目
+		$project_sql = "SELECT `db_mould_specification`.`mould_specification_id` FROM `db_mould_specification` WHERE `project_name` LIKE '%$keyword%' AND `is_approval` = '1'";
+		$result_project = $db->query($project_sql);
+	//新建当前项目中没有的模具信息
+		if($result_project->num_rows){
+			$array_specification_id = array();
+			while($row = $result_project->fetch_assoc()){
+				$array_specification_id[] = $row['mould_specification_id'];
+				$specification_ids = $row['mould_specification_id'];
+				//新建技术资料
+				if(!in_array($specification_ids,$arr_info)){
+					$information_sql = "INSERT INTO `db_technical_information`(`specification_id`) VALUES('".$row['mould_specification_id']."')";
+					$db->query($information_sql);
+					}
+				}
+			}
+		$specification_id_str = fun_convert_checkbox($array_specification_id);
+		$sql = "UPDATE `db_technical_information` SET `{$doc_type}` = CONCAT_WS('&',`{$doc_type}`,'".$data_info."'),`{$doc_type}_path` = CONCAT_WS('&',`{$doc_type}_path`,'".$file_path."')  WHERE  FIND_IN_SET(specification_id,'$specification_id_str')";
+	
+	}else{
+		$sql = "UPDATE `db_technical_information` SET `{$doc_type}` = CONCAT_WS('&',`{$doc_type}`,'".$data_info."'),`{$doc_type}_path` = CONCAT_WS('&',`{$doc_type}_path`,'".$file_path."') WHERE `information_id` = '$informationid'";
+	}
 	$db->query($sql);
 	if($db->affected_rows){
 		header('location:technical_information.php');
