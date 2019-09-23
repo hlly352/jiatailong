@@ -10,18 +10,11 @@ $data = $_GET['data'];
 $isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
 
 //查询对应信息
-$information_sql = "SELECT `{$data}`,`{$data}_name`,`specification_id`,`{$data}_date`,`{$data}_title` FROM `db_technical_information` WHERE `information_id` = '$informationid'";
+$information_sql = "SELECT `{$data}`,`{$data}_path`,`specification_id` FROM `db_technical_information` WHERE `information_id` = '$informationid'";
 
 $result_information = $db->query($information_sql);
-if($result_information->num_rows){
-  $information_info = $result_information->fetch_row();
-}
 
-$data_arr = explode('&',$information_info[0]);
-$data_name = explode('&',$information_info[1]);
-$specification_id = $information_info[2];
-$data_date = explode('&',$information_info[3]);
-$data_title = explode('&',$information_info[4]);
+
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -49,22 +42,30 @@ $data_title = explode('&',$information_info[4]);
           }
       </script>
   <h4>资料查看</h4>
-  <?php if(!empty($information_info[0])){ ?>
+  <?php
+     if($result_information->num_rows){
+        $information_info = $result_information->fetch_row();
+
+        $titles = explode('&',$information_info[0]);
+        $paths  = explode('&',$information_info[1]);
+        $specificationid = $information_info[2];
+  ?>
   <form action="technical_information_do.php" name="material_order" method="post" enctype="multipart/form-data">
     <table>
       <?php 
-        foreach($data_arr as $k=>$v){ 
+        foreach($titles as $k=>$v){
         if(!empty($v)){
+          $title = explode('#',$v);
         ?>
       <tr>
         <th width="25%">资料名称：</th>
-        <td width="15%"><?php echo $data_title[$k] ?></td>
+        <td width="15%"><?php echo $title[0]  ?></td>
         <th width="5%">文件名</th>
-        <td width="15"><?php echo $data_name[$k] ?></td>
+        <td width="15"><?php echo $title[1] ?></td>
         <th width="5%">时间：</th>
-        <td width="15"><?php echo $data_date[$k] ?></td>
+        <td width="15"><?php echo $title[2] ?></td>
         <td width="20%">
-          <a href="<?php echo 'http://'.$_SERVER['HTTP_HOST'].substr($v,2) ?>">查看</a>
+          <a href="<?php echo 'http://'.$_SERVER['HTTP_HOST'].substr($paths[$k],2) ?>">查看</a>
           &nbsp;&nbsp;
           <?php if($isadmin == 1){ ?>
           <a href="technical_information_do.php?action=del&informationid=<?php echo $_GET['informationid'] ?>&key=<?php echo $k ?>&data=<?php echo $_GET['data'] ?>" onclick="javascript:return confirm('确认删除?');">删除</a>
@@ -76,7 +77,7 @@ $data_title = explode('&',$information_info[4]);
       <tr>
         
         <td colspan="8" style="text-align:center">
-          <input type="button" name="" class="button" value="添加" id="add" onclick="javascript:window.location.href='technical_information_edit.php?action=add&specification_id=<?php echo $specification_id ?>'">
+          <input type="button" name="" class="button" value="添加" id="add" onclick="javascript:window.location.href='technical_information_edit.php?action=add&specification_id=<?php echo $specificationid ?>'">
           <input type="button" name="button" value="返回" class="button" onclick="window.location.href='technical_information.php'" />
         </td>
 

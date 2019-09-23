@@ -99,9 +99,10 @@
 	$data = $_GET['data'];
 	$informationid = $_GET['informationid'];
 	$key = $_GET['key'];
-
-	$sql = "SELECT `{$data}`,`{$data}_name`,`{$data}_title`,`{$data}_date` FROM `db_technical_information` WHERE `information_id` = '$informationid'";
+	
+	$sql = "SELECT `{$data}`,`{$data}_path` FROM `db_technical_information` WHERE `information_id` = '$informationid'";
 	$result = $db->query($sql);
+
 	function del_str($key,$str){
 
 		$start = $end = 0;
@@ -121,24 +122,30 @@
 	}
 	if($result->num_rows){
 		$new_info = '';	
-		while($row = $result->fetch_assoc()){
-			foreach($row as $keys=>$values){
-				//转换为数组
-				$array_data = explode('&',$values);
-				if(stripos($array_data[$key],'/upload/technical_information/')){
-					if(file_exists($array_data[$key])){
-						@unlink($array_data[$key]);
+		while($row = $result->fetch_row()){
+			$paths = explode('&',$row[1]);
+			$names = explode('&',$row[0]);
+			foreach($paths as $keys=>$values){
+				echo $values.'<br>';
+				//
+				if($keys == $key){
+
+					if(file_exists($values)){
+						@unlink($values);
 					}
+				}else{
+					$new_path .= $values.'&';
+					$new_name .= $names[$keys].'&';
 				}
-				unset($array_data[$key]);
-				$new_data = implode('&',$array_data);
-				$new_info .= '`'.$keys.'`="'.$new_data.'",';
+				
 			}
 			
 		}
 	}
-	$new_info = rtrim($new_info,',');
-	if($data == 'project_data'){
+	$new_path = rtrim($new_path,'&');
+	$new_name = rtrim($new_name,'&');
+	$sql_str = "`{$data}` = '$new_name',`{$data}_path` = '$new_path'";
+	if($data == 'project_data' || $data == 'project_sum'){
 		//查找当前项目的所有模具
 				$keyword_sql = "SELECT `db_mould_specification`.`project_name` FROM `db_mould_specification` INNER JOIN `db_technical_information` ON `db_technical_information`.`specification_id` = `db_mould_specification`.`mould_specification_id` WHERE `db_technical_information`.`information_id` = '$informationid'";
 				$result_keyword = $db->query($keyword_sql);
@@ -157,7 +164,7 @@
 	}
 	
 	//更新删除后的值
-	$del_sql = "UPDATE `db_technical_information` SET {$new_info} WHERE  FIND_IN_SET(`information_id`,'$informationid')";
+	$del_sql = "UPDATE `db_technical_information` SET {$sql_str} WHERE  FIND_IN_SET(`information_id`,'$informationid')";
 
 	$db->query($del_sql);
 	header('location:'.$_SERVER['HTTP_REFERER']);
