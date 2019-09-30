@@ -4,6 +4,7 @@ require_once '../function/function.php';
 require_once '../config/config.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+
 //查看当前用户是否是管理员
 //获取当前页面的路径
 $employeeid = $_SESSION['employee_info']['employeeid'];
@@ -23,35 +24,37 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
   $system_res = $db->query($system_sql);
 
   $system_info = [];
-  while($system_admin = $system_res->fetch_row()){
-    $system_info = $system_admin;
+  while($system = $system_res->fetch_row()){
+    $system_info = $system;
   }
-
+$isconfirm = $system_info[0];
+$isadmin   = $system_info[1];
 //查询模具状态
 $sql_mould_status = "SELECT `mould_statusid`,`mould_statusname` FROM `db_mould_status` ORDER BY `mould_statusid` ASC";
 $result_mould_status = $db->query($sql_mould_status);
 if($_GET['submit']){
   $client_code = trim($_GET['client_code']);
-  $mould_no = trim($_GET['mould_number']);
+  $mould_number = trim($_GET['mould_number']);
+  $project_name = trim($_GET['project_name']);
   $isexport = $_GET['isexport'];
   if($isexport != NULL){
     $sql_isexport = " AND `db_mould_specification`.`is_export` = '$isexport'";
   }
-  $quality_degree = $_GET['quality_grade'];
+  $quality_grade = $_GET['quality_grade'];
   if($quality_grade){
-    $sql_quality_grade = " AND `db_mould_specification`.`quality_degree` = '$quality_degree'";
+    $sql_quality_grade = " AND `db_mould`.`quality_grade` = '$quality_grade'";
   }
   $difficulty_degree = $_GET['difficulty_degree'];
   if($difficulty_degree){
-    $sql_difficulty_degree = " AND `db_mould_specification`.`difficulty_degree` = '$difficulty_degree'";
+    $sql_difficulty_degree = " AND `db_mould`.`difficulty_degree` = '$difficulty_degree'";
   }
-  $mould_statusid = $_GET['mould_statusid'];
-  if($mould_statusid){
-    $sql_mould_statusid = " AND `db_mould_specification`.`mould_statusid` = '$mould_statusid'";
-  }
-  $sqlwhere = " AND `db_mould_specification`.`mould_no` LIKE '%$mould_no%' AND `db_mould_specification`.`customer_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
+  // $mould_statusid = $_GET['mould_statusid'];
+  // if($mould_statusid){
+  //   $sql_mould_statusid = " AND `db_mould`.`mould_statusid` = '$mould_statusid'";
+  // }
+  $sqlwhere = " AND `db_mould_specification`.`project_name` LIKE '%$project_name%' AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_specification`.`customer_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
-$sql = "SELECT *,`db_mould_specification`.`material_specification`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` AS `image_filepaths`,`db_designer`.`employee_name` AS `designer`,`db_projecter`.`employee_name` AS `projecter`,`db_saler`.`employee_name` AS `saler`,`db_assembler`.`employee_name` AS `assembler`,`db_programming`.`employee_name` AS `programming`,`db_electrode`.`employee_name` AS `electrode` FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_saler` ON `db_saler`.`employeeid`=`db_mould_specification`.`saler` LEFT JOIN `db_employee` AS `db_projecter` ON `db_projecter`.`employeeid` = `db_mould_specification`.`projecter` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`designer` LEFT JOIN `db_employee` AS `db_programming` ON `db_programming`.`employeeid` = `db_mould_specification`.`programming` LEFT JOIN `db_employee` AS `db_assembler` ON `db_mould_specification`.`assembler` = `db_assembler`.`employeeid` LEFT JOIN `db_employee` AS `db_electrode` ON `db_mould_specification`.`electrode` = `db_electrode`.`employeeid` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
+$sql = "SELECT *,`db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` WHERE  `db_mould_specification`.`is_approval` = '1' $sqlwhere";
 
 $result = $db->query($sql);
 $result_id = $db->query($sql);
@@ -60,6 +63,35 @@ $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
 
 $result = $db->query($sqllist);
+//获取地址每个资料的地址信息
+function show($row,$from){
+          $title_key = $from.'_title';
+          $count = substr_count($row[$from],'&');
+
+  $data = explode('&',$row[$title_key]);
+  $new_data = array();
+  foreach($data as $ks=>$vs){
+    if(!empty($vs)){
+      $new_data[$ks] = $vs;
+    }
+  }
+              foreach($new_data as $k=>$v){
+              if($k<3){
+                if (preg_match('/[\x{4e00}-\x{9fa5}]+/u',$v)) {
+                  $num = 20;
+                } else {
+                  $num = 10;
+                }
+                $title .= substr($v,0,$num).'<br>';
+              }
+          }
+          // if($count >0){
+            $str = '<a href="technical_data_list.php?action=show&data='.$from.'&informationid='.$row['information_id'].'">'.$title.'</a>';
+          // }else{
+          //   $str = '<a href="http://'.$_SERVER['HTTP_HOST'].substr($row[$from],2).'">'.$title.'</a>';
+          // }
+         return $str;
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -116,9 +148,11 @@ $result = $db->query($sqllist);
       <tr>
         <th>代码：</th>
         <td><input type="text" name="client_code" class="input_txt" /></td>
+        <th>项目名称：</th>
+        <td><input type="text" name="project_name" class="input_txt" /></td>
         <th>模具编号：</th>
         <td><input type="text" name="mould_number" class="input_txt" /></td>
-        <th>是否出口：</th>
+       <!--  <th>是否出口：</th>
         <td><select name="isexport">
             <option value="">所有</option>
             <?php
@@ -155,7 +189,7 @@ $result = $db->query($sqllist);
         }
       }
       ?>
-          </select></td>
+          </select></td> -->
         <td><input type="submit" name="submit" value="查询" class="button" />
           <!-- <input type="button" name="button" value="添加" class="button" onclick="location.href='mouldae.php?action=add'"<?php if(!$_SESSION['system_shell'][$system_dir]['isadmin']) echo " disabled=\"disabled\""; ?> />
           <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_mould.php'" /> -->
@@ -185,59 +219,51 @@ $result = $db->query($sqllist);
   <form action="moulddo.php" name="mould_list" method="post">
     <table>
       <tr>
-        <th rowspan="2" width="3%">ID</th>
-        <th rowspan="2" width="3%">代码</th>
-        <th rowspan="2" width="4%">项目名称</th>
-        <th rowspan="2" width="5%" >模具编号</th>
-        <th rowspan="2" width="6%">零件名称</th>
-        <th rowspan="2" width="6%">零件图片</th>
-        <th rowspan="2" width="5%">塑胶<br />
-          材料</th>
-        <th rowspan="2" width="4%">缩水率</th>
-        <th rowspan="2" width="5%">表面<br />
-          要求</th>
-        <th rowspan="2" width="3%">模穴数</th>
-        <th rowspan="2" width="5%">浇口<br />
-          类型</th>
-        <th rowspan="2" width="5%">型腔/型芯<br />
-          材质</th>
-        <th rowspan="2" width="3%">是否<br />
-          出口</th>
-        <th rowspan="2" width="3%">质量<br />
-          等级</th>
-        <th rowspan="2" width="3%">难度<br />
-          系数</th>
-        <th colspan="5">责任人</th>
-        <th rowspan="2" width="5%">首板时间</th>
-        <th rowspan="2" width="5%">重点提示</th>
-        <th rowspan="2" width="4%">目前状态</th>
-        <th rowspan="2" width="4%">操作</th>
-      </tr>
-      <tr>
-        <th width="4%">项目</th>
-        <th width="4%">设计</th>
-        <th width="4%">钢料</th>
-        <th width="4%">电极</th>
-        <th width="4%">装配</th>
+        <th width="3%">ID</th>
+        <th width="3%">代码</th>
+        <th width="4%">项目名称</th>
+        <th width="5%" >模具编号</th>
+        <th width="6%">零件名称</th>
+        <th width="6%">零件图片</th>
+        <th>上次试模报告</th>
+        <th>内部改模资料</th>
+        <th>改模计划</th>
+        <th>图纸联络单</th>
+        <th>改模前检查表</th>
+        <th>试模申请</th>
+        <th>机上红丹照片</th>
+        <th>样品图片</th>
+        <th>试模报告</th>
+        <th>样品检测报告</th>
+        <th>样品交付</th>
+        <th>历史资料</th>
+        <th>操作</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-        $ids = $row['mould_specification_id'];
-        if(!($ids == 460 || $ids == 461 || $ids==463)){
+        $specification_id = $row['mould_specification_id'];
+        $rows = array();
+      //通过模具id查询模具对应的改模资料
+      $sql_max_modify = "SELECT * FROM `db_mould_modify` WHERE `t_number` = (SELECT MAX(`t_number`) FROM `db_mould_modify` WHERE `specification_id` = '$specification_id') AND `specification_id` = '$specification_id'";
+      $result_max_modify = $db->query($sql_max_modify);
+      if($result_max_modify->num_rows){
+        $rows = $result_max_modify->fetch_assoc();
+      }
       //处理表面要求
-      if(stristr($row['surface_require'],'$$')){
+      if(strpos($row['surface_require'],'$$')){
         $surface_require = explode('$$',$row['surface_require'])[4];
-      }elseif(stristr($row['surface_require'],'//')){
+      }elseif(strpos($row['surface_require'],'//')){
         $surface_requires = substr($row['surface_require'],0,strlen($row['surface_require'])-2);
       }else{
         $surface_require = '';
       }
+
       //查找型芯和型腔的材质
-      // $cavity_sql = "SELECT `material_specification` FROM `db_mould_data` WHERE `mould_dataid`=".$row['mould_id'];
-      // $res = $db->query($cavity_sql);
-      // if($res->num_rows){
-      //   $cavity = $res->fetch_row();
-      // }
+      $cavity_sql = "SELECT `material_specification` FROM `db_mould_data` WHERE `mould_dataid`=".$row['mould_id'];
+      $res = $db->query($cavity_sql);
+      if($res->num_rows){
+        $cavity = $res->fetch_row();
+      }
       //处理是否出口
       if(strlen($row['is_export']) == 0){
         $export = '';
@@ -245,13 +271,7 @@ $result = $db->query($sqllist);
         $export = $row['is_export'] == '1'?'是':'否';
       }
       //转换为数组
-       // $cavity = explode('$$',$cavity[0]);
-      //型腔和型芯材质
-      if(strstr($row['material_specification'],'$$')){
-        $material_specification = explode('$$',$row['material_specification']);
-      }else{
-        $material_specification = array();
-      }
+       $cavity = explode('$$',$cavity[0]);
       //图片处理
       $image_filedir = $row['image_filedir'];
       $image_filename = $row['image_filename'];
@@ -271,40 +291,29 @@ $result = $db->query($sqllist);
       }
     ?>
       <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $row['mould_specification_id']; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $mouldid; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
         <td><?php echo $row['customer_code']; ?></td>
         <td><?php echo $row['project_name']; ?></td>
-        <td class="detail"><!-- <?php if($_SESSION['system_shell'][$system_dir]['isadmin']){ ?><a href="mouldae.php?id=<?php echo $mouldid; ?>&action=edit"><?php echo $row['mould_number']; ?></a><?php }else{ echo $row['mould_number']; }; ?> -->
+        <td ><!-- <?php if($_SESSION['system_shell'][$system_dir]['isadmin']){ ?><a href="mouldae.php?id=<?php echo $mouldid; ?>&action=edit"><?php echo $row['mould_number']; ?></a><?php }else{ echo $row['mould_number']; }; ?> -->
           <?php echo $row['mould_no'] ?>
-        <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
-        <td><?php echo $row['material_other']; ?></td>
-        <td><?php echo $row['shrink']; ?></td>
-        <td><?php echo !empty($surface_require)?$array_surface_require[$surface_require]:$surface_requires; ?></td>
-        <td><?php echo $row['cavity_num']; ?></td>
-        <td><?php echo strpos($row['injection_type'],'//')?substr($row['injection_type'],0,strlen($row['injection_type'])-2):$array_injection_type[$row['injection_type']]; ?></td>
-        <td><?php echo $array_material_specification[$material_specification[4]].'/'.$array_material_specification[$material_specification[5]] ?></td>
-        <td><?php echo $export ?></td>
-        <td><?php echo strpos($row['quality_degree'],'//')?substr($row['quality_degree'],0,strlen($row['quality_degree'])-2):$array_quality_degree[$row['quality_degree']]; ?></td>
-        <td><?php echo strpos($row['difficulty_degree'],'//')?substr($row['difficulty_degree'],0,strlen($row['difficulty_degree'])-2):$array_difficulty_degree[$row['difficulty_degree']]; ?></td>
-        <td><?php echo $row['projecter']; ?></td>
-        <td><?php echo $row['designer']; ?></td>
-        <td><?php echo $row['programming']; ?></td>
-        <td><?php echo $row['electrode']; ?></td>
-        <td><?php echo $row['assembler']; ?></td>
-        <td><?php echo $row['check_time']; ?></td>
-        <td><?php ?></td>
-        <td>
-          <a href="<?php 
-            $page = isset($_GET['page'])?$_GET['page']:1;
-            echo $system_info[0] == '1'?'mould_status_edit.php?action=edit&page='.$page.'&specification_id='.$row['mould_specification_id']:'#' ?>"><?php echo $mould_status ?>
-          </a>
-        </td>
-        <td><a href="<?php echo ($system_info[0] == '1' || $system_info[1] == '1')?'mould_specification_edit.php?action=edit&from=summary&specification_id='.$row['mould_specification_id']:'#' ?>">更新</a></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><?php echo $rows['sample_check'] ?></td>
+        <td></td>
+        <td></td>
+        <td>查看</td>
+        <td><a href="<?php echo $system_info[0] == '1'?'mould_modify_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
       </tr>
-      <?php }} ?>
+      <?php } ?>
     </table>
    <!--  <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />

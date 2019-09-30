@@ -23,6 +23,18 @@ if($_GET['submit']){
 $sql = "SELECT `db_material_inout`.`inoutid`,`db_material_inout`.`listid`,`db_material_inout`.`dodate`,`db_material_inout`.`form_number`,`db_material_inout`.`quantity`,`db_material_inout`.`inout_quantity`,`db_material_inout`.`amount`,`db_material_inout`.`process_cost`,`db_material_order_list`.`unit_price`,`db_material_order`.`order_number`,`db_mould_material`.`material_name`,`db_material_inout`.`cut_payment`,`db_material_inout`.`cancel_amount`,`db_mould_material`.`specification`,`db_mould_material`.`texture`,`db_mould`.`mould_number`,`db_supplier`.`supplier_cname`,`db_unit_order`.`unit_name` AS `unit_name_order`,`db_unit_actual`.`unit_name` AS `unit_name_actual` FROM `db_material_inout` INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_order_list`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_unit` AS `db_unit_order` ON `db_unit_order`.`unitid` = `db_material_order_list`.`unitid` INNER JOIN `db_unit` AS `db_unit_actual` ON `db_unit_actual`.`unitid`= `db_material_order_list`.`actual_unitid` WHERE `db_material_order`.`pay_type` = 'M' AND `db_material_inout`.`dotype` = 'I' AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') AND (`db_material_order`.`orderid`) NOT IN(SELECT `db_material_order`.`orderid` FROM `db_material_inout`  INNER JOIN `db_material_order_list` ON `db_material_order_list`.`listid` = `db_material_inout`.`listid` INNER JOIN `db_material_order` ON `db_material_order`.`orderid` = `db_material_order_list`.`orderid` WHERE `db_material_order_list`.`order_quantity` != (`db_material_order_list`.`in_quantity` + `db_material_order_list`.`cancel_num`) AND (`db_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate')) AND `db_material_inout`.`inoutid` NOT IN(SELECT `inoutid` FROM `db_material_account_list`) $sqlwhere";
 
 $result = $db->query($sql);
+if($result->num_rows){
+  $sum_process_cost = 0;
+  $sum_amount = 0;
+  $sum_cut_payment = 0;
+  $sum_cancel_amount = 0;
+  while($row_sum = $result->fetch_assoc()){
+    $sum_process_cost += $row_sum['process_cost'];
+    $sum_amount += $row_sum['amount'];
+    $sum_cut_payment += $row_sum['cut_payment'];
+    $sum_cancel_amount += $row_sum['cancel_amount'];
+  }
+}
 $result_total = $db->query($sql);
 $_SESSION['material_inout_list_in'] = $sql;
 $pages = new page($result->num_rows,500);
@@ -81,9 +93,7 @@ $result = $db->query($sqllist);
 <div id="table_list">
   <?php
   if($result->num_rows){
-    while($row_total = $result_total->fetch_assoc()){
-      $total_amount += $row_total['amount'];
-      $total_process_cost += $row_total['process_cost'];  
+    while($row_total = $result_total->fetch_assoc()){  
     }                                                                       
   ?>
   <table>
@@ -147,12 +157,15 @@ $result = $db->query($sqllist);
       </td>
     </tr>
     <?php } ?>
-    <!-- <tr>
+    <tr>
       <td colspan="12">Total</td>
-      <td><?php echo number_format($total_amount,2); ?></td>
-      <td><?php echo number_format($total_process_cost,2); ?></td>
+      <td><?php echo number_format($sum_amount,2); ?></td>
+      <td><?php echo number_format($sum_process_cost,2); ?></td>
+      <td><?php echo number_format($sum_cancel_amount,2); ?></td>
+      <td><?php echo number_format($sum_cut_payment,2); ?></td>
       <td colspan="4">&nbsp;</td>
-    </tr> -->
+
+    </tr>
   </table>
   <div id="checkall">
       <input name="all" type="button" class="select_button" id="CheckedAll" value="全选" />

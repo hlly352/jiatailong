@@ -9,6 +9,7 @@ $sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
 $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 
 $isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
+$isconfirm = $_SESSION['system_shell'][$system_dir]['isconfirm'];
 $before_date = strtotime($sdate);
 $after_date  = strtotime($edate);
 //查询部门
@@ -28,10 +29,11 @@ if($_GET['submit']){
 
 	 $sqlwhere = " AND `db_other_material_data`.`material_name` LIKE '%$material_name%' AND `db_mould_other_material``material_name` LIKE '%$material_name%' AND `db_other_material_specification`.`specification_name` LIKE '%$material_specification%' AND `material_type` LIKE '%$material_type%' AND `apply_team` LIKE '%$apply_team%' AND (`add_time` BETWEEN '$before_date' AND '$after_date')";
 }
-if($isadmin == 1){
-  $sql = "SELECT *,`db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_mould_other_material`.`material_name`,`db_other_material_specification`.`specification_name`,`db_other_material_data`.`material_name` AS `name`,`db_mould_other_material`.`unit` AS `material_unit` FROM `db_mould_other_material`  LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`applyer` != 0 $sqlwhere";
+
+if($isadmin == 1 && $isconfirm == 1){
+  $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_specification`.`specification_name`,`db_other_material_data`.`material_name` AS `data_name`,`db_other_material_specification`.`material_name`,`db_mould_other_material`.`unit` AS `material_unit`,`db_other_material_data`.`unit`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_specification`.`stock`,`db_other_material_type`.`material_typename`,`db_mould_other_material`.`apply_team`,`db_mould_other_material`.`applyer`,`db_mould_other_material`.`remark`,`db_mould_other_material`.`status`,`db_mould_other_material`.`approver` FROM `db_mould_other_material`  LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`applyer` != 0 $sqlwhere";
 }else{
-  $sql = "SELECT *,`db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_mould_other_material`.`material_name`,`db_other_material_specification`.`specification_name`,`db_other_material_data`.`material_name` AS `name`,`db_mould_other_material`.`unit` AS `material_unit` FROM `db_mould_other_material`  LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE (`db_mould_other_material`.`applyer` = '$employeeid' OR `db_mould_other_material`.`approver` = '$employeeid') $sqlwhere";
+  $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_specification`.`specification_name`,`db_other_material_data`.`material_name` AS `data_name`,`db_other_material_specification`.`material_name`,`db_mould_other_material`.`unit` AS `material_unit`,`db_other_material_data`.`unit`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_specification`.`stock`,`db_other_material_type`.`material_typename`,`db_mould_other_material`.`apply_team`,`db_mould_other_material`.`applyer`,`db_mould_other_material`.`remark`,`db_mould_other_material`.`status`,`db_mould_other_material`.`approver` FROM `db_mould_other_material`  LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE (`db_mould_other_material`.`applyer` = '$employeeid' OR `db_mould_other_material`.`approver` = '$employeeid') $sqlwhere";
 }
 
 $result = $db->query($sql);
@@ -148,6 +150,17 @@ $result = $db->query($sqllist);
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
+        //查询所有未通过的订单
+        $sql_init = "SELECT `mould_other_id` FROM `db_mould_other_material` WHERE `status` = 'A'";
+        $result_init = $db->query($sql_init);
+        if($result_init->num_rows){
+          $array_init_id = array();
+          while($row_init = $result_init->fetch_assoc()){
+            $array_init_id[] = $row_init['mould_other_id'];
+           }
+        }else{
+          $array_init_id = array();
+        }
         //查询组别
         $sql_department = "SELECT `dept_name` FROM `db_department` WHERE `deptid`=".$row['apply_team'];
         $result_department = $db->query($sql_department);
@@ -185,12 +198,12 @@ $result = $db->query($sqllist);
 	  ?>
       <tr>
         <td>
-            <input type="checkbox" name="id[]" value="<?php echo $row['mould_other_id']; ?>"<?php if(!($employeeid == $row['applyer'] || $employeeid == $row['approver'])) echo " disabled=\"disabled\""; ?> />
+            <input type="checkbox" name="id[]" value="<?php echo $row['mould_other_id']; ?>"<?php if(!($employeeid == $row['applyer'] || $employeeid == $row['approver']) || !(in_array($row['mould_other_id'],$array_init_id))) echo " disabled=\"disabled\""; ?> />
         </td>
         <td><?php echo $row['apply_date']; ?></td>
         <td><?php echo $row['requirement_date']; ?></td>
         <td><?php echo $row['material_typename']; ?></td>
-        <td><?php echo is_numeric($row['material_name'])?$row['name']:$row['material_name']; ?></td>
+        <td><?php echo $row['material_unit']?$row['material_name']:$row['data_name']; ?></td>
         <td><?php echo $row['specification_name']; ?></td>
         <td><?php echo $row['quantity'] ?></td>
         <td><?php echo $row['material_unit']?$row['material_unit']:$row['unit']; ?></td>

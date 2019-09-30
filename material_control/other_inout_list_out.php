@@ -19,7 +19,8 @@ if($_GET['submit']){
   }
   $sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid";
 }
- $sql = "SELECT * FROM `db_other_material_inout` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_mould_other_material`.`material_name` = `db_other_material_data`.`dataid`  WHERE `db_other_material_inout`.`dotype` = 'O' AND (`db_other_material_inout`.`dodate` BETWEEN '$sdate' AND '$edate') $sqlwhere";;
+$sql = "SELECT `db_other_material_inout`.`inout_quantity`,`db_other_material_specification`.`specificationid`,`db_other_material_specification`.`material_name`,`db_other_material_inout`.`inoutid` ,`db_other_material_specification`.`type`,`db_other_material_specification`.`materialid`,`db_other_material_inout`.`taker`,`db_other_material_inout`.`dodate`,`db_other_material_inout`.`remark`,`db_other_material_inout`.`form_number`,`db_other_material_specification`.`material_name`,`db_other_material_specification`.`specification_name` FROM `db_other_material_inout` INNER JOIN `db_other_material_specification` ON `db_other_material_inout`.`listid` = `db_other_material_specification`.`specificationid` WHERE `db_other_material_inout`.`dotype` = 'O'";
+
 $result = $db->query($sql);
 $_SESSION['material_inout_list_out'] = $sql;
 $pages = new page($result->num_rows,15);
@@ -46,7 +47,7 @@ $result = $db->query($sqllist);
   <form action="" name="search" method="get">
     <table>
       <tr>
-        <th>合同号：</th>
+        <th>表单号：</th>
         <td><input type="text" name="order_number" class="input_txt" size="15" /></td>
         <th>物料名称：</th>
         <td><input type="text" name="material_name" class="input_txt" size="15" /></td>
@@ -56,16 +57,7 @@ $result = $db->query($sqllist);
         <td><input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" />
           --
           <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="15" /></td>
-        <th>供应商：</th>
-        <td><select name="supplierid">
-            <option value="">所有</option>
-            <?php
-            if($result_supplier->num_rows){
-        while($row_supplier = $result_supplier->fetch_assoc()){
-          echo "<option value=\"".$row_supplier['supplierid']."\">".$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']."</option>";
-        }
-      }
-      ?>
+   
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
           <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_inout_out.php'" /></td>
@@ -78,34 +70,40 @@ $result = $db->query($sqllist);
   <table>
     <tr>
       <th width="4%">ID</th>
-      <th width="7%">合同号</th>
       <th width="10%">物料名称</th>
       <th width="14%">规格</th>
       <th width="6%">数量</th>
       <th width="4%">单位</th>
       <th width="8%">领料人</th>
-      <th width="8%">供应商</th>
       <th width="8%">表单号</th>
       <th width="8%">出库日期</th>
+      <th width="8%">备注</th>
       <!-- <th width="4%">Edit</th>
       <th width="4%">Info</th> -->
     </tr>
     <?php
   while($row = $result->fetch_assoc()){
     $inoutid = $row['inoutid'];
-    $listid = $row['listid'];
-  ?>
+    if($row['type'] == 'A'){
+            $sql_info = "SELECT `material_name`,`unit` FROM `db_other_material_data` WHERE `dataid` = ".$row['materialid'];
+          }elseif($row['type'] == 'B'){
+            $sql_info = "SELECT `unit` FROM `db_mould_other_material` WHERE `mould_other_id` = ".$row['materialid'];
+          }
+          $result_info = $db->query($sql_info);
+          if($result_info->num_rows){
+            $info = $result_info->fetch_assoc();
+          }
+    ?>
     <tr>
       <td><?php echo $inoutid; ?></td>
-      <td><?php echo $row['order_number']; ?></td>
-      <td><?php echo $row['material_name']; ?></td>
-      <td><?php echo $row['material_specification']; ?></td>
+      <td><?php echo $row['material_name']?$row['material_name']:$info['material_name']; ?></td>
+      <td><?php echo $row['specification_name']; ?></td>
       <td><?php echo $row['inout_quantity']; ?></td>
-      <td><?php echo $row['unit']; ?></td>
+      <td><?php echo $info['unit']; ?></td>
       <td><?php echo $row['taker']; ?></td>
-      <td><?php echo $row['supplier_cname']; ?></td>
       <td><?php echo $row['form_number']; ?></td>
       <td><?php echo $row['dodate']; ?></td>
+      <td><?php echo $row['remark']; ?></td>
      <!--  <td><a href="material_out_list_out.php?id=<?php echo $inoutid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       <td><a href="material_inout_info.php?id=<?php echo $listid; ?>"><img src="../images/system_ico/info_8_10.png" width="8" height="10" /></a></td> -->
     </tr>

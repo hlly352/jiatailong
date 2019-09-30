@@ -3,14 +3,19 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
+$isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
 if($_GET['submit']){
   $mould_number = trim($_GET['mould_number']);
   $material_number = trim($_GET['material_number']);
   $material_name = trim($_GET['material_name']);
   $specification = trim($_GET['specification']);
-  $sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
+  $sqlwhere = " AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
 }
-$sql = "SELECT `db_mould_outward_type`.`outward_typename`,`db_outward_inquiry`.`inquiryid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould`.`mould_number` FROM `db_outward_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` INNER JOIN `db_mould_outward_type` ON `db_mould_outward_type`.`outward_typeid` = `db_mould_material`.`outward_typeid` WHERE `db_outward_inquiry`.`employeeid` = '$employeeid' $sqlwhere ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC";
+if($isadmin == 1){
+    $sql = "SELECT `db_mould_outward_type`.`outward_typename`,`db_outward_inquiry`.`inquiryid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_specification`.`mould_no` FROM `db_outward_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_inquiry`.`materialid` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_material`.`mouldid` INNER JOIN `db_mould_outward_type` ON `db_mould_outward_type`.`outward_typeid` = `db_mould_material`.`outward_typeid` WHERE `db_outward_inquiry`.`status` = '0' ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_material`.`materialid` ASC";
+}else{
+    $sql = "SELECT `db_mould_outward_type`.`outward_typename`,`db_outward_inquiry`.`inquiryid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_specification`.`mould_no` FROM `db_outward_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_inquiry`.`materialid` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_material`.`mouldid` INNER JOIN `db_mould_outward_type` ON `db_mould_outward_type`.`outward_typeid` = `db_mould_material`.`outward_typeid` WHERE `db_outward_inquiry`.`employeeid` = '$employeeid' $sqlwhere WHERE `db_outward_inquiry`.`status` = '0' ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_material`.`materialid` ASC";
+}
 
 $result = $db->query($sql);
 $_SESSION['outward_inquiry_list'] = $sql;
@@ -24,7 +29,7 @@ $_SESSION['outward_inquiry_list'] = $sql;
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<title>采购管理-嘉泰隆</title>
+<title>模具加工-希尔林</title>
 </head>
 
 <body>
@@ -73,7 +78,7 @@ $_SESSION['outward_inquiry_list'] = $sql;
     ?>
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $inquiryid; ?>" /></td>
-        <td><?php echo $row['mould_number']; ?></td>
+        <td><?php echo $row['mould_no']; ?></td>
         <td><?php echo $row['material_list_number']; ?></td>
         <td><?php echo $row['material_list_sn']; ?></td>
         <td><?php echo $row['material_number']; ?></td>

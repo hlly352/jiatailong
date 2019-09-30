@@ -94,14 +94,14 @@ function show($row,$from){
 }
 //显示所有有信息的资料
 function display($row,$array_project_data_type,$index){
-        	foreach($array_project_data_type[$index][1] as $k=>$v){
-        		if(!empty($row[$k])){
-        			$str .= '<td><a href="technical_data_list.php?action=show&data='.$k.'&informationid='.$row['information_id'].'"><img src="../images/system_ico/article_12_16.png" /></a></td>';	
-        		}else{
-        			$str .= '<td></td>';
-        		}
-        	}
-        	return $str;
+          foreach($array_project_data_type[$index][1] as $k=>$v){
+            if(!empty($row[$k])){
+              $str .= '<td><a href="technical_data_list.php?action=show&data='.$k.'&informationid='.$row['information_id'].'"><img src="../images/system_ico/article_12_16.png" /></a></td>'; 
+            }else{
+              $str .= '<td></td>';
+            }
+          }
+          return $str;
         }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -115,21 +115,22 @@ function display($row,$array_project_data_type,$index){
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script type="text/javascript">
   $(function(){
-  	var num = $('.trs').size();
-  	var tr = $('.trs');
-  	for(var i=0;i<num;i++){
-  		var td_num = tr.eq(i).children('td').not('.default').size();
-  		var td = tr.eq(i).children('td').not('.default');
-  		for(var j=0;j<td_num;j++){
-  			if(td.eq(j).children().size()>0){
-  				var last = td.eq(j);
-  			}
-  		} 
-  		last.prevAll().not('.default').css('background','yellow');
-  		
-  	}
+    var num = $('.trs').size();
+    var tr = $('.trs');
+    for(var i=0;i<num;i++){
+      var td_num = tr.eq(i).children('td').not('.default').size();
+      var td = tr.eq(i).children('td').not('.default');
+      for(var j=0;j<td_num;j++){
+        if(td.eq(j).children().size()>0){
+          td.eq(j).addClass('have');
+          var last = td.eq(j);
+        }
+      }
+      last.prevAll().not('.default').not('.have').css('background','yellow');
+      
+    }
 
-  	
+    
   
     //鼠标滑过
     $('.detail').css('color','blue').hover(function(){
@@ -261,7 +262,7 @@ function display($row,$array_project_data_type,$index){
         <th colspan="4">加工制造</th>
         <th colspan="3">模具试模</th>
         <th colspan="3">品质控制</th>
-        <th colspan="2">模具修改</th>
+        <th>模具修改</th>
         <th colspan="6">模具交付及售后</th>
         <th>项目总结</th>
         <!-- <th rowspan="2" width="4%">目前状态</th> -->
@@ -291,8 +292,7 @@ function display($row,$array_project_data_type,$index){
         <th>零件<br/>检测<br/>报告</th>
         <th>产品<br/>检测<br/>报告</th>
         <th>出错<br/>报告</th>
-        <th>客户<br/>改模<br />资料</th>
-        <th>内部<br />改模<br/>资料</th>
+        <th>改模<br />资料</th>
         <th>客户<br />确认</th>
         <th>出厂<br />检查表</th>
         <th>装箱<br />装车<br />照片</th>
@@ -363,11 +363,11 @@ function display($row,$array_project_data_type,$index){
           <?php echo show($row,'drawing'); ?>
         </td> -->
         <?php if($isconfirm == 1 || $isadmin == 1){ 
-         	echo display($row,$array_project_data_type,0);
-     		} ?>
+          echo display($row,$array_project_data_type,0);
+        } ?>
         <td class="detail">
-          查看
-        	<input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
+          <img src="../images/system_ico/article_12_16.png" />
+          <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
         <?php echo display($row,$array_project_data_type,1); ?>
         <td></td>
@@ -378,15 +378,15 @@ function display($row,$array_project_data_type,$index){
         <td></td>
         <td></td>
         <?php
-        	echo display($row,$array_project_data_type,2);
+          echo display($row,$array_project_data_type,2);
         ?>
         <td></td>
         <td></td>
         <td></td>
+        <td><a href="#">T1</a></td>
         <?php
-        	echo display($row,$array_project_data_type,3);
-        	echo display($row,$array_project_data_type,4);
-        	echo display($row,$array_project_data_type,5);
+          echo display($row,$array_project_data_type,3);
+          echo display($row,$array_project_data_type,4);
         ?>
         <!-- <td>
           <?php echo show($row,'flow'); ?>

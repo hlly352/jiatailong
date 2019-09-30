@@ -11,13 +11,12 @@ if($_GET['submit']){
   $material_number = trim($_GET['material_number']);
   $material_name = trim($_GET['material_name']);
   $specification = trim($_GET['specification']);
-  $complete_status = $_GET['complete_status'];
   if($complete_status != NULL){
     $sql_complete_status = " AND `db_mould_material`.`complete_status` = '$complete_status'";
   }
-  $sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' $sql_complete_status";
+  $sqlwhere = " AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' $sql_complete_status";
 }
-$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code` FROM `db_mould_material` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`type` != 'Z' $sqlwhere";
+$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould_specification`.`mould_no`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code` FROM `db_mould_material` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`type` != 'Z' $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould_material_list'] = $sql;
@@ -43,7 +42,7 @@ $result = $db->query($sqllist);
     }
   })
 </script>
-<title>模具物料-希尔林</title>
+<title>模具加工-希尔林</title>
 </head>
 
 <body>
@@ -58,8 +57,12 @@ $result = $db->query($sqllist);
           <option value="">--请选择--</option>
           <?php
             if($result_outward_type->num_rows){
+              if(isset($_GET['outward_typeid'])){
+                $outward_typeid = $_GET['outward_typeid'];
+              }
               while($row_type = $result_outward_type->fetch_assoc()){
-                echo '<option value="'.$row_type['outward_typeid'].'">'.$row_type['outward_typename'].'</option>';
+                $is_select = $outward_typeid == $row_type['outward_typeid']?'selected':'';
+                echo '<option '.$is_select.' value="'.$row_type['outward_typeid'].'">'.$row_type['outward_typename'].'</option>';
               }
             }
           ?>
@@ -78,14 +81,6 @@ $result = $db->query($sqllist);
         <td><input type="text" name="material_name" class="input_txt" /></td>
         <th>规格：</th>
         <td><input type="text" name="specification" class="input_txt" /></td>
-        <th>完整：</th>
-        <td><select name="complete_status">
-        <option value="">所有</option>
-        <?php
-        foreach($array_is_status as $is_status_key=>$is_status_value){
-      echo "<option value=\"".$is_status_key."\">".$is_status_value."</option>";
-    }
-    ?>
         </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
         <!-- <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_mould_material_list.php'" /></td> -->
@@ -140,7 +135,7 @@ $result = $db->query($sqllist);
     ?>
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $materialid; ?>"<?php //if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> /></td>
-        <td><?php echo $row['mould_number']; ?></td>
+        <td><?php echo $row['mould_no']; ?></td>
         <td><?php echo $row['material_list_number']; ?></td>
         <td><?php echo $row['material_list_sn']; ?></td>
         <td><?php echo $row['material_number']; ?></td>
@@ -158,6 +153,8 @@ $result = $db->query($sqllist);
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
       <input type="submit" name="submit" id="submit" value="添加" class="select_button" disabled="disabled" />
       <input type="hidden" name="action" value="add" />
+      <input type="hidden" name="query" value="<?php echo $_GET['submit'] ?>" />
+      <input type="hidden" name="page" value="<?php echo $_GET['page'] ?>" />
     </div>
   </form>
   <div id="page">

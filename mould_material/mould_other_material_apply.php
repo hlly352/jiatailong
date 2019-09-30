@@ -100,7 +100,7 @@ $(function(){
   //   var specificationid = $(this).val();
   //   get_stock(specificationid);
   // })
-	
+  
 })
 </script>
 <title>模具加工-希尔林</title>
@@ -139,7 +139,7 @@ $(function(){
       $employee_dept = $res_employee_dept->fetch_row()[0];
     }
   ?>
-  <?php if($isconfirm == 1){ ?>
+  <?php if($isconfirm == 1 && $isadmin == 0){ ?>
   <div id="table_search">
   <h4>期间物料申购</h4>
   <form action="" name="search" method="get">
@@ -273,6 +273,28 @@ $(function(){
   ?>
 </div>
       <?php }else{ ?>
+        <script type="text/javascript">
+          $('#submi').live('click',function(){
+            var unit = $('#unit').val();
+            if(!unit){
+              alert('请填写单位');
+              return false;
+            }
+            var quantity = $('#quantity').val();
+            if(!quantity){
+              alert('请填写数量');
+              return false;
+            }else if(!ri_b.test(quantity) && quantity){
+              alert('数量必须为数字');
+              return false;
+            }
+            var material_name = $('#material_name').val();
+            if(!material_name){
+              alert('请填写物料名称');
+              return false;
+            }
+          })
+        </script>
     <div id="table_sheet">
       <table>
       <form action="mould_other_materialdo.php" method="post">
@@ -287,7 +309,7 @@ $(function(){
         </td>
         <th width="10%">物料名称：</th>
         <td width="15%">
-          <input type="text" name="material_name" class="input_txt" />
+          <input type="text" name="material_name" id="material_name" class="input_txt" />
         </td>
         <th width="10%">数量：</th>
         <td width="15%">
@@ -297,7 +319,7 @@ $(function(){
       <tr>
         <th>单位：</th>
         <td>
-          <input type="text" name="unit" class="input_txt" />
+          <input type="text" name="unit" id="unit" class="input_txt" />
         </td>
          <th>申请人：</th>
            <td width=""><select name="applyer" class="input_txt txt">
@@ -344,11 +366,11 @@ $(function(){
   <?php
   }elseif($action == "edit"){
     $to = $_GET['to'];
-	  $material_id = fun_check_int($_GET['id']);
+    $material_id = fun_check_int($_GET['id']);
     $sql = "SELECT `db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`unit` AS `material_unit`,`db_other_material_data`.`unit`,`db_other_material_specification`.`standard_stock`,`db_other_material_specification`.`stock`,`db_other_material_type`.`material_typename`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_mould_other_material`.`remark`,`db_employee`.`employee_name`,`db_department`.`dept_name`,`db_mould_other_material`.`material_name` AS `name` FROM `db_mould_other_material` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`mould_other_id` = '$material_id'";
-	  $result = $db->query($sql); 
-	  if($result->num_rows){
-		  $row = $result->fetch_assoc();
+    $result = $db->query($sql); 
+    if($result->num_rows){
+      $row = $result->fetch_assoc();
       $material_unit = $row['material_unit'];
 
   ?>
@@ -468,9 +490,9 @@ $(function(){
     </table>
   </form>
   <?php
-	  }else{
-		  echo "<p class=\"tag\">系统提示：暂无记录！</p>";
-	  }
+    }else{
+      echo "<p class=\"tag\">系统提示：暂无记录！</p>";
+    }
   }
   ?>
 </div>

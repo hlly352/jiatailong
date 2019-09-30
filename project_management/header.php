@@ -23,7 +23,7 @@
         <li><a href="mould_try_apply.php">试模记录</a></li>
       </ul>
     </li>
-    <li class="menulevel"><a href="project_summary.php">模具修改</a></li>
+    <li class="menulevel"><a href="mould_modify.php">模具修改</a></li>
     <li class="menulevel"><a href="#">模具交付</a>
       <ul>
         <li><a href="mould_try_applyae.php?action=add">出厂检查表</a></li>

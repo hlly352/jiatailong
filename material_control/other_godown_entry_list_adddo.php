@@ -3,6 +3,7 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
+var_dump($_POST);
 if($_POST['submit']){
 	$entryid = $_POST['entryid'];
 	$array_inoutid = $_POST['id'];

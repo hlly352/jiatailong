@@ -21,6 +21,17 @@ if($_POST['submit']){
 		if($db->affected_rows){
 			header("location:other_material_type.php");
 		}
+	}elseif($action == 'edit_specification'){
+		$specificationid = $_POST['specificationid'];
+		$standard_stock = $_POST['standard_stock'];
+		$specification_name = $_POST['specification'];
+		$sql = "UPDATE `db_other_material_specification` SET `specification_name` = '$specification_name',`standard_stock` = '$standard_stock' WHERE `specificationid` = '$specificationid'";
+		
+		$db->query($sql);
+		
+		header('location:'.$_SERVER['HTTP_REFERER']);
+		
+
 	}elseif($action == "del"){
 
 		$array_id = $_POST['id'];
@@ -37,15 +48,15 @@ if($_POST['submit']){
 			}
 		}elseif($action == 'specification'){
 			$materialid = $_POST['materialid'];
-			$specification = trim($_POST['specification']);
-			$array_specification = explode('|',$specification);
-			foreach($array_specification as $val){
-				if(!empty($val)){
-					$sql_str .= '(\''.$materialid.'\',\''.$val.'\'),';
-				}
+			$specification = $_POST['specification'];
+			$standard_stock = $_POST['standard_stock'];
+			//添加多种规格
+			foreach($specification as $k=>$v){
+				$sql_str .= "('$materialid','$v','$standard_stock[$k]'),";
 			}
 			$sql_str = rtrim($sql_str,',');
-			$sql = "INSERT INTO `db_other_material_specification`(`materialid`,`specification_name`) VALUES{$sql_str}";
+			$sql = "INSERT INTO `db_other_material_specification`(`materialid`,`specification_name`,`standard_stock`) VALUES{$sql_str}";
+			
 			$db->query($sql);
 			if($db->affected_rows){
 				header("location:other_material_data.php");

@@ -45,11 +45,13 @@ $(function(){
 	*/
 	//失去焦点
 	$("input[name^=actual_quantity]").blur(function(){
-		var actual_quantity = $(this).val();
-		if(!rf_a.test(actual_quantity) && $.trim(actual_quantity)){
-			alert('请输入数字');
-			$(this).val(this.defaultValue);
+
+    var actual_quantity = $(this).val();
+    if(!rf_a.test(actual_quantity) && $.trim(actual_quantity)){
+      alert('请输入数字');
+      $(this).val(this.defaultValue);
 		}else{
+
 			if($.trim(actual_quantity)){
 				$(this).val(parseFloat($(this).val()).toFixed(2));
 				var array_id = $(this).attr('id').split('-');
@@ -62,20 +64,27 @@ $(function(){
 	})
 	//获取焦点
 	$("input[name^=actual_quantity]").focus(function(){
-		var array_id = $(this).attr('id').split('-');
-		var materialid = array_id[1];
-		$.post('../ajax_function/material_order_quantity.php',{
-			materialid:materialid
-		},function(data,textstatus){
-			var array_data = data.split('#');
-			var actual_quantity = array_data[0];	
-			var unitid = array_data[1];
-			$("#actual_quantity-"+materialid).val(actual_quantity);
-			$("#actual_unitid-"+materialid).find("option[value="+unitid+"]").attr("selected",true);
-			var unit_price = $("#unit_price-"+materialid).val();
-			var amount = actual_quantity*unit_price;
-			$("#amount-"+materialid).val(amount.toFixed(2));
-		})
+    var id = $(this).attr('id');
+    var index = id.lastIndexOf('-');
+    var mould_other_id = id.substr(index);
+    var order_quantity = $('#quantity'+mould_other_id).val();
+    //order_quantity = order_quantity.toFixed(2);
+    $(this).val(order_quantity);
+    
+		// var array_id = $(this).attr('id').split('-');
+		// var materialid = array_id[1];
+		// $.post('../ajax_function/material_order_quantity.php',{
+		// 	materialid:materialid
+		// },function(data,textstatus){
+		// 	var array_data = data.split('#');
+		// 	var actual_quantity = array_data[0];	
+		// 	var unitid = array_data[1];
+		// 	$("#actual_quantity-"+materialid).val(actual_quantity);
+		// 	$("#actual_unitid-"+materialid).find("option[value="+unitid+"]").attr("selected",true);
+		// 	var unit_price = $("#unit_price-"+materialid).val();
+		// 	var amount = actual_quantity*unit_price;
+		// 	$("#amount-"+materialid).val(amount.toFixed(2));
+		// })
 	})								 
 	$("input[name^=unit_price]").blur(function(){
 		var unit_price = $(this).val();
@@ -157,11 +166,11 @@ if($_GET['submit']){
     }
 }
 if($data_source == 'A'){
-	    $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_name` AS `name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`status` = 'E' AND `db_mould_other_material`.`inquiryid` = '$employeeid' $sqlwhere";
+	    $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_specification`.`material_name`,`db_other_material_data`.`material_name` AS `data_name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`mould_other_id` NOT IN(SELECT `materialid` FROM `db_other_material_orderlist`) AND `db_mould_other_material`.`status` = 'E' AND `db_mould_other_material`.`inquiryid` = '$employeeid' $sqlwhere";
 }elseif($data_source == 'B'){
-      $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_name` AS `name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`status` = 'E' $sqlwhere";
+      $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_specification`.`material_name`,`db_other_material_data`.`material_name` AS `data_name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`mould_other_id` NOT IN(SELECT `materialid` FROM `db_other_material_orderlist`) AND `db_mould_other_material`.`status` = 'E' $sqlwhere";
 }elseif($data_source == 'C'){
-	      $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_name` AS `name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`status` IN('C','E') $sqlwhere";
+	      $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_specification`.`material_name`,`db_other_material_data`.`material_name` AS `data_name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid` WHERE `db_mould_other_material`.`mould_other_id` NOT IN(SELECT `materialid` FROM `db_other_material_orderlist`) AND `db_mould_other_material`.`status` IN('C','E') $sqlwhere";
 }
 
 $result = $db->query($sql);
@@ -201,7 +210,7 @@ $result = $db->query($sqllist);
             <option value="C"<?php if($data_source == 'C') echo " selected=\"selected\""; ?>>未下订单</option>
           </select></td>
         <td><input type="submit" name="submit" id="submit" value="查询" class="button" />
-          <input type="button" name="button" value="明细" class="button" onclick="location.href='material_order_list.php?id=<?php echo $orderid; ?>'" />
+          <input type="button" name="button" value="明细" class="button" onclick="location.href='other_material_orderlist.php?actin=info&id=<?php echo $orderid; ?>'" />
           <input type="hidden" name="id" value="<?php echo $orderid; ?>" /></td>
       </tr>
     </table>
@@ -237,13 +246,13 @@ $result = $db->query($sqllist);
 	  ?>
       <tr>
         <td><?php echo $row['material_typename']; ?></td>
-        <td<?php echo $material_name_bg; ?>><?php echo $row['unit']?$row['material_name']:$row['name']; ?></td>
+        <td<?php echo $material_name_bg; ?>><?php echo $row['material_unit']?$row['material_name']:$row['data_name']; ?></td>
         <td><?php echo $row['specification_name']; ?></td>
-        <td><input type="text" value="<?php echo $row['quantity']; ?>" name="order_quantity" readonly style="border:none;width:60px" ></td>
+        <td><input type="text" value="<?php echo $row['quantity']; ?>" id="quantity-<?php echo $row['mould_other_id'] ?>" name="order_quantity[]" readonly style="border:none;width:60px" ></td>
         <td>
         	<input type="text" name="actual_quantity[]" id="actual_quantity-<?php echo $row['mould_other_id'] ?>" value="<?php echo $row['material_quantity']; ?>" class="input_txt" size="8" />
         </td>
-        <td><?php echo $row['unit']?$row['unit']:$row['material_unit'] ?></td>
+        <td><?php echo $row['material_unit']?$row['material_unit']:$row['unit'] ?></td>
         <td>
         	<input type="text" id="unit_price-<?php echo $row['mould_other_id'] ?>" name="unit_price[]" class="input_txt" size="8"/>
         </td>
@@ -265,7 +274,7 @@ $result = $db->query($sqllist);
           </select></td>
         <td>
         	<?php echo date('Y-m-d',strtotime($plan_date)); ?>
-          <input type="hidden" name="plan_date" value="<?php echo date('Y-m-d',strtotime($plan_date)) ?>" />
+          <input type="hidden" name="plan_date[]" value="<?php echo date('Y-m-d',strtotime($plan_date)) ?>" />
         </td>
         <td><input type="text" name="remark[]" class="input_txt" size="12" />
           <input type="hidden" name="materialid[]" value="<?php echo $row['mould_other_id']; ?>" /></td>

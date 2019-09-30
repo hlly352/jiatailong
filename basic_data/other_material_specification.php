@@ -48,6 +48,7 @@ $result = $db->query($sqllist);
         <th width="10%">ID</th>
         <th width="25%">物料名称</th>
         <th width="20%">物料规格</th>
+        <th>标准库存</th>
         <th width="10%">Edit</th>
       </tr>
       <?php
@@ -58,7 +59,8 @@ $result = $db->query($sqllist);
         <td><input type="checkbox" name="id[]" value="<?php echo $specificationid; ?>" /></td>
         <td><?php echo $row['material_name']; ?></td>
         <td><?php echo $row['specification_name']; ?></td>
-        <td width="4%"><a href="other_material_typeae.php?id=<?php echo $dataid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
+        <td><?php echo $row['standard_stock']; ?></td>
+        <td width="4%"><a href="other_material_typeae.php?id=<?php echo $specificationid; ?>&action=edit_specification"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       </tr>
       <?php } ?>
     </table>

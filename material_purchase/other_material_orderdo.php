@@ -39,6 +39,13 @@ if($_POST['submit']){
 		if($result_order->num_rows){
 			$pay_type = $result_order->fetch_row()[0];
 		}
+		if($order_status == 1){
+				//更改物料状态
+			$sql_mould_id = "UPDATE `db_mould_other_material` SET `status` = 'F' WHERE `mould_other_id` IN(SELECT `mould_other_id` FROM (SELECT `mould_other_id` FROM `db_mould_other_material` INNER JOIN `db_other_material_orderlist` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` WHERE `db_other_material_order`.`orderid` = '$orderid' GROUP BY `db_mould_other_material`.`mould_other_id`) AS t)";
+			}elseif($order_status == 0){
+				$sql_mould_id = "UPDATE `db_mould_other_material` SET `status` = 'C' WHERE `mould_other_id` IN(SELECT `mould_other_id` FROM (SELECT `mould_other_id` FROM `db_mould_other_material` INNER JOIN `db_other_material_orderlist` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_order` ON `db_other_material_orderlist`.`orderid` = `db_other_material_order`.`orderid` WHERE `db_other_material_order`.`orderid` = '$orderid' GROUP BY `db_mould_other_material`.`mould_other_id`) AS t)";
+			}
+			$db->query($sql_mould_id);
 		// 预付订单则添加到对账单中
 		if($pay_type == 'P'){
 			//通过订单状态，插入或删除订单汇总表中的内容

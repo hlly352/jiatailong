@@ -8,6 +8,8 @@ require_once 'shell.php';
 	$action = $_POST['action'];
 	$data = $_POST;
 	if($action == 'add'){
+		$material_name = $data['material_name'];
+		unset($data['material_name']);
 		unset($data['submit']);
 		unset($data['action']);
 		$applyerid = $data['applyer'];
@@ -24,6 +26,16 @@ require_once 'shell.php';
 		$val_sql .='"'.time().'","'.$approver.'","A"';
 		$add_sql = "INSERT INTO `db_mould_other_material`($key_sql) VALUES($val_sql)";
 		$db->query($add_sql);
+		$mould_other_id = $db->insert_id;
+		//期间物料规格表中添加一项
+		$sql_specification = "INSERT INTO `db_other_material_specification`(`materialid`,`material_name`,`type`,`last_date`) VALUES('$mould_other_id','$material_name','B',DATE_FORMAT(NOW(),'%Y-%m-%d'))";
+	
+		$db->query($sql_specification);
+		$specificationid = $db->insert_id;
+		//规格id插入到期间物料表中
+		$sql_mould_other = "UPDATE `db_mould_other_material` SET `material_name` = '$specificationid' WHERE `mould_other_id` = '$mould_other_id'";
+		
+		$db->query($sql_mould_other);
 		if($db->affected_rows){
 			header('location:mould_other_fee.php');
 		}
@@ -35,6 +47,7 @@ require_once 'shell.php';
 		$array_apply_date = $data['apply_date'];
 		$array_requirement_date = $data['requirement_date'];
 		$array_remark = $data['remark'];
+
 		//添加数据
 		$sql_str = '';
 		foreach($array_quantity as $k=>$v){
@@ -43,12 +56,19 @@ require_once 'shell.php';
 				$approver = approver($db,$array_applyer[$k]);
 
 				$sql_str .= '(\''.$array_specificationid[$k].'\',\''.$array_apply_team[$k].'\',\''.$array_apply_date[$k].'\',\''.$v.'\',\''.$array_applyer[$k].'\',\''.$approver.'\',\''.$array_remark[$k].'\',\''.time().'\',\'A\',\''.$array_requirement_date[$k].'\'),';
+				$specificationids .= $array_specificationid[$k].',';
 			}
 		}
 		$sql_str = rtrim($sql_str,',');
+		
+		$specificationids = rtrim($specificationids,',');
 		//把批量申购的物料信息插入到物料信息表中
 		$sql = "INSERT INTO `db_mould_other_material`(`material_name`,`apply_team`,`apply_date`,`quantity`,`applyer`,`approver`,`remark`,`add_time`,`status`,`requirement_date`) VALUES$sql_str";
-		$db->query($sql);
+		 $db->query($sql);
+		//物料规格表中插入下单时间
+		$sql_specification = "UPDATE `db_other_material_specification` SET `last_date` = DATE_FORMAT(NOW(),'%Y-%m_%d') WHERE FIND_IN_SET(`specificationid`,'$specificationids')";
+
+		$db->query($sql_specification);
 		if($db->affected_rows){
 			header('location:mould_other_material_apply.php?action=add');
 		}

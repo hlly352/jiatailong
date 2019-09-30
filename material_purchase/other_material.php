@@ -29,7 +29,7 @@ if($_GET['submit']){
    $sqlwhere .= " AND `apply_team` LIKE '%$apply_team%' $sqltype";
 }
 
-    $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name`,`db_mould_other_material`.`material_name` AS `name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid`  WHERE `db_mould_other_material`.`status` = 'C' AND `db_mould_other_material`.`mould_other_id` NOT IN(SELECT `materialid` FROM `db_other_material_orderlist`) $sqlwhere";
+    $sql = "SELECT `db_mould_other_material`.`mould_other_id`,`db_mould_other_material`.`apply_date`,`db_mould_other_material`.`requirement_date`,`db_other_material_type`.`material_typename`,`db_other_material_data`.`material_name` AS `data_name`,`db_other_material_specification`.`material_name`,`db_other_material_specification`.`specification_name`,`db_mould_other_material`.`quantity`,`db_other_material_data`.`unit`,`db_mould_other_material`.`unit` AS `material_unit`,`db_department`.`dept_name`,`db_mould_other_material`.`remark` FROM `db_mould_other_material` INNER JOIN `db_department` ON `db_mould_other_material`.`apply_team` = `db_department`.`deptid` LEFT JOIN `db_other_material_specification` ON `db_other_material_specification`.`specificationid` = `db_mould_other_material`.`material_name` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` LEFT JOIN `db_other_material_type` ON `db_other_material_data`.`material_typeid` = `db_other_material_type`.`material_typeid`  WHERE `db_mould_other_material`.`status` = 'C' AND `db_mould_other_material`.`mould_other_id` NOT IN(SELECT `materialid` FROM `db_other_material_orderlist`) $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould_material_list'] = $sql;
@@ -155,10 +155,10 @@ $result = $db->query($sqllist);
         <td><?php echo $row['apply_date']; ?></td>
         <td><?php echo $row['requirement_date']; ?></td>
         <td><?php echo $row['material_typename']; ?></td>
-        <td><?php echo $row['unit']?$row['material_name']:$row['name']; ?></td>
+        <td><?php echo $row['material_unit']?$row['material_name']:$row['data_name']; ?></td>
         <td><?php echo $row['specification_name']; ?></td>
         <td><?php echo $row['quantity'] ?></td>
-        <td><?php echo $row['unit']?$row['unit']:$row['material_unit']; ?></td>
+        <td><?php echo $row['material_unit']?$row['material_unit']:$row['unit']; ?></td>
         <td><?php echo $row['dept_name']; ?></td>
         <td><?php echo $row['remark']; ?></td>
       </tr>

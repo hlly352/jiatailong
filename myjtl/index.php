@@ -1,24 +1,20 @@
-  <?php
+<?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
-//获取员工id
 $employeeid = $_SESSION['employee_info']['employeeid'];
-
 $sql_employee = "SELECT `db_employee`.`employee_name`,`db_employee`.`account`,`db_employee`.`employee_number`,`db_employee`.`phone`,`db_employee`.`extnum`,`db_employee`.`email`,`db_employee`.`photo_filedir`,`db_employee`.`photo_filename`,`db_department`.`dept_name`,`db_personnel_position`.`position_name`,`db_superior`.`employee_name` AS `superior_name` FROM `db_employee` INNER JOIN `db_department` ON `db_department`.`deptid` = `db_employee`.`deptid` INNER JOIN `db_personnel_position` ON `db_personnel_position`.`positionid` = `db_employee`.`positionid` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` = '$employeeid'";
 $result_employee = $db->query($sql_employee);
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link href="../css/base.css?v=314" type="text/css" rel="stylesheet" />
-<link href="../css/myjtl.css?v=314" type="text/css" rel="stylesheet" />
+<link href="../css/base.css?v=513" type="text/css" rel="stylesheet" />
+<link href="../css/myjtl.css?v=521" type="text/css" rel="stylesheet" />
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript">
-//设置左侧边栏的点击效果
 $(function(){
 	$("#myjtl_work_list p:first").css({'border-top':'none'});
 	$("#myjtl_work_list p").click(function(){
@@ -51,7 +47,6 @@ $(function(){
 	  //我的出门证未审批
 	  $sql_my_goout = "SELECT `gooutid`,`goout_num`,`apply_date` FROM `db_employee_goout` WHERE `approve_status` = 'A' AND `goout_status` = 1 AND `applyer` = '$employeeid'";
 	  $result_my_goout = $db->query($sql_my_goout);
-
 	  //我的请假未审批
 	  $sql_my_leave = "SELECT `leaveid`,`leave_num`,`apply_date` FROM `db_employee_leave` WHERE `approve_status` = 'A' AND `leave_status` = 1 AND `applyer` = '$employeeid'";
 	  $result_my_leave = $db->query($sql_my_leave);
@@ -89,9 +84,15 @@ $(function(){
 	  $result_express_receive = $db->query($sql_express_receive);
 	  //待试模审批
 	  $sql_mould_try_approve = "SELECT `db_mould_try`.`tryid`,`db_mould`.`mould_number`,`db_employee`.`employee_name` FROM `db_mould_try` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_try`.`mouldid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_mould_try`.`employeeid` WHERE `db_mould_try`.`approve_status` = 'A' AND `db_mould_try`.`try_status` = 1 AND `db_mould_try`.`approver` = '$employeeid'";
-	  //待审批期间物料
-	  $sql_mould_other_material = "SELECT * FROM `db_mould_other_material` WHERE `status` ='A' AND `approver` = '$employeeid'";
+	  $result_mould_try_approve = $db->query($sql_mould_try_approve);
+	  	  //待审批期间物料
+
+	  $sql_mould_other_material = "SELECT `db_employee`.`employee_name`,`db_mould_other_material`.`mould_other_id`,`db_other_material_specification`.`material_name`,`db_other_material_data`.`material_name` AS `data_name` FROM `db_mould_other_material` INNER JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` WHERE `status` ='A' AND `approver` = '$employeeid' AND `approver` != 37";
 	  $result_other_material = $db->query($sql_mould_other_material);
+	  if($employeeid == 37){
+		  $sql_total_other_material = "SELECT `db_employee`.`employee_name`,`db_mould_other_material`.`mould_other_id`,`db_other_material_specification`.`material_name`,`db_other_material_data`.`material_name` AS `data_name` FROM `db_mould_other_material` INNER JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` WHERE `status` ='B' OR (`db_mould_other_material`.`approver` = '$employeeid' AND `db_mould_other_material`.`status` = 'A')";
+		  $result_total_other_material = $db->query($sql_total_other_material);
+		}
 	  //付款计划采购审核
 	  $purchase_isconfirm = $_SESSION['system_shell']['/material_purchase/']['isconfirm'];
 	  if($purchase_isconfirm == '1'){
@@ -144,22 +145,21 @@ $(function(){
 	  	$financial_account_num = 0;
 	  	$invoice_num = 0;
 	  }
-	  //带审批报价
-	  $sql_mould_quote_approve = "SELECT `db_mould_data`.`mould_dataid` FROM `db_mould_data` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = '5020'  INNER JOIN `db_system_employee` ON `db_system_employee`.`employeeid` = `db_employee`.`employeeid` WHERE `db_system_employee`.`systemid` = '19' AND `db_system_employee`.`isadmin`='1' AND `db_mould_data`.`is_approval`='0'";
-	  //echo $sql_mould_quote_approve;
-	  $result_mould_try_approve = $db->query($sql_mould_try_approve);
-	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows+$purchase_isadmin_num+$purchase_isconfirm_num+$financial_isconfirm_num+$pay_isconfirm_num+$pay_financial_num+$pay_num+$financial_account_num+$invoice_num;
+	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows+$purchase_isadmin_num+$purchase_isconfirm_num+$financial_isconfirm_num+$pay_isconfirm_num+$pay_financial_num+$pay_num+$financial_account_num+$invoice_num+$result_total_other_material->num_rows;
 	  //计划任务
 	  $sql_plan = "SELECT `planid`,`plan_content`,`start_date` FROM `db_job_plan` WHERE `employeeid` = '$employeeid' AND `plan_status` = 1 AND `plan_result` = 0";
 	  $result_plan = $db->query($sql_plan);
 	  $total_plan = $result_plan->num_rows;
+	  $sql_outward = "SELECT * FROM `db_outward_inquiry` WHERE `approver` = '$employeeid' AND `status` = '0'";
+	 $result_outward = $db->query($sql_outward);
+	 $outward_num = $result_outward->num_rows > 0?'1':'0';
+	 $total_plan = $result_plan->num_rows+$outward_num;
 	  ?>
       <h4>日常工作</h4>
-      <p id="my_apply"<?php echo $total_apply?' style="color:#F00;"':'' ?>>【我的申请】您有<?php echo $total_apply; ?>个申请待审批</p>
+      <p id="my_apply"<?php echo $total_apply?' style="color:#F00;"':'' ?>>【我的申请】您有<span class="tasknum"><?php echo $total_apply; ?></span>个申请待审批</p>
       <ul id="my_apply_list" style="display:none;">
         <?php if($total_apply){ ?>
         <?php
-
 		if($result_my_goout->num_rows){
 			while($row_my_goout = $result_my_goout->fetch_assoc()){
 		?>
@@ -219,7 +219,7 @@ $(function(){
 		}
 		?>
       </ul>
-      <p id="my_approve"<?php echo $total_approve?' style="color:#F00;"':'' ?>>【我的审批】您有<?php echo $total_approve; ?>个审批未处理</p>
+      <p id="my_approve"<?php echo $total_approve?' style="color:#F00;"':'' ?>>【我的审批】您有<span class="tasknum"><?php echo $total_approve; ?></span>个审批未处理</p>
       <ul id="my_approve_list" style="display:none;">
         <?php  if($total_approve){ ?>
         <?php
@@ -240,57 +240,6 @@ $(function(){
 			}
 		}
 		?>
-		<?php
-			if($result_other_material->num_rows){
-				while($row_other_material = $result_other_material->fetch_assoc()){
-					$name = getName($row_other_material['applyer'],$db);
-
-		?>
-		<li><a href="/mould_material/mould_other_material_apply.php?action=edit&id=<?php echo $row_other_material['mould_other_id'] ?>">【期间物料】<?php echo $name.'/物料名称：'.$row_other_material['material_name'] ?></a></li>
-		 <?php
-			}
-		}
-		?>
-		<?php
-			if($purchase_isconfirm_num>0){
-		?>
-			<li><a href="/material_purchase/material_funds_plan.php">付款计划<?php echo $purchase_isconfirm_num ?>项</a></li>
-		<?php }?>
-		<?php
-			if($purchase_isadmin_num>0){
-		?>
-			<li><a href="/material_purchase/material_funds_plan.php">付款计划<?php echo $purchase_isadmin_num ?>项</a></li>
-		<?php } ?>
-		<?php
-			if($financial_isconfirm_num>0){
-		?>
-			<li><a href="/financial_management/material_funds_plan.php">付款计划<?php echo $financial_isconfirm_num ?>项</a></li>
-		<?php } ?>
-		<?php
-			if($pay_isconfirm_num >0){
-		?>
-			<li><a href="/material_purchase/material_funds_plan.php">付款审核<?php echo $pay_isconfirm_num ?>项</a></li>
-		<?php } ?>
-		<?php 
-			if($pay_financial_num>0){
-		?>
-			<li><a href="/financial_management/material_funds_plan.php">付款审核<?php echo $pay_financial_num ?>项</a></li>
-		<?php } ?>
-		<?php
-			if($pay_num >0){
-		?>
-			<li><a href="/material_purchase/material_funds_plan.php">付款审批<?php echo $pay_num; ?>项</a></li>
-		<?php }?>
-		<?php 
-			if($financial_account_num >0){
-		?>	
-			<li><a href="/financial_management/material_balance_account.php">对账审核<?php echo $financial_account_num ?>项</a></li>
-		<?php } ?>
-		<?php 
-			if($invoice_num >0){
-		?>
-			<li><a href="/financial_management/material_invoice_manage.php">发票接收<?php echo $invoice_num ?>项</a></li>
-		<?php } ?>
         <?php
 		if($result_overtime->num_rows){
 			while($row_overtime = $result_overtime->fetch_assoc()){
@@ -336,14 +285,75 @@ $(function(){
 			}
 		}
 		?>
+				<?php
+			if($purchase_isconfirm_num>0){
+		?>
+			<li><a href="/material_purchase/material_funds_plan.php">付款计划<?php echo $purchase_isconfirm_num ?>项</a></li>
+		<?php }?>
+		<?php
+			if($purchase_isadmin_num>0){
+		?>
+			<li><a href="/material_purchase/material_funds_plan.php">付款计划<?php echo $purchase_isadmin_num ?>项</a></li>
+		<?php } ?>
+		<?php
+			if($financial_isconfirm_num>0){
+		?>
+			<li><a href="/financial_management/material_funds_plan.php">付款计划<?php echo $financial_isconfirm_num ?>项</a></li>
+		<?php } ?>
+		<?php
+			if($invoice_num >0){
+		?>
+			<li><a href="/financial_management/material_invoice_manage.php">发票接收<?php echo $invoice_num; ?>项</a></li>
+		<?php } ?>
+		<?php
+			if($financial_account_num>0){
+		?>
+			<li><a href="/financial_management/material_balance_account.php">付款计划<?php echo $financial_account_num ?>项</a></li>
+		<?php } ?>
+		<?php
+			if($pay_isconfirm_num >0){
+		?>
+			<li><a href="/material_purchase/material_funds_plan.php">付款审核<?php echo $pay_isconfirm_num ?>项</a></li>
+		<?php } ?>
+		<?php 
+			if($pay_financial_num>0){
+		?>
+			<li><a href="/financial_management/material_funds_plan.php">付款审核<?php echo $pay_financial_num ?>项</a></li>
+		<?php } ?>
+		<?php
+			if($pay_num >0){
+		?>
+			<li><a href="/material_purchase/material_funds_plan.php">付款审批<?php echo $pay_num; ?>项</a></li>
+		<?php }?>
+	    <?php
+			if($result_other_material->num_rows){
+				while($row_other_material = $result_other_material->fetch_assoc()){
+					$material_name = $row_other_material['material_name']?$row_other_material['material_name']:$row_other_material['data_name'];
+		?>
+		<li><a href="/mould_material/mould_other_material_apply.php?action=edit&to=B&id=<?php echo $row_other_material['mould_other_id'] ?>"><?php echo '【期间物料】'.$row_other_material['employee_name'].'/'.$material_name ?></a></li>
+		 <?php
+			}
+		}
+		?>
+		<?php
+			if($result_total_other_material->num_rows){
+				while($total_other_material = $result_total_other_material->fetch_assoc()){
+					$material_name = $total_other_material['material_name']?$total_other_material['material_name']:$total_other_material['data_name'];
+		?>
+		<li><a href="/mould_material/mould_other_material_apply.php?action=edit&to=C&id=<?php echo $total_other_material['mould_other_id'] ?>"><?php echo '【期间物料】'.$total_other_material['employee_name'].'/'.$material_name ?></a></li>
+		 <?php
+			}
+		}
+		?>
         <?php
 		}else{
 			echo "<li>【审批】暂无</li>";
 		}
 		?>
       </ul>
-      <p id="my_plan"<?php echo $total_plan?' style="color:#F00;"':'' ?>>【工作计划】您有<?php echo $total_plan; ?>个计划未完成</p>
+      <p id="my_plan"<?php echo $total_plan?' style="color:#F00;"':'' ?>>【工作计划】您有<span class="tasknum"><?php echo $total_plan; ?></span>个计划未完成</p>
       <ul id="my_plan_list" style="display:none;">
+      <?php if($total_plan >0){?>
         <?php
 		if($result_plan->num_rows){
 			while($row_plan = $result_plan->fetch_assoc()){
@@ -351,6 +361,16 @@ $(function(){
         <li><a href="/my_office/job_planae.php?id=<?php echo $row_plan['planid']; ?>&action=edit">【<?php echo $row_plan['start_date']; ?>】<?php echo strlen_sub($row_plan['plan_content'],10,10)?></a></li>
         <?php
 			}
+		}
+		?>
+		<?php
+		if($result_outward->num_rows){
+		?>
+        <li><a href="/mould_processing/outward_inquiry_list.php">【待外协加工】 <?php echo $result_outward->num_rows;?>项</a></li>
+        <?php
+			}
+		?>
+		<?php
 		}else{
 			echo "<li>【计划】暂无</li>";
 		}
@@ -409,7 +429,7 @@ $(function(){
         <dd><?php echo $array_employee['dept_name']; ?></dd>
         <dd><?php echo $array_employee['position_name']; ?></dd>
         <dd>上级领导：<?php echo $array_employee['superior_name']; ?></dd>
-        <dd>电话：<?php echo $array_employee['phone']; ?></dd>
+        <dd><!-- 电话： --><?php echo $array_employee['phone']; ?></dd>
         <dd>分机：<?php echo $array_employee['extnum']; ?></dd>
         <dd>上次登录：<?php echo $last_logintime; ?></dd>
       </dl>
@@ -425,16 +445,17 @@ $(function(){
     <?php
     foreach($array_system_type as $system_type_key=>$system_type_value){
 		if($system_type_key == 'A'){ //我的系统
-		    $sql_system = "SELECT `db_system`.`systemid`,`db_system`.`system_name`,`db_system`.`image_filedir`,`db_system`.`image_filename`,`db_system`.`system_dir` FROM `db_system_employee` INNER JOIN `db_system` ON `db_system`.`systemid` = `db_system_employee`.`systemid` WHERE `db_system`.`system_type` = '$system_type_key' AND `db_system`.`system_status` = 1 AND `db_system_employee`.`employeeid` = '$employeeid' ORDER BY `db_system`.`system_order` ASC,`db_system`.`systemid` ASC";
+		    $sql_system = "SELECT `db_system`.`system_name`,`db_system`.`image_filedir`,`db_system`.`image_filename`,`db_system`.`system_dir` FROM `db_system_employee` INNER JOIN `db_system` ON `db_system`.`systemid` = `db_system_employee`.`systemid` WHERE `db_system`.`system_type` = '$system_type_key' AND `db_system`.`system_status` = 1 AND `db_system_employee`.`employeeid` = '$employeeid' ORDER BY `db_system`.`system_order` ASC,`db_system`.`systemid` ASC";
 		}elseif($system_type_key == 'B'){ //公共系统
 			$sql_system = "SELECT `system_name`,`image_filedir`,`image_filename`,`system_dir` FROM `db_system` WHERE `system_type` = '$system_type_key' AND `system_status` = 1 ORDER BY `system_order` ASC,`systemid` ASC";
 		}
+		// echo $sql_system;
 		$result_system = $db->query($sql_system);
+		
 	?>
     <div id="myjtl_program_list">
       <h4><?php echo $system_type_value; ?></h4>
       <?php
-
       if($result_system->num_rows){
 		  //最新公告
 		  $sql_notice = "SELECT * FROM `db_notice` WHERE DATEDIFF(CURDATE(),DATE_FORMAT(`dotime`,'%Y-%m-%d')) <= 7 AND `notice_status` = 1";
@@ -444,10 +465,9 @@ $(function(){
 			  $image_filename = $row_system['image_filename'];
 			  $image_filepath = "../upload/system/".$image_filedir.'/'.$image_filename;
 			  $image_info = (is_file($image_filepath))?"<img src=\"".$image_filepath."\" />":"<img src=\"../images/no_image_60_60.png\" width=\"60\" height=\"60\" />";
-			 
 	  ?>
       <dl>
-        <dt><a href="<?php echo $row_system['system_dir'].'?system_id = '.$row_system['systemid']; ?>"><?php echo $image_info; ?></a></dt>
+        <dt><a href="<?php echo $row_system['system_dir']; ?>"><?php echo $image_info; ?></a></dt>
         <dd><?php echo $row_system['system_name']; ?><?php if($row_system['system_dir'] == '/notice/' && $result_notice->num_rows) echo "<font color=red>[".$result_notice->num_rows."]</font>"; ?></dd>
       </dl>
       <?php } ?>
@@ -457,8 +477,10 @@ $(function(){
     <?php } ?>
   </div>
   <div class="clear"></div>
-  
 </div>
-<?php include "../footer.php"; ?>
+<div id="footer">
+  <p>CopyRight ©2019 Suzhou Hillion Technology Co.,Ltd All Rights Reserved.</p>
+</div>
+
 </body>
 </html>

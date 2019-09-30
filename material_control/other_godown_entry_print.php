@@ -48,7 +48,8 @@ body, html {
 <?php
 if($result_entry->num_rows){
 	$array_entry = $result_entry->fetch_assoc();
-	$sql = "SELECT * FROM `db_godown_entry_list` INNER JOIN `db_godown_entry` ON `db_godown_entry`.`entryid` = `db_godown_entry_list`.`entryid` INNER JOIN `db_other_material_inout` ON `db_other_material_inout`.`inoutid` = `db_godown_entry_list`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_mould_other_material`.`material_name` WHERE `db_godown_entry_list`.`entryid` = '$entryid' AND `db_godown_entry`.`dotype` = 'O' ORDER BY `db_godown_entry_list`.`listid` ASC";
+// $sql = "SELECT * FROM `db_godown_entry_list` INNER JOIN `db_godown_entry` ON `db_godown_entry`.`entryid` = `db_godown_entry_list`.`entryid` INNER JOIN `db_other_material_inout` ON `db_other_material_inout`.`inoutid` = `db_godown_entry_list`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_mould_other_material`.`material_name` WHERE `db_godown_entry_list`.`entryid` = '$entryid' AND `db_godown_entry`.`dotype` = 'O' ORDER BY `db_godown_entry_list`.`listid` ASC";
+$sql = "SELECT `db_godown_entry_list`.`listid`,`db_other_material_order`.`order_number`,`db_other_material_data`.`material_name` AS `data_name`,`db_other_material_specification`.`material_name`,`db_mould_other_material`.`unit` AS `material_unit`,`db_other_material_data`.`unit`,`db_other_material_inout`.`form_number`,`db_other_material_inout`.`inout_quantity`,(`db_other_material_inout`.`inout_quantity` * `db_other_material_orderlist`.`unit_price`) AS `amount`,`db_other_material_orderlist`.`unit_price`,`db_supplier`.`supplier_cname`,`db_other_material_inout`.`dodate`,`db_other_material_orderlist`.`remark`,`db_other_material_specification`.`specification_name` FROM `db_godown_entry_list` INNER JOIN `db_godown_entry` ON `db_godown_entry`.`entryid` = `db_godown_entry_list`.`entryid` INNER JOIN `db_other_material_inout` ON `db_other_material_inout`.`inoutid` = `db_godown_entry_list`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` LEFT JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` LEFT JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_other_material_specification`.`materialid`  WHERE `db_godown_entry_list`.`entryid` = '$entryid' AND `db_godown_entry`.`dotype` = 'O' $sqlwhere";
 
 	$result = $db->query($sql);
 	$result_amount = $db->query($sql);
@@ -66,7 +67,7 @@ if($result_entry->num_rows){
   <tr>
     <td valign="top"><table id="sheet">
         <caption style=" font-size:18px; line-height:25px; margin-bottom:-15px;">
-        苏州嘉泰隆实业有限公司<br />
+        苏州希尔林机械科技有限公司<br />
         物料入库单
         </caption>
         <tr>
@@ -76,7 +77,6 @@ if($result_entry->num_rows){
           <th width="4%">序号</th>
           <th width="12%">物料名称</th>
           <th width="12%">规格</th>
-          <th width="8%">收货单号</th>
           <th width="8%">入库日期</th>
           <th width="6%">数量</th>
           <th width="6%">单价</th>
@@ -92,13 +92,12 @@ if($result_entry->num_rows){
 		?>
         <tr>
           <td><?php echo $i; ?></td>
-          <td><?php echo $row['material_name']; ?></td>
-          <td><?php echo $row['material_specification']; ?></td>
-          <td><?php echo $row['entry_number']; ?></td>
+          <td><?php echo $row['material_unit']?$row['material_name']:$row['data_name']; ?></td>
+          <td><?php echo $row['specification_name']; ?></td>
           <td><?php echo $row['dodate']; ?></td>
           <td><?php echo $row['inout_quantity']; ?></td>
           <td><?php echo $row['unit_price']; ?></td>
-          <td><?php echo $row['unit']; ?></td>
+          <td><?php echo $row['material_unit']?$row['material_unit']:$row['unit']; ?></td>
           <td><?php echo $row['amount']; ?></td>
           <td><?php echo $row['supplier_cname']; ?></td>
           <td><?php echo $row['form_number']; ?></td>
@@ -115,7 +114,6 @@ if($result_entry->num_rows){
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
-          <td>&nbsp;</td>
           <td><?php echo $total_amount; ?></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
@@ -123,7 +121,7 @@ if($result_entry->num_rows){
         </tr>
         <tr>
           <td colspan="2" style="border:none;">仓管：</td>
-          <td colspan="9" style="border:none;">&nbsp;</td>
+          <td colspan="8" style="border:none;">&nbsp;</td>
           <td style="border:none;">第<?php echo ($page-1).'/'.$toal_page; ?>页</td>
         </tr>
       </table></td>
@@ -141,19 +139,16 @@ if($result_entry->num_rows){
         </tr>
         <tr>
           <th width="4%">序号</th>
-          <th width="8%">模具编号</th>
-          <th width="10%">物料名称</th>
+          <th width="12%">物料名称</th>
           <th width="12%">规格</th>
-          <th width="6%">材质</th>
-          <th width="8%">收货单号</th>
           <th width="8%">入库日期</th>
-          <th width="6%">单价</th>
           <th width="6%">数量</th>
+          <th width="6%">单价</th>
           <th width="4%">单位</th>
           <th width="6%">金额</th>
-          <th width="6%">加工费</th>
           <th width="8%">供应商</th>
-          <th width="8%">备注</th>
+          <th width="8%">表单号</th>
+          <th width="6%">备注</th>
         </tr>
         <?php
 		}
@@ -169,7 +164,6 @@ if($result_entry->num_rows){
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
-          <td>&nbsp;</td>
           <td><?php echo $total_amount; ?></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
@@ -177,7 +171,7 @@ if($result_entry->num_rows){
         </tr>
         <tr>
           <td colspan="2" style="border:none;">仓管：</td>
-          <td colspan="9" style="border:none;">&nbsp;</td>
+          <td colspan="8" style="border:none;">&nbsp;</td>
           <td style="border:none;">第<?php echo $page.'/'.$toal_page; ?>页</td>
         </tr>
       </table></td>

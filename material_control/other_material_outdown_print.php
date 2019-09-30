@@ -48,7 +48,8 @@ body, html {
 <?php
 if($result_entry->num_rows){
 	$array_entry = $result_entry->fetch_assoc();
-	$sql = "SELECT `db_other_material_data`.`material_name`,`db_mould_other_material`.`material_specification`,`db_other_material_inout`.`dodate`,`db_other_material_inout`.`actual_quantity`,`db_mould_other_material`.`unit`,`db_supplier`.`supplier_cname`,`db_other_material_inout`.`form_number`,`db_other_material_inout`.`remark` FROM `db_outdown_list` INNER JOIN `db_outdown` ON `db_outdown`.`entryid` = `db_outdown_list`.`entryid` INNER JOIN `db_other_material_inout` ON `db_other_material_inout`.`inoutid` = `db_outdown_list`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_mould_other_material`.`material_name` WHERE `db_outdown_list`.`entryid` = '$entryid' AND `db_outdown`.`dotype` = 'O' ORDER BY `db_outdown_list`.`listid` ASC";
+	// $sql = "SELECT `db_other_material_data`.`material_name`,`db_mould_other_material`.`material_specification`,`db_other_material_inout`.`dodate`,`db_other_material_inout`.`actual_quantity`,`db_mould_other_material`.`unit`,`db_supplier`.`supplier_cname`,`db_other_material_inout`.`form_number`,`db_other_material_inout`.`remark` FROM `db_outdown_list` INNER JOIN `db_outdown` ON `db_outdown`.`entryid` = `db_outdown_list`.`entryid` INNER JOIN `db_other_material_inout` ON `db_other_material_inout`.`inoutid` = `db_outdown_list`.`inoutid` INNER JOIN `db_other_material_orderlist` ON `db_other_material_orderlist`.`listid` = `db_other_material_inout`.`listid` INNER JOIN `db_other_material_order` ON `db_other_material_order`.`orderid` = `db_other_material_orderlist`.`orderid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_other_material_order`.`supplierid` INNER JOIN `db_mould_other_material` ON `db_mould_other_material`.`mould_other_id` = `db_other_material_orderlist`.`materialid` INNER JOIN `db_other_material_data` ON `db_other_material_data`.`dataid` = `db_mould_other_material`.`material_name` WHERE `db_outdown_list`.`entryid` = '$entryid' AND `db_outdown`.`dotype` = 'O' ORDER BY `db_outdown_list`.`listid` ASC";
+$sql = "SELECT `db_outdown_list`.`listid`,`db_other_material_inout`.`inout_quantity`,`db_other_material_specification`.`specificationid`,`db_other_material_specification`.`material_name`,`db_other_material_inout`.`inoutid` ,`db_other_material_specification`.`type`,`db_other_material_specification`.`materialid`,`db_other_material_inout`.`taker`,`db_other_material_inout`.`dodate`,`db_other_material_inout`.`remark`,`db_other_material_inout`.`form_number`,`db_other_material_specification`.`material_name`,`db_other_material_specification`.`specification_name` FROM `db_outdown_list` INNER JOIN `db_outdown` ON `db_outdown_list`.`entryid` = `db_outdown`.`entryid` INNER JOIN `db_other_material_inout` ON `db_outdown_list`.`inoutid` = `db_other_material_inout`.`inoutid` INNER JOIN `db_other_material_specification` ON `db_other_material_inout`.`listid` = `db_other_material_specification`.`specificationid` WHERE `db_outdown_list`.`entryid` = '$entryid' AND `db_outdown`.`dotype` = 'O'";
 
 	$result = $db->query($sql);
 	$result_amount = $db->query($sql);
@@ -85,16 +86,26 @@ if($result_entry->num_rows){
         <?php
 		$i = 1;
         while($row = $result->fetch_assoc()){
+           $listid = $row['listid'];
+          if($row['type'] == 'A'){
+              $sql_info = "SELECT `material_name`,`unit` FROM `db_other_material_data` WHERE `dataid` = ".$row['materialid'];
+            }elseif($row['type'] == 'B'){
+              $sql_info = "SELECT `unit` FROM `db_mould_other_material` WHERE `mould_other_id` = ".$row['materialid'];
+            }
+            $result_info = $db->query($sql_info);
+            if($result_info->num_rows){
+              $info = $result_info->fetch_assoc();
+            }
 		?>
         <tr>
           <td><?php echo $i; ?></td>
-          <td><?php echo $row['material_name']; ?></td>
-          <td><?php echo $row['material_specification']; ?></td>
-          <td><?php echo $row['dodate']; ?></td>
-          <td><?php echo $row['actual_quantity']; ?></td>
-          <td><?php echo $row['unit']; ?></td>
-          <td><?php echo $row['supplier_cname']; ?></td>
+           <td><?php echo $row['material_name']?$row['material_name']:$info['material_name']; ?></td>
+          <td><?php echo $row['specification_name']; ?></td>
+          <td><?php echo $row['inout_quantity']; ?></td>
+          <td><?php echo $info['unit']; ?></td>
+          <td><?php echo $row['taker']; ?></td>
           <td><?php echo $row['form_number']; ?></td>
+          <td><?php echo $row['dodate']; ?></td>
           <td><?php echo $row['remark']; ?></td>
         </tr>
         <?php
