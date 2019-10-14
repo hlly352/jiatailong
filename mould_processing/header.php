@@ -12,6 +12,7 @@
           <li><a href="mould_material.php">待询外协</a></li>
           <li><a href="outward_inquiry_list.php">询价处理</a></li>
           <?php if($isadmin == 1){ ?>
+          <li><a href="outward_inquiry_order.php">询价单</a></li>
           <li><a href="mould_outward_order.php">外协订单</a></li>
           <?php }?>
           <li><a href="mould_outward_order_list.php">外协明细</a></li>

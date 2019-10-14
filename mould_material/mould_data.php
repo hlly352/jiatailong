@@ -3,23 +3,25 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
+
 //查询模具状态
-$sql_mould_status = "SELECT `mould_statusid`,`mould_statusname` FROM `db_mould_status` ORDER BY `mould_statusid` ASC";
+$sql_mould_status = "SELECT `mould_statusid`,`mould_statusname` FROM `db_mould_specification_status` ORDER BY `mould_statusid` ASC";
 $result_mould_status = $db->query($sql_mould_status);
 if($_GET['submit']){
-	$client_code = trim($_GET['client_code']);
-	$mould_number = trim($_GET['mould_number']);
-	$mould_statusid = $_GET['mould_statusid'];
-	if($mould_statusid){
-		$sql_mould_statusid = " AND `db_mould`.`mould_statusid` = '$mould_statusid'";
-	}
-	$sqlwhere = " WHERE `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_client`.`client_code` LIKE '%$client_code%' $sql_mould_statusid";
+  $client_code = trim($_GET['client_code']);
+  $mould_number = trim($_GET['mould_number']);
+  $mould_statusid = $_GET['mould_statusid'];
+  if($mould_statusid){
+    $sql_mould_statusid = " AND `db_mould_specification`.`mould_statusid` = '$mould_statusid'";
+  }
+  $sqlwhere = " WHERE `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_specification`.`customer_code` LIKE '%$client_code%' $sql_mould_statusid";
 }
-$sql = "SELECT `db_mould`.`mouldid`,`db_mould`.`project_name`,`db_mould`.`mould_number`,`db_client`.`client_code`,`db_mould_status`.`mould_statusname` FROM `db_mould` INNER JOIN `db_client` ON `db_client`.`clientid` = `db_mould`.`clientid` INNER JOIN `db_mould_status` ON `db_mould_status`.`mould_statusid` = `db_mould`.`mould_statusid` $sqlwhere";
+$sql = "SELECT `db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`customer_code`,`db_mould_status`.`mould_statusname` FROM `db_mould_specification` LEFT JOIN `db_mould_status` ON `db_mould_status`.`mould_statusid` = `db_mould_specification`.`mould_statusid` $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_mould`.`mould_number` DESC,`db_mould`.`mouldid` ASC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_mould_specification`.`check_time` DESC" . $pages->limitsql;
+
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -49,12 +51,12 @@ $result = $db->query($sqllist);
         <td><select name="mould_statusid">
             <option value="">所有</option>
             <?php
-			if($result_mould_status->num_rows){
-				while($row_mould_status = $result_mould_status->fetch_assoc()){
-					echo "<option value=\"".$row_mould_status['mould_statusid']."\">".$row_mould_status['mould_statusname']."</option>";
-				}
-			}
-			?>
+      if($result_mould_status->num_rows){
+        while($row_mould_status = $result_mould_status->fetch_assoc()){
+          echo "<option value=\"".$row_mould_status['mould_statusid']."\">".$row_mould_status['mould_statusname']."</option>";
+        }
+      }
+      ?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" /></td>
       </tr>
@@ -64,20 +66,20 @@ $result = $db->query($sqllist);
 <div id="table_list">
   <?php
   if($result->num_rows){
-	  while($row_id = $result_id->fetch_assoc()){
-		  $array_moulid .= $row_id['mouldid'].',';
-	  }
-	  $array_moulid = rtrim($array_moulid,',');
-	  $sql_material = "SELECT `mouldid`,COUNT(*) AS `count` FROM `db_mould_material` WHERE  `mouldid` IN ($array_moulid) AND `type` != 'D' GROUP BY `mouldid`";
-	  $result_material = $db->query($sql_material);
-	  if($result_material->num_rows){
-		  while($row_material = $result_material->fetch_assoc()){
-			  $array_material[$row_material['mouldid']] = $row_material['count'];
-		  }
-	  }else{
-		  $array_material = array();
-	  }
-   
+    while($row_id = $result_id->fetch_assoc()){
+      $array_moulid .= $row_id['mould_specification_id'].',';
+    }
+
+    $array_moulid = rtrim($array_moulid,',');
+    $sql_material = "SELECT `mouldid`,COUNT(*) AS `count` FROM `db_mould_material` WHERE `mouldid` IN ($array_moulid) AND `parentid` = '0' GROUP BY `mouldid`";
+    $result_material = $db->query($sql_material);
+    if($result_material->num_rows){
+      while($row_material = $result_material->fetch_assoc()){
+        $array_material[$row_material['mouldid']] = $row_material['count'];
+      }
+    }else{
+      $array_material = array();
+    }
   ?>
   <table>
     <tr>
@@ -93,14 +95,14 @@ $result = $db->query($sqllist);
       <th width="4%">List</th>
     </tr>
     <?php
-	while($row = $result->fetch_assoc()){
-		$mouldid = $row['mouldid'];
-		$count = array_key_exists($mouldid,$array_material)?$array_material[$mouldid]:0;
-	?>
+  while($row = $result->fetch_assoc()){
+    $mouldid = $row['mould_specification_id'];
+    $count = array_key_exists($mouldid,$array_material)?$array_material[$mouldid]:0;
+  ?>
     <tr>
       <td><?php echo $mouldid; ?></td>
-      <td><?php echo $row['mould_number']; ?></td>
-      <td><?php echo $row['client_code']; ?></td>
+      <td><?php echo $row['mould_no']; ?></td>
+      <td><?php echo $row['customer_code']; ?></td>
       <td><?php echo $row['project_name']; ?></td>
       <td><?php echo $row['mould_statusname']; ?></td>
       <td><?php echo $count; ?></td>
@@ -116,7 +118,7 @@ $result = $db->query($sqllist);
   </div>
   <?php
   }else{
-	  echo "<p class=\"tag\">系统提示：暂无记录！</p>";
+    echo "<p class=\"tag\">系统提示：暂无记录！</p>";
   }
   ?>
 </div>

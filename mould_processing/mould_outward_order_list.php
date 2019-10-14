@@ -4,6 +4,7 @@ require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
+$listid = $_GET['id'];
 //查询加工类型
 $outward_type_sql = "SELECT `outward_typeid`,`outward_typename` FROM `db_mould_outward_type` ORDER BY `outward_typename` ASC";
 $result_outward_type = $db->query($outward_type_sql);
@@ -32,11 +33,15 @@ if($_GET['submit']){
   $outward_typeid = trim($_GET['outward_typeid']);
   $sqlwhere = " AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' AND `db_outward_order`.`outward_typeid` LIKE '%$outward_typeid%'";
 }
-$sql = "SELECT `db_outward_order_list`.`listid`,`db_outward_order_list`.`order_quantity`,`db_outward_order_list`.`unit_price`,`db_outward_order_list`.`amount`,`db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould_specification`.`mould_no`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code`,`db_mould_outward_type`.`outward_typename` FROM `db_outward_order_list` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_order_list`.`materialid` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_material`.`mouldid` INNER JOIN `db_outward_order` ON `db_outward_order`.`orderid` = `db_outward_order_list`.`orderid` INNER JOIN `db_mould_outward_type` ON `db_mould_outward_type`.`outward_typeid` = `db_mould_material`.`outward_typeid` WHERE `db_outward_order`.`order_status` = '1'  $sqlwhere ";
+if($listid){
+  $sqls = "WHERE `db_outward_inquiry_orderlist`.`listid` = '$listid'";
+}
+
+$sql = "SELECT `db_outward_inquiry_orderlist`.`back_date`,`db_employee`.`employee_name`,`db_mould_outward_type`.`outward_typename`,`db_outward_inquiry_orderlist`.`plan_date`,`db_outward_inquiry_orderlist`.`listid`,`db_outward_inquiry`.`outward_quantity`,`db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_outward_inquiry`.`outward_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_outward_inquiry`.`outward_remark`,`db_mould_material`.`complete_status`,`db_mould_specification`.`mould_no`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code` FROM `db_outward_inquiry_orderlist` INNER JOIN `db_outward_inquiry` ON `db_outward_inquiry_orderlist`.`inquiryid` = `db_outward_inquiry`.`inquiryid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_outward_inquiry`.`materialid` INNER JOIN `db_employee` ON `db_outward_inquiry`.`employeeid` = `db_employee`.`employeeid` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_material`.`mouldid` INNER JOIN `db_mould_outward_type` ON `db_mould_outward_type`.`outward_typeid` = `db_outward_inquiry`.`outward_typeid` $sqls";
+
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
 $sqllist = $sql." ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_material`.`materialid` ASC".$pages->limitsql;
-
 $result = $db->query($sqllist);
 ?>
 <div id="table_search">
@@ -76,19 +81,23 @@ $result = $db->query($sqllist);
  ?>
   <form action="mould_outward_orderdo.php" name="material_order_list" method="post">
     <table>
-      <tr>
-        <th width="">ID</th>
+           <tr>
+       <th width="">ID</th>
         <th width="">模具编号</th>
-        <th width="">料单编号</th>
-        <th width="">料单序号</th>
+<!--         <th width="">料单编号</th>
+        <th width="">料单序号</th> -->
         <th width="">物料编码</th>
         <th width="">物料名称</th>
         <th width="">规格</th>
+        <th width="">数量</th>
         <th width="">材质</th>
+        <th width="">硬度</th>
+        <th width="">品牌</th>
+        <th width="">申请人</th>
         <th width="">加工类型</th>
-        <th width="">加工数量</th>
-        <th width="">单价</th>
-        <th width="">金额</th>
+        <th width="">计划回厂时间</th>
+        <th width="">回厂时间</th>
+        <th width="15%">备注</th>
       </tr>
       <?php
     $amount = 0;
@@ -102,30 +111,36 @@ $result = $db->query($sqllist);
           <input type="checkbox" name="id[]" value="<?php echo $listid; ?>"<?php //if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> />
         </td>
         <td><?php echo $row['mould_no']; ?></td>
-        <td><?php echo $row['material_list_number']; ?></td>
-        <td><?php echo $row['material_list_sn']; ?></td>
         <td><?php echo $row['material_number']; ?></td>
-        <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
-        <td<?php echo $specification_bg; ?>><?php echo $row['specification'] ?></td>
+        <td><?php echo $row['material_name']; ?></td>
+        <td><?php echo $row['specification']; ?></td>
+        <td><?php echo $row['outward_quantity']; ?></td>
         <td><?php echo $row['texture']; ?></td>
-        <td><?php echo $row['outward_typename']; ?></td>
-        <td><?php echo $row['order_quantity'] ?></td>
-        <td><?php echo $row['unit_price'] ?></td>
-        <td><?php echo $row['amount'] ?></td>
+        <td><?php echo $row['hardness'] ?></td>
+        <td><?php echo $row['brand']; ?></td>
+        <td><?php echo $row['employee_name'] ?></td>
+        <td><?php echo $row['outward_typename'] ?></td>
+        <td><?php echo $row['plan_date'] ?></td>
+        <td><?php echo $row['back_date']; ?></td>
+        <td><?php echo $row['outward_remark'] ?></td>
       </tr>
       <?php
-      $total_order_quantity += $row['order_quantity'];
-      $total_amount += $row['amount'];
     }
     ?>
       <tr>
+      <?php
+      $total_order_quantity += $row['order_quantity'];
+      $total_amount += $row['amount'];
+    
+    ?>
+      <!-- <tr>
         <td colspan="9">Total</td>
         <td><?php echo number_format($total_order_quantity,2); ?></td>
         <td></td>
         <td><?php echo number_format($total_amount,2); ?></td>
-      </tr>
+      </tr> -->
       <tr>
-        <td colspan="12">
+        <td colspan="14">
           <input type="button" onclick="window.location.href='mould_outward_order.php'" value="返回" class="button" />
         </td>
       </tr>

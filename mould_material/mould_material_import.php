@@ -16,8 +16,25 @@ $mouldid = fun_check_int($_GET['id']);
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script language="javascript" type="text/javascript">
 $(function(){
-	$("#submit").click(function(){
-		var filepath = $("#file").val();	
+  //选择文件的类型
+  function shows(){
+    var type = $('input:checked').val();
+    if(type == 'N'){
+      $('#electrode').css('display','none');
+      $('#normal').css('display','');
+    } else if(type == 'E') {
+      $('#normal').css('display','none');
+      $('#electrode').css('display','');
+    }
+  }
+  shows();
+  $('input[name = type]').live('change',function(){
+    shows();
+  })
+	$("#submit").live('click',function(){
+		var filepath = $("#file").val();
+    var filepaths = $('#files').val();
+    filepath = filepath?filepath:filepaths;
 		var extStart = filepath.lastIndexOf(".")+1;
 		var ext = filepath.substring(extStart, filepath.length).toUpperCase();
 		var allowtype = ["XLS"];
@@ -53,8 +70,19 @@ $(function(){
         <td><?php echo date('Y-m-d'); ?></td>
       </tr>
       <tr>
+        <th>文件类型：</th>
+        <td>
+          <label><input type="radio" value="N" name="type" checked />普通物料</label>
+          <label><input type="radio" value="E" name="type" />电极物料</label>
+        </td>
+      </tr>
+      <tr id="normal">
         <th>导入文件(<a href="../template_file/mould_material.xls" target="_blank">模板</a>)：</th>
         <td><input type="file" name="file" id="file" class="input_file" /></td>
+      </tr>
+      <tr id="electrode">
+        <th>导入电极(<a href="../template_file/mould_electrode_material.xls" target="_blank">模板</a>)：</th>
+        <td><input type="file" name="file" id="files" class="input_file" /></td>
       </tr>
       <tr>
         <th>&nbsp;</th>

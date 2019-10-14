@@ -85,14 +85,21 @@ $(function(){
 	  //待试模审批
 	  $sql_mould_try_approve = "SELECT `db_mould_try`.`tryid`,`db_mould`.`mould_number`,`db_employee`.`employee_name` FROM `db_mould_try` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_try`.`mouldid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_mould_try`.`employeeid` WHERE `db_mould_try`.`approve_status` = 'A' AND `db_mould_try`.`try_status` = 1 AND `db_mould_try`.`approver` = '$employeeid'";
 	  $result_mould_try_approve = $db->query($sql_mould_try_approve);
-	  	  //待审批期间物料
-
+	  //待审批期间物料
 	  $sql_mould_other_material = "SELECT `db_employee`.`employee_name`,`db_mould_other_material`.`mould_other_id`,`db_other_material_specification`.`material_name`,`db_other_material_data`.`material_name` AS `data_name` FROM `db_mould_other_material` INNER JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` WHERE `status` ='A' AND `approver` = '$employeeid' AND `approver` != 37";
 	  $result_other_material = $db->query($sql_mould_other_material);
 	  if($employeeid == 37){
 		  $sql_total_other_material = "SELECT `db_employee`.`employee_name`,`db_mould_other_material`.`mould_other_id`,`db_other_material_specification`.`material_name`,`db_other_material_data`.`material_name` AS `data_name` FROM `db_mould_other_material` INNER JOIN `db_other_material_specification` ON `db_mould_other_material`.`material_name` = `db_other_material_specification`.`specificationid` INNER JOIN `db_employee` ON `db_mould_other_material`.`applyer` = `db_employee`.`employeeid` LEFT JOIN `db_other_material_data` ON `db_other_material_specification`.`materialid` = `db_other_material_data`.`dataid` WHERE `status` ='B' OR (`db_mould_other_material`.`approver` = '$employeeid' AND `db_mould_other_material`.`status` = 'A')";
 		  $result_total_other_material = $db->query($sql_total_other_material);
 		}
+	  //外协订单未回
+	   $processing_isadmin = $_SESSION['system_shell']['/mould_processing/']['isadmin'];
+	   if($processing_isadmin == '1'){
+	  	  $sql_outward_no_back = "SELECT * FROM `db_outward_inquiry_orderlist`  INNER JOIN `db_outward_inquiry` ON `db_outward_inquiry`.`inquiryid` = `db_outward_inquiry_orderlist`.`inquiryid` INNER JOIN `db_mould_material` ON `db_outward_inquiry`.`materialid` = `db_mould_material`.`materialid` WHERE  (`back_date` = '' AND (`plan_date` - CURDATE()) < 2) OR (`back_date` IS NULL AND (`plan_date` - CURDATE()) < 2)";
+	   }else{
+	   	 $sql_outward_no_back = "SELECT * FROM `db_outward_inquiry_orderlist` INNER JOIN `db_outward_inquiry` ON `db_outward_inquiry`.`inquiryid` = `db_outward_inquiry_orderlist`.`inquiryid` INNER JOIN `db_mould_material` ON `db_outward_inquiry`.`materialid` = `db_mould_material`.`materialid` WHERE (`db_outward_inquiry_orderlist`.`back_date` = '' AND (`db_outward_inquiry_orderlist`.`plan_date` - CURDATE()) < 2 AND `db_outward_inquiry`.`employeeid` = '$employeeid') OR (`db_outward_inquiry_orderlist`.`back_date` IS NULL AND (`db_outward_inquiry_orderlist`.`plan_date` - CURDATE()) < 2 AND `db_outward_inquiry`.`employeeid` = '$employeeid')";
+	   }
+	   $result_outward_no_back = $db->query($sql_outward_no_back);
 	  //付款计划采购审核
 	  $purchase_isconfirm = $_SESSION['system_shell']['/material_purchase/']['isconfirm'];
 	  if($purchase_isconfirm == '1'){
@@ -145,7 +152,7 @@ $(function(){
 	  	$financial_account_num = 0;
 	  	$invoice_num = 0;
 	  }
-	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows+$purchase_isadmin_num+$purchase_isconfirm_num+$financial_isconfirm_num+$pay_isconfirm_num+$pay_financial_num+$pay_num+$financial_account_num+$invoice_num+$result_total_other_material->num_rows;
+	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows+$purchase_isadmin_num+$purchase_isconfirm_num+$financial_isconfirm_num+$pay_isconfirm_num+$pay_financial_num+$pay_num+$financial_account_num+$invoice_num+$result_total_other_material->num_rows+$result_outward_no_back->num_rows;
 	  //计划任务
 	  $sql_plan = "SELECT `planid`,`plan_content`,`start_date` FROM `db_job_plan` WHERE `employeeid` = '$employeeid' AND `plan_status` = 1 AND `plan_result` = 0";
 	  $result_plan = $db->query($sql_plan);
@@ -341,6 +348,16 @@ $(function(){
 					$material_name = $total_other_material['material_name']?$total_other_material['material_name']:$total_other_material['data_name'];
 		?>
 		<li><a href="/mould_material/mould_other_material_apply.php?action=edit&to=C&id=<?php echo $total_other_material['mould_other_id'] ?>"><?php echo '【期间物料】'.$total_other_material['employee_name'].'/'.$material_name ?></a></li>
+		 <?php
+			}
+		}
+		?>
+		<?php
+			if($result_outward_no_back->num_rows){
+				while($row_outward_no_back = $result_outward_no_back->fetch_assoc()){
+					
+		?>
+		<li><a href="/mould_processing/mould_outward_order_list.php?id=<?php echo $row_outward_no_back['listid'] ?>"><?php echo '【外协加工】'.$row_outward_no_back['material_name'].'/'.$row_outward_no_back['specification'] ?></a></li>
 		 <?php
 			}
 		}

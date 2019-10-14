@@ -9,7 +9,6 @@ require_once 'shell.php';
 //获取当前页面的路径
 $employeeid = $_SESSION['employee_info']['employeeid'];
   $system_url =  dirname(__FILE__);
-
   $system_pos =  strrpos($system_url,DIRECTORY_SEPARATOR);
   $system_url = substr($system_url,$system_pos);
   //通过路径查询对应的模块id
@@ -63,35 +62,11 @@ $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
 
 $result = $db->query($sqllist);
-//获取地址每个资料的地址信息
-function show($row,$from){
-          $title_key = $from.'_title';
-          $count = substr_count($row[$from],'&');
-
-  $data = explode('&',$row[$title_key]);
-  $new_data = array();
-  foreach($data as $ks=>$vs){
-    if(!empty($vs)){
-      $new_data[$ks] = $vs;
-    }
-  }
-              foreach($new_data as $k=>$v){
-              if($k<3){
-                if (preg_match('/[\x{4e00}-\x{9fa5}]+/u',$v)) {
-                  $num = 20;
-                } else {
-                  $num = 10;
-                }
-                $title .= substr($v,0,$num).'<br>';
-              }
-          }
-          // if($count >0){
-            $str = '<a href="technical_data_list.php?action=show&data='.$from.'&informationid='.$row['information_id'].'">'.$title.'</a>';
-          // }else{
-          //   $str = '<a href="http://'.$_SERVER['HTTP_HOST'].substr($row[$from],2).'">'.$title.'</a>';
-          // }
-         return $str;
+//显示有资料的信息
+function showData($str){
+  
 }
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -249,6 +224,8 @@ function show($row,$from){
       if($result_max_modify->num_rows){
         $rows = $result_max_modify->fetch_assoc();
       }
+      var_dump($rows);
+
       //处理表面要求
       if(strpos($row['surface_require'],'$$')){
         $surface_require = explode('$$',$row['surface_require'])[4];
@@ -299,8 +276,16 @@ function show($row,$from){
         </td>
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
-        <td></td>
-        <td></td>
+        <td><?php echo $rows['last_report']; ?></td>
+        <td>
+          <?php if($rows['modify_data']){
+              $modify_id = $rows['modify_id'];
+           ?>
+          <a href="mould_modify_show.php?data=modify_data&action=show&modify_id=<?php echo $modify_id ?>">
+            <img src="../images/system_ico/article_12_16.png" />
+          </a>
+          <?php } ?>
+        </td>
         <td></td>
         <td></td>
         <td></td>

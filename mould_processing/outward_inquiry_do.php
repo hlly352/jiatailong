@@ -3,19 +3,19 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
+$employeeid = $_SESSION['employee_info']['employeeid'];
 $array_system = $_SESSION['system_dir'];
 foreach($array_system as $k=>$v){
 	if($v == $system_dir){
 		$systemid = $k;
 	}
 }
-$sql_admin = "SELECT `employeeid` FROM `db_system_employee` WHERE `systemid` = '$systemid' AND `isadmin` = '1'";
+$sql_admin = "SELECT `employeeid` FROM `db_system_employee` WHERE `systemid` = '$systemid' AND `isadmin` = '1' AND `isconfirm` = '1'";
 $result_admin = $db->query($sql_admin);
 if($result_admin->num_rows){
 	$approver = $result_admin->fetch_assoc()['employeeid'];
 }
 //查询当前模块的管理者
-
 $action = $_POST['action'];
 if($_POST['submit']){
 	if($action == 'add'){
@@ -23,16 +23,15 @@ if($_POST['submit']){
 		$array_materialid = $_POST['id'];
 		$query = $_POST['query'];
 		$page = $_POST['page'];
-		$str_materialid = fun_convert_checkbox($array_materialid);
-		$employeeid = $_SESSION['employee_info']['employeeid'];
-		foreach($array_materialid as $materialid){
-			$sqladd .= "(NULL,'$materialid','$employeeid','$approver','$outward_typeid'),";
-		}
-		$outward_type_sql = "UPDATE `db_mould_material` SET `outward_typeid` = '$outward_typeid' WHERE `materialid` IN($str_materialid)";
 
-		$db->query($outward_type_sql);
+		//获取要加工的数量
+		foreach($array_materialid as $materialid){
+			$outward_quantity = $_POST["outward_quantity_{$materialid}"];
+			$outward_remark = $_POST["remark_{$materialid}"];
+			$sqladd .= "(NULl,'$materialid','$employeeid','$approver','$outward_typeid','$outward_quantity','$outward_remark'),";
+		}
 		$sqladd = rtrim($sqladd,',');
-		$sql = "INSERT INTO `db_outward_inquiry` (`inquiryid`,`materialid`,`employeeid`,`approver`,`outward_typeid`) values ".$sqladd;
+		$sql = "INSERT INTO `db_outward_inquiry` (`inquiryid`,`materialid`,`employeeid`,`approver`,`outward_typeid`,`outward_quantity`,`outward_remark`) values ".$sqladd;
 		$db->query($sql);
 		if($db->insert_id){
 			if($page || $query){
@@ -42,10 +41,10 @@ if($_POST['submit']){
 			}
 		}
 	}elseif($action == 'del'){
-		$array_materialid = $_POST['id'];
-		$materialid = fun_convert_checkbox($array_materialid);
+		$array_inquiryid = $_POST['id'];
+		$inquiryid = fun_convert_checkbox($array_inquiryid);
 		
-		$sql = "DELETE FROM `db_outward_inquiry` WHERE `inquiryid` IN($materialid)";
+		$sql = "DELETE FROM `db_outward_inquiry` WHERE `inquiryid` IN($inquiryid)";
 		$db->query($sql);
 		if($db->affected_rows){
 			header('location:'.$_SERVER['HTTP_REFERER']);

@@ -4,17 +4,17 @@ require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
 if($_GET['submit']){
-	$mould_number = trim($_GET['mould_number']);
-	$material_number = trim($_GET['material_number']);
-	$material_name = trim($_GET['material_name']);
-	$specification = trim($_GET['specification']);
-	$complete_status = $_GET['complete_status'];
-	if($complete_status != NULL){
-		$sql_complete_status = " AND `db_mould_material`.`complete_status` = '$complete_status'";
-	}
-	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' $sql_complete_status";
+  $mould_number = trim($_GET['mould_number']);
+  $material_number = trim($_GET['material_number']);
+  $material_name = trim($_GET['material_name']);
+  $specification = trim($_GET['specification']);
+  $complete_status = $_GET['complete_status'];
+  if($complete_status != NULL){
+    $sql_complete_status = " AND `db_mould_material`.`complete_status` = '$complete_status'";
+  }
+  $sqlwhere = " AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%' $sql_complete_status";
 }
-$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code` FROM `db_mould_material` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`type` != 'D' $sqlwhere";
+$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould_specification`.`mould_no`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code` FROM `db_mould_material` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`parentid` = '0'  $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould_material_list'] = $sql;
@@ -54,9 +54,9 @@ $result = $db->query($sqllist);
         <option value="">所有</option>
         <?php
         foreach($array_is_status as $is_status_key=>$is_status_value){
-			echo "<option value=\"".$is_status_key."\">".$is_status_value."</option>";
-		}
-		?>
+      echo "<option value=\"".$is_status_key."\">".$is_status_value."</option>";
+    }
+    ?>
         </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
         <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_mould_material_list.php'" /></td>
@@ -67,19 +67,19 @@ $result = $db->query($sqllist);
 <div id="table_list">
   <?php
   if($result->num_rows){
-	  while($row_id = $result_id->fetch_assoc()){
-		  $array_materialid .= $row_id['materialid'].',';
-	  }
-	  $array_materialid = rtrim($array_materialid,',');
-	  $sql_order = "SELECT `materialid` FROM `db_material_order_list` WHERE `materialid` IN ($array_materialid) GROUP BY `materialid`";
-	  $result_order = $db->query($sql_order);
-	  if($result_order->num_rows){
-		  while($row_order = $result_order->fetch_assoc()){
-			  $array_order[] = $row_order['materialid'];
-		  }
-	  }else{
-		  $array_order = array();
-	  }
+    while($row_id = $result_id->fetch_assoc()){
+      $array_materialid .= $row_id['materialid'].',';
+    }
+    $array_materialid = rtrim($array_materialid,',');
+    $sql_order = "SELECT `materialid` FROM `db_material_order_list` WHERE `materialid` IN ($array_materialid) GROUP BY `materialid`";
+    $result_order = $db->query($sql_order);
+    if($result_order->num_rows){
+      while($row_order = $result_order->fetch_assoc()){
+        $array_order[] = $row_order['materialid'];
+      }
+    }else{
+      $array_order = array();
+    }
   ?>
   <form action="mould_materialdo.php" name="mould_material_list" method="post">
     <table>
@@ -102,21 +102,21 @@ $result = $db->query($sqllist);
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-		  $specification_bg = '';
-		  $material_name_bg = '';
-		  $materialid = $row['materialid'];
-		  $material_number_code = $row['material_number_code'];
-		  $specification = $row['specification'];
-		  if(in_array($material_number_code,array(1,2,3,4,5))){
-			  $tag_a = substr_count($specification,'*');
-			  $tag_b = substr_count($specification,'#');
-			  $specification_bg = ($tag_a != 2 || $tag_b != 1)?" style=\"background:orange\"":'';
-		  }
-		  $material_name_bg = $row['complete_status']?'':" style=\"background:yellow\"";
-	  ?>
+      $specification_bg = '';
+      $material_name_bg = '';
+      $materialid = $row['materialid'];
+      $material_number_code = $row['material_number_code'];
+      $specification = $row['specification'];
+      if(in_array($material_number_code,array(1,2,3,4,5))){
+        $tag_a = substr_count($specification,'*');
+        $tag_b = substr_count($specification,'#');
+        $specification_bg = ($tag_a != 2 || $tag_b != 1)?" style=\"background:orange\"":'';
+      }
+      $material_name_bg = $row['complete_status']?'':" style=\"background:yellow\"";
+    ?>
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $materialid; ?>"<?php if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> /></td>
-        <td><?php echo $row['mould_number']; ?></td>
+        <td><?php echo $row['mould_no']; ?></td>
         <td><?php echo $row['material_date']; ?></td>
         <td><?php echo $row['material_list_number']; ?></td>
         <td><?php echo $row['material_list_sn']; ?></td>
@@ -146,7 +146,7 @@ $result = $db->query($sqllist);
   </div>
   <?php
   }else{
-	  echo "<p class=\"tag\">系统提示：暂无记录</p>";
+    echo "<p class=\"tag\">系统提示：暂无记录</p>";
   }
   ?>
 </div>

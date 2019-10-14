@@ -54,7 +54,8 @@
 		$data_info = $title.'#'.$file_name.'#'.$date;
 	
 	//更改当前模具的改模信息
-		$sql = "UPDATE `db_mould_modify` SET `{$file_type}` = CONCAT_WS('&',`{$file_type}`,'".$data_info."'),`{$file_type}_path` = CONCAT_WS('&',`{$file_type}_path`,'".$file_path."') WHERE `modify_id` = '$modify_id'";	
+		$sql = "UPDATE `db_mould_modify` SET `{$file_type}` = CONCAT_WS('&',`{$file_type}`,'".$data_info."'),`{$file_type}_path` = CONCAT_WS('&',`{$file_type}_path`,'".$file_path."') WHERE `modify_id` = '$modify_id'";
+		echo $sql;exit;
 	$db->query($sql);
 	if($db->affected_rows){
 		header('location:mould_modify.php');

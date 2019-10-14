@@ -10,18 +10,18 @@ $edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -
 $sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(1,`supplier_typeid`) >0 ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
 if($_GET['submit']){
-	$order_number = trim($_GET['order_number']);
-	$supplierid = $_GET['supplierid'];
-	if($supplierid){
-		$sql_supplierid = " AND `db_outward_order`.`supplierid` = '$supplierid'";
-	}
-	$order_status = $_GET['order_status'];
-	if($order_status != NULL){
-		$sql_order_status = " AND `db_outward_order`.`order_status` = '$order_status'";
-	}
-	$sqlwhere = " AND `db_outward_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_order_status";
+  $order_number = trim($_GET['order_number']);
+  $supplierid = $_GET['supplierid'];
+  if($supplierid){
+    $sql_supplierid = " AND `db_outward_order`.`supplierid` = '$supplierid'";
+  }
+  $order_status = $_GET['order_status'];
+  if($order_status != NULL){
+    $sql_order_status = " AND `db_outward_order`.`order_status` = '$order_status'";
+  }
+  $sqlwhere = " AND `db_outward_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_order_status";
 }
-$sql = "SELECT `db_mould_outward_type`.`outward_typename`,`db_outward_order`.`orderid`,`db_outward_order`.`order_number`,`db_outward_order`.`order_date`,`db_outward_order`.`delivery_cycle`,`db_outward_order`.`dotime`,`db_outward_order`.`order_status`,`db_outward_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_outward_order` INNER JOIN `db_mould_outward_type` ON `db_outward_order`.`outward_typeid` = `db_mould_outward_type`.`outward_typeid` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_outward_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_outward_order`.`employeeid` WHERE (`db_outward_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_outward_order`.`employeeid`,`db_outward_order`.`orderid`,`db_outward_order`.`order_number`,`db_outward_order`.`order_date`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name`,`db_outward_order`.`dotime`,`db_outward_order`.`order_status` FROM `db_outward_order` INNER JOIN `db_employee` ON `db_outward_order`.`employeeid` = `db_employee`.`employeeid` LEFT JOIN `db_outward_inquiry_order` ON `db_outward_order`.`inquiry_orderid` = `db_outward_inquiry_order`.`inquiry_orderid` LEFT JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_outward_inquiry_order`.`supplierid`";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -38,6 +38,15 @@ $result = $db->query($sqllist);
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
+<script type="text/javascript">
+  $('a').live('click',function(){
+    var id = $(this).attr('id');
+    var orderid = id.substr(id.lastIndexOf('_')+1);
+    $.post('../ajax_function/set_outward_order_status.php',{orderid:orderid},function(data){
+      location.reload();
+    })
+  })
+</script>
 <title>采购管理-希尔林</title>
 </head>
 
@@ -59,23 +68,23 @@ $result = $db->query($sqllist);
             <option value="">所有</option>
             <?php
             if($result_supplier->num_rows){
-				while($row_supplier = $result_supplier->fetch_assoc()){
-					echo "<option value=\"".$row_supplier['supplierid']."\">".$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']."</option>";
-				}
-			}
-			?>
+        while($row_supplier = $result_supplier->fetch_assoc()){
+          echo "<option value=\"".$row_supplier['supplierid']."\">".$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname']."</option>";
+        }
+      }
+      ?>
           </select></td>
         <th>订单状态：</th>
         <td><select name="order_status">
             <option value="">所有</option>
             <?php
             foreach($array_order_status as $order_status_key=>$order_status_value){
-				echo "<option value=\"".$order_status_key."\">".$order_status_value."</option>";
-			}
-			?>
+        echo "<option value=\"".$order_status_key."\">".$order_status_value."</option>";
+      }
+      ?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="添加" class="button" onclick="location.href='mould_outward_orderae.php?action=add'" /></td>
+          <input type="button" name="button" value="添加" class="button" onclick="location.href='mould_outward_orderdo.php?action=add'" /></td>
       </tr>
     </table>
   </form>
@@ -83,30 +92,30 @@ $result = $db->query($sqllist);
 <div id="table_list">
   <?php
   if($result->num_rows){
-	  while($row_id = $result_id->fetch_assoc()){
-		  $array_orderid .= $row_id['orderid'].',';
-	  }
-	  $array_orderid = rtrim($array_orderid,',');
-	  //订单明细数量
-	  $sql_order_list = "SELECT `orderid`,COUNT(*) AS `count` FROM `db_outward_order_list` WHERE `orderid` IN ($array_orderid) GROUP BY `orderid`";
-	  $result_order_list = $db->query($sql_order_list);
-	  if($result_order_list->num_rows){
-		  while($row_order_list = $result_order_list->fetch_assoc()){
-			  $array_order_list[$row_order_list['orderid']] = $row_order_list['count'];
-		  }
-	  }else{
-		  $array_order_list = array();
-	  }
-	  //订单是否有出入库记录
-	  $sql_material_inout = "SELECT `db_outward_order_list`.`orderid` FROM `db_material_inout` INNER JOIN `db_outward_order_list` ON `db_outward_order_list`.`listid` = `db_material_inout`.`listid` GROUP BY `db_outward_order_list`.`orderid`";
-	  $result_material_inout = $db->query($sql_material_inout);
-	  if($result_material_inout->num_rows){
-		  while($row_material_inout = $result_material_inout->fetch_assoc()){
-			  $array_material_inout[] = $row_material_inout['orderid'];
-		  }
-	  }else{
-		  $array_material_inout = array();
-	  }
+    while($row_id = $result_id->fetch_assoc()){
+      $array_orderid .= $row_id['orderid'].',';
+    }
+    $array_orderid = rtrim($array_orderid,',');
+    //订单明细数量
+    $sql_order_list = "SELECT `orderid`,COUNT(*) AS `count` FROM `db_outward_order_list` WHERE `orderid` IN ($array_orderid) GROUP BY `orderid`";
+    $result_order_list = $db->query($sql_order_list);
+    if($result_order_list->num_rows){
+      while($row_order_list = $result_order_list->fetch_assoc()){
+        $array_order_list[$row_order_list['orderid']] = $row_order_list['count'];
+      }
+    }else{
+      $array_order_list = array();
+    }
+    //订单是否有出入库记录
+    $sql_material_inout = "SELECT `db_outward_order_list`.`orderid` FROM `db_material_inout` INNER JOIN `db_outward_order_list` ON `db_outward_order_list`.`listid` = `db_material_inout`.`listid` GROUP BY `db_outward_order_list`.`orderid`";
+    $result_material_inout = $db->query($sql_material_inout);
+    if($result_material_inout->num_rows){
+      while($row_material_inout = $result_material_inout->fetch_assoc()){
+        $array_material_inout[] = $row_material_inout['orderid'];
+      }
+    }else{
+      $array_material_inout = array();
+    }
   ?>
   <form action="mould_outward_orderdo.php" name="material_order" method="post">
     <table>
@@ -115,39 +124,43 @@ $result = $db->query($sqllist);
         <th width="12%">合同号</th>
         <th width="8%">订单日期</th>
         <th width="8%">供应商</th>
-        <th width="8%">加工类型</th>
-        <th width="8%">交货周期(天)</th>
         <th width="8%">操作人</th>
         <th width="12%">操作时间</th>
         <th width="6%">项数</th>
         <th width="6%">订单状态</th>
         <th width="4%">Add</th>
-        <th width="4%">Edit</th>
         <th width="4%">Excel</th>
         <th width="4%">List</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-		  $orderid = $row['orderid'];
-		  $list_count = array_key_exists($orderid,$array_order_list)?$array_order_list[$orderid]:0;
-	  ?>
+      $orderid = $row['orderid'];
+      $list_count = array_key_exists($orderid,$array_order_list)?$array_order_list[$orderid]:0;
+    ?>
       <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $orderid; ?>"<?php if(in_array($orderid,$array_material_inout) || $employeeid != $row['employeeid']) echo " disabled=\"disabled\""; ?> /></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $orderid; ?>"<?php if($row['order_status'] == 2 || $employeeid != $row['employeeid']) echo " disabled=\"disabled\""; ?> /></td>
         <td><?php echo $row['order_number']; ?></td>
         <td><?php echo $row['order_date']; ?></td>
         <td><?php echo $row['supplier_cname']; ?></td>
-        <td><?php echo $row['outward_typename']; ?></td>
-        <td><?php echo $row['delivery_cycle']; ?></td>
         <td><?php echo $row['employee_name']; ?></td>
         <td><?php echo $row['dotime']; ?></td>
         <td><?php echo $list_count; ?></td>
-        <td><?php echo $array_order_status[$row['order_status']]; ?></td>
-        <td><?php if($employeeid == $row['employeeid'] && $row['order_status'] == '0'){ ?>
+        <td>
+          <?php 
+            if($row['order_status'] == 0){
+                echo '<a href="#" id="status_'.$orderid.'" onclick="return false">未提交</a>';
+            }elseif($row['order_status'] == 1){
+                echo '<a href="#" id="status_'.$orderid.'" onclick="return false">已提交</a>';
+            }elseif($row['order_status'] == 2){
+                echo '完成';
+            }
+          ?></td>
+        <td><?php if($employeeid == $row['employeeid'] && $row['order_status'] == '0' && $list_count == 0){ ?>
           <a href="outward_order_list_add.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
-        <td><?php if($list_count >0 && $employeeid == $row['employeeid']){ ?>
+       <!--  <td><?php if($list_count >0 && $employeeid == $row['employeeid']){ ?>
           <a href="mould_outward_orderae.php?id=<?php echo $orderid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
-          <?php } ?></td>
+          <?php } ?></td> -->
         <td><?php if($list_count){ ?>
           <a href="excel_outward_order.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/excel_10_10.png" width="10" height="10" />
           <?php } ?>
@@ -171,7 +184,7 @@ $result = $db->query($sqllist);
   </div>
   <?php
   }else{
-	  echo "<p class=\"tag\">系统提示：暂无订单记录！</p>";
+    echo "<p class=\"tag\">系统提示：暂无订单记录！</p>";
   }
   ?>
 </div>

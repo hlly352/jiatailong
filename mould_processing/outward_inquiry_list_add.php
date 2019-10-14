@@ -3,12 +3,8 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
-$orderid = fun_check_int($_GET['id']);
+$inquiryid = fun_check_int($_GET['id']);
 $employeeid = $_SESSION['employee_info']['employeeid'];
-//查找所有的询价单信息
-$sql_inquiry = "SELECT `db_outward_inquiry_order`.`inquiry_orderid`,`db_outward_inquiry_order`.`inquiry_number`,`db_supplier`.`supplier_cname` FROM `db_outward_inquiry_order` INNER JOIN `db_supplier` ON `db_outward_inquiry_order`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_outward_inquiry_order`.`inquiry_order_status` = '1' AND `db_outward_inquiry_order`.`inquiry_orderid` NOT IN (SELECT `inquiry_orderid` FROM `db_outward_order` GROUP BY `inquiry_orderid`)";
-
-$result_inquiry_order = $db->query($sql_inquiry);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -98,15 +94,15 @@ $(function(){
 	$("input[name^=unit_price]").blur(function(){
 		var unit_price = parseFloat($(this).val());
 		var id = $(this).attr('id');
-		var inquiryid = id.substr(id.lastIndexOf('_')+1);
+		var materialid = id.substr(id.lastIndexOf('_')+1);
 		if($.trim(unit_price) && !rf_b.test(unit_price)){
 			alert('请输入大于零的数字')
 			$(this).val(this.defaultValue);
 		}else{
 			$(this).val(unit_price.toFixed(2));
-			var outward_quantity = $('#outward_quantity_'+inquiryid).html();
-			var amount = outward_quantity * unit_price;
-			$('#amount_'+inquiryid).val(amount.toFixed(2));
+			var order_quantity = $('#order_quantity_'+materialid).val();
+			var amount = order_quantity * unit_price;
+			$('#amount_'+materialid).val(amount.toFixed(2));
 		}
 	})
 
@@ -130,22 +126,23 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php
-  $sql_order = "SELECT `db_outward_inquiry_order`.`inquiry_orderid`,`db_outward_inquiry_order`.`inquiry_number`,`db_outward_inquiry_order`.`inquiry_date`,DATE_ADD(`db_outward_inquiry_order`.`inquiry_date`,interval +`db_outward_inquiry_order`.`delivery_cycle` day) AS `plan_date`,`db_outward_inquiry_order`.`dotime`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM  `db_outward_inquiry_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_outward_inquiry_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_outward_inquiry_order`.`employeeid` WHERE `db_outward_inquiry_order`.`inquiry_orderid` = '$inquiry_orderid'";
-  $sql_order = "SELECT * FROM `db_outward_order` INNER JOIN `db_employee` ON `db_outward_order`.`employeeid` = `db_employee`.`employeeid` WHERE `db_outward_order`.`orderid` = '$orderid'";
+  $sql_order = "SELECT `db_outward_inquiry_order`.`inquiry_number`,`db_outward_inquiry_order`.`inquiry_date`,DATE_ADD(`db_outward_inquiry_order`.`inquiry_date`,interval +`db_outward_inquiry_order`.`delivery_cycle` day) AS `plan_date`,`db_outward_inquiry_order`.`dotime`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM  `db_outward_inquiry_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_outward_inquiry_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_outward_inquiry_order`.`employeeid` WHERE `db_outward_inquiry_order`.`inquiryid` = '$inquiryid'";
+
   $result_inquiry = $db->query($sql_order);
   if($result_inquiry->num_rows){
 	  $array_inquiry = $result_inquiry->fetch_assoc();
-	  $orderid = $array_inquiry['orderid'];
+	  $plan_date = $array_inquiry['plan_date'];
+	  var_dump($array_inquiry);
   ?>
   <h4>外协加工订单</h4>
   <table>
     <tr>
       <th width="10%">合同号：</th>
-      <td width="15%"><?php echo $array_inquiry['order_number']; ?></td>
+      <td width="15%"><?php echo $array_inquiry['inquiry_number']; ?></td>
       <th width="10%">订单日期：</th>
-      <td width="15%"><?php echo $array_inquiry['order_date']; ?></td>
-      <!-- <th width="10%">供应商：</th>
-      <td width="15%"><?php echo $array_inquiry['supplier_cname']; ?></td> -->
+      <td width="15%"><?php echo $array_inquiry['inquiry_date']; ?></td>
+      <th width="10%">供应商：</th>
+      <td width="15%"><?php echo $array_inquiry['supplier_cname']; ?></td>
       <th width="10%">操作人：</th>
       <td width="15%"><?php echo $array_inquiry['employee_name']; ?></td>
     </tr>
@@ -159,18 +156,18 @@ $(function(){
 <?php
 
 if($_GET['submit']){
+	$id = $orderid;
+	$mould_number = trim($_GET['mould_number']);
+	$material_number = trim($_GET['material_number']);
+	$material_name = trim($_GET['material_name']);
+	$specification = trim($_GET['specification']);
 
-	$inquiry_orderid = trim($_GET['inquiry_order']);
+	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
 	
-}else{
-	if($result_inquiry_order->num_rows){
-		$inquiry_orderid = $result_inquiry_order->fetch_assoc()['inquiry_orderid'];
-	}
 }
-$sqlwhere = " WHERE `db_outward_inquiry_order`.`inquiry_orderid` = '$inquiry_orderid' ";
 //查询所有待询价物料信息
 
-$sql = "SELECT `db_outward_inquiry_orderlist`.`back_date`,`db_employee`.`employee_name`,`db_mould_outward_type`.`outward_typename`,`db_outward_inquiry`.`inquiryid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould_specification`.`mould_no`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code`,`db_outward_inquiry`.`outward_quantity`,`db_outward_inquiry`.`outward_remark` FROM `db_outward_inquiry_orderlist` INNER JOIN `db_outward_inquiry_order` ON `db_outward_inquiry_order`.`inquiry_orderid` = `db_outward_inquiry_orderlist`.`inquiry_orderid` INNER JOIN `db_outward_inquiry` ON `db_outward_inquiry_orderlist`.`inquiryid` = `db_outward_inquiry`.`inquiryid` INNER JOIN `db_mould_material` ON `db_outward_inquiry`.`materialid` = `db_mould_material`.`materialid` INNER JOIN `db_mould_outward_type` ON `db_outward_inquiry`.`outward_typeid` = `db_mould_outward_type`.`outward_typeid` INNER JOIN `db_mould_specification` ON `db_mould_material`.`mouldid` = `db_mould_specification`.`mould_specification_id` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_outward_inquiry`.`employeeid` $sqlwhere";
+$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number`,SUBSTRING(`db_mould_material`.`material_number`,1,1) AS `material_number_code` FROM `db_mould_material` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` IN(SELECT `materialid` FROM `db_outward_inquiry`) AND `db_mould_material`.`type` != 'Z' $sqlwhere";
 
 $result = $db->query($sql);
 $result_id = $db->query($sql);
@@ -184,23 +181,24 @@ $result = $db->query($sqllist);
   <form action="" name="search" method="get">
     <table>
       <tr>
-        <th>询价单：</th>
+        <th>模具编号：</th>
+        <td><input type="text" name="mould_number" class="input_txt" /></td>
+        <th>物料编号：</th>
+        <td><input type="text" name="material_number" class="input_txt" /></td>
+        <th>物料名称：</th>
+        <td><input type="text" name="material_name" class="input_txt" /></td>
+        <th>规格：</th>
+        <td><input type="text" name="specification" class="input_txt" /></td>
+        <th>来源：</th>
         <td>
-	        <select name="inquiry_order" class="input_txt txt">
-	        	<?php 
-	        		$result_inquiry_order = $db->query($sql_inquiry);
-	        		if($result_inquiry_order->num_rows){
- 						while($rows = $result_inquiry_order->fetch_assoc()){
- 						
-	        	?>
-		        <option value="<?php echo $rows['inquiry_orderid'] ?>"><?php echo $rows['supplier_cname'].'-'.$rows['inquiry_number'] ?></option>
-		        <?php }} ?>
+	        <select name="data_source" class="input_txt txt">
+		        <option value="M">我的询价</option>
+		        <option value="A">所有询价</option>
 	        </select>
         </td>
         <td>
         	<input type="submit" name="submit" value="查询" class="button" />
         	<input type="hidden" name="id" value="<?php echo $orderid ?>" />
-        	<input type="hidden" name="inquiry_orderid" value="<?php echo $inquiry_order ?>" />
         </td> 
       </tr>
     </table>
@@ -210,30 +208,28 @@ $result = $db->query($sqllist);
   <?php
   if($result->num_rows){
   ?>
-  <form action="outward_order_listdo.php" name="mould_material_list" method="post">
+  <form action="mould_outward_listdo.php" name="mould_material_list" method="post">
     <table>
       <tr>
         <th width="">ID</th>
         <th width="">模具编号</th>
-<!--         <th width="">料单编号</th>
-        <th width="">料单序号</th> -->
+        <th width="">料单编号</th>
+        <th width="">料单序号</th>
         <th width="">物料编码</th>
         <th width="">物料名称</th>
         <th width="">规格</th>
         <th width="">材质</th>
-        <th width="">硬度</th>
-        <th width="">品牌</th>
-        <th width="">申请人</th>
-        <th width="">加工类型</th>
-        <th width="">回厂时间</th>
         <th width="">数量</th>
+        <th width="">加工数量</th>
         <th width="">单价</th>
         <th width="">金额</th>
         <th width="15%">备注</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-		  $inquiryid = $row['inquiryid'];
+		  $specification_bg = '';
+		  $material_name_bg = '';
+		  $materialid = $row['materialid'];
 		  $material_number_code = $row['material_number_code'];
 		  $specification = $row['specification'];
 		  if(in_array($material_number_code,array(1,2,3,4,5))){
@@ -246,35 +242,33 @@ $result = $db->query($sqllist);
       <tr>
         <td>
         	<?php echo $materialid ?>
-        	<input type="checkbox" name="inquiryid[]" value="<?php echo $inquiryid; ?>"<?php //if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> />
-        	<input type="hidden" name="inquiryid[]" value="<?php echo $inquiryid ?>" />
+        	<input type="hidden" name="materialid[]" value="<?php echo $materialid; ?>"<?php //if(in_array($materialid,$array_order)) echo " disabled=\"disabled\""; ?> />
         </td>
-        <td><?php echo $row['mould_no']; ?></td>
-<!--         <td><?php echo $row['material_list_number']; ?></td>
-        <td><?php echo $row['material_list_sn']; ?></td> -->
+        <td><?php echo $row['mould_number']; ?></td>
+        <td><?php echo $row['material_list_number']; ?></td>
+        <td><?php echo $row['material_list_sn']; ?></td>
         <td><?php echo $row['material_number']; ?></td>
         <td<?php echo $material_name_bg; ?>><?php echo $row['material_name']; ?></td>
         <td<?php echo $specification_bg; ?>><?php echo $specification; ?></td>
         <td><?php echo $row['texture']; ?></td>
-        <td><?php echo $row['hardness']; ?></td>
-        <td><?php echo $row['brand']; ?></td>
-        <td><?php echo $row['employee_name'];?></td>
-        <td><?php echo $row['outward_typename']; ?></td>
-        <td><?php echo $row['back_date']; ?></td>
-        <td id="outward_quantity_<?php echo $inquiryid ?>"><?php echo $row['outward_quantity']; ?></td>
+        <td><?php echo $row['material_quantity']; ?></td>
         <td>
-        	<input type="text" id="unit_price_<?php echo $inquiryid; ?>" name="unit_price[]" class="input_txt" size="10" />
+        	<input type="text" name="order_quantity[]" id="order_quantity_<?php echo $materialid; ?>" class="input_txt order_quantity" size="8"/>
         </td>
         <td>
-        	<input type="text" name="amount[]" class="input_txt" size="10" id="amount_<?php echo $inquiryid; ?>" />
+        	<input type="text" name="unit_price[]" id="unit_price_<?php echo $materialid; ?>" class="input_txt unit_price"  size="8" />
         </td>
-        <td><?php echo $row['outward_remark']; ?></td>
+        <td>
+        	<input type="text" readonly name="amount[]" id="amount_<?php echo $materialid; ?>" class="input_txt amount" size="10" />
+        </td>
+        <td>
+        	<input type="text" name="remark[]" class="input_txt" size="10" /> 
+        </td>
       </tr>
       <?php } ?>
       <tr>
-      	<td colspan="15">
+      	<td colspan="13">
       		<input type="submit" value="添加" name="submit" class="button" />
-      		<input type="hidden" name="inquiry_orderid" value="<?php echo $inquiry_orderid ?>" />
       		<input type="hidden" name="orderid" value="<?php echo $orderid ?>" />
       		<input type="button" value="返回" class="button" onclick="window.history.go(-1)" />
       	</td>
