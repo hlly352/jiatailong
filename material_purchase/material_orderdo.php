@@ -4,13 +4,13 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
-if($_POST['submit']){
-	$action = $_POST['action'];
-	$supplierid = $_POST['supplierid'];
-	$order_date = $_POST['order_date'];
-	$delivery_cycle = $_POST['delivery_cycle'];
-	$pay_type = $_POST['pay_type'];
+	$action = $_REQUEST['action'];
+	// $supplierid = $_POST['supplierid'];
+	// $order_date = $_POST['order_date'];
+	// $delivery_cycle = $_POST['delivery_cycle'];
+	// $pay_type = $_POST['pay_type'];
 	if($action == "add"){
+		$order_date = date('Y-m-d');
 		//自动生成编号
 		$sql_number = "SELECT MAX((SUBSTRING(`order_number`,-2)+0)) AS `max_number` FROM `db_material_order` WHERE DATE_FORMAT(`order_date`,'%Y-%m-%d') = '$order_date'";
 		$result_number = $db->query($sql_number);
@@ -24,7 +24,7 @@ if($_POST['submit']){
 		} 
 		$employeeid = $_SESSION['employee_info']['employeeid'];
 		$dotime = fun_gettime();
-		$sql = "INSERT INTO `db_material_order` (`orderid`,`order_number`,`order_date`,`delivery_cycle`,`supplierid`,`employeeid`,`dotime`,`order_status`,`pay_type`) VALUES (NULL,'$order_number','$order_date','$delivery_cycle','$supplierid','$employeeid','$dotime',0,'$pay_type')";
+		$sql = "INSERT INTO `db_material_order` (`orderid`,`delivery_cycle`,`order_number`,`order_date`,`employeeid`,`dotime`,`order_status`) VALUES (NULL,'5','$order_number','$order_date','$employeeid','$dotime','0')";
 		$db->query($sql);
 		if($orderid = $db->insert_id){
 			header('location:material_order_list_add.php?id='.$orderid);
@@ -101,5 +101,5 @@ if($_POST['submit']){
 			header('location:'.$_SERVER['HTTP_REFERER']);
 		}
 	}
-}
+
 ?>

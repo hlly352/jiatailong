@@ -3,6 +3,7 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
+$inquiry_orderid = $_GET['id'];
 if($_GET['submit']){
 	$mould_number = trim($_GET['mould_number']);
 	$material_number = trim($_GET['material_number']);
@@ -10,9 +11,10 @@ if($_GET['submit']){
 	$specification = trim($_GET['specification']);
 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_number` LIKE '%$material_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
 }
-$sql = "SELECT `db_material_inquiry`.`inquiryid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould`.`mould_number` FROM `db_material_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC";
+//$sql = "SELECT `db_material_inquiry`.`inquiryid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould`.`mould_number` FROM `db_material_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC";
+$sql = "SELECT `db_material_inquiry_orderlist`.`listid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould`.`mould_number` FROM `db_material_inquiry_orderlist` INNER JOIN `db_material_inquiry_order` ON `db_material_inquiry_orderlist`.`inquiry_orderid` = `db_material_inquiry_order`.`inquiry_orderid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry_orderlist`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_material_inquiry_order`.`inquiry_orderid` = '$inquiry_orderid' ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC";
 $result = $db->query($sql);
-$_SESSION['material_inquiry_list'] = $sql;
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -30,7 +32,7 @@ $_SESSION['material_inquiry_list'] = $sql;
 <?php include "header.php"; ?>
 <div id="table_search">
   <h4>物料询价单</h4>
-  <form action="" name="search" method="get">
+ <!--  <form action="" name="search" method="get">
     <table>
       <tr>
         <th>模具编号：</th>
@@ -44,7 +46,7 @@ $_SESSION['material_inquiry_list'] = $sql;
         <td><input type="submit" name="submit" value="查询" class="button" />
           <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_material_inquiry.php'" /></td>
       </tr>
-    </table>
+    </table> -->
   </form>
 </div>
 <div id="table_list">
@@ -69,10 +71,10 @@ $_SESSION['material_inquiry_list'] = $sql;
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-		  $inquiryid = $row['inquiryid'];
+		  $listid = $row['listid'];
 	  ?>
       <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $inquiryid; ?>" checked="checked" /></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $listid; ?>" checked="checked" /></td>
         <td><?php echo $row['mould_number']; ?></td>
         <td><?php echo $row['material_date']; ?></td>
         <td><?php echo $row['material_list_number']; ?></td>
@@ -95,6 +97,7 @@ $_SESSION['material_inquiry_list'] = $sql;
       <input type="button" name="other" class="select_button" id="CheckedRev" value="反选" />
       <input type="button" name="reset" class="select_button" id="CheckedNo" value="清除" />
       <input type="submit" name="submit" id="submit" value="删除" class="select_button" onclick="JavaScript:return confirm('系统提示:确定删除吗?')" />
+      <input type="hidden" value="del_list" name="action" />
     </div>
   </form>
   <?php

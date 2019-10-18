@@ -1,10 +1,21 @@
+<meta http-euqiv="Content-Type" Content="text/html;charset=utf-8" />
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../class/page.php';
 require_once 'shell.php';
-$orderid = fun_check_int($_GET['id']);
+$orderid = $_GET['id'];
 $employeeid = $_SESSION['employee_info']['employeeid'];
+//查询供应商
+$sql_supplier = "SELECT `supplier_code`,`supplier_cname`,`supplierid` FROM `db_supplier` WHERE FIND_IN_SET(1,`supplier_typeid`) ORDER BY `supplier_code` ASC";
+$result_supplier = $db->query($sql_supplier);
+//查询合同号
+$sql_order_info = "SELECT * FROM `db_material_order` WHERE `orderid` = '$orderid'";
+$result_order_info = $db->query($sql_order_info);
+if($result_order_info->num_rows){
+	$order_info = $result_order_info->fetch_assoc();
+}
+
 //查询计量单位
 $sql_unit = "SELECT `unitid`,`unit_name` FROM `db_unit` ORDER BY `unitid` ASC";
 $result_unit = $db->query($sql_unit);
@@ -122,8 +133,29 @@ $(function(){
 		}
 	})
 	*/
+	function get_plan_date(){
+		var delivery_cycle = parseInt($.trim($('#delivery_cycle').val()));
+		delivery_cycle = delivery_cycle?delivery_cycle:0;
+		var mydate = new Date();
+		var str = "" + mydate.getFullYear() + "-";
+			str += (mydate.getMonth()+1) + "-";
+			str += mydate.getDate() + delivery_cycle;
+			$('.plan_date').val(str);
+	}
+	get_plan_date();
+	$('#delivery_cycle').live('change',function(){
+		get_plan_date();
+	})
 	$("#data_source").change(function(){
 		$("#submit").click();
+	})
+	$('#add').live('click',function(){
+		var supplierid = $('#supplierid').val();
+		if(!supplierid){
+			$('#supplierid').focus();
+			alert('请选择供应商');
+			return false;
+		}
 	})
 })
 </script>
@@ -132,48 +164,22 @@ $(function(){
 
 <body>
 <?php include "header.php"; ?>
-<div id="table_sheet">
-  <?php
-  $sql_order = "SELECT `db_material_order`.`order_number`,`db_material_order`.`order_date`,DATE_ADD(`db_material_order`.`order_date`,interval +`db_material_order`.`delivery_cycle` day) AS `plan_date`,`db_material_order`.`dotime`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid` WHERE `db_material_order`.`orderid` = '$orderid' AND `db_material_order`.`employeeid` = '$employeeid'";
-  $result_order = $db->query($sql_order);
-  if($result_order->num_rows){
-	  $array_order = $result_order->fetch_assoc();
-	  $plan_date = $array_order['plan_date'];
-  ?>
-  <h4>物料订单</h4>
-  <table>
-    <tr>
-      <th width="10%">合同号：</th>
-      <td width="15%"><?php echo $array_order['order_number']; ?></td>
-      <th width="10%">订单日期：</th>
-      <td width="15%"><?php echo $array_order['order_date']; ?></td>
-      <th width="10%">供应商：</th>
-      <td width="15%"><?php echo $array_order['supplier_cname']; ?></td>
-      <th width="10%">操作人：</th>
-      <td width="15%"><?php echo $array_order['employee_name']; ?></td>
-    </tr>
-  </table>
-  <?php
-  }else{
-	  die("<p class=\"tag\">系统提示：暂无记录！</p></div>");
-  }
-  ?>
-</div>
 <?php
-$data_source = $_GET['data_source']?trim($_GET['data_source']):'A';
-if($_GET['submit']){
-	$mould_number = trim($_GET['mould_number']);
-	$material_name = trim($_GET['material_name']);
-	$specification = trim($_GET['specification']);
-	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
-}
-if($data_source == 'A'){
-	$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
-}elseif($data_source == 'B'){
-	$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) $sqlwhere";
-}elseif($data_source == 'C'){
-	$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_mould_material` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) $sqlwhere";
-}
+// $data_source = $_GET['data_source']?trim($_GET['data_source']):'A';
+// if($_GET['submit']){
+// 	$mould_number = trim($_GET['mould_number']);
+// 	$material_name = trim($_GET['material_name']);
+// 	$specification = trim($_GET['specification']);
+// 	$sqlwhere = " AND `db_mould`.`mould_number` LIKE '%$mould_number%' AND `db_mould_material`.`material_name` LIKE '%$material_name%' AND `db_mould_material`.`specification` LIKE '%$specification%'";
+// }
+// if($data_source == 'A'){
+// 	$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) AND `db_material_inquiry`.`employeeid` = '$employeeid' $sqlwhere";
+// }elseif($data_source == 'B'){
+// 	$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_material_inquiry` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) $sqlwhere";
+// }elseif($data_source == 'C'){
+// 	$sql = "SELECT `db_mould_material`.`materialid`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`complete_status`,`db_mould`.`mould_number` FROM `db_mould_material` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_mould_material`.`materialid` NOT IN (SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`) $sqlwhere";
+// }
+$sql = "SELECT * FROM `db_material_inquiry_orderlist` INNER JOIN `db_material_inquiry_order` ON `db_material_inquiry_orderlist`.`inquiry_orderid` = `db_material_inquiry_order`.`inquiry_orderid` INNER JOIN `db_mould_material` ON `db_material_inquiry_orderlist`.`materialid` = `db_mould_material`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_material_inquiry_order`.`inquiry_orderid` IN (SELECT `inquiry_orderid` FROM `db_material_inquiry_order` WHERE `employeeid` = '$employeeid' GROUP BY `inquiry_orderid`) AND `db_material_inquiry_orderlist`.`materialid` NOT IN(SELECT `materialid` FROM `db_material_order_list` GROUP BY `materialid`)";
 $result = $db->query($sql);
 $pages = new page($result->num_rows,10);
 $sqllist = $sql . " ORDER BY `db_mould`.`mould_number` DESC,`db_mould_material`.`materialid` ASC" . $pages->limitsql;
@@ -181,7 +187,7 @@ $result = $db->query($sqllist);
 ?>
 <div id="table_search">
   <h4>可下订单物料</h4>
-  <form action="" name="search" method="get">
+ <!--  <form action="" name="search" method="get">
     <table>
       <tr>
         <th>模具编号：</th>
@@ -200,12 +206,45 @@ $result = $db->query($sqllist);
           <input type="button" name="button" value="明细" class="button" onclick="location.href='material_order_list.php?id=<?php echo $orderid; ?>'" />
           <input type="hidden" name="id" value="<?php echo $orderid; ?>" /></td>
       </tr>
+  </form> -->
+  <form action="material_order_list_adddo.php" name="material_list" method="post">
+  <tr>
+  	<th>合同号：</th>
+  	<td><input type="text" value="<?php echo $order_info['order_number'];  ?>" class="input_txt" readonly /></td>
+  	<th>订单日期：</th>
+  	<td>
+  		<input type="text" value="<?php echo $order_info['order_date']?$order_info['order_date']:date('Y-m-d'); ?>" name="order_date" class="input_txt" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" />
+  	</td>
+  	<th>供应商：</th>
+  	<td>
+  		<select name="supplierid" class="input_txt txt" id="supplierid">
+  			<option value="">--请选择--</option>
+  			<?php
+  				if($result_supplier->num_rows){
+  					while($row_supplier = $result_supplier->fetch_assoc()){
+  					$is_select = $order_info['supplierid'] == $row_supplier['supplierid']?'selected':'';
+  						echo '<option '.$is_select.' value="'.$row_supplier['supplierid'].'">'.$row_supplier['supplier_code'].'-'.$row_supplier['supplier_cname'].'</option>';
+  					}
+  				}
+  			?>
+  		</select>
+  	</td>
+  	<th>付款类型：</th>
+  	<td>
+  		<select name="pay_type" id="" class="input_txt txt">
+  			<option value="M" <?php echo $order_info['pay_type']=='M'?'selected':'' ?>>月结</option>
+  			<option value="P" <?php echo $order_info['pay_type']=='P'?'selected':'' ?>>预付</option>
+  		</select>
+  	</td>
+	<th>交货周期：</th>
+	<td>
+		<input type="text" value="<?php echo $order_info['delivery_cycle']?$order_info['delivery_cycle']:5 ?>" id="delivery_cycle" name="delivery_cycle" class="input_txt" />
+	</td>
+  </tr>
     </table>
-  </form>
 </div>
 <div id="table_list">
   <?php if($result->num_rows){ ?>
-  <form action="material_order_list_adddo.php" name="material_list" method="post">
     <table>
       <tr>
         <th width="6%" rowspan="2">模具编号</th>
@@ -270,13 +309,13 @@ $result = $db->query($sqllist);
             <option value="<?php echo $is_status_key; ?>"<?php if($is_status_key == 0) echo " selected=\"selected\""; ?>><?php echo $is_status_value; ?></option>
             <?php } ?>
           </select></td>
-        <td><input type="text" name="plan_date[]" value="<?php echo $plan_date; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="12" /></td>
+        <td><input type="text" name="plan_date[]" class="plan_date input_txt" value="" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" size="12" /></td>
         <td><input type="text" name="remark[]" class="input_txt" size="12" />
           <input type="hidden" name="materialid[]" value="<?php echo $materialid; ?>" /></td>
       </tr>
       <?php } ?>
       <tr>
-        <td colspan="15"><input type="submit" name="submit" value="添加" class="button" />
+        <td colspan="15"><input type="submit" name="submit" id="add" value="添加" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="orderid" value="<?php echo $orderid; ?>" /></td>
       </tr>

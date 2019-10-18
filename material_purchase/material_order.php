@@ -21,7 +21,7 @@ if($_GET['submit']){
 	}
 	$sqlwhere = " AND `db_material_order`.`order_number` LIKE '%$order_number%' $sql_supplierid $sql_order_status";
 }
-$sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_material_order`.`delivery_cycle`,`db_material_order`.`dotime`,`db_material_order`.`order_status`,`db_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_material_order` INNER JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid` INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid` WHERE (`db_material_order`.`order_date` BETWEEN '$sdate' AND '$edate') $sqlwhere";
+$sql = "SELECT `db_material_order`.`orderid`,`db_material_order`.`order_number`,`db_material_order`.`order_date`,`db_material_order`.`delivery_cycle`,`db_material_order`.`dotime`,`db_material_order`.`order_status`,`db_material_order`.`employeeid`,`db_supplier`.`supplier_cname`,`db_employee`.`employee_name` FROM `db_material_order`INNER JOIN `db_employee` ON `db_employee`.`employeeid` = `db_material_order`.`employeeid`  LEFT JOIN `db_supplier` ON `db_supplier`.`supplierid` = `db_material_order`.`supplierid`  WHERE (`db_material_order`.`dotime` BETWEEN '$sdate' AND '$edate') $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $pages = new page($result->num_rows,15);
@@ -38,6 +38,16 @@ $result = $db->query($sqllist);
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
+<script type="text/javascript">
+  $(".order_status").live('click',function(){
+    var id = $(this).attr('id');
+    var orderid = id.substr(id.lastIndexOf('_')+1);
+    var order = $(this);
+    $.post('../ajax_function/change_order_status.php',{orderid:orderid},function(data){
+      order.html(order.html() == '已下单'?'未下单':'已下单');
+    })
+  })
+</script>
 <title>采购管理-希尔林</title>
 </head>
 
@@ -75,7 +85,7 @@ $result = $db->query($sqllist);
 			?>
           </select></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <input type="button" name="button" value="添加" class="button" onclick="location.href='material_orderae.php?action=add'" /></td>
+          <input type="button" name="button" value="添加" class="button" onclick="location.href='material_orderdo.php?action=add'" /></td>
       </tr>
     </table>
   </form>
@@ -121,7 +131,7 @@ $result = $db->query($sqllist);
         <th width="6%">项数</th>
         <th width="6%">订单状态</th>
         <th width="4%">Add</th>
-        <th width="4%">Edit</th>
+        <!-- <th width="4%">Edit</th> -->
         <th width="4%">Excel</th>
         <th width="4%">List</th>
       </tr>
@@ -139,13 +149,17 @@ $result = $db->query($sqllist);
         <td><?php echo $row['employee_name']; ?></td>
         <td><?php echo $row['dotime']; ?></td>
         <td><?php echo $list_count; ?></td>
-        <td><?php echo $array_order_status[$row['order_status']]; ?></td>
+        <td>
+          <a href="#" id="status_<?php echo $orderid; ?>" class="order_status">
+              <?php echo $array_order_status[$row['order_status']]; ?>    
+          </a>
+        </td>
         <td><?php if($employeeid == $row['employeeid']){ ?>
           <a href="material_order_list_add.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
           <?php } ?></td>
-        <td><?php if(!in_array($orderid,$array_material_inout) && $employeeid == $row['employeeid']){ ?>
+      <!--   <td><?php if(!in_array($orderid,$array_material_inout) && $employeeid == $row['employeeid']){ ?>
           <a href="material_orderae.php?id=<?php echo $orderid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a>
-          <?php } ?></td>
+          <?php } ?></td> -->
         <td><?php if($list_count){ ?>
           <a href="excel_material_order.php?id=<?php echo $orderid; ?>"><img src="../images/system_ico/excel_10_10.png" width="10" height="10" />
           <?php } ?>

@@ -4,7 +4,13 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 if($_POST['submit']){
+	$supplierid = $_POST['supplierid'];
+	$order_date = $_POST['order_date'];
+	$pay_type = $_POST['pay_type'];
+	$delivery_cycle = $_POST['delivery_cycle'];
 	$orderid = $_POST['orderid'];
+	$sql_order = "UPDATE `db_material_order` SET `supplierid` = '$supplierid',`order_date` = '$order_date',`pay_type` = '$pay_type',`delivery_cycle` = '$delivery_cycle' WHERE `orderid` = '$orderid'";
+	$db->query($sql_order);
 	$array_materialid = $_POST['materialid'];
 	$array_order_quantity = $_POST['order_quantity'];
 	$array_actual_quantity = $_POST['actual_quantity'];
@@ -35,7 +41,7 @@ if($_POST['submit']){
 	$sql_list = rtrim($sql_list,',');
 	$enquiry_materialid = rtrim($enquiry_materialid,',');
 	$sql = "INSERT INTO `db_material_order_list` (`listid`,`orderid`,`materialid`,`order_quantity`,`actual_quantity`,`in_quantity`,`order_surplus`,`unitid`,`actual_unitid`,`unit_price`,`tax_rate`,`process_cost`,`iscash`,`plan_date`,`remark`) VALUES $sql_list";
-	
+
 	$db->query($sql);
 	if($db->insert_id){
 		header("location:material_order_list.php?id=".$orderid);

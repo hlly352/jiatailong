@@ -16,7 +16,7 @@
     </li>
     <li class="menulevel"><a href="#">询价处理</a>
       <ul>
-        <li><a href="material_inquiry_list.php">模具物料</a></li>
+        <li><a href="material_inquiry_order.php">模具物料</a></li>
         <li><a href="cutter_inquiry_list.php">加工刀具</a></li>
         <li><a href="other_inquiry_material.php">期间物料</a></li>
       </ul>

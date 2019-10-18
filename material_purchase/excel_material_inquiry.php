@@ -1,6 +1,7 @@
 <?php
 require_once '../global_mysql_connect.php';
 require_once 'shell.php';
+$inquiry_orderid = $_GET['id'];
 /** Error reporting */
 error_reporting(E_ALL);
 /** Include path **/
@@ -10,8 +11,8 @@ include 'PHPExcel.php';
 $objPHPexcel = PHPExcel_IOFactory::load('../template_file/material_inquiry.xls');
 $objWorksheet = $objPHPexcel->getActiveSheet();
 $objPHPexcel->getActiveSheet()->getDefaultRowDimension()->setRowHeight(-1);
+$sql = "SELECT `db_material_inquiry_orderlist`.`listid`,`db_mould_material`.`material_date`,`db_mould_material`.`material_list_number`,`db_mould_material`.`material_list_sn`,`db_mould_material`.`material_number`,`db_mould_material`.`material_name`,`db_mould_material`.`specification`,`db_mould_material`.`material_quantity`,`db_mould_material`.`texture`,`db_mould_material`.`hardness`,`db_mould_material`.`brand`,`db_mould_material`.`spare_quantity`,`db_mould_material`.`remark`,`db_mould`.`mould_number` FROM `db_material_inquiry_orderlist` INNER JOIN `db_material_inquiry_order` ON `db_material_inquiry_orderlist`.`inquiry_orderid` = `db_material_inquiry_order`.`inquiry_orderid` INNER JOIN `db_mould_material` ON `db_mould_material`.`materialid` = `db_material_inquiry_orderlist`.`materialid` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_material`.`mouldid` WHERE `db_material_inquiry_order`.`inquiry_orderid` = '$inquiry_orderid'";
 
-$sql = $_SESSION['material_inquiry_list'];
 $result = $db->query($sql);
 if($result->num_rows){
 	$i = 6;
