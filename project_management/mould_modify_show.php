@@ -9,7 +9,7 @@ $data = $_GET['data'];
 $isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
 
 //查询对应信息
-$information_sql = "SELECT `{$data}`,`{$data}_path`,`modify_id` FROM `db_mould_modify` WHERE `modify_id` = '$modify_id'";
+$information_sql = "SELECT `{$data}`,`{$data}_path`,`modify_id`,`specification_id` FROM `db_mould_modify` WHERE `modify_id` = '$modify_id'";
 $result_information = $db->query($information_sql);
 
 
@@ -45,9 +45,10 @@ $result_information = $db->query($information_sql);
         $information_info = $result_information->fetch_row();
         $titles = explode('&',$information_info[0]);
         $paths  = explode('&',$information_info[1]);
-        $specificationid = $information_info[2];
+        $modify_id = $information_info[2];
+        $specificationid = $information_info[3]
   ?>
-  <form action="technical_information_do.php" name="material_order" method="post" enctype="multipart/form-data">
+  <form action="mould_modify_do.php" name="material_order" method="post" enctype="multipart/form-data">
     <table>
       <?php 
         foreach($titles as $k=>$v){
@@ -65,7 +66,7 @@ $result_information = $db->query($information_sql);
           <a href="<?php echo 'http://'.$_SERVER['HTTP_HOST'].substr($paths[$k],2) ?>">查看</a>
           &nbsp;&nbsp;
           <?php if($isadmin == 1){ ?>
-          <a href="technical_information_do.php?action=del&informationid=<?php echo $_GET['informationid'] ?>&key=<?php echo $k ?>&data=<?php echo $_GET['data'] ?>" onclick="javascript:return confirm('确认删除?');">删除</a>
+          <a href="mould_modify_do.php?action=del&modify_id=<?php echo $_GET['modify_id'] ?>&key=<?php echo $k ?>&data=<?php echo $_GET['data'] ?>" onclick="javascript:return confirm('确认删除?');">删除</a>
         <?php }?>
         </td>
       </tr>
@@ -74,10 +75,9 @@ $result_information = $db->query($information_sql);
       <tr>
         
         <td colspan="8" style="text-align:center">
-          <input type="button" name="" class="button" value="添加" id="add" onclick="javascript:window.location.href='technical_information_edit.php?action=add&specification_id=<?php echo $specificationid ?>'">
-          <input type="button" name="button" value="返回" class="button" onclick="window.location.href='technical_information.php'" />
+          <input type="button" name="" class="button" value="添加" id="add" onclick="javascript:window.location.href='mould_modify_edit.php?action=add&specification_id=<?php echo $specificationid; ?>&modify_id=<?php echo $modify_id ?>'">
+          <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
         </td>
-
       </tr>
     </table>
   </form>

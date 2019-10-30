@@ -1,6 +1,7 @@
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
+require_once '../config/config.php';
 require_once 'shell.php';
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $sql_employee = "SELECT `db_employee`.`employee_name`,`db_employee`.`account`,`db_employee`.`employee_number`,`db_employee`.`phone`,`db_employee`.`extnum`,`db_employee`.`email`,`db_employee`.`photo_filedir`,`db_employee`.`photo_filename`,`db_department`.`dept_name`,`db_personnel_position`.`position_name`,`db_superior`.`employee_name` AS `superior_name` FROM `db_employee` INNER JOIN `db_department` ON `db_department`.`deptid` = `db_employee`.`deptid` INNER JOIN `db_personnel_position` ON `db_personnel_position`.`positionid` = `db_employee`.`positionid` LEFT JOIN `db_employee` AS `db_superior` ON `db_superior`.`employeeid` = `db_employee`.`superior` WHERE `db_employee`.`employeeid` = '$employeeid'";
@@ -29,6 +30,14 @@ $(function(){
 		}
 		$("#myjtl_work_list ul").not($("#"+id+"_list")).hide();
 		$("#myjtl_work_list p").not($("#"+id)).css({'border-bottom':'none','background':'#F9F9F9'});
+	})
+	$('.project_data').live('click',function(){
+		var id = $(this).attr('id');
+		var showid = id.substr(id.lastIndexOf('_')+1);
+		var data = {showid:showid};
+		$.post('../ajax_function/change_project_data_status.php',data,function(){
+			console.log(data);
+		})
 	})
 })
 </script>
@@ -160,7 +169,15 @@ $(function(){
 	  $sql_outward = "SELECT * FROM `db_outward_inquiry` WHERE `approver` = '$employeeid' AND `status` = '0'";
 	 $result_outward = $db->query($sql_outward);
 	 $outward_num = $result_outward->num_rows > 0?'1':'0';
+	 //待查看项目资料
+	 $sql_project_data = "SELECT `id`,`data_name`,`informationid`,`file_type` FROM `db_mould_data_show` WHERE `employeeid` = '$employeeid' AND `status` = '0'";
+	 $result_project_data = $db->query($sql_project_data);
+	 //发起项目
+	 $sql_data_begin = "SELECT `data_name`,`informationid` FROM `db_mould_data_show` WHERE `status` = '0' GROUP BY `data_name`";
+	 $result_data_begin = $db->query($sql_data_begin);
 	 $total_plan = $result_plan->num_rows+$outward_num;
+	 $total_note = $result_project_data->num_rows;
+	 $total_begin = $result_data_begin->num_rows;
 	  ?>
       <h4>日常工作</h4>
       <p id="my_apply"<?php echo $total_apply?' style="color:#F00;"':'' ?>>【我的申请】您有<span class="tasknum"><?php echo $total_apply; ?></span>个申请待审批</p>
@@ -393,11 +410,49 @@ $(function(){
 		}
 		?>
       </ul>
+       <p id="my_note"<?php echo $total_note?' style="color:#F00;"':'' ?>>【工作通知】您有<span class="tasknum"><?php echo $total_note; ?></span>条通知未查看</p>
+      <ul id="my_note_list" style="display:none;">
+      <?php if($total_note >0){?>
+		<?php if($result_project_data->num_rows){ 
+        	while($project_data = $result_project_data->fetch_assoc()){
+        ?>
+			<li>
+				<a class="project_data" id="project_data_<?php echo $project_data['id'] ?>"  href="/project_management/technical_data_list.php?action=show&data=<?php echo $project_data['data_name'] ?>&informationid=<?php echo $project_data['informationid'] ?>">您有一项<?php echo $array_project_data_type[$project_data['file_type']][1][$project_data['data_name']] ?>待查看</a>
+			</li>
+        <?php } }?>
+		<?php
+		}else{
+			echo "<li>【通知】暂无</li>";
+		}
+		?>
+      </ul>
+       <p id="my_begin"<?php echo $total_begin?' style="color:#F00;"':'' ?>>【我的发起】您有<span class="tasknum"><?php echo $total_begin; ?></span>条发起未结束</p>
+      <ul id="my_begin_list" style="display:none;">
+      <?php if($total_begin >0){?>
+		<?php if($result_data_begin->num_rows){ 
+        	while($data_begin = $result_data_begin->fetch_assoc()){
+        		foreach($array_project_data_type as $data_team){
+        			if(array_key_exists($data_begin['data_name'],$data_team[1])){
+        				$show_data = $data_team[1][$data_begin['data_name']];
+					}
+        		}
+        ?>
+			<li>
+				<a href="/project_management/technical_data_list.php?action=show&data=<?php echo $data_begin['data_name'] ?>&informationid=<?php echo $data_begin['informationid'] ?>">您有一项<?php echo $show_data; ?>待查看</a>
+			</li>
+        <?php } }?>
+		<?php
+		}else{
+			echo "<li>【发起】暂无</li>";
+		}
+		?>
+      </ul>
     </div>
     <?php 
 	//PDCA工作
 	$sql_pdca = "SELECT * FROM `db_work` WHERE `worker` = '$employeeid' AND `work_status` = 1 AND `pdca_status` NOT IN ('C','A')";
 	$result_pdca = $db->query($sql_pdca);
+	
     //未完成试模
 	$sql_mould_try_finish = "SELECT * FROM `db_mould_try` WHERE `try_status` = 1 AND `approve_status` = 'B' AND `finish_status` = 0";
 	$result_mould_try_finish = $db->query($sql_mould_try_finish);
@@ -406,7 +461,9 @@ $(function(){
       <h4>待办任务</h4>
       <ul>
         <?php if($result_pdca->num_rows){ ?>
-        <li><a href="/pdca/my_work.php">【工作任务】您有<?php echo $result_pdca->num_rows; ?>个任务未完成</a></li>
+        	<li>
+        		<a href="/pdca/my_work.php">【工作任务】您有<?php echo $result_pdca->num_rows; ?>个任务未完成</a>
+        	</li>       
         <?php
 		}else{
 			echo "<li class=\"msg\">【工作任务】暂无</li>";

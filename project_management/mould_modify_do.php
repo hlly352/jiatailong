@@ -55,17 +55,15 @@
 	
 	//更改当前模具的改模信息
 		$sql = "UPDATE `db_mould_modify` SET `{$file_type}` = CONCAT_WS('&',`{$file_type}`,'".$data_info."'),`{$file_type}_path` = CONCAT_WS('&',`{$file_type}_path`,'".$file_path."') WHERE `modify_id` = '$modify_id'";
-		echo $sql;exit;
 	$db->query($sql);
 	if($db->affected_rows){
 		header('location:mould_modify.php');
 	}
 }elseif($action == 'del'){
 	$data = $_GET['data'];
-	$informationid = $_GET['informationid'];
+	$modify_id = $_GET['modify_id'];
 	$key = $_GET['key'];
-	
-	$sql = "SELECT `{$data}`,`{$data}_path` FROM `db_technical_information` WHERE `information_id` = '$informationid'";
+	$sql = "SELECT `{$data}`,`{$data}_path` FROM `db_mould_modify` WHERE `modify_id` = '$modify_id'";
 	$result = $db->query($sql);
 
 	function del_str($key,$str){
@@ -110,26 +108,8 @@
 	$new_path = rtrim($new_path,'&');
 	$new_name = rtrim($new_name,'&');
 	$sql_str = "`{$data}` = '$new_name',`{$data}_path` = '$new_path'";
-	if($data == 'project_data' || $data == 'project_sum'){
-		//查找当前项目的所有模具
-				$keyword_sql = "SELECT `db_mould_specification`.`project_name` FROM `db_mould_specification` INNER JOIN `db_technical_information` ON `db_technical_information`.`specification_id` = `db_mould_specification`.`mould_specification_id` WHERE `db_technical_information`.`information_id` = '$informationid'";
-				$result_keyword = $db->query($keyword_sql);
-				if($result_keyword->num_rows){
-					$keyword = $result_keyword->fetch_row()[0];
-				}
-				$project_sql = "SELECT `db_technical_information`.`information_id` FROM `db_mould_specification` INNER JOIN `db_technical_information` ON `db_technical_information`.`specification_id` = `db_mould_specification`.`mould_specification_id` WHERE `db_mould_specification`.`project_name` LIKE '%$keyword%'";
-				$result_project = $db->query($project_sql);
-				if($result_project->num_rows){
-					while($row = $result_project->fetch_row()){
-
-					$informationids .= $row[0].',';
-					}
-				}
-	$informationid = rtrim($informationids,',');
-	}
-	
 	//更新删除后的值
-	$del_sql = "UPDATE `db_technical_information` SET {$sql_str} WHERE  FIND_IN_SET(`information_id`,'$informationid')";
+	$del_sql = "UPDATE `db_mould_modify` SET {$sql_str} WHERE  FIND_IN_SET('$modify_id',`modify_id`)";
 
 	$db->query($del_sql);
 	header('location:'.$_SERVER['HTTP_REFERER']);

@@ -5,6 +5,7 @@ require_once '../config/config.php';
 require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
 $specification_id = $_GET['specification_id'];
+$from = $_GET['from'];
 $mouldid = $_GET['mouldid'];
 //查询模具信息
 $mould_sql = "SELECT `project_name`,`mould_no`,`mould_name` FROM `db_mould_specification` WHERE `mould_specification_id` = '$specification_id'";
@@ -15,6 +16,9 @@ if($result_mould->num_rows){
 //查询供应商
 $sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(1,`supplier_typeid`) >0 ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
+//查询部门
+$sql_dept = "SELECT * FROM `db_department` ORDER BY `deptid`";
+$result_dept = $db->query($sql_dept);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -35,6 +39,37 @@ $result_supplier = $db->query($sql_supplier);
       for(var k in data){
         var inp = '<label><input type="radio" checked name="doc_type" value="'+k+'" />'+data[k]+'</label> '
         select_doc.append(inp);
+      }
+    },'json')
+  }
+  //判断是否在数组中
+  function is_arr(str,arr){
+    var len = arr.length-1;
+    while(len>=0){
+      if(str === arr[len]){
+      return true;
+    }
+      len--;
+
+    }
+    return false;
+  }
+  function get_employee(){
+     var deptid = $('#dept').val();
+    //获取当前部门的人员
+    $.post('../ajax_function/get_dept_employee.php',{deptid:deptid},function(data){
+      var select_num = $('.select_employee').size();
+      var array_select = new Array();
+      for(var j=0;j<select_num;j++){
+        var employeeid = $('.select_employee').eq(j).attr('employeeid');
+        array_select.push(employeeid);
+      }
+      $('#employee').empty();
+      for(var i=0;i<data.length;i++){
+        if(!is_arr(data[i].employeeid,array_select)){
+          var span = '<span class="employee" id="employee_'+data[i].employeeid+'" style="padding:5px;cursor:pointer;">'+data[i].employee_name+'<span>';
+          $('#employee').append(span);
+       }
       }
     },'json')
   }
@@ -59,6 +94,21 @@ $(function(){
       alert('请选择文件');
       return false;
     }
+  })
+  $('#dept').live('change',function(){
+   get_employee();
+  })
+  $('.employee').live('click',function(){
+     var id = $(this).attr('id');
+     var employeeid = id.substr(id.lastIndexOf('_')+1);
+     var name = $(this).html();
+     var select_span = '<span class="select_employee" employeeid="'+employeeid+'" id="select_'+id+'" style="padding:5px;cursor:pointer;color:blue">'+name+'<input type="hidden" value="'+employeeid+'" name="employeeid[]"></span>';
+     $('#select_employee').append(select_span);
+     $(this).remove();
+  })
+  $('.select_employee').live('click',function(){
+    $(this).remove();
+    get_employee();
   })
 })
 </script>
@@ -109,7 +159,19 @@ $(function(){
           <select name="data_type" id="data_type" class="input_txt txt">
             <?php 
               foreach($array_project_data_type as $k=>$v){
-                echo '<option value="'.$k.'">'.$v[0].'</option>';
+                switch($k)
+                  {
+                    case 1:
+                     $is_select = $from == 'project_start'?'selected':'';
+                    break;
+                    case 3:
+                     $is_select = $from == 'delivery_service'?'selected':'';
+                    break;
+                    default:
+                      $is_select = '';
+
+                  }
+                echo '<option '.$is_select.' value="'.$k.'">'.$v[0].'</option>';
               }
              ?>
           </select>
@@ -122,6 +184,33 @@ $(function(){
         </td>
       </tr>
       <tr>
+        <th>通知部门：</th>
+        <td>
+          <select class="input_txt txt" id="dept">
+            <option value="">--请选择--</option>
+            <?php 
+              if($result_dept->num_rows){
+                while($dept = $result_dept->fetch_assoc()){
+                  echo '<option value="'.$dept['deptid'].'">'.$dept['dept_name'].'</option>';
+                }
+              }
+            ?>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th>可选人员：</th>
+        <td id="employee">
+          
+        </td>
+      </tr>
+      <tr>
+        <th>已选人员：</th>
+        <td id="select_employee">
+          
+        </td>
+      </tr>
+      <tr>
         <th>&nbsp;</th>
         <td>
           <input type="submit" name="submit" id="submit" value="确定" class="button" />
@@ -129,6 +218,7 @@ $(function(){
           <input type="hidden" name="specification_id" value="<?php echo $specification_id ?>">
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="action" value="add" />
+          <input type="hidden" name="from" value="<?php echo $_GET['from'] ?>" />
         </td>
       </tr>
     </table>

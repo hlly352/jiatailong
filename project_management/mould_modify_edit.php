@@ -15,6 +15,9 @@ if($result_mould->num_rows){
 //查询供应商
 $sql_supplier = "SELECT `supplierid`,`supplier_code`,`supplier_cname` FROM `db_supplier` WHERE FIND_IN_SET(1,`supplier_typeid`) >0 ORDER BY `supplier_code` ASC";
 $result_supplier = $db->query($sql_supplier);
+//查询部门
+$sql_dept = "SELECT * FROM `db_department` ORDER BY `deptid`";
+$result_dept = $db->query($sql_dept);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -60,6 +63,7 @@ $result_supplier = $db->query($sql_supplier);
       return false;
     }
   })
+
 })
 </script>
 <title>项目管理-嘉泰隆</title>
@@ -125,6 +129,34 @@ $result_supplier = $db->query($sql_supplier);
           <?php echo $i==5?'<br/>':'';$i++; }  ?>
         </td>
       </tr>
+      <tr>
+        <th>通知部门：</th>
+        <td>
+          <select class="input_txt txt" id="dept">
+            <option value="">--请选择--</option>
+            <?php 
+              if($result_dept->num_rows){
+                while($dept = $result_dept->fetch_assoc()){
+                  echo '<option value="'.$dept['deptid'].'">'.$dept['dept_name'].'</option>';
+                }
+              }
+            ?>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th>可选人员：</th>
+        <td id="employee">
+          
+        </td>
+      </tr>
+      <tr>
+        <th>已选人员：</th>
+        <td id="select_employee">
+          
+        </td>
+      </tr>
+      <tr>
       <tr>
         <th>&nbsp;</th>
         <td>

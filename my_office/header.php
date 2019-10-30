@@ -20,6 +20,7 @@
         <li><a href="employee_overtime_apply.php">加班</a></li>
         <li><a href="employee_vehicle_apply.php">用车</a></li>
         <li><a href="employee_express_apply.php">快递</a></li>
+        <li><a href="employee_meeting_apply.php">会议</a></li>
       </ul>
     </li>
     <li class="menulevel"><a href="#">我的审批</a>

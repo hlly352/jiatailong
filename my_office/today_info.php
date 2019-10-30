@@ -11,7 +11,7 @@ require_once 'shell.php';
 <link href="css/main.css" type="text/css" rel="stylesheet" />
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <style>
-#goout, #express, #vehicle {
+#goout, #express, #vehicle  {
 	width:100%;
 	border:1px solid #CCC;
 	margin-bottom:10px;

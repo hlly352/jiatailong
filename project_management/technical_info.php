@@ -219,29 +219,17 @@ function show($row,$from){
   <form action="moulddo.php" name="mould_list" method="post">
     <table>
       <tr>
-        <th rowspan="2" width="3%">ID</th>
-        <th rowspan="2" width="3%">代码</th>
-        <th rowspan="2" width="4%">项目名称</th>
-        <th rowspan="2" width="5%" >模具编号</th>
-        <th rowspan="2" width="6%">零件名称</th>
-        <th rowspan="2" width="6%">零件图片</th>
-        <?php if($isconfirm == 1 || $isadmin == 1){ ?>
-          <th colspan="3" width="6%">客户</th>
-        <?php } ?>
-        <th colspan="4" width="4%">内部</th>
-        <!-- <th rowspan="2" width="4%">目前状态</th> -->
-        <th rowspan="2" width="4%">操作</th>
-      </tr>
-      <tr>
-        <?php if($isconfirm == 1 || $isadmin == 1){ ?>
+        <th width="3%">ID</th>
+        <th width="3%">代码</th>
+        <th width="4%">项目名称</th>
+        <th width="5%" >模具编号</th>
+        <th width="6%">零件名称</th>
+        <th width="6%">零件图片</th>
         <th width="4%">项目资料</th>
         <th width="4%">模具资料</th>
         <th width="4%">2D图纸</th>
-        <?php } ?>
-        <th width="4%">跟进流程</th>
-        <th width="4%">总结报告</th>
-        <th width="4%">设计标准</th>
         <th width="4%">模具规格书</th>
+        <th width="4%">操作</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
@@ -295,25 +283,14 @@ function show($row,$from){
         </td>
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
-        <?php if($isconfirm == 1 || $isadmin == 1){ ?>
         <td>
-          <?php echo show($row,'project_data') ?>
+          <?php echo shows($row,'project_data') ?>
         </td>
         <td>
-          <?php echo show($row,'mould_data'); ?>
+          <?php echo shows($row,'mould_data'); ?>
         </td>
         <td>
-          <?php echo show($row,'drawing'); ?>
-        </td>
-      <?php } ?>
-        <td>
-          <?php echo show($row,'flow'); ?>
-        </td>
-        <td>
-          <?php echo show($row,'report'); ?>
-        </td>
-        <td>
-          <?php echo show($row,'standard'); ?>
+          <?php echo shows($row,'drawing'); ?>
         </td>
         <td class="detail">
           查看

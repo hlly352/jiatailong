@@ -78,7 +78,7 @@ $result_information = $db->query($information_sql);
         
         <td colspan="8" style="text-align:center">
           <input type="button" name="" class="button" value="添加" id="add" onclick="javascript:window.location.href='technical_information_edit.php?action=add&specification_id=<?php echo $specificationid ?>'">
-          <input type="button" name="button" value="返回" class="button" onclick="window.location.href='technical_information.php'" />
+          <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
         </td>
 
       </tr>

@@ -96,7 +96,7 @@ function show($row,$from){
 function display($row,$array_project_data_type,$index){
           foreach($array_project_data_type[$index][1] as $k=>$v){
             if(!empty($row[$k])){
-              $str .= '<td><a href="technical_data_list.php?action=show&data='.$k.'&informationid='.$row['information_id'].'"><img src="../images/system_ico/article_12_16.png" /></a></td>'; 
+              $str .= '<td><a href="technical_data_list.php?action=show&data='.$k.'&informationid='.$row['information_id'].'"><img src="../images/system_ico/info_8_10.png" width="15" /></a></td>'; 
             }else{
               $str .= '<td></td>';
             }
@@ -259,10 +259,10 @@ function display($row,$array_project_data_type,$index){
         <?php }?>
         <th colspan="4">项目启动会</th>
         <th colspan="3">设计输出</th>
-        <th colspan="4">加工制造</th>
+        <th colspan="5">加工制造</th>
         <th colspan="3">模具试模</th>
         <th colspan="3">品质控制</th>
-        <th>模具修改</th>
+        <th colspan="3">模具修改</th>
         <th colspan="6">模具交付及售后</th>
         <th>项目总结</th>
         <!-- <th rowspan="2" width="4%">目前状态</th> -->
@@ -278,31 +278,61 @@ function display($row,$array_project_data_type,$index){
         <th>评审<br />记录</th>
         <th>DFM<br />报告</th>
         <th>进度<br />规划</th>
-        <th>客户<br />确认</th>
+        <th>客户<br />方案<br />确认</th>
         <th>设计<br/>计划</th>
         <th>设计<br/>评审</th>
         <th>图纸<br/>联络单</th>
         <th>加工<br/>工艺</th>
         <th>加工<br/>计划</th>
+        <th>机上<br/>检测<br />报告</th>
         <th>红丹<br/>照片</th>
         <th>装模前<br/>检查<br/>报告</th>
+        <th>试模<br/>报告、<br />视频</th>
+        <th>走水板<br/>、样品<br/>照片</th>
         <th>机上<br/>红丹<br/>照片</th>
-        <th>走水板<br/>样品<br/>照片</th>
-        <th>试模<br/>报告</th>
         <th>零件<br/>检测<br/>报告</th>
         <th>产品<br/>检测<br/>报告</th>
         <th>出错<br/>报告</th>
-        <th>改模<br />资料</th>
-        <th>客户<br />确认</th>
+        <th>客户<br/>改模<br />资料</th>
+        <th>内部<br />改模<br/>资料</th>
+        <th>改模<br/>计划</th>
+        <th>客户<br />交付<br />确认</th>
         <th>出厂<br />检查表</th>
-        <th>装箱<br />装车<br />照片</th>
-        <th>放行<br />送货单</th>
-        <th>售后<br />服务表</th>
-        <th>客户<br />交付<br />指示</th>
+        <th>装箱<br />、装车<br />照片</th>
+        <th>放行条、<br />送货单</th>
+        <th>售后<br />服务<br />记录</th>
+        <th>客户<br />终验<br />收表</th>
         <th>总结<br />报告</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
+        $specificationid = $row['mould_specification_id'];
+      //查询内部改模资料
+      $sql_modify_data = "SELECT `modify_id`,`modify_data` FROM `db_mould_modify` WHERE `t_number` = (SELECT MAX(`t_number`) FROM `db_mould_modify` WHERE `specification_id` = '$specificationid' AND `modify_data` != '') AND `specification_id` = '$specificationid'";
+      $result_modify_data = $db->query($sql_modify_data);
+      if($result_modify_data->num_rows){
+        $modify_id = $result_modify_data->fetch_assoc()['modify_id'];
+        $modify_data = '<a href="mould_modify_show.php?data=modify_data&action=show&modify_id='.$modify_id.'"><img src=""><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+      }else{
+        $modify_data = '';
+      }
+      $sql_customer_data = "SELECT `modify_id`,`customer_data` FROM `db_mould_modify` WHERE `t_number` = (SELECT MAX(`t_number`) FROM `db_mould_modify` WHERE `specification_id` = '$specificationid' AND `customer_data` != '') AND `specification_id` = '$specificationid'";
+       $result_customer_data = $db->query($sql_customer_data);
+      if($result_customer_data->num_rows){
+        $modify_id = $result_customer_data->fetch_assoc()['modify_id'];
+        $customer_data = '<a href="mould_modify_show.php?data=customer_data&action=show&modify_id='.$modify_id.'"><img src=""><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+      }else{
+        $customer_data = '';
+      }
+      //改模计划
+       $sql_modify_plan = "SELECT `modify_id`,`modify_plan` FROM `db_mould_modify` WHERE `t_number` = (SELECT MAX(`t_number`) FROM `db_mould_modify` WHERE `specification_id` = '$specificationid' AND `modify_plan` != '') AND `specification_id` = '$specificationid'";
+       $result_modify_plan = $db->query($sql_modify_plan);
+      if($result_modify_plan->num_rows){
+        $modify_id = $result_modify_plan->fetch_assoc()['modify_id'];
+        $modify_plan = '<a href="mould_modify_show.php?data=modify_plan&action=show&modify_id='.$modify_id.'"><img src=""><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+      }else{
+        $modify_plan = '';
+      }
       //处理表面要求
       if(strpos($row['surface_require'],'$$')){
         $surface_require = explode('$$',$row['surface_require'])[4];
@@ -366,10 +396,11 @@ function display($row,$array_project_data_type,$index){
           echo display($row,$array_project_data_type,0);
         } ?>
         <td class="detail">
-          <img src="../images/system_ico/article_12_16.png" />
+          <img src="../images/system_ico/info_8_10.png" width="15"/>
           <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
         <?php echo display($row,$array_project_data_type,1); ?>
+        <td></td>
         <td></td>
         <td></td>
         <td></td>
@@ -383,7 +414,9 @@ function display($row,$array_project_data_type,$index){
         <td></td>
         <td></td>
         <td></td>
-        <td><a href="#">T1</a></td>
+        <td><?php echo $customer_data; ?></td>
+        <td><?php echo $modify_data; ?></td>
+        <td><?php echo $modify_plan; ?></td>
         <?php
           echo display($row,$array_project_data_type,3);
           echo display($row,$array_project_data_type,4);
@@ -397,7 +430,7 @@ function display($row,$array_project_data_type,$index){
         <td>
           <?php echo show($row,'standard'); ?>
         </td> -->
-       <td class="default"><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a>
+       <td class="default"><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=technical_information&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a>
        </td> 
       </tr>
       <?php } ?>

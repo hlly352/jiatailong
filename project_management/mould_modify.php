@@ -58,13 +58,16 @@ $sql = "SELECT *,`db_mould_specification`.`mould_specification_id`,`db_mould_spe
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
-$pages = new page($result->num_rows,15);
+$pages = new page($result->num_rows,20);
 $sqllist = $sql . " ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
 
 $result = $db->query($sqllist);
 //显示有资料的信息
-function showData($str){
-  
+function showData($str,$rows){
+   if($rows[$str]){      
+         $modify_id = $rows['modify_id'];  
+         return  '<a href="mould_modify_show.php?data='.$str.'&action=show&modify_id='.$modify_id.'">           <img src="../images/system_ico/article_12_16.png" />        </a>';
+       }
 }
 
 ?>
@@ -91,23 +94,64 @@ function showData($str){
         window.open('mould_specification_edit.php?show=show&specification_id='+specification_id,'_self');
       })
     //点击图片
+    var show = true;
     $('.img').live('click',function(){
-      //图片地址
-      var img_file = $(this).html();
-      var client_width = (window.screen.availWidth-600)/2;
-      var client_height = (window.screen.availHeight-300)/2;
-      var divs = '<div  id="divs" style="position:absolute;top:'+client_height+'px;left:'+client_width+'px">'+img_file+'</div>';
-      $('#table_list').prepend(divs);
-      $('#divs').children('img').css('width','600px');
-      $('#divs').children('img').css('height','300px');
-    })
-      $(document).mouseup(function (e) {
-        var con = $("#divs");   // 设置目标区域
-        if (!con.is(e.target) && con.has(e.target).length === 0) {
-            $('#divs').remove();
-        }
-    });
+      if(show == true){
+        //图片地址
+        var img_file = $(this).html();
+        var client_width = (window.screen.availWidth-600)/2;
+        var client_height = (window.screen.availHeight-300)/2;
+        var divs = '<div  id="divs" style="position:absolute;top:'+client_height+'px;left:'+client_width+'px">'+img_file+'</div>';
+        $('#table_list').prepend(divs);
+        $('#divs').children('img').css('width','600px');
+        $('#divs').children('img').css('height','300px');
+        show = false;
+      }else if(show == false){
+        $('#divs').remove();
+        show = true;
+      }
+      })
+        $(document).mouseup(function (e) {
+          var con = $("#divs");   // 设置目标区域
+          if (!con.is(e.target) && con.has(e.target).length === 0) {
+              $('#divs').remove();
+          }
 
+    });
+  function showData(str,rows){
+    var index = str;
+   if(rows[index]){      
+         var modify_id = rows.modify_id;  
+         return '<a href="mould_modify_show.php?data='+str+'&action=show&modify_id='+modify_id+'">           <img src="../images/system_ico/article_12_16.png" />        </a>';
+       }else{
+         return '';
+      }
+    }
+  //点击查看其它版本的改模资料
+  display = true;
+  $('.version').live('click',function(){
+    var id = $(this).attr('id');
+    var offset = $(this).parent().parent().next();
+    var specificationid = id.substr(id.lastIndexOf('_')+1);
+    if(display == true){
+    $.post('../ajax_function/get_mould_modify_version.php',{specificationid:specificationid},function(data){
+      for(var i=0;i<data.length;i++){
+        var rows = data[i];
+        var modify_id = rows.modify_id;
+        var trs = ' <tr class="tr_'+specificationid+'"><td colspan="6"><td>T'+rows.t_number+'</td></td>        <td>'+showData("last_report",rows)+'</td> <td>'+showData("customer_data",rows)+'</td>       <td>'+showData('modify_data',rows)+'</td>        <td>'+showData('modify_plan',rows)+'</td>        <td>'+showData('drawing_connection',rows)+'</td>        <td>'+showData('before_check',rows)+'</td>        <td>'+showData('try_apply',rows)+'</td>        <td>'+showData('dan_photo',rows)+'</td>        <td>'+showData('sample_photo',rows)+'</td>        <td>'+showData('try_report',rows)+'</td>        <td>'+showData('sample_check',rows)+'</td>        <td>'+showData('sample_delivery',rows)+'</td>          <td></td>   </tr>';
+        offset.before(trs);
+
+      }
+    },'json')
+    display = false;
+    $(this).html('收起');
+  }else if(display == false){
+    display = true;
+    $('.tr_'+specificationid).remove();
+    $(this).html('查看');
+
+  }
+  })
 
 })
 </script>
@@ -200,7 +244,9 @@ function showData($str){
         <th width="5%" >模具编号</th>
         <th width="6%">零件名称</th>
         <th width="6%">零件图片</th>
+        <th>试模次数</th>
         <th>上次试模报告</th>
+        <th>客户改模资料</th>
         <th>内部改模资料</th>
         <th>改模计划</th>
         <th>图纸联络单</th>
@@ -224,7 +270,13 @@ function showData($str){
       if($result_max_modify->num_rows){
         $rows = $result_max_modify->fetch_assoc();
       }
-      var_dump($rows);
+      $specificationid = $rows['specification_id'];
+      //查询当前模具下的其它版本数
+      $sql_modify_count = "SELECT COUNT(*) AS `count` FROM `db_mould_modify` WHERE `specification_id` = '$specificationid'";
+      $result_modify_count = $db->query($sql_modify_count);
+      if($result_modify_count->num_rows){
+        $modify_count = $result_modify_count->fetch_assoc()['count'];
+      }
 
       //处理表面要求
       if(strpos($row['surface_require'],'$$')){
@@ -276,26 +328,20 @@ function showData($str){
         </td>
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
-        <td><?php echo $rows['last_report']; ?></td>
-        <td>
-          <?php if($rows['modify_data']){
-              $modify_id = $rows['modify_id'];
-           ?>
-          <a href="mould_modify_show.php?data=modify_data&action=show&modify_id=<?php echo $modify_id ?>">
-            <img src="../images/system_ico/article_12_16.png" />
-          </a>
-          <?php } ?>
-        </td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><?php echo $rows['sample_check'] ?></td>
-        <td></td>
-        <td></td>
-        <td>查看</td>
+        <td><?php echo 'T'.$rows['t_number']; ?></td>
+        <td><?php echo showData('last_report',$rows) ?></td>
+        <td><?php echo showData('customer_data',$rows); ?></td>
+        <td><?php echo showData('modify_data',$rows); ?></td>
+        <td><?php echo showData('modify_plan',$rows); ?></td>
+        <td><?php echo showData('drawing_connection',$rows); ?></td>
+        <td><?php echo showData('before_check',$rows); ?></td>
+        <td><?php echo showData('try_apply',$rows); ?></td>
+        <td><?php echo showData('dan_photo',$rows);?></td>
+        <td><?php echo showData('sample_photo',$rows);?></td>
+        <td><?php echo showData('try_report',$rows); ?></td>
+        <td><?php echo showData('sample_check',$rows); ?></td>
+        <td><?php echo showData('sample_delivery',$rows);  ?></td>
+        <td><?php echo $modify_count>1?'<a href="" onclick="return false" class="version" id="version_'.$specificationid.'">查看</a>':'查看'; ?></td>
         <td><a href="<?php echo $system_info[0] == '1'?'mould_modify_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
       </tr>
       <?php } ?>

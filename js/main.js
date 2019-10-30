@@ -63,8 +63,7 @@ $(function(){
 	})
 	$("#add_file").click(function(){
 		$(this).after("<br /><input type=\"file\" name=\"file[]\" class=\"input_files\"");
-	})
-	
+	})	
 })
 //复制地址
 function copyToClipboard(txt) {    

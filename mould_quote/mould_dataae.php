@@ -63,7 +63,7 @@ $(function(){
       
       //求模架的重量
     
-      var base_weight = ($("#base_length").val()/1000)*($("#base_width").val()/1000)*($("#base_height").val()*parseInt($('.materials_number').eq(0).val())/1000)*7800;
+      var base_weight = ($("#base_length").val()/1000)*($("#base_width").val()/1000)*($("#base_height").val()*parseInt($('.materials_number').eq(0).val())/1000)*7900;
       base_weight = parseInt(base_weight);
       
       $("#base_weight").val(base_weight);
@@ -957,7 +957,7 @@ $(function(){
       //计算各种金额
       //求模架的重量
       var total_machining = 0;
-      var base_weight = ($("#base_length").val()/1000)*($("#base_width").val()/1000)*($("#base_height").val()/1000)*7800;
+      var base_weight = ($("#base_length").val()/1000)*($("#base_width").val()/1000)*($("#base_height").val()/1000)*7900;
       base_weight = parseInt(base_weight);
       
       $("#base_weight").val(base_weight);
@@ -1417,7 +1417,6 @@ $(function(){
     var p_length = parseInt($("#length_no").children().eq(no).val());
     var p_width =  parseInt($("#width_no").children().eq(no).val());
     var p_height = parseInt($("#height_no").children().eq(no).val());
-    var mould_num = $(".mould_material").size();
     var total_machining = 0;
     if($.trim(p_length) && $.trim(p_width) && $.trim(p_height)){
       if($("#add_cavitys").prevAll().size() == 2) {
@@ -1427,7 +1426,9 @@ $(function(){
       var weight_g = (p_length - 2) * (p_width - 2) * (p_height - 2);
       weight_g = (weight_g/1000).toFixed(2);
       //输入产品大小后计算型腔的尺寸
+      var mould_num = $(".mould_material").size();
       for(var i = 0;i < mould_num; i++){
+        var materials_num = parseInt($('.materials_number').eq(i).val());
         if($(".mould_material").eq(i).val() == '型腔'+no1+'/Cavity' || $(".mould_material").eq(i).val() == '型芯'+no1+'/Core' ){
           //计算型腔和型芯的尺寸
           if(p_length <50){
@@ -1487,7 +1488,7 @@ $(function(){
           $('.material_height').eq(i).val(parseInt(p_height * 1.2 +40));
 
           //输入产品大小后计算型腔和型芯的重量
-          var wei = (parseInt($('.material_length').eq(i).val())/1000)*(parseInt($('.material_width').eq(i).val())/1000)*(parseInt($('.material_height').eq(i).val()) /1000)*7800;
+          var wei = (parseInt($('.material_length').eq(i).val())/1000)*(parseInt($('.material_width').eq(i).val())/1000)*(parseInt($('.material_height').eq(i).val()) /1000)*7900*materials_num;
           wei = Math.round(wei);
           $('.material_weight').eq(i).val(wei);
       
@@ -1498,7 +1499,7 @@ $(function(){
            $(".material_width").eq(i).val(parseFloat(p_width)+20);
            $(".material_height").eq(i).val(120);
           //输入产品大小后计算电极的重量
-          var wei = ((parseFloat(p_length)+100)/1000)*((parseFloat(p_width)+100)/1000)*(150/1000)*8900;
+          var wei = (parseInt($('.material_length').eq(i).val())/1000)*(parseInt($('.material_width').eq(i).val())/1000)*(parseInt($('.material_height').eq(i).val()) /1000)*8900*materials_num;
           wei = Math.round(wei);
           $('.material_weight').eq(i).val(wei);
         }
@@ -1649,7 +1650,7 @@ $(function(){
         var material_num = $(".materials_number").eq(t).val()?$(".materials_number").eq(t).val():0;
         if($(".mould_material").eq(t).val() == '型腔'+no2+'/Cavity' || $(".mould_material").eq(t).val() == '型芯'+no2+'/Core' ){
             //计算型腔和型芯的重量
-            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*7800/1000000000;
+            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*7900/1000000000;
             wei = Math.round(wei);
             $('.material_weight').eq(t).val(wei);
             
@@ -1661,13 +1662,13 @@ $(function(){
             $('.material_weight').eq(t).val(wei);
           } else if($(".mould_material").eq(t).val() == "模架/Mould Base") {
             //计算模架的重量
-            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*7800/1000000000;
+            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*7900/1000000000;
             wei = Math.round(wei);
             $('.material_weight').eq(t).val(wei);
             $("#m_weight").val(wei);
           } else {
             //计算其它的重量
-            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*8900/1000000000;
+            var wei = (parseFloat(material_len))*(parseFloat(material_wid))*(parseFloat(material_hei))*(parseFloat(material_num))*7900/1000000000;
             wei = Math.round(wei);
             $('.material_weight').eq(t).val(wei);
           }
