@@ -9,10 +9,10 @@ $data = $_GET['data'];
 $isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
 
 //查询对应信息
-$information_sql = "SELECT `{$data}`,`{$data}_path`,`modify_id`,`specification_id` FROM `db_mould_modify` WHERE `modify_id` = '$modify_id'";
+$information_sql = "SELECT `{$data}`,`{$data}_path`,`modify_id`,`specification_id`,`t_number` FROM `db_mould_modify` WHERE `modify_id` = '$modify_id'";
 $result_information = $db->query($information_sql);
-
-
+$t_number = $result_information->fetch_assoc()['t_number'];
+$result_information = $db->query($information_sql);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -39,7 +39,7 @@ $result_information = $db->query($information_sql);
           $("#showFileName").val(dd[dd.length-1]);
           }
       </script>
-  <h4>资料查看</h4>
+  <h4>资料查看<?php echo '(T'.$t_number.')' ?></h4>
   <?php
      if($result_information->num_rows){
         $information_info = $result_information->fetch_row();

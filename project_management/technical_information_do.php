@@ -136,7 +136,7 @@
 		$db->query($sql_show);
 		//获取邮件发送地址
 		$address = array();
-		foreach($geter as $id){
+		foreach($email_employeeid as $id){
 			if($id != ''){
 				$sql_mail = "SELECT `employeeid`,`email` FROM `db_employee` WHERE `employeeid` = '$id'";
 				$result_mail = $db->query($sql_mail);

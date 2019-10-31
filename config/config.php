@@ -188,6 +188,12 @@ $array_mould_material_status = array('C'=>'通过','D'=>'退回','E'=>'询价中
 $array_project_data_type = array(array('技术资料',array('project_data'=>'客户项目资料','mould_data'=>'客户模具资料','drawing'=>'客户2D图纸')),array('项目启动会',array('project_review'=>'评审记录','dfm_report'=>'DFM报告','progress'=>'进度规划','customer_confirm'=>'客户方案确认')),array('模具试模',array('trial_mode'=>'试模报告、视频','red_photo'=>'机上红丹照片','sample_photo'=>'走水板、样品照片')),array('模具交付及售后',array('after_sale_confirm'=>'客户交付确认','out_factory'=>'出厂检查表','car_photo'=>'装箱、装车照片','delivery_note'=>'放行条、送货单','service'=>'售后服务记录','customer_indication'=>'客户终验收表')),array('项目总结',array('project_sum'=>'总结报告')));
 //改模资料
 $array_mould_modify = array('last_report'=>'上次试模报告','customer_data'=>'客户改模资料','modify_data'=>'内部改模资料','modity_plan'=>'改模计划','drawing_connection'=>'图纸联络单','before_check'=>'装模前检查表','try_apply'=>'试模申请','dan_photo'=>'机上红丹照片','sample_photo'=>'样品照片','try_report'=>'试模报告','sample_check'=>'样品检测报告','sample_delivery'=>'样品交付');
+//设计输出
+$array_design_out = array('design_plan'=>'设计计划','design_review'=>'设计评审','drawing_concat'=>'图纸联络单');
+//加工资料
+$array_processing_data = array('processing_technology'=>'加工工艺','processing_plan'=>'加工计划','check_report'=>'机上检测报告','maching_red_photo'=>'红丹照片','installation_report'=>'装模前检查报告');
+//品质控制
+$array_quality_data = array('part_report'=>'零件检测报告','product_report'=>'产品检测报告','error_report'=>'出错报告');
 //会议室
 $array_meetingroom = array('two'=>'二楼','three'=>'三楼');
 ?>

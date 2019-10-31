@@ -170,10 +170,10 @@ $(function(){
 	 $result_outward = $db->query($sql_outward);
 	 $outward_num = $result_outward->num_rows > 0?'1':'0';
 	 //待查看项目资料
-	 $sql_project_data = "SELECT `id`,`data_name`,`informationid`,`file_type` FROM `db_mould_data_show` WHERE `employeeid` = '$employeeid' AND `status` = '0'";
+	 $sql_project_data = "SELECT `id`,`data_name`,`informationid`,`file_type`,`modifyid` FROM `db_mould_data_show` WHERE `employeeid` = '$employeeid' AND `status` = '0'";
 	 $result_project_data = $db->query($sql_project_data);
 	 //发起项目
-	 $sql_data_begin = "SELECT `data_name`,`informationid` FROM `db_mould_data_show` WHERE `status` = '0' GROUP BY `data_name`";
+	 $sql_data_begin = "SELECT `data_name`,`informationid` FROM `db_mould_data_show` WHERE `status` = '0' AND `modifyid` = '0' GROUP BY `data_name`";
 	 $result_data_begin = $db->query($sql_data_begin);
 	 $total_plan = $result_plan->num_rows+$outward_num;
 	 $total_note = $result_project_data->num_rows;
@@ -415,18 +415,23 @@ $(function(){
       <?php if($total_note >0){?>
 		<?php if($result_project_data->num_rows){ 
         	while($project_data = $result_project_data->fetch_assoc()){
-        ?>
+        		if($project_data['modifyid'] == '0'){
+        ?>	
 			<li>
-				<a class="project_data" id="project_data_<?php echo $project_data['id'] ?>"  href="/project_management/technical_data_list.php?action=show&data=<?php echo $project_data['data_name'] ?>&informationid=<?php echo $project_data['informationid'] ?>">您有一项<?php echo $array_project_data_type[$project_data['file_type']][1][$project_data['data_name']] ?>待查看</a>
+				<a class="project_data" id="project_data_<?php echo $project_data['id'] ?>"  href="/project_management/technical_data_list.php?action=show&data=<?php echo $project_data['data_name'] ?>&informationid=<?php echo $project_data['informationid'] ?>">您有一项<?php echo (data_name($project_data['data_name'],$array_mould_modify,$array_design_out,$array_processing_data,$array_quality_data,$array_project_data_type)) ?>待查看</a>
 			</li>
-        <?php } }?>
+		<?php }else{ ?>
+			<li>
+				<a class="project_data" id="project_data_<?php echo $project_data['id'] ?>"  href="/project_management/mould_modify_show.php?data=<?php echo $project_data['data_name'] ?>&action=show&modify_id=<?php echo $project_data['modifyid'] ?>">您有一项<?php echo $array_mould_modify[$project_data['data_name']] ?>待查看</a>
+			</li>
+        <?php }} }?>
 		<?php
 		}else{
 			echo "<li>【通知】暂无</li>";
 		}
 		?>
       </ul>
-       <p id="my_begin"<?php echo $total_begin?' style="color:#F00;"':'' ?>>【我的发起】您有<span class="tasknum"><?php echo $total_begin; ?></span>条发起未结束</p>
+       <p id="my_begin"<?php echo $total_begin?' style="color:#F00;"':'' ?>>【我的发起】您有<span class="tasknum"><?php echo $total_begin; ?></span>条发起未完成</p>
       <ul id="my_begin_list" style="display:none;">
       <?php if($total_begin >0){?>
 		<?php if($result_data_begin->num_rows){ 
@@ -438,7 +443,7 @@ $(function(){
         		}
         ?>
 			<li>
-				<a href="/project_management/technical_data_list.php?action=show&data=<?php echo $data_begin['data_name'] ?>&informationid=<?php echo $data_begin['informationid'] ?>">您有一项<?php echo $show_data; ?>待查看</a>
+				<a href="/project_management/technical_data_list.php?action=show&data=<?php echo $data_begin['data_name'] ?>&informationid=<?php echo $data_begin['informationid'] ?>">您有一项<?php echo $show_data; ?>待完成</a>
 			</li>
         <?php } }?>
 		<?php

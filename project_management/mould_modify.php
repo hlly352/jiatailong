@@ -138,7 +138,7 @@ function showData($str,$rows){
       for(var i=0;i<data.length;i++){
         var rows = data[i];
         var modify_id = rows.modify_id;
-        var trs = ' <tr class="tr_'+specificationid+'"><td colspan="6"><td>T'+rows.t_number+'</td></td>        <td>'+showData("last_report",rows)+'</td> <td>'+showData("customer_data",rows)+'</td>       <td>'+showData('modify_data',rows)+'</td>        <td>'+showData('modify_plan',rows)+'</td>        <td>'+showData('drawing_connection',rows)+'</td>        <td>'+showData('before_check',rows)+'</td>        <td>'+showData('try_apply',rows)+'</td>        <td>'+showData('dan_photo',rows)+'</td>        <td>'+showData('sample_photo',rows)+'</td>        <td>'+showData('try_report',rows)+'</td>        <td>'+showData('sample_check',rows)+'</td>        <td>'+showData('sample_delivery',rows)+'</td>          <td></td>   </tr>';
+        var trs = ' <tr class="tr_'+specificationid+'"><td colspan="6"><td>'+'T'+rows.t_number+'</td></td>        <td>'+showData("last_report",rows)+'</td> <td>'+showData("customer_data",rows)+'</td>       <td>'+showData('modify_data',rows)+'</td>        <td>'+showData('modify_plan',rows)+'</td>        <td>'+showData('drawing_connection',rows)+'</td>        <td>'+showData('before_check',rows)+'</td>        <td>'+showData('try_apply',rows)+'</td>        <td>'+showData('dan_photo',rows)+'</td>        <td>'+showData('sample_photo',rows)+'</td>        <td>'+showData('try_report',rows)+'</td>        <td>'+showData('sample_check',rows)+'</td>        <td>'+showData('sample_delivery',rows)+'</td>          <td></td>   </tr>';
         offset.before(trs);
 
       }
@@ -328,7 +328,7 @@ function showData($str,$rows){
         </td>
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
-        <td><?php echo 'T'.$rows['t_number']; ?></td>
+        <td><?php echo $rows['t_number']?'T'.$rows['t_number']:''; ?></td>
         <td><?php echo showData('last_report',$rows) ?></td>
         <td><?php echo showData('customer_data',$rows); ?></td>
         <td><?php echo showData('modify_data',$rows); ?></td>

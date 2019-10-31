@@ -18,7 +18,6 @@
     </li>
     <li class="menulevel"><a href="mould_modify.php">模具修改</a></li>
     <li class="menulevel"><a href="delivery_service.php">交付及售后</a></li>
-    <li class="menulevel"><a href="#">项目总结</a></li>
     <li class="menulevel"><a href="#">物料申请</a>
       <ul>
         <li><a href="mould_data_material.php">物料管理</a></li>

@@ -400,20 +400,20 @@ function display($row,$array_project_data_type,$index){
           <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
         <?php echo display($row,$array_project_data_type,1); ?>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><?php echo shows($row,'design_plan'); ?></td>
+        <td><?php echo shows($row,'design_review'); ?></td>
+        <td><?php echo shows($row,'drawing_concat'); ?></td>
+        <td><?php echo shows($row,'processing_technology'); ?></td>
+        <td><?php echo shows($row,'processing_plan'); ?></td>
+        <td><?php echo shows($row,'check_report'); ?></td>
+        <td><?php echo shows($row,'maching_red_photo'); ?></td>
+        <td><?php echo shows($row,'installation_report'); ?></td>
         <?php
           echo display($row,$array_project_data_type,2);
         ?>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><?php echo shows($row,'part_report'); ?></td>
+        <td><?php echo shows($row,'product_report'); ?></td>
+        <td><?php echo shows($row,'error_report'); ?></td>
         <td><?php echo $customer_data; ?></td>
         <td><?php echo $modify_data; ?></td>
         <td><?php echo $modify_plan; ?></td>

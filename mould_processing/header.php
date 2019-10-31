@@ -19,6 +19,7 @@
         </ul>
     </li>
     <li class="menulevel"><a href="mould_outward.php">外协加工（旧）</a></li>
+    <li class="menulevel"><a href="processing_data.php">加工资料</a></li>
     <li class="menulevel"><a href="mould.php">外协成本</a></li>
     <!-- <li class="menulevel"><a href="mould.php">模具数据</a></li>
     <li class="menulevel"><a href="mould_material.php">模具物料</a></li> -->

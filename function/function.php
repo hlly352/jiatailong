@@ -285,7 +285,7 @@ try {
     $mail->Password = 'xierlin';             // SMTP 密码  部分邮箱是授权码(例如163邮箱)
     $mail->SMTPSecure = '';                    // 允许 TLS 或者ssl协议
     $mail->Port = 25;                            // 服务器端口 25 或者465 具体要看邮箱服务器支持
-
+    $send = $send?$send:'hr.04@hl.com';
     $mail->setFrom($send, '');  //发件人
     foreach($address as $add){
     	if($add != ''){
@@ -320,5 +320,16 @@ function shows($rows,$from){
          $informationid = $rows['information_id'];  
          return  $str = '<a href="technical_data_list.php?action=show&data='.$from.'&informationid='.$informationid.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
        }
+}
+//资料名称
+function data_name($str,$array_mould_modify,$array_design_out,$array_processing_data,$array_quality_data,$array_project_data_type){
+	$new_arr = array_merge($array_mould_modify,$array_design_out,$array_processing_data,$array_quality_data);
+	foreach($array_project_data_type as $k=>$v){
+			if(is_array($v[1])){
+				$new_arr = array_merge($new_arr,$v[1]);
+			}
+	 	}
+	$name = $new_arr[$str];
+	return $name;
 }
 ?>

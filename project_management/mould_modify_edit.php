@@ -63,7 +63,21 @@ $result_dept = $db->query($sql_dept);
       return false;
     }
   })
-
+$('#dept').live('change',function(){
+   get_employee();
+  })
+  $('.employee').live('click',function(){
+     var id = $(this).attr('id');
+     var employeeid = id.substr(id.lastIndexOf('_')+1);
+     var name = $(this).html();
+     var select_span = '<span class="select_employee" employeeid="'+employeeid+'" id="select_'+id+'" style="padding:5px;cursor:pointer;color:blue">'+name+'<input type="hidden" value="'+employeeid+'" name="employeeid[]"></span>';
+     $('#select_employee').append(select_span);
+     $(this).remove();
+  })
+  $('.select_employee').live('click',function(){
+    $(this).remove();
+    get_employee();
+  })
 })
 </script>
 <title>项目管理-嘉泰隆</title>

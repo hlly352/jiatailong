@@ -42,37 +42,7 @@ $result_dept = $db->query($sql_dept);
       }
     },'json')
   }
-  //判断是否在数组中
-  function is_arr(str,arr){
-    var len = arr.length-1;
-    while(len>=0){
-      if(str === arr[len]){
-      return true;
-    }
-      len--;
-
-    }
-    return false;
-  }
-  function get_employee(){
-     var deptid = $('#dept').val();
-    //获取当前部门的人员
-    $.post('../ajax_function/get_dept_employee.php',{deptid:deptid},function(data){
-      var select_num = $('.select_employee').size();
-      var array_select = new Array();
-      for(var j=0;j<select_num;j++){
-        var employeeid = $('.select_employee').eq(j).attr('employeeid');
-        array_select.push(employeeid);
-      }
-      $('#employee').empty();
-      for(var i=0;i<data.length;i++){
-        if(!is_arr(data[i].employeeid,array_select)){
-          var span = '<span class="employee" id="employee_'+data[i].employeeid+'" style="padding:5px;cursor:pointer;">'+data[i].employee_name+'<span>';
-          $('#employee').append(span);
-       }
-      }
-    },'json')
-  }
+ 
 $(function(){
   get_doctype();
   $('#data_type').live('change',function(){
