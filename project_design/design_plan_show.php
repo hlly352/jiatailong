@@ -3,17 +3,11 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
-$modify_id = $_GET['modify_id'];
-$data = $_GET['data'];
-
 $isadmin = $_SESSION['system_shell'][$system_dir]['isadmin'];
-
-//查询对应信息
-$information_sql = "SELECT `{$data}`,`{$data}_path`,`modify_id`,`specification_id` FROM `db_mould_modify` WHERE `modify_id` = '$modify_id'";
-$result_information = $db->query($information_sql);
-
-
-
+$designid = $_GET['designid'];
+//查询设计计划的文件信息
+$sql = "SELECT `design_plan_info`,`design_plan_path`,`specification_id` FROM `db_design_plan` WHERE `designid` = '$designid'";
+$result_design = $db->query($sql);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -41,14 +35,13 @@ $result_information = $db->query($information_sql);
       </script>
   <h4>资料查看</h4>
   <?php
-     if($result_information->num_rows){
-        $information_info = $result_information->fetch_row();
-        $titles = explode('&',$information_info[0]);
-        $paths  = explode('&',$information_info[1]);
-        $modify_id = $information_info[2];
-        $specificationid = $information_info[3]
+     if($result_design->num_rows){
+        $design_info = $result_design->fetch_row();
+        $titles = explode('&',$design_info[0]);
+        $paths  = explode('&',$design_info[1]);
+        $specificationid = $design_info[2];
   ?>
-  <form action="mould_modify_do.php" name="material_order" method="post" enctype="multipart/form-data">
+  <form action="design_plan_do.php" name="material_order" method="post" enctype="multipart/form-data">
     <table>
       <?php 
         foreach($titles as $k=>$v){
@@ -56,17 +49,17 @@ $result_information = $db->query($information_sql);
           $title = explode('#',$v);
         ?>
       <tr>
-        <th width="25%">资料名称：</th>
+        <th width="15%">资料名称：</th>
         <td width="15%"><?php echo $title[0]  ?></td>
         <th width="5%">文件名</th>
-        <td width="15"><?php echo $title[1] ?></td>
+        <td width="15%"><?php echo $title[1] ?></td>
         <th width="5%">时间：</th>
-        <td width="15"><?php echo $title[2] ?></td>
-        <td width="20%">
+        <td width="15%"><?php echo $title[2] ?></td>
+        <td width="">
           <a href="<?php echo 'http://'.$_SERVER['HTTP_HOST'].substr($paths[$k],2) ?>">查看</a>
           &nbsp;&nbsp;
           <?php if($isadmin == 1){ ?>
-          <a href="mould_modify_do.php?action=del&modify_id=<?php echo $_GET['modify_id'] ?>&key=<?php echo $k ?>&data=<?php echo $_GET['data'] ?>" onclick="javascript:return confirm('确认删除?');">删除</a>
+          <a href="design_plan_do.php?action=del&designid=<?php echo $designid ?>&key=<?php echo $k ?>" onclick="javascript:return confirm('确认删除?');">删除</a>
         <?php }?>
         </td>
       </tr>
@@ -75,7 +68,7 @@ $result_information = $db->query($information_sql);
       <tr>
         
         <td colspan="8" style="text-align:center">
-          <input type="button" name="" class="button" value="添加" id="add" onclick="javascript:window.location.href='mould_modify_edit.php?action=add&specification_id=<?php echo $specificationid; ?>&modify_id=<?php echo $modify_id ?>'">
+          <input type="button" name="" class="button" value="添加" id="add" onclick="javascript:window.location.href='design_plan_edit.php?action=add&specification_id=<?php echo $specificationid; ?>&designid=<?php echo $designid ?>'">
           <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />
         </td>
       </tr>

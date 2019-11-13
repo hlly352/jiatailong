@@ -1,4 +1,5 @@
 <?php
+$url = 'https://www.baidu.com';
 if(!$_SESSION['login_status']){
 	header("location:../passport/login.php");
 }else{

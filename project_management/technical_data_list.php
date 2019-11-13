@@ -58,13 +58,13 @@ $result_information = $db->query($information_sql);
           $title = explode('#',$v);
         ?>
       <tr>
-        <th width="25%">资料名称：</th>
+        <th width="20%">资料名称：</th>
         <td width="15%"><?php echo $title[0]  ?></td>
         <th width="5%">文件名</th>
         <td width="15"><?php echo $title[1] ?></td>
         <th width="5%">时间：</th>
-        <td width="15"><?php echo $title[2] ?></td>
-        <td width="20%">
+        <td width="15%"><?php echo $title[2] ?></td>
+        <td width="25%">
           <a href="<?php echo 'http://'.$_SERVER['HTTP_HOST'].substr($paths[$k],2) ?>">查看</a>
           &nbsp;&nbsp;
           <?php if($isadmin == 1){ ?>
@@ -75,7 +75,6 @@ $result_information = $db->query($information_sql);
      
      <?php } }?>
       <tr>
-        
         <td colspan="8" style="text-align:center">
           <input type="button" name="" class="button" value="添加" id="add" onclick="javascript:window.location.href='technical_information_edit.php?action=add&specification_id=<?php echo $specificationid ?>'">
           <input type="button" name="button" value="返回" class="button" onclick="window.history.go(-1)" />

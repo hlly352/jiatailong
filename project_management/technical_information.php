@@ -367,12 +367,14 @@ function display($row,$array_project_data_type,$index){
       }else{
         $image_file = "<img src=\"../images/no_image_85_45.png\" width=\"85\" height=\"45\" />";
       }
-      //查询模具状态
-      $mould_status_sql = "SELECT `mould_statusname` FROM `db_mould_status` WHERE `mould_statusid`=".$row['mould_statusid'];
-      $result_status = $db->query($mould_status_sql);
-      if($result_status->num_rows){
-        $mould_status = $result_status->fetch_assoc()['mould_statusname'];
-      }
+     //查询模具的设计计划
+     $specification_id = $row['mould_specification_id'];
+     $sql_design_plan = "SELECT * FROM `db_design_plan` WHERE `specification_id` = '$specification_id'";
+     $result_design_plan = $db->query($sql_design_plan);
+     //查询模具更改联络单
+     $sql_mould_change = "SELECT * FROM `db_mould_change` WHERE `specification_id` = '$specificationid'";
+     $result_mould_change = $db->query($sql_mould_change);
+
     ?>
       <tr class="trs">
         <td class="default"><input type="checkbox" name="id[]" value="<?php echo $mouldid; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
@@ -400,7 +402,22 @@ function display($row,$array_project_data_type,$index){
           <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
         <?php echo display($row,$array_project_data_type,1); ?>
-        <td><?php echo shows($row,'design_plan'); ?></td>
+        <td><?php echo shows($row,'design_plan'); ?>
+          <?php 
+            if($result_design_plan->num_rows){
+              $row_design_plan = $result_design_plan->fetch_assoc();
+              $designid = $row_design_plan['designid'];
+              echo '<a href="../project_design/design_plan_edit.php?from=project&action=add&specification_id='.$specification_id.'&designid='.$designid.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if($result_mould_change->num_rows){
+              echo '<a href="mould_change_info.php?action=show&specification_id='.$specificationid.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+            }
+          ?>
+        </td>
         <td><?php echo shows($row,'design_review'); ?></td>
         <td><?php echo shows($row,'drawing_concat'); ?></td>
         <td><?php echo shows($row,'processing_technology'); ?></td>
@@ -417,8 +434,13 @@ function display($row,$array_project_data_type,$index){
         <td><?php echo $customer_data; ?></td>
         <td><?php echo $modify_data; ?></td>
         <td><?php echo $modify_plan; ?></td>
+        <td><?php echo shows($row,'after_sale_confirm'); ?></td>
+        <td><?php echo shows($row,'out_factory'); ?></td>
+        <td><?php echo shows($row,'car_photo'); ?></td>
+        <td><?php echo shows($row,'delivery_note'); ?></td>
+        <td><?php echo shows($row,'service'); ?></td>
+        <td><?php echo shows($row,'customer_indication'); ?></td>
         <?php
-          echo display($row,$array_project_data_type,3);
           echo display($row,$array_project_data_type,4);
         ?>
         <!-- <td>

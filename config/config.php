@@ -185,7 +185,7 @@ $array_mould_other_material = array('易耗品','办公用品','福利品','其�
 //物料状态
 $array_mould_material_status = array('C'=>'通过','D'=>'退回','E'=>'询价中','F'=>'已下单','G'=>'已入库');
 //项目资料类型
-$array_project_data_type = array(array('技术资料',array('project_data'=>'客户项目资料','mould_data'=>'客户模具资料','drawing'=>'客户2D图纸')),array('项目启动会',array('project_review'=>'评审记录','dfm_report'=>'DFM报告','progress'=>'进度规划','customer_confirm'=>'客户方案确认')),array('模具试模',array('trial_mode'=>'试模报告、视频','red_photo'=>'机上红丹照片','sample_photo'=>'走水板、样品照片')),array('模具交付及售后',array('after_sale_confirm'=>'客户交付确认','out_factory'=>'出厂检查表','car_photo'=>'装箱、装车照片','delivery_note'=>'放行条、送货单','service'=>'售后服务记录','customer_indication'=>'客户终验收表')),array('项目总结',array('project_sum'=>'总结报告')));
+$array_project_data_type = array(array('技术资料',array('project_data'=>'客户项目资料','mould_data'=>'客户模具资料','drawing'=>'客户2D图纸')),array('项目启动会',array('project_review'=>'评审记录','dfm_report'=>'DFM报告','progress'=>'进度规划','customer_confirm'=>'客户方案确认')),array('模具试模',array('trial_mode'=>'试模报告、视频','red_photo'=>'机上红丹照片','sample_photo'=>'走水板、样品照片')),array('模具交付及售后',array('after_sale_confirm'=>'客户交付确认','out_factory'=>'出厂检查表','car_photo'=>'装箱、装车照片','delivery_note'=>'放行条、送货单','service'=>'售后服务记录','customer_indication'=>'客户终验收表','annex_list'=>'附件清单')),array('项目总结',array('project_sum'=>'总结报告')));
 //改模资料
 $array_mould_modify = array('last_report'=>'上次试模报告','customer_data'=>'客户改模资料','modify_data'=>'内部改模资料','modity_plan'=>'改模计划','drawing_connection'=>'图纸联络单','before_check'=>'装模前检查表','try_apply'=>'试模申请','dan_photo'=>'机上红丹照片','sample_photo'=>'样品照片','try_report'=>'试模报告','sample_check'=>'样品检测报告','sample_delivery'=>'样品交付');
 //设计输出
@@ -196,4 +196,15 @@ $array_processing_data = array('processing_technology'=>'加工工艺','processi
 $array_quality_data = array('part_report'=>'零件检测报告','product_report'=>'产品检测报告','error_report'=>'出错报告');
 //会议室
 $array_meetingroom = array('two'=>'二楼','three'=>'三楼');
+//设计计划
+$array_design_plan = array('dfm','program','product','start','2d','3d_v1','3d_v2','customer_ok','mold','hot','finishing','mold_nc','embryo','machining','nc_finishing','parts','standard','mold_2d','other_parts','sun_word');
+$array_design_plan_excel = array('R'=>'dfm','S'=>'program','T'=>'product','U'=>'start','V'=>'2d','W'=>'3d_v1','X'=>'3d_v2','Y'=>'customer_ok','Z'=>'mold','AA'=>'hot','AB'=>'finishing','AC'=>'mold_nc','AD'=>'embryo','AE'=>'machining','AF'=>'nc_finishing','AG'=>'parts','AH'=>'standard','AI'=>'mold_2d','AJ'=>'other_parts','AK'=>'sun_word');
+//模具更改资料内容
+$array_data_content = array('1'=>'更改','新模','工程部设变','异常更改','模图完善','客户设变');
+//模具更改接收部门
+$array_data_dept = array('7'=>'项目部','5'=>'采购部','10'=>'编程','6'=>'工艺','17'=>'线割组','9'=>'生产部');
+//设计评审资料
+$array_design_review = array('shrink_check','pl_confirm','gum_method','mold_size','insert','eject_method','cool_design','eject_stroke','positioning_method','base_size');
+//模具更改联络单图档用途
+$array_mould_change_use = array('K'=>'开粗','J'=>'精光','A'=>'按特殊要求:');
 ?>

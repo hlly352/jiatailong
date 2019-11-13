@@ -287,6 +287,7 @@ try {
     $mail->Port = 25;                            // 服务器端口 25 或者465 具体要看邮箱服务器支持
     $send = $send?$send:'hr.04@hl.com';
     $mail->setFrom($send, '');  //发件人
+    $address = array_unique($address);
     foreach($address as $add){
     	if($add != ''){
     		$mail->addAddress($add, '');  // 收件人
@@ -332,4 +333,5 @@ function data_name($str,$array_mould_modify,$array_design_out,$array_processing_
 	$name = $new_arr[$str];
 	return $name;
 }
+
 ?>

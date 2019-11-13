@@ -231,6 +231,7 @@ function show($row,$from){
         <th>放行条、送货单</th>
         <th>售后服务记录</th>
         <th>客户终验收表</th>
+        <th>附件清单</th>
         <th>操作</th>
       </tr>
       <?php
@@ -302,6 +303,9 @@ function show($row,$from){
         </td>
          <td>
           <?php echo shows($row,'customer_indication'); ?>
+        </td>
+        <td>
+          <?php echo shows($row,'annex_list'); ?>
         </td>
         <td><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=delivery_service&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
       </tr>

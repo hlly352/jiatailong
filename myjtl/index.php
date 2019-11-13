@@ -173,7 +173,7 @@ $(function(){
 	 $sql_project_data = "SELECT `id`,`data_name`,`informationid`,`file_type`,`modifyid` FROM `db_mould_data_show` WHERE `employeeid` = '$employeeid' AND `status` = '0'";
 	 $result_project_data = $db->query($sql_project_data);
 	 //发起项目
-	 $sql_data_begin = "SELECT `data_name`,`informationid` FROM `db_mould_data_show` WHERE `status` = '0' AND `modifyid` = '0' GROUP BY `data_name`";
+	 $sql_data_begin = "SELECT `data_name`,`informationid`,`modifyid` FROM `db_mould_data_show` WHERE `status` = '0' GROUP BY `data_name`";
 	 $result_data_begin = $db->query($sql_data_begin);
 	 $total_plan = $result_plan->num_rows+$outward_num;
 	 $total_note = $result_project_data->num_rows;
@@ -185,7 +185,7 @@ $(function(){
         <?php if($total_apply){ ?>
         <?php
 		if($result_my_goout->num_rows){
-			while($row_my_goout = $result_my_goout->fetch_assoc()){
+		   while($row_my_goout = $result_my_goout->fetch_assoc()){
 		?>
         <li><a href="/my_office/employee_goout_info.php?id=<?php echo $row_my_goout['gooutid']; ?>">【出门】<?php echo date('m-d',strtotime($row_my_goout['apply_date'])).'/出门证号:'.$row_my_goout['goout_num']; ?></a></li>
         <?php
@@ -442,7 +442,7 @@ $(function(){
 					}
         		}
         ?>
-			<li>
+        	<li>
 				<a href="/project_management/technical_data_list.php?action=show&data=<?php echo $data_begin['data_name'] ?>&informationid=<?php echo $data_begin['informationid'] ?>">您有一项<?php echo $show_data; ?>待完成</a>
 			</li>
         <?php } }?>

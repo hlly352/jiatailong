@@ -157,7 +157,7 @@ function GetDateDiff(startTime, endTime, diffType) {
       $('#employee').empty();
       for(var i=0;i<data.length;i++){
         if(!is_arr(data[i].employeeid,array_select)){
-          var span = '<span class="employee" id="employee_'+data[i].employeeid+'" style="padding:5px;cursor:pointer;">'+data[i].employee_name+'<span>';
+          var span = '<span class="employee" id="employee_'+data[i].employeeid+'" style="padding:5px;cursor:pointer;color:blue">'+data[i].employee_name+'<span>';
           $('#employee').append(span);
        }
       }
