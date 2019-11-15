@@ -6,6 +6,8 @@ require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
 $specification_id = $_GET['specification_id'];
 $changeid = $_GET['changeid'];
+$isconfirm = $_SESSION['system_shell'][$system_dir]['isconfirm'];
+$isadmin   = $_SESSION['system_shell'][$system_dir]['isadmin'];
 //查询当前模具更改联络单
 // $sql_change = "SELECT * FROM `db_mould_change` WHERE `changeid` = '$changeid'";
 // $result_change = $db->query($sql_change);
@@ -15,7 +17,7 @@ $changeid = $_GET['changeid'];
 // }
 //查询模具信息
 if(!empty($changeid)){
-  $mould_sql = "SELECT `db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`mould_name`,`db_mould_specification`.`customer_code`,`db_mould_change`.`designer`,`db_mould_change`.`engnieer`,`db_mould_change`.`check`,`db_mould_change`.`approval`,`db_mould_change`.`data_content`,`db_mould_change`.`change_parts`,`db_mould_change`.`cancel_parts`,`db_mould_change`.`image_path`,`db_mould_change`.`document_no`,`db_mould_change`.`geter`,`db_mould_change`.`document_location`,`db_mould_change`.`document_use`,`db_mould_change`.`special_require` FROM `db_mould_specification` INNER JOIN `db_mould_change` ON `db_mould_specification`.`mould_specification_id` = `db_mould_change`.`specification_id` WHERE `db_mould_change`.`changeid` = '$changeid'";
+  $mould_sql = "SELECT `db_mould_change`.`tips`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`mould_name`,`db_mould_specification`.`customer_code`,`db_mould_change`.`designer`,`db_mould_change`.`engnieer`,`db_mould_change`.`check`,`db_mould_change`.`approval`,`db_mould_change`.`data_content`,`db_mould_change`.`change_parts`,`db_mould_change`.`cancel_parts`,`db_mould_change`.`image_path`,`db_mould_change`.`document_no`,`db_mould_change`.`geter`,`db_mould_change`.`document_location`,`db_mould_change`.`document_use`,`db_mould_change`.`special_require` FROM `db_mould_specification` INNER JOIN `db_mould_change` ON `db_mould_specification`.`mould_specification_id` = `db_mould_change`.`specification_id` WHERE `db_mould_change`.`changeid` = '$changeid'";
   }else{
     $mould_sql = "SELECT `project_name`,`mould_no`,`mould_name`,`customer_code` FROM `db_mould_specification` WHERE `mould_specification_id` = '$specification_id'";
   }
@@ -157,11 +159,11 @@ $(function(){
       </tr>
       <tr>
         <th width="9%">客户代码</th>
-        <td width="14%"><?php echo $info['customer_code'] ?></td>
+        <td width="16%"><?php echo $info['customer_code'] ?></td>
         <th width="9%">项目名称</th>
-        <td width="14%"><?php echo $info['project_name'] ?></td>
+        <td width="16%"><?php echo $info['project_name'] ?></td>
         <th width="9%">模具编号</th>
-        <td width="14%">
+        <td width="16%">
           <?php echo $info['mould_no'] ?>
           <input type="hidden" value="<?php echo $info['mould_no'] ?>" name="mould_no" />  
         </td>
@@ -170,7 +172,7 @@ $(function(){
       </tr>
        <tr>
         <th>资料内容</th>
-        <td colspan="7" style="text-align:left">
+        <td colspan="3" style="text-align:left">
             <?php
               foreach($array_data_content as $k=>$content){
                 $is_select = in_array($k,$array_content)?'checked':'';
@@ -178,15 +180,19 @@ $(function(){
               }
             ?>
         </td>
+        <th>重点提示</th>
+        <td colspan="3">
+          <input type="text" name="tips" value="<?php echo $info['tips'] ?>" class="input_txt" style="width:85%">
+        </td>
       </tr>
        <tr>
         <th> 修改零件编号</th>
         <td colspan="3"> 
-          <input type="text" name="change_parts" value="<?php echo $info['change_parts'] ?>" class="input_txt" size="85" />
+          <input type="text" name="change_parts" value="<?php echo $info['change_parts'] ?>" class="input_txt" style="width:85%" />
         </td>
         <th>取消零件编号</th>
         <td colspan="3">
-          <input type="text" name="cancel_parts" value="<?php echo $info['cancel_parts'] ?>" class="input_txt" size="85" />
+          <input type="text" name="cancel_parts" value="<?php echo $info['cancel_parts'] ?>" class="input_txt" style="width:85%"  />
         </td>
       </tr>
       <tr>
@@ -197,12 +203,12 @@ $(function(){
            <?php
             foreach($image_file as $k=>$v){
               $image_info = explode('##',$v);
-              echo '<div style="float:left;margin-left:20px" class="mould_image" style="margin-left:10px"><img width="510" height="230" src='.$image_info[0].' ><span style="display:block;text-align:center">'.$image_info[1].'</span></div>';
+              echo '<div style="float:left;width:46%;margin-left:3%;margin-bottom:10px" class="mould_image"><img width="100%" height="250px" src='.$image_info[0].' ><span style="display:block;text-align:center">'.$image_info[1].'</span></div>';
             }
            ?>
 
-          <input type="file" name="file[]" onchange="mould_change(this)">
-          <div style="float:left;margin-left:20px"></div>
+          <input type="file" style="float:left" name="file[]" onchange="mould_change(this)">
+          <div style="float:left;margin-left:3%;margin-bottom:2%;width:46%"></div>
         </td>
       </tr>
       <tr>
@@ -213,7 +219,7 @@ $(function(){
           <label><input name="document_use[]" value="K" <?php echo in_array('K',$array_use)?'checked':'' ?> type="checkbox" />开粗 </label> 
           <label><input name="document_use[]" <?php echo in_array('J',$array_use)?'checked':'' ?> value="J" type="checkbox" />精光 </label>
           <label><input name="document_use[]" <?php echo in_array('A',$array_use)?'checked':'' ?> value="A" type="checkbox" />按特殊要求： </label>
-          <input type="text" name="special_require" class="input_txt" style="width:85%;margin-right:10px" value="<?php echo $info['special_require'] ?>" />
+          <input type="text" name="special_require" class="input_txt" style="width:73%;" value="<?php echo $info['special_require'] ?>" />
         </td>
       </tr>
       <tr>
@@ -221,7 +227,7 @@ $(function(){
           图档位置：
         </td>
         <td colspan="7" style="padding-right:10px">
-          <input type="text" value="<?php echo $info['document_location'] ?>" class="input_txt" style="width:95%;margin-right:10px" name="document_location" />
+          <input type="text" value="<?php echo $info['document_location'] ?>" class="input_txt" style="width:95%;" name="document_location" />
         </td>
       </tr>
        <tr>
@@ -255,7 +261,7 @@ $(function(){
         </td>
         <th>审核</th>
         <td>
-           <select name="check">
+           <select name="check" <?php echo $isconfirm == '1'?'':'disabled'; ?>>
             <option value="">--请选择--</option>
             <?php
               if($array_check){
@@ -269,7 +275,7 @@ $(function(){
         </td>
         <th>批准</th>
         <td>
-           <select name="approval">
+           <select name="approval" <?php echo $isadmin == '1'?'':'disabled'; ?>>
             <option value="">--请选择--</option>
             <?php
               if($array_check){
@@ -290,7 +296,7 @@ $(function(){
             if($result_employee->num_rows){
             $array_geter = array();
             while($row_employee = $result_employee->fetch_assoc()){
-              echo $array_data_dept[$row_employee['deptid']].'('.$row_employee['geter'].')  ';
+              echo $array_data_dept[$row_employee['deptid']].'：'.$row_employee['geter'].'  ';
             }
            }
         ?>

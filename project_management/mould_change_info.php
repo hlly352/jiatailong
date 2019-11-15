@@ -3,12 +3,15 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../config/config.php';
 require_once 'shell.php';
+$sdate = $_GET['sdate']?$_GET['sdate']:date('Y-m-01');
+$edate = $_GET['edate']?$_GET['edate']:date('Y-m-d',strtotime($sdate."+1 month -1 day"));
 $action = fun_check_action($_GET['action']);
 $specification_id = $_GET['specification_id'];
 if($_GET['submit']){
   $document_no = trim($_GET['document_no']);
+  $parts_no = trim($_GET['parts_no']);
   $specification_id = trim($_GET['specification_id']);
-  $sqlwhere = "AND `db_mould_change`.`document_no` LIKE '%$document_no%'";
+  $sqlwhere = "AND `db_mould_change`.`document_no` LIKE '%$document_no%' AND `db_mould_change`.`change_parts` LIKE '%$parts_no%' AND (`db_mould_change`.`dodate` BETWEEN '$sdate' AND '$edate')";
 }
 //查询当前模具的所有模具更改联络单
 $sql_change = "SELECT *,`db_designer`.`employee_name` AS `designer`,`db_engnieer`.`employee_name` AS `engnieer`,`db_check`.`employee_name` AS `check`,`db_approval`.`employee_name` AS `approval` FROM `db_mould_change` INNER JOIN `db_mould_specification` ON `db_mould_change`.`specification_id` = `db_mould_specification`.`mould_specification_id` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_change`.`designer` LEFT JOIN `db_employee` AS `db_engnieer` ON `db_engnieer`.`employeeid` = `db_mould_change`.`engnieer` LEFT JOIN `db_employee` AS `db_check` ON `db_check`.`employeeid` = `db_mould_change`.`check` LEFT JOIN `db_employee` AS `db_approval` ON `db_approval`.`employeeid` = `db_mould_change`.`approval` WHERE `db_mould_change`.`specification_id` = '$specification_id' $sqlwhere  ORDER BY `db_mould_change`.`document_no` DESC";
@@ -41,6 +44,16 @@ $result_change = $db->query($sql_change);
         <th>文件编号：</th>
         <td>
           <input type="text" name="document_no" class="input_txt">
+        </td>
+        <th>零件号：</th>
+        <td>
+          <input type="text" name="parts_no" class="input_txt" >
+        </td>
+        <th>时间：</th>
+        <td>
+          <input type="text" name="sdate" value="<?php echo $sdate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
+          --
+          <input type="text" name="edate" value="<?php echo $edate; ?>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true})" class="input_txt" />
         </td>
         <td>
            <input type="submit" name="submit" value="查询" class="button" />
@@ -75,7 +88,7 @@ $result_change = $db->query($sql_change);
        $sql_employee = "SELECT deptid,GROUP_CONCAT(`employee_name`) AS `geter` FROM `db_employee` WHERE `employeeid` IN($geter) GROUP BY `deptid`";
        $result_employee = $db->query($sql_employee);
    ?>
-<div id="table_list" style="width:85%;margin:0px auto">
+<div id="table_list" style="width:85%;margin:25px auto">
   <form action="mould_change_do.php" name="material_order" method="post" enctype="multipart/form-data">
     
     <table>
@@ -103,10 +116,14 @@ $result_change = $db->query($sql_change);
       </tr>
        <tr>
         <th>资料内容</th>
-        <td colspan="7" style="text-align:left">
+        <td colspan="3" style="text-align:left">
           <?php foreach($array_content as $content): 
             echo $array_data_content[$content].'  ';
            endforeach ?>
+        </td>
+        <th>重要提示</th>
+        <td colspan="3">
+          <?php echo $info['tips'] ?>
         </td>
       </tr>
        <tr>
@@ -123,7 +140,7 @@ $result_change = $db->query($sql_change);
            <?php
             foreach($image_file as $k=>$v){
               $image_info = explode('##',$v);
-              echo '<div style="float:left;margin-left:20px" class="mould_image" style="margin-left:10px"><img width="510" height="230" src='.$image_info[0].' ><span style="display:block;text-align:center">'.$image_info[1].'</span></div>';
+              echo '<div style="float:left;margin-left:3%;margin-bottom:2%;width:46%" class="mould_image" style="margin-left:10px"><img width="100%" height="250px" src='.$image_info[0].' ><span style="display:block;text-align:center">'.$image_info[1].'</span></div>';
             }
            ?>
         </td>

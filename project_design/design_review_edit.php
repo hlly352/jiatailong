@@ -1,3 +1,4 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <?php
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
@@ -6,6 +7,10 @@ require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
 $specification_id = $_GET['specification_id'];
 $reviewid = $_GET['reviewid'];
+//查询大类
+$sql_type = "SELECT `db_mould_check_type`.`id`,`db_mould_check_type`.`pid`,`db_mould_check_type`.`path`,`db_mould_check_type`.`typename`,COUNT(a.`id`) AS `count` FROM `db_mould_check_type` INNER JOIN `db_mould_check_type` a ON `db_mould_check_type`.`id` = a.`path` WHERE `db_mould_check_type`.`pid` = '0' GROUP BY `db_mould_check_type`.`id`";
+echo $sql_type;
+$result_type = $db->query($sql_type);
 
 //查询模具信息
 if($reviewid){
@@ -110,6 +115,7 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_list" style="width:85%;margin:0px auto">
   <?php if($action == "add" || $action == 'edit'){ ?>
+  <?php if($result_type->num_rows){ ?>
   <form action="design_review_do.php" name="material_order" method="post" enctype="multipart/form-data">
    
     <table>
@@ -125,207 +131,36 @@ $(function(){
         <th class="nobor">文件编号：</th>
         <td class="nobor" style="text-align:left"><?php echo $document_no; ?></td>
       </tr>
+      <?php 
+          while($row_type = $result_type->fetch_assoc()){ 
+            var_dump($row_type);
+           
+         
+        ?>
       <tr>
-        <th width="10%">客户代码</th>
-        <td width="15%"><?php echo $info['customer_code'] ?></td>
-        <th width="10%">项目名称</th>
-        <td width="15%"><?php echo $info['project_name'] ?></td>
-        <th width="10%">模具编号</th>
-        <td width="15%">
-          <?php echo $info['mould_no'] ?>
-          <input type="hidden" value="<?php echo $info['mould_no'] ?>" name="mould_no" />  
-        </td>
-        
-        <th width="10%">产品名称</th>
-        <td width="15%"><?php echo $info['mould_name'] ?></td>
+        <th width="10%" rowspan="<?php echo $row_type['count'] ?>">
+          <?php echo $row_type['typename'] ?>
+        </th>
+        <?php
+           //查询小类 
+          $id = $row_type['id'];
+        $sql_min_type = "SELECT *,COUNT(`db_mould_check_data`.`id`) AS `count` FROM `db_mould_check_type` INNER JOIN `db_mould_check_data` ON `db_mould_check_type`.`id` = `db_mould_check_data`.`categoryid` WHERE `db_mould_check_data`.`categoryid` = '$id' GROUP BY `db_mould_check_data`.`categoryid`";
+        echo $sql_min_type;
+        $result_min_type = $db->query($sql_min_type);
+        if($result_min_type->num_rows){
+          $min_type = $result_min_type->fetch_assoc();
+          var_dump($min_type);
+        ?>
+          <th width="10%" rowspan="<?php echo $min_type['count'] ?>">
+          <?php echo $min_type['typename'] ?>
+        </th>
+        <?php } ?>
       </tr>
       <tr>
-        <th>模具穴数</th>
-        <td>
-          <?php echo $info['cavity_num'] ?>
-        </td>
-        <th>外观要求</th>
-        <td>
-          <input type="text" name="surface_require" value="<?php echo $info['surface_require'] ?>" class="input_txt" size="10" />
-        </td>    
-        <th>设计师</th>
-        <td>
-          <select name="designer">
-            <option value="">--请选择--</option>
-            <?php
-              if($result_design->num_rows){
-                while($row_design = $result_design->fetch_assoc()){
-                $is_select = $info['designer'] == $row_design['employeeid']?'selected':'';
-                  echo '<option '.$is_select.' value="'.$row_design['employeeid'].'">'.$row_design['employee_name'].'</option>';
-                }
-              }
-            ?>
-          </select>
-        </td>
-        <th>项目负责人</th>
-        <td>
-           <select name="projecter">
-            <option value="">--请选择--</option>
-            <?php
-              if($result_designs->num_rows){
-                while($row_designs = $result_designs->fetch_assoc()){
-                $is_select = $info['projecter'] == $row_designs['employeeid']?'selected':'';
-                  echo '<option '.$is_select.' value="'.$row_designs['employeeid'].'">'.$row_designs['employee_name'].'</option>';
-                }
-              }
-            ?>
-          </select>
-        </td>
+        <td></td>>
+        <td></td>>
       </tr>
-    <tr> 
-      <th>评审流程</th>  
-      <th>评审流程</th>
-      <th colspan="6">评审记录</th>
-    </tr>
-    <tr>
-      <th>1</th>
-      <th>缩水检查</th>
-      <td colspan="2">
-        <textarea cols="50" name="shrink_check" rows="4">
-          <?php echo $info['shrink_check'] ?>
-        </textarea>
-      </td>
-      <td colspan="4">
-        <span class="mould_image">
-          <img src="<?php echo $info['shrink_check_path'] ?>">
-        </span>
-        <input type="file" name="shrink_check[]" onchange="review_scan(this,'shrink_check')" />
-        <span></span>
-      </td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <th>PL线确认</th>
-     <td colspan="2">
-        <textarea name="pl_confirm" cols="50" rows="4">
-          <?php echo $info['pl_confirm'] ?>
-        </textarea>
-      </td>
-       <td colspan="4">
-       <span class="mould_image">
-          <img src="<?php echo $info['pl_confirm_path'] ?>">
-        </span>
-        <input type="file" name="pl_confirm" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <th>进胶方式 </th>
-     <td colspan="2">
-        <textarea name="gum_method" cols="50" rows="4">
-          <?php echo $info['gum_method'] ?>
-        </textarea>
-      </td>
-      <td colspan="4">
-        <img src="<?php echo $info['gum_method_path'] ?>">
-        <input type="file" name="gum_method" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <th>模仁大小</th>
-      <td colspan="2">
-        <textarea name="mold_size" cols="50" rows="4">
-          <?php echo $info['mold_size'] ?>
-        </textarea>
-      </td>
-       <td colspan="4">
-        <img src="<?php echo $info['mold_size_path'] ?>">
-        <input type="file" name="mold_size" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <th>镶件结构 </th>
-     <td colspan="2">
-        <textarea name="insert" cols="50" rows="4">
-          <?php echo $info['insert'] ?>
-        </textarea>
-      </td>
-       <td colspan="4">
-        <img src="<?php echo $info['insert_path'] ?>">
-        <input type="file" name="insert" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr> 
-      <tr>
-      <th>6</th>
-      <th>顶出方案 </th>
-      <td colspan="2">
-        <textarea name="eject_method" cols="50" rows="4">
-          <?php echo $info['eject_method'] ?>
-        </textarea>
-      </td>
-       <td colspan="4">
-        <img src="<?php echo $info['eject_method_path'] ?>">
-        <input type="file" name="eject_method" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr> 
-      <tr>
-      <th>7</th>
-      <th>冷却设计 </th>
-     <td colspan="2">
-        <textarea name="cool_design" cols="50" rows="4">
-          <?php echo $info['cool_design'] ?>
-        </textarea>
-      </td>
-       <td colspan="4">
-        <img src="<?php echo $info['cool_design_path'] ?>">
-        <input type="file" name="cool_design" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr> 
-    <tr>
-      <th>8</th>
-      <th>定位方式 </th>
-      <td colspan="2">
-        <textarea name="positioning_method" cols="50" rows="4">
-          <?php echo $info['positioning_method'] ?>
-        </textarea>
-      </td>
-       <td colspan="4">
-        <img src="<?php echo $info['positioning_method_path'] ?>">
-        <input type="file" name="positioning_method" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr> 
-    <tr>
-      <th>9</th>
-      <th>顶出行程</th>
-     <td colspan="2">
-        <textarea name="eject_stroke" cols="50" rows="4">
-          <?php echo $info['eject_stroke'] ?>
-        </textarea>
-      </td>
-       <td colspan="4">
-        <img src="<?php echo $info['eject_stroke_path'] ?>">
-        <input type="file" name="eject_stroke" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr> 
-    <tr>
-      <th>10</th>
-      <th>模架大小</th>
-      <td colspan="2">
-        <textarea name="base_size" cols="50" rows="4">
-          <?php echo $info['base_size'] ?>
-        </textarea>
-      </td>
-       <td colspan="4">
-        <img src="<?php echo $info['base_size_path'] ?>">
-        <input type="file" name="base_size" onchange="review_scan(this)" />
-        <span></span>
-      </td>
-    </tr>
+     <?php } ?>
     <tr>
         <td colspan="8">
           <input type="button"  id="export" value="导出" class="button">
@@ -342,7 +177,9 @@ $(function(){
   </form>
 
   <?php
-
+    }else{
+      echo '暂无项目';
+    }
   }
   ?>
 </div>

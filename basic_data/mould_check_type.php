@@ -7,10 +7,22 @@ if($_GET['submit']){
 	$material_typename = trim($_GET['material_typename']);
 	$sqlwhere = " WHERE `material_typename` LIKE '%$material_typename%'";
 }
-$sql = "SELECT * FROM `db_mould_check_type` $sqlwhere";
+//获取父级类型的id
+$sqlwhere = '';
+if($_GET['id']){
+	$sql_pid = $_GET['id'];
+	$sqlwhere = "WHERE `db_mould_check_type`.`pid` = '$sql_pid'";
+}else{
+	$sqlwhere = "WHERE `db_mould_check_type`.`pid` = '0'";
+}
+if($_GET['pid']){
+	$pid = $_GET['pid'];
+	$sqlwhere = "WHERE `db_mould_check_type`.`id` = '$pid'";
+}
+$sql = "SELECT `db_mould_check_type`.`pid`,`db_mould_check_type`.`id`,`db_mould_check_type`.`typename`,`db_parent_type`.`typename` AS `pname` FROM `db_mould_check_type` LEFT JOIN `db_mould_check_type` AS `db_parent_type` ON `db_mould_check_type`.`pid` = `db_parent_type`.`id` $sqlwhere ";
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `material_typecode` ASC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `id` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -43,25 +55,35 @@ $result = $db->query($sqllist);
 </div>
 <div id="table_list">
   <?php if($result->num_rows){ ?>
-  <form action="material_typedo.php" name="material_type_list" method="post">
+  <form action="mould_check_typedo.php" name="material_type_list" method="post">
     <table>
       <tr>
-        <th width="4%">ID</th>
-        <th width="16%">类型代码</th>
-        <th width="72%">类型名称</th>
-        <th width="4%">状态</th>
-        <th width="4%">Edit</th>
+        <th>ID</th>
+        <th>父级类型</th>
+        <th>类型名称</th>
+        <th>父类</th>
+        <th>子类</th>
+        <th>Edit</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-		  $material_typeid = $row['material_typeid'];
+		  $typeid = $row['id'];
 	  ?>
       <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $material_typeid; ?>" /></td>
-        <td><?php echo $row['material_typecode']; ?></td>
-        <td><?php echo $row['material_typename']; ?></td>
-        <td><?php echo $array_status[$row['material_typestatus']]; ?></td>
-        <td width="4%"><a href="material_typeae.php?id=<?php echo $material_typeid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $typeid; ?>" /></td>
+        <td><?php echo $row['pname']; ?></td>
+        <td><?php echo $row['typename']; ?></td>
+        <td>
+        	<a href="mould_check_type.php?pid=<?php echo $row['pid']; ?>">
+        		<img src="../images/system_ico/info_8_10.png" width="15">
+        	</a>
+        </td>
+        <td>
+			<a href="mould_check_type.php?id=<?php echo $typeid; ?>">
+				<img src="../images/system_ico/info_8_10.png" width="15">
+			</a>
+        </td>
+        <td width="4%"><a href="moul   d_check_typeae.php?id=<?php echo $typeid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       </tr>
       <?php } ?>
     </table>

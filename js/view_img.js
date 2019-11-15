@@ -161,7 +161,7 @@ function mould_change(file){
 
     reader.onload = function(evt){ 
 
-    $(file).next().html('<img width="510px" height="230px"  src="' + evt.target.result + '"  /><input type="text" name="pic_remark[]" style="display:block;margin:5px auto;width:445px"/>'); 
+    $(file).next().html('<img width="100%" height="250px"  src="' + evt.target.result + '"  /><input type="text" name="pic_remark[]" style="display:block;margin:5px auto;width:100%"/>'); 
 
     } 
 
@@ -172,7 +172,7 @@ function mould_change(file){
     $(file).next().html('<p style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src=\'' + file.value + '\'"></p>'); 
 
     } 
-    var files = '<input type="file" style="margin-bottom:20px" name="file[]" onchange="mould_change(this)"/><div style="margin-left:20px;float:left;"></div>';
+    var files = '<input type="file" style="margin-bottom:10px" name="file[]" onchange="mould_change(this)"/><div style="margin-bottom:2%;margin-left:3%;float:left;width:46%"></div>';
     $(file).next().after(files);
 
  }

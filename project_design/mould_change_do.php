@@ -84,6 +84,8 @@
 		$db->query($sql);
 		header('location:mould_change.php');
 	}
+	//判断是否审核人
+	if($check > 0){
 		//查找发件人
 		$sql_send = "SELECT `email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
 		$send = '';
@@ -108,4 +110,5 @@
 		$body = '点击链接查看：<a href="'.$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].'/project_design/mould_change_edit.php?action=edit&specification_id='.$specification_id.'&changeid='.$changeid.'">http://localhost/project_design/mould_change_edit.php?action=edit&specification_id=24&changeid=1</a>';
 		send('hr.04@hl.com',$address,$subject,$body);
 	}
+}
 ?>

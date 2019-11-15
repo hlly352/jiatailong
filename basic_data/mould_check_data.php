@@ -7,10 +7,10 @@ if($_GET['submit']){
 	$material_typename = trim($_GET['material_typename']);
 	$sqlwhere = " WHERE `material_typename` LIKE '%$material_typename%'";
 }
-$sql = "SELECT * FROM `db_mould_check_type` $sqlwhere";
+$sql = "SELECT `db_mould_check_data`.`id`,`db_mould_check_data`.`checkname`,`db_mould_check_type`.`typename`,`db_mould_check_data`.`degree` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id`";
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `material_typecode` ASC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_mould_check_data`.`id` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -28,7 +28,7 @@ $result = $db->query($sqllist);
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4>模具图纸检查表项目类型</h4>
+  <h4>模具图纸检查表项目</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -43,25 +43,25 @@ $result = $db->query($sqllist);
 </div>
 <div id="table_list">
   <?php if($result->num_rows){ ?>
-  <form action="material_typedo.php" name="material_type_list" method="post">
+  <form action="mould_check_datado.php" name="material_type_list" method="post">
     <table>
       <tr>
         <th width="4%">ID</th>
-        <th width="16%">类型代码</th>
-        <th width="72%">类型名称</th>
-        <th width="4%">状态</th>
+        <th width="16%">类型名称</th>
+        <th width="72%">项目名称</th>
+        <th width="4%">等级</th>
         <th width="4%">Edit</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-		  $material_typeid = $row['material_typeid'];
+		  $id = $row['id'];
 	  ?>
       <tr>
-        <td><input type="checkbox" name="id[]" value="<?php echo $material_typeid; ?>" /></td>
-        <td><?php echo $row['material_typecode']; ?></td>
-        <td><?php echo $row['material_typename']; ?></td>
-        <td><?php echo $array_status[$row['material_typestatus']]; ?></td>
-        <td width="4%"><a href="material_typeae.php?id=<?php echo $material_typeid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
+        <td><input type="checkbox" name="id[]" value="<?php echo $id; ?>" /></td>
+        <td><?php echo $row['typename']; ?></td>
+        <td><?php echo $row['checkname']; ?></td>
+        <td><?php echo $array_mould_check_degree[$row['degree']]; ?></td>
+        <td width="4%"><a href="mould_check_dataae.php?id=<?php echo $id; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       </tr>
       <?php } ?>
     </table>

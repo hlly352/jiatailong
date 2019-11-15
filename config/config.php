@@ -207,4 +207,6 @@ $array_data_dept = array('7'=>'项目部','5'=>'采购部','10'=>'编程','6'=>'
 $array_design_review = array('shrink_check','pl_confirm','gum_method','mold_size','insert','eject_method','cool_design','eject_stroke','positioning_method','base_size');
 //模具更改联络单图档用途
 $array_mould_change_use = array('K'=>'开粗','J'=>'精光','A'=>'按特殊要求:');
+//模具检查表项目等级
+$array_mould_check_degree = array('A'=>'一般','B'=>'重要');
 ?>

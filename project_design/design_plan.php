@@ -42,7 +42,8 @@ if($_GET['submit']){
   // }
   $sqlwhere = " AND `db_mould_specification`.`project_name` LIKE '%$project_name%' AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_specification`.`customer_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
-$sql = "SELECT *,`db_drawer`.`employee_name` AS `drawer_2d`,`db_design_group`.`employee_name` AS `design_group`,`db_projecter`.`employee_name` AS `projecter`,`db_designer`.`employee_name` AS `designer`,`db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_projecter` ON `db_mould_specification`.`projecter` = `db_projecter`.`employeeid` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`designer` LEFT JOIN `db_design_plan` ON `db_mould_specification`.`mould_specification_id` = `db_design_plan`.`specification_id` LEFT JOIN `db_employee` AS `db_drawer` ON `db_drawer`.`employeeid` = `db_design_plan`.`drawer_2d` LEFT JOIN `db_employee` AS `db_design_group` ON `db_design_group`.`employeeid`= `db_design_plan`.`design_group` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
+$sql = "SELECT *,`db_drawer`.`employee_name` AS `drawer_2d`,`db_design_group`.`employee_name` AS `design_group`,`db_projecter`.`employee_name` AS `projecter`,`db_designer`.`employee_name` AS `designer`,`db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_projecter` ON `db_mould_specification`.`projecter` = `db_projecter`.`employeeid` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`designer` LEFT JOIN `db_design_plan` ON `db_mould_specification`.`mould_specification_id` = `db_design_plan`.`specification_id` LEFT JOIN `db_employee` AS `db_drawer` ON `db_drawer`.`employeeid` = `db_design_plan`.`drawer_2d` LEFT JOIN `db_employee` AS `db_design_group` ON `db_design_group`.`employeeid`= `db_design_plan`.`design_group` WHERE `db_mould_specification`.`is_approval` = '1' AND `db_design_plan`.`designid` IN(SELECT MAX(`designid`) FROM `db_design_plan` GROUP BY `specification_id`) $sqlwhere";
+$sql = "SELECT `db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`customer_code`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`shrink`,`db_projecter`.`employee_name` AS `projecter`,`db_designer`.`employee_name` AS `designer`,`db_mould_specification`.`image_filepath`,`db_mould_data`.`upload_final_path` as image_filepaths,`db_mould_specification`.`cavity_num`  FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_employee` AS `db_projecter` ON `db_mould_specification`.`projecter` = `db_projecter`.`employeeid` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_specification`.`designer` WHERE `db_mould_specification`.`is_approval` = '1'";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
@@ -221,37 +222,14 @@ $result = $db->query($sqllist);
         <th>其他散件图</th>
         <th>晒字图下发</th>
         <th>文件</th>
+        <th>Add</th>
         <th>操作</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-      //处理表面要求
-      if(strpos($row['surface_require'],'$$')){
-        $surface_require = explode('$$',$row['surface_require'])[4];
-      }elseif(strpos($row['surface_require'],'//')){
-        $surface_requires = substr($row['surface_require'],0,strlen($row['surface_require'])-2);
-      }else{
-        $surface_require = '';
-      }
-
-      //查找型芯和型腔的材质
-      $cavity_sql = "SELECT `material_specification` FROM `db_mould_data` WHERE `mould_dataid`=".$row['mould_id'];
-      $res = $db->query($cavity_sql);
-      if($res->num_rows){
-        $cavity = $res->fetch_row();
-      }
-      //处理是否出口
-      if(strlen($row['is_export']) == 0){
-        $export = '';
-      }else{
-        $export = $row['is_export'] == '1'?'是':'否';
-      }
-      //转换为数组
-       $cavity = explode('$$',$cavity[0]);
+        $info = array();
+        $specification_id = $row['mould_specification_id'];
       //图片处理
-      $image_filedir = $row['image_filedir'];
-      $image_filename = $row['image_filename'];
-      //$image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
       $image_filepath = empty($row['image_filepath'])?$row['image_filepaths']:$row['image_filepath'];
       
       if(is_file($image_filepath)){
@@ -259,11 +237,11 @@ $result = $db->query($sqllist);
       }else{
         $image_file = "<img src=\"../images/no_image_85_45.png\" width=\"45\" height=\"25\" />";
       }
-      //查询模具状态
-      $mould_status_sql = "SELECT `mould_statusname` FROM `db_mould_status` WHERE `mould_statusid`=".$row['mould_statusid'];
-      $result_status = $db->query($mould_status_sql);
-      if($result_status->num_rows){
-        $mould_status = $result_status->fetch_assoc()['mould_statusname'];
+      //查询最后一次设计计划
+      $sql_plan = "SELECT *,`db_drawer`.`employee_name` AS `drawer_2d`,`db_design_group`.`employee_name` AS `design_group` FROM `db_design_plan` LEFT JOIN `db_employee` AS `db_drawer` ON `db_drawer`.`employeeid` = `db_design_plan`.`drawer_2d` LEFT JOIN `db_employee` AS `db_design_group` ON `db_design_group`.`employeeid`= `db_design_plan`.`design_group` WHERE `specification_id` = '$specification_id' AND `time` = (SELECT MAX(`time`) FROM `db_design_plan` WHERE `specification_id`='$specification_id' GROUP BY `specification_id`)";
+      $result_plan = $db->query($sql_plan);
+      if($result_plan->num_rows){
+        $info = $result_plan->fetch_assoc();
       }
     ?>
       <tr>
@@ -280,11 +258,11 @@ $result = $db->query($sqllist);
         <td rowspan="2"><?php echo $row['shrink']; ?></td>
         <td rowspan="2"><?php echo $row['projecter']; ?></td>
         <td rowspan="2"><?php echo $row['designer']; ?></td>
-        <td rowspan="2"><?php echo $row['drawer_2d']; ?></td>
-        <td rowspan="2"><?php echo $row['design_group']; ?></td>
-        <td rowspan="2"><?php echo $row['first_degree']; ?></td>
-        <td rowspan="2"><?php echo substr($row['final_confirm'],5); ?></td>
-        <td rowspan="2"><?php echo substr($row['t0_time'],5); ?></td>
+        <td rowspan="2"><?php echo $info['drawer_2d']; ?></td>
+        <td rowspan="2"><?php echo $info['design_group']; ?></td>
+        <td rowspan="2"><?php echo $info['first_degree']; ?></td>
+        <td rowspan="2"><?php echo substr($info['final_confirm'],0,strlen($info['final_confirm'])-5); ?></td>
+        <td rowspan="2"><?php echo substr($info['t0_time'],0,strlen($info['t0_time'])-5); ?></td>
         <td>计划</td>
         </td>
         <?php foreach($array_design_plan as $value){ 
@@ -295,8 +273,8 @@ $result = $db->query($sqllist);
          
         
         ?>
-          <td <?php if($row[$plan_k] && !$row[$real_k]){
-              $offset = ceil((strtotime($row[$plan_k]) - time())/(24*60*60));
+          <td <?php if($info[$plan_k] && !$info[$real_k]){
+              $offset = ceil((strtotime($info[$plan_k]) - time())/(24*60*60));
               if($offset<=1 && $offset>=0){
                 echo 'style="background:yellow"';
               }elseif($offset<0){
@@ -304,24 +282,32 @@ $result = $db->query($sqllist);
               }}
               ?>>
             <?php 
-               echo substr($row[$plan_k],5);
+               echo substr($info[$plan_k],0,strlen($info[$plan_k])-5);
             ?>
           </td>
         <?php }?>
         <td rowspan="2">
             <?php
               if(!empty($row['design_plan_path'])){
-                echo '<a href="design_plan_show.php?action=show&designid='.$row['designid'].'"><img src="../images/system_ico/info_8_10.png" width="12"></a>';
+                echo '<a href="design_plan_show.php?action=show&designid='.$info['designid'].'"><img src="../images/system_ico/info_8_10.png" width="12"></a>';
               }
             ?>
         </td>
-        <td rowspan="2"><a href="<?php echo 'design_plan_edit.php?action=add&specification_id='.$row['mould_specification_id'].'&designid='.$row['designid']; ?>">更新</a></td>
+        <td rowspan="2">
+          <a href="<?php echo 'design_plan_edit.php?action=add&specification_id='.$row['mould_specification_id'].'&designid='.$info['designid']; ?>">
+            <img src="../images/system_ico/edit_10_10.png" width="10">
+          </a>
+        </td>
+        <td rowspan="2">
+          <?php if($info != null){ ?>
+            <a href="<?php echo 'design_plan_edit.php?action=edit&specification_id='.$row['mould_specification_id'].'&designid='.$info['designid']; ?>">更新</a></td>
+          <?php }?>
       </tr>
       <tr>
         <td>实际</td>
          <?php foreach($array_design_plan as $value){ ?>
           <td>
-            <?php $k='real_'.$value; echo substr($row[$k],5); ?>
+            <?php $k='real_'.$value; echo substr($info[$k],0,strlen($info[$k])-5); ?>
           </td>
         <?php }?>
       </tr>

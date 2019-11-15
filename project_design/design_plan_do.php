@@ -8,9 +8,11 @@
 	if($_POST['submit']){
 	$employeeid = $_SESSION['employee_info']['employeeid'];
 	$data = $_POST;
+	$action  = $data['action'];
 	$specificaiton_id = $data['specification_id'];
 	$title = $data['title'];
 	$designid = $_POST['designid'];
+	unset($data['action']);
 	unset($data['submit']);
 	unset($data['title']);
 	unset($data['designid']);
@@ -32,17 +34,17 @@
 		$date = date('Y-m-d');
 		$data_info = $title.'#'.$file_name.'#'.$date.
 		$sql_str = '';
-	if(empty($designid)){	
+	if($action == 'add'){	
 		foreach($data as $word=>$value){
 			$sql_word .= '`'.$word.'`,';
 			$sql_value .= '"'.$value.'",';
 		}
-		$sql_word .= '`employeeid`,`design_plan_info`,`design_plan_path`';
-		$sql_value .= '"'.$employeeid.'","'.$data_info.'","'.$file_path.'"';
+		$sql_word .= '`employeeid`,`design_plan_info`,`design_plan_path`,`time`';
+		$sql_value .= '"'.$employeeid.'","'.$data_info.'","'.$file_path.'","'.time().'"';
 		//把设计计划信息填入表中
 		$sql_design_plan = "INSERT INTO `db_design_plan`($sql_word) VALUES($sql_value)";
 		$result_design_plan = $db->query($sql_design_plan);
-	}else{
+	}elseif($action == 'edit'){
 		foreach($data as $word=>$value){
 			$sql_str .= '`'.$word.'`="'.$value.'",';
 		}
@@ -56,6 +58,8 @@
 		$db->query($sql);
 
 	}
+
+	/*-----发送邮件----*/
 		//查询操作人的邮箱地址
 		$sql_do_mail = "SELECT `email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";
 		$result_do_mail = $db->query($sql_do_mail);

@@ -34,7 +34,7 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_sheet">
   <?php if($action == "add"){ ?>
-  <h4>物料类型添加</h4>
+  <h4>模具图纸检查表项目添加</h4>
   <form action="mould_check_datado.php" name="material_type" method="post">
     <table>
       <tr>
@@ -49,6 +49,18 @@ $(function(){
                   echo '<option value="'.$row_type['id'].'">'.$str.$row_type['typename'].'</option>';
                 }
               }
+            ?>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th>等级：</th>
+        <td>
+          <select name="degree" class="input_txt txt">
+            <?php
+              foreach($array_mould_check_degree as $k=>$degree):
+                echo '<option value="'.$k.'">'.$degree.'</option>';
+              endforeach;
             ?>
           </select>
         </td>
@@ -69,40 +81,56 @@ $(function(){
   </form>
   <?php
   }elseif($action == "edit"){
-	  $material_typeid = fun_check_int($_GET['id']);
-	  $sql = "SELECT * FROM `db_material_type` WHERE `material_typeid` = '$material_typeid'";
+	  $id = fun_check_int($_GET['id']);
+	  $sql = "SELECT * FROM `db_mould_check_data` WHERE `id` = '$id'";
 	  $result = $db->query($sql);
 	  if($result->num_rows){
-		  $array = $result->fetch_assoc();
+		  $row = $result->fetch_assoc();
   ?>
-  <h4>物料类型修改</h4>
-  <form action="material_typedo.php" name="material_type" method="post">
+  <h4>模具图纸检查表项目修改</h4>
+  <form action="mould_check_datado.php" name="material_type" method="post">
     <table>
       <tr>
-        <th width="20%">父级类型：</th>
+        <th width="20%">类型名称</th>
         <td width="80%">
-          <?php
-          ?>
+          <select name="typeid" class="input_txt txt">
+            <?php
+              if($result_type->num_rows){
+                while($row_type = $result_type->fetch_assoc()){
+                  $count = substr_count($row_type['path'],',') - 1;
+                  $str = $count <= 0?'':str_repeat('--',$count);
+                  $is_select = $row['categoryid'] == $row_type['id']?'selected':'';
+                  echo '<option '.$is_select.' value="'.$row_type['id'].'">'.$str.$row_type['typename'].'</option>';
+                }
+              }
+            ?>
+          </select>
         </td>
       </tr>
       <tr>
-        <th>类型名称：</th>
-        <td><input type="text" name="material_typename" id="material_typename" value="<?php echo $array['material_typename']; ?>" class="input_txt" />
-          <span class="tag"> *必填</span></td>
+        <th>等级：</th>
+        <td>
+          <select name="degree" class="input_txt txt">
+            <?php
+              foreach($array_mould_check_degree as $k=>$degree):
+                $is_select = $k == $row['degree']?'selected':'';
+                echo '<option '.$is_select.' value="'.$k.'">'.$degree.'</option>';
+              endforeach;
+            ?>
+          </select>
+        </td>
       </tr>
       <tr>
-        <th>状态：</th>
-        <td><select name="material_typestatus">
-            <?php foreach($array_status as $status_key=>$status_value){ ?>
-            <option value="<?php echo $status_key; ?>"<?php if($status_key == $array['material_typestatus']) echo " selected=\"selected\""; ?>><?php echo $status_value; ?></option>
-            <?php } ?>
-          </select></td>
+        <th>项目名称：</th>
+        <td>
+          <input type="text" name="check_name" value="<?php echo $row['checkname'] ?>" id="checkname" class="input_txt" style="width:70%" />
+        </td>
       </tr>
       <tr>
         <th>&nbsp;</th>
         <td><input type="submit" name="submit" id="submit" value="确定" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
-          <input type="hidden" name="material_typeid" id="material_typeid" value="<?php echo $material_typeid; ?>" />
+          <input type="hidden" name="id" value="<?php echo $id ?>"/>
           <input type="hidden" name="action" id="action" value="<?php echo $action; ?>" /></td>
       </tr>
     </table>

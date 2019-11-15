@@ -29,7 +29,7 @@ $objPHPexcel = PHPExcel_IOFactory::load('../template_file/mould_change.xls');
 $objWorksheet = $objPHPexcel->getActiveSheet();
 $objPHPexcel->getActiveSheet()->getDefaultRowDimension()->setRowHeight(20);
 //查询模具信息
-$sql = "SELECT `db_mould_change`.`geter`,`db_mould_change`.`document_use`,`db_mould_change`.`document_location`,`db_mould_change`.`special_require`,`db_mould_change`.`document_no`,`db_mould_change`.`image_path`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`mould_name`,`db_mould_specification`.`customer_code`,`db_designer`.`employee_name` AS `designer`,`db_engnieer`.`employee_name` AS `engnieer`,`db_approval`.`employee_name` AS `approval`,`db_check`.`employee_name` AS `check`,`db_mould_change`.`data_content`,`db_mould_change`.`data_dept`,`db_mould_change`.`change_parts`,`db_mould_change`.`cancel_parts` FROM `db_mould_change` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_change`.`specification_id` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_change`.`designer` LEFT JOIN `db_employee` AS `db_engnieer` ON `db_engnieer`.`employeeid` = `db_mould_change`.`engnieer` LEFT JOIN `db_employee` AS `db_approval` ON `db_approval`.`employeeid` = `db_mould_change`.`approval` LEFT JOIN `db_employee` AS `db_check` ON `db_check`.`employeeid` = `db_mould_change`.`check` WHERE `db_mould_change`.`changeid` = '$changeid'";
+$sql = "SELECT `db_mould_change`.`tips`,`db_mould_change`.`geter`,`db_mould_change`.`document_use`,`db_mould_change`.`document_location`,`db_mould_change`.`special_require`,`db_mould_change`.`document_no`,`db_mould_change`.`image_path`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`mould_name`,`db_mould_specification`.`customer_code`,`db_designer`.`employee_name` AS `designer`,`db_engnieer`.`employee_name` AS `engnieer`,`db_approval`.`employee_name` AS `approval`,`db_check`.`employee_name` AS `check`,`db_mould_change`.`data_content`,`db_mould_change`.`data_dept`,`db_mould_change`.`change_parts`,`db_mould_change`.`cancel_parts` FROM `db_mould_change` INNER JOIN `db_mould_specification` ON `db_mould_specification`.`mould_specification_id` = `db_mould_change`.`specification_id` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid` = `db_mould_change`.`designer` LEFT JOIN `db_employee` AS `db_engnieer` ON `db_engnieer`.`employeeid` = `db_mould_change`.`engnieer` LEFT JOIN `db_employee` AS `db_approval` ON `db_approval`.`employeeid` = `db_mould_change`.`approval` LEFT JOIN `db_employee` AS `db_check` ON `db_check`.`employeeid` = `db_mould_change`.`check` WHERE `db_mould_change`.`changeid` = '$changeid'";
 
 	$result = $db->query($sql);
 	if($result->num_rows){
@@ -59,7 +59,7 @@ $sql = "SELECT `db_mould_change`.`geter`,`db_mould_change`.`document_use`,`db_mo
 				 $result_employee = $db->query($sql_employee);
 				 if($result_employee->num_rows){
 	            	while($row_employee = $result_employee->fetch_assoc()){
-	              	  $geter_name .= $array_data_dept[$row_employee['deptid']].'('.$row_employee['geter'].')  ';
+	              	  $geter_name .= $array_data_dept[$row_employee['deptid']].':'.$row_employee['geter'].'  ';
 	            	}
 	          	 }
 	          	}
@@ -95,6 +95,7 @@ $sql = "SELECT `db_mould_change`.`geter`,`db_mould_change`.`document_use`,`db_mo
 			$objWorksheet->getCell('F3')->setValue($row['mould_no']);
 			$objWorksheet->getCell('H3')->setValue($row['mould_name']);
 			$objWorksheet->getCell('B4')->setValue($contents);
+			$objWorksheet->getCell('F4')->setValue($row['tips']);
 			$objWorksheet->getCell('B5')->setValue($row['change_parts']);
 			$objWorksheet->getCell('F5')->setValue($row['cancel_parts']);
 	

@@ -170,7 +170,7 @@ function display($row,$array_project_data_type,$index){
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4></h4>
+  <h4>项目信息</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
@@ -411,6 +411,7 @@ function display($row,$array_project_data_type,$index){
             }
           ?>
         </td>
+        <td></td>
         <td>
           <?php
             if($result_mould_change->num_rows){
@@ -418,8 +419,6 @@ function display($row,$array_project_data_type,$index){
             }
           ?>
         </td>
-        <td><?php echo shows($row,'design_review'); ?></td>
-        <td><?php echo shows($row,'drawing_concat'); ?></td>
         <td><?php echo shows($row,'processing_technology'); ?></td>
         <td><?php echo shows($row,'processing_plan'); ?></td>
         <td><?php echo shows($row,'check_report'); ?></td>

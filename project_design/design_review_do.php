@@ -35,8 +35,8 @@
 		$str_val .= '"'.$v.'",';
 		$str_new .= '`'.$k.'`="'.$v.'",';
 	}
-	$str_key .= '`employeeid`,`time`';
-	$str_val .= '"'.$employeeid.'","'.NOW().'"';
+	$str_key .= '`employeeid`,`dodate`';
+	$str_val .= '"'.$employeeid.'","'.CURRENT_DATE().'"';
 	if(empty($reviewid)){
 		$sql_add = "INSERT INTO `db_design_review`($str_key) VALUES($str_val)";
 		$db->query($sql_add);

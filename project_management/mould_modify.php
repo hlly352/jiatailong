@@ -161,7 +161,7 @@ function showData($str,$rows){
 <body>
 <?php include "header.php"; ?>
 <div id="table_search">
-  <h4></h4>
+  <h4>模具修改</h4>
   <form action="" name="search" method="get">
     <table>
       <tr>
