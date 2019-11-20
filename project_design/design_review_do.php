@@ -9,6 +9,35 @@
 	$reviewid = $_POST['reviewid'];
 	if($_POST['submit']){
 	$data = $_POST;
+	$array_dataid = $data['dataid'];
+	$images = $_FILES;
+	foreach($array_dataid as $k=>$v){
+		//判断是否有图片上传
+		if($_FILES['image_'.$v]['name']){
+			$filedir = date("Ymd");
+			$upload_path = "../upload/technical_other/".$filedir."/";
+			$upload = new upload($images['image_'.$v]['name'],$images['image_'.$v]['tmp_name'],$images['image_'.$v]['size'],$images['image_'.$v]['error']);
+			$upload->upload_file($upload_path);
+			$array_upload_file = $upload ->array_upload_file;
+			$file_path = $upload_path.$array_upload_file['upload_final_name'];
+			$file_name = $array_upload_file['upload_name'];
+			$data['image_path_'.$v] = $file_path;
+		}
+		$sql_exists = "SELECT * FROM `db_design_review_list` WHERE `reviewid` = '$reviewid' AND `dataid` = '$v'";
+		$result_exists = $db->query($sql_exists);
+		//判断评审详情表是否存在项目
+		$approval = $data['approval_'.$v];
+		$remark   = $data['remark_'.$v];
+		$image_path = $data['image_path_'.$v];
+		if($result_exists->num_rows){
+			$sql_list = "UPDATE `db_design_review_list` SET `approval` = '$approval',`remark` = '$remark',`image_path` = '$image_path' WHERE reviewid` = '$reviewid' AND `db_dataid` = '$v'";
+		}else{
+			$sql_list = "INSERT INTO `db_design_review_list`(`reviewid`,`dataid`,`approval`,`remark`,`image_path`) VALUES('$reviewid','$v','$approval','$remark','$image_path')";
+		}
+		
+		$db->query($sql_list);
+	}
+	exit;
 	$array_file = $_FILES;
 	if($array_file){
 		foreach($array_file as $key=>$file){

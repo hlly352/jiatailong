@@ -34,7 +34,7 @@ function view_data(file){
   } 
 
 
- //上传图片之前预览图片
+ //上传图片之前预览图片(多图片)
 function view(file){
     $(file).prev('.mould_image').remove();
     var filepath = $(file).val();

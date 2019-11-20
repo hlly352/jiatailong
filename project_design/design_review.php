@@ -42,7 +42,7 @@ if($_GET['submit']){
   // }
   $sqlwhere = " AND `db_mould_specification`.`project_name` LIKE '%$project_name%' AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_specification`.`customer_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
-$sql = "SELECT *,`db_projecter`.`employee_name` AS `projecter`,`db_designer`.`employee_name` AS `designer`,`db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_design_review` ON `db_mould_specification`.`mould_specification_id` = `db_design_review`.`specification_id` LEFT JOIN `db_employee` AS `db_projecter` ON `db_projecter`.`employeeid` = `db_design_review`.`projecter` LEFT JOIN `db_employee` AS `db_designer` ON `db_designer`.`employeeid`= `db_design_review`.`designer` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
+$sql = "SELECT *,`db_design_review`.`reviewid`,`db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_design_review` ON `db_mould_specification`.`mould_specification_id` = `db_design_review`.`specification_id` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
@@ -178,7 +178,16 @@ $result = $db->query($sqllist);
     }else{
       $array_mould_material = array();
     }
-    //print_r($array_mould_material);
+    //列举所有的检查项目
+    $sql_data = "SELECT `db_mould_check_type`.`typename`,`db_mould_check_type`.`id`,COUNT(`db_mould_check_data`.`id`) AS `count` FROM `db_mould_check_type` INNER JOIN `db_mould_check_data` ON `db_mould_check_type`.`id` = `db_mould_check_data`.`categoryid` WHERE `db_mould_check_type`.`pid` = '0' GROUP BY `db_mould_check_data`.`categoryid`";
+    $result_data = $db->query($sql_data);
+    //评审会项目
+    $sql_review_meeting = "SELECT COUNT(*) AS `meeting_number` FROM `db_mould_check_data` WHERE `degree` = 'B'";
+    $result_meeting = $db->query($sql_review_meeting);
+    $count_meeting = 0;
+    if($result_meeting->num_rows){
+      $count_meeting = $result_meeting->fetch_assoc()['meeting_number'];
+    }
   ?>
   <form action="moulddo.php" name="mould_list" method="post">
     <table>
@@ -190,56 +199,22 @@ $result = $db->query($sqllist);
         <th>模具编号</th>
         <th>产品名称</th>
         <th>零件图片</th>
-        <th>模具系数</th>
         <th>模具穴数</th>
-        <th>外观要求</th>
-        <th>设计师</th>
-        <th>项目负责人</th>
+        <th>评审会项目</th>
+        <?php
+          if($result_data->num_rows){
+            while($row_data = $result_data->fetch_assoc()){
+        ?>
+        <th><?php echo $row_data['typename'] ?></th>
+        <?php }} ?>
         <th>Add</th>
         <th>操作</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-      //资料内容
-      $data_content = $row['data_content'];
-      $array_content = array();
-      if(stripos($data_content,'&&')){
-        $array_content = explode('&&',$data_content);
-      }else{
-        $array_content[] = $data_content;
-      }
-      $contents = '';
-      foreach($array_content as $v){
-        $contents .= $array_data_content[$v].' ';
-      }
-      $contents = rtrim($contents,',');
-      //处理表面要求
-      if(strpos($row['surface_require'],'$$')){
-        $surface_require = explode('$$',$row['surface_require'])[4];
-      }elseif(strpos($row['surface_require'],'//')){
-        $surface_requires = substr($row['surface_require'],0,strlen($row['surface_require'])-2);
-      }else{
-        $surface_require = '';
-      }
-
-      //查找型芯和型腔的材质
-      $cavity_sql = "SELECT `material_specification` FROM `db_mould_data` WHERE `mould_dataid`=".$row['mould_id'];
-      $res = $db->query($cavity_sql);
-      if($res->num_rows){
-        $cavity = $res->fetch_row();
-      }
-      //处理是否出口
-      if(strlen($row['is_export']) == 0){
-        $export = '';
-      }else{
-        $export = $row['is_export'] == '1'?'是':'否';
-      }
-      //转换为数组
-       $cavity = explode('$$',$cavity[0]);
+        $specification_id = $row['mould_specification_id'];
+        $reviewid = $row['reviewid'];
       //图片处理
-      $image_filedir = $row['image_filedir'];
-      $image_filename = $row['image_filename'];
-      //$image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
       $image_filepath = empty($row['image_filepath'])?$row['image_filepaths']:$row['image_filepath'];
       
       if(is_file($image_filepath)){
@@ -258,13 +233,49 @@ $result = $db->query($sqllist);
         </td>
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
-        <td><?php echo $row['mould_coefficient']; ?></td>
         <td><?php echo $row['cavity_num']; ?></td>
-        <td><?php echo $row['surface_require'] ?></td>
-        <td><?php echo $row['designer']; ?></td>
-        <td><?php echo $row['projecter'];?></td>
         <td>
-            <a href="<?php echo 'design_review_edit.php?action=edit&specification_id='.$row['mould_specification_id']; ?>">
+          <?php
+            //评审会通过项目
+            $sql_meeting_complete = "SELECT COUNT(`db_design_review_list`.`listid`) AS `count_meeting_complete` FROM `db_design_review_list` INNER JOIN `db_mould_check_data` ON `db_design_review_list`.`dataid` = `db_mould_check_data`.`id` WHERE `db_mould_check_data`.`degree` = 'B' AND `db_design_review_list`.`reviewid` = '$reviewid' GROUP BY `db_design_review_list`.`reviewid`";
+            $result_meeting_complete = $db->query($sql_meeting_complete);
+            $count_meeting_complete = 0;
+            if($result_meeting_complete->num_rows){
+              $count_meeting_complete = $result_meeting_complete->fetch_assoc()['count_meeting_complete'];
+            }
+            if($reviewid){
+               echo '<a href="design_review_info.php?action=edit&specification_id='.$specification_id.'&reviewid='.$reviewid.'">'. $count_meeting_complete.'/'.$count_meeting.'</a>';
+            }
+          ?>        
+        </td>
+         <?php
+          $result_data = $db->query($sql_data);
+          if($result_data->num_rows && $reviewid){
+            while($row_data = $result_data->fetch_assoc()){
+              $categoryid = $row_data['id'];
+              //查找已经审批的项目数目
+              $sql_complete = "SELECT COUNT(`db_design_review_list`.`reviewid`) AS `complete`,`db_mould_check_data`.`categoryid` FROM `db_design_review_list` INNER JOIN `db_design_review` ON `db_design_review`.`reviewid` = `db_design_review_list`.`reviewid` INNER JOIN `db_mould_check_data` ON `db_design_review_list`.`dataid` = `db_mould_check_data`.`id` WHERE `db_design_review`.`specification_id` = '$specification_id' AND `db_design_review`.`reviewid` = '$reviewid' AND `db_mould_check_data`.`categoryid` = '$categoryid' GROUP BY `db_mould_check_data`.`categoryid`";
+              $result_complete = $db->query($sql_complete);
+              $complete_data = 0;
+              if($result_complete->num_rows){
+                $complete_data = $result_complete->fetch_assoc()['complete'];
+              }
+        ?>
+        <td>
+          <a href="design_review_info.php?action=edit&specification_id=<?php echo $specification_id; ?>&reviewid=<?php echo $reviewid ?>&categoryid=<?php echo $categoryid; ?>">
+            <?php echo $complete_data.'/'.$row_data['count'] ?>  
+          </a>
+        </td>
+        <?php 
+          }
+        }else{
+            while($row_data = $result_data->fetch_assoc()){
+              echo '<td></td>';
+            }
+        } 
+        ?>
+        <td>
+            <a href="<?php echo 'design_review_edit.php?action=add&specification_id='.$row['mould_specification_id']; ?>">
               <img src="../images/system_ico/info_8_10.png" width="10">
             </a>
         </td>

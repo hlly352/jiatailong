@@ -4,51 +4,64 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../config/config.php';
 require_once 'shell.php';
+$employeeid = $_SESSION['employee_info']['employeeid'];
 $action = fun_check_action($_GET['action']);
 $specification_id = $_GET['specification_id'];
 $reviewid = $_GET['reviewid'];
-//查询大类
-$sql_type = "SELECT `db_mould_check_type`.`id`,`db_mould_check_type`.`pid`,`db_mould_check_type`.`path`,`db_mould_check_type`.`typename`,COUNT(a.`id`) AS `count` FROM `db_mould_check_type` INNER JOIN `db_mould_check_type` a ON `db_mould_check_type`.`id` = a.`path` WHERE `db_mould_check_type`.`pid` = '0' GROUP BY `db_mould_check_type`.`id`";
-echo $sql_type;
-$result_type = $db->query($sql_type);
+//查询模号
+$sql_mould_no = "SELECT `mould_no` FROM `db_mould_specification` WHERE `mould_specification_id` = '$specification_id'";
+$result_mould_no = $db->query($sql_mould_no);
+if($result_mould_no->num_rows){
+  $mould_no = $result_mould_no->fetch_assoc()['mould_no'];
+}
+//查询子分类信息
+function search_category($db,$pid){
+  $sql = "SELECT `db_mould_check_type`.`id`,`db_mould_check_type`.`pid`,`db_mould_check_type`.`path`,`db_mould_check_type`.`typename`,COUNT(a.`id`) AS `count` FROM `db_mould_check_type` INNER JOIN `db_mould_check_type` a ON `db_mould_check_type`.`id` = a.`path` WHERE `db_mould_check_type`.`pid` = '$pid' GROUP BY `db_mould_check_type`.`id`";
+  //查询当前类所对应的项目汇总信息
+  //$sql = "SELECT `db_mould_check_type`.`id`,COUNT(`db_mould_check_data`.`id`) AS `count` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id` WHERE `db_mould_check_type`.`pid` = '$pid' GROUP BY `db_mould_check_data`.`id`";
+  $result = $db->query($sql);
+  if($result->num_rows){
+    while($row = $result->fetch_assoc()){
+      search_category($db,$row['pid']);
+    }
+  }else{
 
-//查询模具信息
+  }
+}
+
+//判断是否有评审表
 if($reviewid){
   $mould_sql = "SELECT *,`db_mould_specification`.`cavity_num`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`mould_name`,`db_design_review`.`surface_require`,`db_design_review`.`projecter`,`db_design_review`.`designer`,`db_design_review`.`mould_coefficient` FROM `db_mould_specification` LEFT JOIN `db_design_review` ON `db_mould_specification`.`mould_specification_id` = `db_design_review`.`specification_id` WHERE `db_mould_specification`.`mould_specification_id` = '$specification_id'";
 }else{
-   $mould_sql = "SELECT `cavity_num`,`customer_code`,`project_name`,`mould_no`,`mould_name` FROM `db_mould_specification` WHERE `db_mould_specification`.`mould_specification_id` = '$specification_id'";
+    //查询文件编号
+    $sql_max = "SELECT MAX(SUBSTRING(`document_no`,-3)+0) AS `max_number` FROM `db_design_review` WHERE `specification_id` = '$specification_id'";
+    $result_max = $db->query($sql_max);
+    if($result_max->num_rows){
+        $max_number = $result_max->fetch_assoc()['max_number'];
+        $document_number = $max_number + 1;
+        $document_no = $mould_no.'_'.date('Ymd').'_C'.strtolen($document_number,3).$document_number;
+      }else{
+        $document_no = $mould_no.'_C'.date('Ymd').'_001';
+      }
+    //新建评审表
+     $mould_sql = "INSERT INTO `db_design_review`(`specification_id`,`document_no`,`employeeid`,`time`) VALUES('$specification_id','$document_no','$employeeid','".time()."')";
+     $db->query($mould_sql);
+     $reviewid = $db->insert_id;
 }
-$result_mould = $db->query($mould_sql);
-if($result_mould->num_rows){
-  $info = $result_mould->fetch_assoc();
-}
-//查询设计部人员
-$sql_design = "SELECT `db_employee`.`employeeid`,`db_employee`.`employee_name` FROM `db_employee` INNER JOIN `db_department` ON `db_employee`.`deptid` = `db_department`.`deptid` WHERE `dept_name` LIKE '%人事%' ORDER BY `employeeid` DESC";
-$result_design = $db->query($sql_design);
-$result_designs = $db->query($sql_design);
-//查询审核人员
-$sql_check = "SELECT `db_employee`.`employeeid`,`db_employee`.`employee_name` FROM `db_employee` INNER JOIN `db_system_employee` ON `db_employee`.`employeeid` = `db_system_employee`.`employeeid` INNER JOIN `db_system` ON `db_system`.`systemid` = `db_system_employee`.`systemid` WHERE `db_system`.`system_dir` = '$system_dir' AND `db_system_employee`.`isadmin` = '1'";
-$result_check = $db->query($sql_check);
-if($result_check->num_rows){
-  $array_check = array();
-  while($row_check = $result_check->fetch_assoc()){
-    $array_check[] = $row_check;
+//查询所有的评审项目信息
+$sql_data = "SELECT `db_mould_check_data`.`categoryid`,GROUP_CONCAT(`db_mould_check_data`.`id`,'##',`db_mould_check_data`.`checkname`) AS `dataname`,`db_mould_check_type`.`typename` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id` GROUP BY `db_mould_check_data`.`categoryid` ORDER BY `db_mould_check_data`.`categoryid` ASC,`db_mould_check_data`.`id` ASC";
+// echo $sql_data;
+$result_data = $db->query($sql_data);
+//查找判定结果
+$sql_review_list = "SELECT `db_design_review_list`.`dataid`,`db_design_review_list`.`remark`,`db_design_review_list`.`approval`,`db_design_review_list`.`image_path` FROM `db_design_review_list` INNER JOIN `db_design_review` ON `db_design_review_list`.`reviewid` = `db_design_review`.`reviewid` WHERE `db_design_review`.`specification_id` = '$specification_id' AND `db_design_review`.`reviewid` = '$reviewid'";
+$result_review_list = $db->query($sql_review_list);
+  $array_review_list = array();
+if($result_review_list->num_rows){
+  while($row_review_list = $result_review_list->fetch_assoc()){
+    $array_review_list[$row_review_list['dataid']] = $row_review_list;
   }
 }
-//查询文件编号
-if(empty($reviewid)){
-  $sql_max = "SELECT MAX(SUBSTRING(`document_no`,-3)+0) AS `max_number` FROM `db_design_review` WHERE `reviewid` = '$specification_id'";
-  $result_max = $db->query($sql_max);
-  if($result_max->num_rows){
-      $max_number = $result_max->fetch_assoc()['max_number'];
-      $document_number = $max_number + 1;
-      $document_no = $info['mould_no'].'_'.date('Ymd').'_C'.strtolen($document_number,3).$document_number;
-    }else{
-      $document_no = $info['mould_no'].'_C'.date('Ymd').'_001';
-    }
-  }else{
-    $document_no = $info['document_no'];
-  }
+var_dump($array_review_list);
  //获取图片路径
  $image_file = explode('$',$info['image_path']);
  //去除最后一项
@@ -115,7 +128,7 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_list" style="width:85%;margin:0px auto">
   <?php if($action == "add" || $action == 'edit'){ ?>
-  <?php if($result_type->num_rows){ ?>
+  <?php if($result_data->num_rows){ ?>
   <form action="design_review_do.php" name="material_order" method="post" enctype="multipart/form-data">
    
     <table>
@@ -131,39 +144,48 @@ $(function(){
         <th class="nobor">文件编号：</th>
         <td class="nobor" style="text-align:left"><?php echo $document_no; ?></td>
       </tr>
-      <?php 
-          while($row_type = $result_type->fetch_assoc()){ 
-            var_dump($row_type);
-           
-         
-        ?>
+    </table>
+    <table>
       <tr>
-        <th width="10%" rowspan="<?php echo $row_type['count'] ?>">
-          <?php echo $row_type['typename'] ?>
-        </th>
-        <?php
-           //查询小类 
-          $id = $row_type['id'];
-        $sql_min_type = "SELECT *,COUNT(`db_mould_check_data`.`id`) AS `count` FROM `db_mould_check_type` INNER JOIN `db_mould_check_data` ON `db_mould_check_type`.`id` = `db_mould_check_data`.`categoryid` WHERE `db_mould_check_data`.`categoryid` = '$id' GROUP BY `db_mould_check_data`.`categoryid`";
-        echo $sql_min_type;
-        $result_min_type = $db->query($sql_min_type);
-        if($result_min_type->num_rows){
-          $min_type = $result_min_type->fetch_assoc();
-          var_dump($min_type);
-        ?>
-          <th width="10%" rowspan="<?php echo $min_type['count'] ?>">
-          <?php echo $min_type['typename'] ?>
-        </th>
-        <?php } ?>
+        <th>类别</th>
+        <th>序号</th>
+        <th>评审记录</th>
+        <th>判定</th>
+        <th>备注</th>
+        <th>图片</th>
       </tr>
+    <?php
+      $i = 1; 
+      //获取所有的项目信息
+      while($row_data = $result_data->fetch_assoc()){ 
+        $array_data = explode(',',$row_data['dataname']);
+        $rows = count($array_data);
+      ?>
       <tr>
-        <td></td>>
-        <td></td>>
+        <th rowspan="<?php echo ($rows+1); ?>"><?php echo $row_data['typename'] ?>
+          <a href="design_review_info.php?action=edit&specification_id=<?php echo $specification_id; ?>&reviewid=<?php echo $reviewid; ?>&categoryid=<?php echo $row_data['categoryid'] ?>">(点击进入检查)</a>
+        </th>
       </tr>
-     <?php } ?>
+      <?php
+        //获取大类里的详细项目
+        foreach($array_data as $j => $v){
+          $array_data_info = explode('##',$v);
+          $dataid = $array_data_info[0];
+          $checkname = $array_data_info[1];
+      ?>
+      <tr>
+        <td><?php echo $i.'.'.($j+1); ?></td>
+        <td id="<?php echo $dataid; ?>"><?php echo $checkname ?></td>
+        <td><?php echo array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['approval']:''; ?></td>
+        <td><?php echo array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['remark']:''; ?></td>
+        <td><?php echo array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['image_path']:''; ?></td>
+      </tr>
+     <?php }
+     $i++;
+     } ?>
     <tr>
         <td colspan="8">
-          <input type="button"  id="export" value="导出" class="button">
+          <!-- <input type="button"  id="export" value="导出" class="button"> -->
           <input type="submit"  value="确定" class="button" />
           <input type="hidden" name="specification_id" value="<?php echo $_GET['specification_id'] ?>" />
           <input type="hidden" name="document_no" vlaue="<?php echo $document_no; ?>" />
