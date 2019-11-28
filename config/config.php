@@ -113,7 +113,9 @@ $array_pickup_way = array('自动掉落','机械手','手工');
 //项目名称
 $array_project_name = array('模架','模架A板','模架B板','模架顶针板','型腔','型芯','滑块','斜顶','镶件');
 //材料硬度
-$array_material_hard = array('HRC18-28','HRC28-32','HRC38-42','HRC48-52');
+$array_material_hard = array('HRC18-28','HRC28-32','HRC38-42','HRC48-52','HRC28~32','HRC37~41','HRC32~36','HRC31~36','HRC15~20','HRC33-37');
+
+
 //特殊处理
 $array_special_handle = array('无','氮化','涂层','热处理+氮化','热处理+涂层');
 //表面要求
@@ -166,8 +168,9 @@ $array_skin_texture = array('模德','客户指定','普通');
 $array_material_county = array('国产','进口');
 $array_material_supplier = array('HASCO','DME','LKM','仿HASCO','仿DME','仿LKM','其他');
 // 材料牌号
-$array_material_specification = array("45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)","Cu");
+$array_material_specification = array("45#(国产)","S50C(国产)","P20(国产)","P20(进口)","718/718H(国产)","718/718H(进口)","738/738H(国产)","2738(国产)","738/738H(进口)","2311(国产)","2311(进口)","2312(国产)","2312(进口)","NAK80(国产)","NAK80(进口)","2711(进口)","Cr12(国产)","H13(国产)","H13(进口)","S136(国产)","S136(进口)","8407(国产)","8407(进口)","8402(国产)","8402(进口)","2344(国产)","2344(进口)","2344SER(国产)","2344SER(进口)","2343(国产)","2343(进口)","2343SER(国产)","2343SER(进口)","DAC-S(进口)","CENA1(进口)","PX4(进口)","PX5(进口)","S-STAR(进口)","2083(国产)","2083(进口)","Cu","S45C","SUS420J2",'1.1730','1.2343','1.2343SER','1.2344','1.2344SER','1.2312','SKD61','1.2311','1.2738','1.2738HH','XPM','XPMESR','GEST80','GEST80ESR','1.2083','1.2083ESR','S136H','420');
 //品牌
+$array_specification_hard = array('P20'=>'28~32','NAK80'=>'37~41','738H'=>'32~36','718H'=>'31~36','2344'=>'48~52','SKD61'=>'48~52','	2343'=>'48~52','S50C'=>'15~20','1.1730'=>'15~20','1.2311'=>'28-32','1.2312'=>'28-32','1.2738'=>'28-32','1.2738HH'=>'33-37','XPM'=>'38-42','XPMESR'=>'38-42','GEST80'=>'38-42','GEST80ESR'=>'38-42','1.2083'=>'48~52','1.2083ESR'=>'48~52','1.2344'=>'48~52','1.2344ESR'=>'48~52','1.2343'=>'48~52','1.2343ESR'=>'48~52','S136'=>'48~52','S136H'=>'38-42','8407'=>'48~52','H13'=>'48~52','420'=>'48~52','cu'=>'38-42');
 $array_supplier = array('HASCO','DME','LKM','盘起','其他');
 //油缸
 $array_cylinder = array('Merkle','HPS','HEB','Parker','其他');
@@ -185,9 +188,9 @@ $array_mould_other_material = array('易耗品','办公用品','福利品','其�
 //物料状态
 $array_mould_material_status = array('C'=>'通过','D'=>'退回','E'=>'询价中','F'=>'已下单','G'=>'已入库');
 //项目资料类型
-$array_project_data_type = array(array('技术资料',array('project_data'=>'客户项目资料','mould_data'=>'客户模具资料','drawing'=>'客户2D图纸')),array('项目启动会',array('project_review'=>'评审记录','dfm_report'=>'DFM报告','progress'=>'进度规划','customer_confirm'=>'客户方案确认')),array('模具试模',array('trial_mode'=>'试模报告、视频','red_photo'=>'机上红丹照片','sample_photo'=>'走水板、样品照片')),array('模具交付及售后',array('after_sale_confirm'=>'客户交付确认','out_factory'=>'出厂检查表','car_photo'=>'装箱、装车照片','delivery_note'=>'放行条、送货单','service'=>'售后服务记录','customer_indication'=>'客户终验收表','annex_list'=>'附件清单')),array('项目总结',array('project_sum'=>'总结报告')));
+$array_project_data_type = array(array('技术资料',array('project_data'=>'客户项目资料','mould_data'=>'客户模具资料','drawing'=>'客户2D图纸')),array('项目启动会',array('project_review'=>'评审记录','dfm_report'=>'DFM报告','progress'=>'进度规划','customer_confirm'=>'客户方案确认')),array('模具试模',array('trial_mode'=>'试模报告、视频','red_photo'=>'机上红丹照片','sample_photo'=>'走水板、样品照片')),array('模具交付及售后',array('after_sale_confirm'=>'客户交付确认','out_factory'=>'出厂检查表','car_photo'=>'装箱、装车照片','delivery_note'=>'放行条、送货单','service'=>'售后服务记录','customer_indication'=>'客户终验收表','annex_list'=>'剩余物料清单')),array('项目总结',array('project_sum'=>'总结报告')));
 //改模资料
-$array_mould_modify = array('last_report'=>'上次试模报告','customer_data'=>'客户改模资料','modify_data'=>'内部改模资料','modity_plan'=>'改模计划','drawing_connection'=>'图纸联络单','before_check'=>'装模前检查表','try_apply'=>'试模申请','dan_photo'=>'机上红丹照片','sample_photo'=>'样品照片','try_report'=>'试模报告','sample_check'=>'样品检测报告','sample_delivery'=>'样品交付');
+$array_mould_modify = array('last_report'=>'上次试模报告','customer_data'=>'客户改模资料','modify_data'=>'内部改模资料','modify_plan'=>'改模计划','drawing_connection'=>'图纸联络单','before_check'=>'装模前检查表','try_apply'=>'试模申请','dan_photo'=>'机上红丹照片','sample_photo'=>'样品照片','try_report'=>'试模报告','sample_check'=>'样品检测报告','sample_delivery'=>'样品交付');
 //设计输出
 $array_design_out = array('design_plan'=>'设计计划','design_review'=>'设计评审','drawing_concat'=>'图纸联络单');
 //加工资料

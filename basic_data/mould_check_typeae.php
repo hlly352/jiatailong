@@ -27,7 +27,7 @@ $(function(){
   })
 })
 </script>
-<title>基础数据-希尔林</title>
+<title>基础数据-嘉泰隆</title>
 </head>
 
 <body>
@@ -38,25 +38,8 @@ $(function(){
   <form action="mould_check_typedo.php" name="material_type" method="post">
     <table>
       <tr>
-        <th width="20%">父级类型</th>
+        <th width="20%">类型名称：</th>
         <td width="80%">
-          <select name="pid" class="input_txt txt">
-            <option value="0">顶级类型</option>
-            <?php
-              if($result_type->num_rows){
-                while($row_type = $result_type->fetch_assoc()){
-                  $count = substr_count($row_type['path'],',') - 1;
-                  $str = $count <= 0?'':str_repeat('--',$count);
-                  echo '<option value="'.$row_type['id'].'">'.$str.$row_type['typename'].'</option>';
-                }
-              }
-            ?>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <th>类型名称：</th>
-        <td>
           <input type="text" name="typename" id="typename" class="input_txt" />
         </td>
       </tr>
@@ -80,26 +63,8 @@ $(function(){
   <form action="mould_check_typedo.php" name="material_type" method="post">
     <table>
       <tr>
-        <th width="20%">父级类型</th>
+        <th width="20%">类型名称：</th>
         <td width="80%">
-          <select name="pid" class="input_txt txt">
-            <option value="0">顶级类型</option>
-            <?php
-              if($result_type->num_rows){
-                while($row_type = $result_type->fetch_assoc()){
-                  $count = substr_count($row_type['path'],',') - 1;
-                  $str = $count <= 0?'':str_repeat('--',$count);
-                  $is_select = $row['pid'] == $row_type['id']?'selected':'';
-                  echo '<option '.$is_select.' value="'.$row_type['id'].'">'.$str.$row_type['typename'].'</option>';
-                }
-              }
-            ?>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <th>类型名称：</th>
-        <td>
           <input type="text" name="typename" value="<?php echo $row['typename'] ?>" id="typename" class="input_txt" />
         </td>
       </tr>

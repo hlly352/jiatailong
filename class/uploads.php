@@ -15,12 +15,13 @@ class upload{
 	private $upload_error;               //上传错误代码
 	public  $upload_file_arr;           //上传成功文件数组
 	public  $array_upload_file;
+	public  $array_upload_files;
 
 	function __construct($upload_name,$upload_tmp_name,$upload_file_size,$upload_error){
 
 		$this->upload_name = $upload_name;
 		$this->upload_tmp_name = $upload_tmp_name;
-		$this->upload_final_name = date("His");
+		$this->upload_final_name = rand(0,9999999);
 		$this->upload_file_size = $upload_file_size;
 		$this->upload_error = $upload_error;
 

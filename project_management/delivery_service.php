@@ -102,40 +102,7 @@ function show($row,$from){
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<script type="text/javascript">
-  $(function(){
-    //鼠标滑过
-    $('.detail').css('color','blue').hover(function(){
-        $(this).css('cursor','pointer');
-        $(this).css('color','black');
-      },function(){
-        $(this).css('color','blue');
-      //点击事件
-      }).live('click',function(){
-        var specification_id = $(this).children('input:hidden').val();
-        window.open('mould_specification_edit.php?show=show&specification_id='+specification_id,'_self');
-      })
-    //点击图片
-    $('.img').live('click',function(){
-      //图片地址
-      var img_file = $(this).html();
-      var client_width = (window.screen.availWidth-600)/2;
-      var client_height = (window.screen.availHeight-300)/2;
-      var divs = '<div  id="divs" style="position:absolute;top:'+client_height+'px;left:'+client_width+'px">'+img_file+'</div>';
-      $('#table_list').prepend(divs);
-      $('#divs').children('img').css('width','600px');
-      $('#divs').children('img').css('height','300px');
-    })
-      $(document).mouseup(function (e) {
-        var con = $("#divs");   // 设置目标区域
-        if (!con.is(e.target) && con.has(e.target).length === 0) {
-            $('#divs').remove();
-        }
-    });
-
-
-})
-</script>
+<script language="javascript" type="text/javascript" src="../js/enlarge_img.js"></script>
 <title>项目管理-希尔林</title>
 </head>
 
@@ -227,11 +194,11 @@ function show($row,$from){
         <th>零件图片</th>
         <th>客户交付确认</th>
         <th>出厂检查表</th>
+        <th>剩余物料清单</th>
         <th>装箱、装车照片</th>
         <th>放行条、送货单</th>
         <th>售后服务记录</th>
         <th>客户终验收表</th>
-        <th>附件清单</th>
         <th>操作</th>
       </tr>
       <?php
@@ -293,6 +260,9 @@ function show($row,$from){
           <?php echo shows($row,'out_factory'); ?>
         </td>
         <td>
+          <?php echo shows($row,'annex_list'); ?>
+        </td>
+        <td>
           <?php echo shows($row,'car_photo'); ?>
         </td>
         <td>
@@ -304,10 +274,7 @@ function show($row,$from){
          <td>
           <?php echo shows($row,'customer_indication'); ?>
         </td>
-        <td>
-          <?php echo shows($row,'annex_list'); ?>
-        </td>
-        <td><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=delivery_service&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
+        <td><a href="<?php echo $system_info[1] == '1'?'technical_information_edit.php?action=add&from=delivery_service&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
       </tr>
       <?php } ?>
     </table>

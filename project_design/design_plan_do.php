@@ -58,7 +58,7 @@
 		$db->query($sql);
 
 	}
-
+	header('location:design_plan.php');
 	/*-----发送邮件----*/
 		//查询操作人的邮箱地址
 		$sql_do_mail = "SELECT `email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";

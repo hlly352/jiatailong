@@ -4,16 +4,19 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once '../config/config.php';
 require_once 'shell.php';
+$from = $_GET['from'];
 $employeeid = $_SESSION['employee_info']['employeeid'];
 $action = fun_check_action($_GET['action']);
 $specification_id = $_GET['specification_id'];
 $reviewid = $_GET['reviewid'];
-//查询模号
-$sql_mould_no = "SELECT `mould_no` FROM `db_mould_specification` WHERE `mould_specification_id` = '$specification_id'";
-$result_mould_no = $db->query($sql_mould_no);
-if($result_mould_no->num_rows){
-  $mould_no = $result_mould_no->fetch_assoc()['mould_no'];
+//项目信息
+$sql_project = "SELECT `project_name`,`mould_name`,`customer_code`,`mould_no` FROM `db_mould_specification` WHERE `mould_specification_id` = '$specification_id'";
+$result_project = $db->query($sql_project);
+if($result_project ->num_rows){
+  $mould_info = $result_project->fetch_assoc();
+  $mould_no = $mould_info['mould_no'];
 }
+
 //查询子分类信息
 function search_category($db,$pid){
   $sql = "SELECT `db_mould_check_type`.`id`,`db_mould_check_type`.`pid`,`db_mould_check_type`.`path`,`db_mould_check_type`.`typename`,COUNT(a.`id`) AS `count` FROM `db_mould_check_type` INNER JOIN `db_mould_check_type` a ON `db_mould_check_type`.`id` = a.`path` WHERE `db_mould_check_type`.`pid` = '$pid' GROUP BY `db_mould_check_type`.`id`";
@@ -28,12 +31,14 @@ function search_category($db,$pid){
 
   }
 }
-
-//判断是否有评审表
-if($reviewid){
-  $mould_sql = "SELECT *,`db_mould_specification`.`cavity_num`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`mould_name`,`db_design_review`.`surface_require`,`db_design_review`.`projecter`,`db_design_review`.`designer`,`db_design_review`.`mould_coefficient` FROM `db_mould_specification` LEFT JOIN `db_design_review` ON `db_mould_specification`.`mould_specification_id` = `db_design_review`.`specification_id` WHERE `db_mould_specification`.`mould_specification_id` = '$specification_id'";
-}else{
-    //查询文件编号
+  //查询是否已经有评审表
+  $sql_design_check = "SELECT * FROM `db_design_review` WHERE `specification_id` = '$specification_id'";
+  $result_design_check = $db->query($sql_design_check);
+  if($result_design_check->num_rows){
+     //查找文件号
+     $document_no = $result_design_check->fetch_assoc()['document_no'];
+  }else{
+       //查询文件编号
     $sql_max = "SELECT MAX(SUBSTRING(`document_no`,-3)+0) AS `max_number` FROM `db_design_review` WHERE `specification_id` = '$specification_id'";
     $result_max = $db->query($sql_max);
     if($result_max->num_rows){
@@ -47,9 +52,10 @@ if($reviewid){
      $mould_sql = "INSERT INTO `db_design_review`(`specification_id`,`document_no`,`employeeid`,`time`) VALUES('$specification_id','$document_no','$employeeid','".time()."')";
      $db->query($mould_sql);
      $reviewid = $db->insert_id;
-}
+  }
 //查询所有的评审项目信息
-$sql_data = "SELECT `db_mould_check_data`.`categoryid`,GROUP_CONCAT(`db_mould_check_data`.`id`,'##',`db_mould_check_data`.`checkname`) AS `dataname`,`db_mould_check_type`.`typename` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id` GROUP BY `db_mould_check_data`.`categoryid` ORDER BY `db_mould_check_data`.`categoryid` ASC,`db_mould_check_data`.`id` ASC";
+$sql_data = "SELECT `db_mould_check_data`.`categoryid`,GROUP_CONCAT(`db_mould_check_data`.`id`,'**',`db_mould_check_data`.`id` ORDER BY `sort` ASC) AS `dataname`,`db_mould_check_type`.`typename` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id` GROUP BY `db_mould_check_data`.`categoryid` ORDER BY `db_mould_check_data`.`categoryid` ASC";
+
 // echo $sql_data;
 $result_data = $db->query($sql_data);
 //查找判定结果
@@ -61,7 +67,7 @@ if($result_review_list->num_rows){
     $array_review_list[$row_review_list['dataid']] = $row_review_list;
   }
 }
-var_dump($array_review_list);
+// var_dump($array_review_list);
  //获取图片路径
  $image_file = explode('$',$info['image_path']);
  //去除最后一项
@@ -96,6 +102,7 @@ var_dump($array_review_list);
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script type="text/javascript" src="../js/view_img.js"></script>
+<script type="text/javascript" src="../js/enlarge_img.js"></script>
 <script language="javascript" type="text/javascript">
 $(function(){
  
@@ -125,7 +132,7 @@ $(function(){
 <title>工程设计-嘉泰隆</title>
 </head>
 <body>
-<?php include "header.php"; ?>
+<?php if(!$from) include "header.php"; ?>
 <div id="table_list" style="width:85%;margin:0px auto">
   <?php if($action == "add" || $action == 'edit'){ ?>
   <?php if($result_data->num_rows){ ?>
@@ -133,9 +140,9 @@ $(function(){
    
     <table>
       <tr>
-        <td rowspan="2" class="nobor"><img src='../jtl.png' width="100"></td>
+        <td rowspan="2" colspan="2" class="nobor"><img src='../jtl.png' width="100"></td>
         <th colspan="6" class="nobor" style="font-size:20px">
-          模具更改联络单
+          模具评审记录表
         </th>
         <td class="nobor"></td>
       </tr>
@@ -144,49 +151,86 @@ $(function(){
         <th class="nobor">文件编号：</th>
         <td class="nobor" style="text-align:left"><?php echo $document_no; ?></td>
       </tr>
-    </table>
-    <table>
+      <tr>
+        <th width="10%" colspan="2">客户代码</th>
+        <td width="15%"><?php echo $mould_info['customer_code'] ?></td>
+        <th width="10%">项目名称</th>
+        <td width="15%"><?php echo $mould_info['project_name'] ?></td>
+        <th width="10%">模具编号</th>
+        <td width="15%">
+          <?php echo $mould_info['mould_no'] ?>
+          <input type="hidden" value="<?php echo $mould_info['mould_no'] ?>" name="mould_no" />  
+        </td>
+        
+        <th width="10%">产品名称</th>
+        <td width="15%"><?php echo $mould_info['mould_name'] ?></td>
+      </tr>
       <tr>
         <th>类别</th>
-        <th>序号</th>
-        <th>评审记录</th>
+        <th width="2%">序号</th>
+        <th colspan="3">评审目录</th>
         <th>判定</th>
-        <th>备注</th>
-        <th>图片</th>
+        <th >评审记录</th>
+        <th colspan="2">图片</th>
       </tr>
     <?php
       $i = 1; 
       //获取所有的项目信息
-      while($row_data = $result_data->fetch_assoc()){ 
+      while($row_data = $result_data->fetch_assoc()){
         $array_data = explode(',',$row_data['dataname']);
         $rows = count($array_data);
       ?>
       <tr>
-        <th rowspan="<?php echo ($rows+1); ?>"><?php echo $row_data['typename'] ?>
-          <a href="design_review_info.php?action=edit&specification_id=<?php echo $specification_id; ?>&reviewid=<?php echo $reviewid; ?>&categoryid=<?php echo $row_data['categoryid'] ?>">(点击进入检查)</a>
+        <th rowspan="<?php echo ($rows+1); ?>">
+          <?php if($from == 'project'){ 
+            echo $row_data['typename'];
+           }else{ ?>
+            <a href="design_review_info.php?from=_edit&action=edit&specification_id=<?php echo $specification_id; ?>&reviewid=<?php echo $reviewid; ?>&categoryid=<?php echo $row_data['categoryid'] ?>">
+              <?php echo $row_data['typename'] ?>
+            </a>
+          <?php } ?>
         </th>
       </tr>
       <?php
         //获取大类里的详细项目
         foreach($array_data as $j => $v){
-          $array_data_info = explode('##',$v);
+          $array_data_info = explode('**',$v);
           $dataid = $array_data_info[0];
           $checkname = $array_data_info[1];
       ?>
       <tr>
         <td><?php echo $i.'.'.($j+1); ?></td>
-        <td id="<?php echo $dataid; ?>"><?php echo $checkname ?></td>
-        <td><?php echo array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['approval']:''; ?></td>
-        <td><?php echo array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['remark']:''; ?></td>
-        <td><?php echo array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['image_path']:''; ?></td>
+        <td colspan="3" id="<?php echo $dataid; ?>" style="text-align:left">
+          <?php ;
+            echo str_pos($checkname,$db,$specification_id);
+          ?>
+        </td>
+        <td><?php
+          $array_approval = array('1'=>'是','0'=>'否','2'=>'无'); 
+          echo $array_approval[array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['approval']:'']; ?></td>
+        <td>
+          <?php echo array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['remark']:''; ?>
+        </td>
+        <td colspan="2" style="text-align:left">
+          <?php 
+             if(array_key_exists($dataid,$array_review_list)){
+                $array_image_path = explode('&&',$array_review_list[$dataid]['image_path']);
+                foreach($array_image_path as $path){
+                  if($path){
+                    $image_info = explode('**',$path);
+                    echo '<div style="float:left;width:46%;margin-left:2%;margin-bottom:10px" class="mould_image"><img width="100%" height="100px" src='.$image_info[0].' ><span style="display:block;text-align:center">'.$image_info[1].'</span></div>';
+              }
+            }
+          } ?>
+        </td>
       </tr>
      <?php }
      $i++;
      } ?>
     <tr>
-        <td colspan="8">
+        <td colspan="9">
           <!-- <input type="button"  id="export" value="导出" class="button"> -->
-          <input type="submit"  value="确定" class="button" />
+          <!-- <input type="submit"  value="确定" class="button" /> -->
           <input type="hidden" name="specification_id" value="<?php echo $_GET['specification_id'] ?>" />
           <input type="hidden" name="document_no" vlaue="<?php echo $document_no; ?>" />
           <input type="hidden" name="reviewid" value="<?php echo $reviewid ?>" />

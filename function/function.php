@@ -333,5 +333,43 @@ function data_name($str,$array_mould_modify,$array_design_out,$array_processing_
 	$name = $new_arr[$str];
 	return $name;
 }
+//设计评审中查找模具规格书中的信息
+function str_pos($name,$db,$specification_id){
+	$sql_name = "SELECT `checkname` FROM `db_mould_check_data` WHERE `id` = '$name'";
+	$result_name = $db->query($sql_name);
+	if($result_name->num_rows){
+		$name = $result_name->fetch_assoc()['checkname'];
+	}
+      $new_str = '';
+      if(stristr($name,'[*')){
+        $array_name = explode('[*',$name);
+          foreach($array_name as $str){
+            if(stristr($str,'*]')){
+              $array_val = explode('*]',$str);
+              $specification_key = $array_val[0];
+              $sql = "SELECT `$specification_key` FROM `db_mould_specification` WHERE `mould_specification_id` = '$specification_id'";
+              $result = $db->query($sql);
 
+              if($result->num_rows){
+              	//判断是否有值
+              	$data = $result->fetch_row()[0];
+              	if(!empty($data)){
+	                $specification_val = $data;
+	              	$specification_word = '<span style="color:red;text-decoration:underline">'.$specification_val.'</span>'.$array_val[1];
+              	}else{
+
+              	$specification_word =  '<span style="color:red">_____</span>'.$array_val[1];
+              	}
+              }
+	              	
+              $new_str .= $specification_word;
+            }else{
+              $new_str .= $str;
+            }
+          }
+       }else{
+          $new_str = $name;
+       }
+       return $new_str;
+    }
 ?>

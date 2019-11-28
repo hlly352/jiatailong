@@ -3,6 +3,8 @@ require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
+$page = $_GET['page'];
+$type = $_GET['type'];
 //查询父级类型
 $sql_type = "SELECT * FROM `db_mould_check_type` ORDER BY `path` ASC,`id` ASC";
 $result_type = $db->query($sql_type);
@@ -27,7 +29,7 @@ $(function(){
   })
 })
 </script>
-<title>基础数据-希尔林</title>
+<title>基础数据-嘉泰隆</title>
 </head>
 
 <body>
@@ -128,7 +130,10 @@ $(function(){
       </tr>
       <tr>
         <th>&nbsp;</th>
-        <td><input type="submit" name="submit" id="submit" value="确定" class="button" />
+        <td>
+          <input type="hidden" value="<?php echo $type ?>" name="type" />
+          <input type="hidden" value="<?php echo $page ?>" name="page" />
+          <input type="submit" name="submit" id="submit" value="确定" class="button" />
           <input type="button" name="button" value="返回" class="button" onclick="javascript:history.go(-1);" />
           <input type="hidden" name="id" value="<?php echo $id ?>"/>
           <input type="hidden" name="action" id="action" value="<?php echo $action; ?>" /></td>

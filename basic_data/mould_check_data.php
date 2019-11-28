@@ -5,12 +5,13 @@ require_once '../class/page.php';
 require_once 'shell.php';
 if($_GET['submit']){
 	$material_typename = trim($_GET['material_typename']);
-	$sqlwhere = " WHERE `material_typename` LIKE '%$material_typename%'";
+  $type = trim($_GET['type']);
+  $sqlwhere = " WHERE `db_mould_check_data`.`checkname` LIKE '%$material_typename%' AND `db_mould_check_type`.`typename` LIKE '%$type%'";
 }
-$sql = "SELECT `db_mould_check_data`.`id`,`db_mould_check_data`.`checkname`,`db_mould_check_type`.`typename`,`db_mould_check_data`.`degree` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id`";
+$sql = "SELECT `db_mould_check_data`.`sort`,`db_mould_check_data`.`id`,`db_mould_check_data`.`checkname`,`db_mould_check_type`.`typename`,`db_mould_check_data`.`degree` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id` $sqlwhere";
 $result = $db->query($sql);
 $pages = new page($result->num_rows,15);
-$sqllist = $sql . " ORDER BY `db_mould_check_data`.`id` DESC" . $pages->limitsql;
+$sqllist = $sql . " ORDER BY `db_mould_check_type`.`id` DESC,`db_mould_check_data`.`id` ASC" . $pages->limitsql;
 $result = $db->query($sqllist);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -22,7 +23,28 @@ $result = $db->query($sqllist);
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<title>基础数据-希尔林</title>
+<script type="text/javascript">
+  $(function(){
+    $('.sort').dblclick(function(){
+      $('#sort_val').remove();
+      var inp = '<input type="text" id="sort_val" size="5"/>';
+      $(this).html(inp);
+      $('#sort_val').focus();
+      
+    }).mouseover(function(){
+      $(this).css('cursor','pointer');
+    })
+    $('#sort_val').live('blur',function(){
+      var id = $(this).parent().attr('id');
+      var checkid = id.substr(id.lastIndexOf('_')+1);
+      var sort = $('#sort_val').val();
+      $.post('../ajax_function/switch_check_sort.php',{id:checkid,sort:sort},function(data){
+        window.location.reload();
+      })
+    })
+  })
+</script>
+<title>基础数据-嘉泰隆</title>
 </head>
 
 <body>
@@ -33,6 +55,10 @@ $result = $db->query($sqllist);
     <table>
       <tr>
         <th>类型名称：</th>
+        <td>
+          <input type="text" name="type" class="input_txt" value="<?php echo $_GET['type'] ?>"/>
+        </td>
+        <th>项目名称：</th>
         <td><input type="text" name="material_typename" class="input_txt" /></td>
         <td><input type="submit" name="submit" value="查询" class="button" />
           <input type="button" name="button" value="添加" class="button" onclick="location.href='mould_check_dataae.php?action=add'" />
@@ -48,7 +74,8 @@ $result = $db->query($sqllist);
       <tr>
         <th width="4%">ID</th>
         <th width="16%">类型名称</th>
-        <th width="72%">项目名称</th>
+        <th width="60%">项目名称</th>
+        <th width="5%">排序</th>
         <th width="4%">等级</th>
         <th width="4%">Edit</th>
       </tr>
@@ -60,8 +87,9 @@ $result = $db->query($sqllist);
         <td><input type="checkbox" name="id[]" value="<?php echo $id; ?>" /></td>
         <td><?php echo $row['typename']; ?></td>
         <td><?php echo $row['checkname']; ?></td>
+        <td class="sort" id="sort_<?php echo $id ?>"><?php echo $row['sort']; ?></td>
         <td><?php echo $array_mould_check_degree[$row['degree']]; ?></td>
-        <td width="4%"><a href="mould_check_dataae.php?id=<?php echo $id; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
+        <td width="4%"><a href="mould_check_dataae.php?id=<?php echo $id; ?>&action=edit&type=<?php echo $_GET['type'] ?>&page=<?php echo $_GET['page'] ?>"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       </tr>
       <?php } ?>
     </table>

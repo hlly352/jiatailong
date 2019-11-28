@@ -34,7 +34,7 @@ $result = $db->query($sqllist);
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
-<title>基础数据-希尔林</title>
+<title>基础数据-嘉泰隆</title>
 </head>
 
 <body>
@@ -59,10 +59,7 @@ $result = $db->query($sqllist);
     <table>
       <tr>
         <th>ID</th>
-        <th>父级类型</th>
         <th>类型名称</th>
-        <th>父类</th>
-        <th>子类</th>
         <th>Edit</th>
       </tr>
       <?php
@@ -71,19 +68,8 @@ $result = $db->query($sqllist);
 	  ?>
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $typeid; ?>" /></td>
-        <td><?php echo $row['pname']; ?></td>
         <td><?php echo $row['typename']; ?></td>
-        <td>
-        	<a href="mould_check_type.php?pid=<?php echo $row['pid']; ?>">
-        		<img src="../images/system_ico/info_8_10.png" width="15">
-        	</a>
-        </td>
-        <td>
-			<a href="mould_check_type.php?id=<?php echo $typeid; ?>">
-				<img src="../images/system_ico/info_8_10.png" width="15">
-			</a>
-        </td>
-        <td width="4%"><a href="moul   d_check_typeae.php?id=<?php echo $typeid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
+        <td width="4%"><a href="mould_check_typeae.php?id=<?php echo $typeid; ?>&action=edit"><img src="../images/system_ico/edit_10_10.png" width="10" height="10" /></a></td>
       </tr>
       <?php } ?>
     </table>

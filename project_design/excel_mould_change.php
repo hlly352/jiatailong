@@ -117,7 +117,7 @@ $sql = "SELECT `db_mould_change`.`tips`,`db_mould_change`.`geter`,`db_mould_chan
 	  		$array_path[] = $image_path;
 	  	}
 	  	foreach($array_path as $key=>$path){
-	  		$imgs = explode('##',$path);
+	  		$imgs = explode('**',$path);
 	  		if($imgs[0]){
 				$real_path = str_replace('..',$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'],$imgs[0]);
 				$remark = $imgs[1];
@@ -133,8 +133,8 @@ $sql = "SELECT `db_mould_change`.`tips`,`db_mould_change`.`geter`,`db_mould_chan
 			/*设置图片路径 切记：只能是本地图片*/
 			$objDrawing[$key]->setPath('./pic'.$key.'.jpg');
 			/*设置图片高度*/
-			$objDrawing[$key]->setResizeProportional(false);
-			$objDrawing[$key]->setWidth(300);
+			//$objDrawing[$key]->setResizeProportional(false);
+			// $objDrawing[$key]->setWidth(300);
 			$objDrawing[$key]->setHeight(200);
 			//$img_height[] = $objDrawing[$key]->getHeight();
 			/*设置图片要插入的单元格*/

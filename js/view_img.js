@@ -73,6 +73,44 @@ function view(file){
     $(file).remove();
   }
  }
+ //设计评审预览图片(多图片)
+function design_review(file,dataid){
+    $(file).prevAll('.show_img').remove();
+    var filepath = $(file).val();
+    var extStart = filepath.lastIndexOf(".")+1;
+    var ext = filepath.substring(extStart, filepath.length).toUpperCase();
+    var allowtype = ["JPG","GIF","PNG"];
+    if($.inArray(ext,allowtype) == -1)
+    {
+      alert("请选择正确文件类型");
+      $(file).val('');
+      return false;
+    }
+    if($(file).prevAll().size()<11){
+    $(file).css('display','none');
+    if (file.files && file.files[0]){ 
+    var reader = new FileReader(); 
+
+    reader.onload = function(evt){ 
+
+    $(file).next().html('<img src="' + evt.target.result + '" width=95px" height="50px" />'); 
+
+    } 
+
+    reader.readAsDataURL(file.files[0]); 
+
+    }else{
+
+    $(file).next().html('<p style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src=\'' + file.value + '\'"></p>'); 
+
+    } 
+    var files = ' <input type="file" name="image_'+dataid+'[]" onchange="design_review(this,'+dataid+')"/><span style="margin-left:20px"></span>';
+    $(file).next().after(files);
+  } else {
+    alert('最多上传六张图片');
+    $(file).remove();
+  }
+ }
   //上传图片之前预览图片
 function views(file){
     $(file).prevAll('.mould_image').remove();

@@ -39,9 +39,7 @@ if($_POST['submit']){
 		$path = $pid_path.$typeid.',';
 		$sql = "UPDATE `db_mould_check_type` SET `pid` = '$pid',`typename` = '$typename',`path` = '$path' WHERE `id` = '$typeid'";
 		$db->query($sql);
-		if($db->affected_rows){
-			header("location:".$_SERVER['HTTP_REFERER']);
-		}
+		header("location:mould_check_type.php");
 	}elseif($action == "del"){
 		$array_id = $_POST['id'];
 		$typeid = fun_convert_checkbox($array_id);

@@ -3,6 +3,8 @@
 require_once '../global_mysql_connect.php';
 require_once '../function/function.php';
 require_once 'shell.php';
+$page = $_POST['page'];
+$type = $_POST['type'];
 if($_POST['submit']){
 	$action = $_POST['action'];
 	$typeid = trim($_POST['typeid']);
@@ -17,9 +19,8 @@ if($_POST['submit']){
 		$checkid = $_POST['id'];
 		$sql = "UPDATE `db_mould_check_data` SET `degree` = '$degree',`categoryid` = '$typeid',`checkname` = '$checkname' WHERE `id` = '$checkid'";
 		$db->query($sql);
-		if($db->affected_rows){
-			header("location:mould_check_data.php");
-		}
+		header("location:mould_check_data.php?submit=查询&type=".$type."&page=".$page);
+		
 	}elseif($action == "del"){
 		$array_id = $_POST['id'];
 		$checkid = fun_convert_checkbox($array_id);

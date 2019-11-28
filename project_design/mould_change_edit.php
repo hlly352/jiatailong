@@ -25,9 +25,9 @@ $result_mould = $db->query($mould_sql);
 if($result_mould->num_rows){
   $info = $result_mould->fetch_assoc();
 }
-
+$check = $info['check'];
 //查询设计部人员
-$sql_design = "SELECT `db_employee`.`employeeid`,`db_employee`.`employee_name` FROM `db_employee` INNER JOIN `db_department` ON `db_employee`.`deptid` = `db_department`.`deptid` WHERE `dept_name` LIKE '%人事%' ORDER BY `employeeid` DESC";
+$sql_design = "SELECT `db_employee`.`employeeid`,`db_employee`.`employee_name` FROM `db_employee` INNER JOIN `db_department` ON `db_employee`.`deptid` = `db_department`.`deptid` WHERE `dept_name` LIKE '%工程%' ORDER BY `employeeid` DESC";
 $result_design = $db->query($sql_design);
 $result_designs = $db->query($sql_design);
 //查询审核人员
@@ -39,7 +39,6 @@ if($result_check->num_rows){
     $array_check[] = $row_check;
   }
 }
-
  //获取图片路径
  $image_file = explode('$',$info['image_path']);
  //去除最后一项
@@ -63,7 +62,8 @@ if($result_check->num_rows){
  $geter = $info['geter'];
  $sql_employee = "SELECT deptid,GROUP_CONCAT(`employee_name`) AS `geter` FROM `db_employee` WHERE `employeeid` IN($geter) GROUP BY `deptid`";
  $result_employee = $db->query($sql_employee);
- 
+$sql_employee_name = "SELECT `employee_name`,`employeeid` FROM `db_employee` WHERE `employeeid` IN($geter)";
+$result_employee_name = $db->query($sql_employee_name);
  //查询图纸联络单的修改次数
  //查找修改次数
  if($changeid){
@@ -97,8 +97,139 @@ if($result_check->num_rows){
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script type="text/javascript" src="../js/view_img.js"></script>
+ <script type="text/javascript" charset="utf-8" src="../js/utf8-php/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/utf8-php/ueditor.all.min.js"> </script>
+    <!--建议手动加在语言，避免在ie下有时因为加载语言失败导致编辑器加载失败-->
+    <!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
+    <script type="text/javascript" charset="utf-8" src="../js/utf8-php/lang/zh-cn/zh-cn.js"></script>
+
+    <style type="text/css">
+        div{
+            width:100%;
+        }
+    </style>
 <script language="javascript" type="text/javascript">
+              //实例化编辑器
+              //建议使用工厂方法getEditor创建和引用编辑器实例，如果在某个闭包下引用该编辑器，直接调用UE.getEditor('editor')就能拿到相关的实例
+              var ue = UE.getEditor('editor');
+
+
+              function isFocus(e){
+                  alert(UE.getEditor('editor').isFocus());
+                  UE.dom.domUtils.preventDefault(e)
+              }
+              function setblur(e){
+                  UE.getEditor('editor').blur();
+                  UE.dom.domUtils.preventDefault(e)
+              }
+              function insertHtml() {
+                  var value = prompt('插入html代码', '');
+                  UE.getEditor('editor').execCommand('insertHtml', value)
+              }
+              function createEditor() {
+                  enableBtn();
+                  UE.getEditor('editor');
+              }
+              function getAllHtml() {
+                  alert(UE.getEditor('editor').getAllHtml())
+              }
+              function getContent() {
+                  var arr = [];
+                  arr.push("使用editor.getContent()方法可以获得编辑器的内容");
+                  arr.push("内容为：");
+                  arr.push(UE.getEditor('editor').getContent());
+                  alert(arr.join("\n"));
+              }
+              function getPlainTxt() {
+                  var arr = [];
+                  arr.push("使用editor.getPlainTxt()方法可以获得编辑器的带格式的纯文本内容");
+                  arr.push("内容为：");
+                  arr.push(UE.getEditor('editor').getPlainTxt());
+                  alert(arr.join('\n'))
+              }
+              function setContent(isAppendTo) {
+                  var arr = [];
+                  arr.push("使用editor.setContent('欢迎使用ueditor')方法可以设置编辑器的内容");
+                  UE.getEditor('editor').setContent('欢迎使用ueditor', isAppendTo);
+                  alert(arr.join("\n"));
+              }
+              function setDisabled() {
+                  UE.getEditor('editor').setDisabled('fullscreen');
+                  disableBtn("enable");
+              }
+
+              function setEnabled() {
+                  UE.getEditor('editor').setEnabled();
+                  enableBtn();
+              }
+
+              function getText() {
+                  //当你点击按钮时编辑区域已经失去了焦点，如果直接用getText将不会得到内容，所以要在选回来，然后取得内容
+                  var range = UE.getEditor('editor').selection.getRange();
+                  range.select();
+                  var txt = UE.getEditor('editor').selection.getText();
+                  alert(txt)
+              }
+
+              function getContentTxt() {
+                  var arr = [];
+                  arr.push("使用editor.getContentTxt()方法可以获得编辑器的纯文本内容");
+                  arr.push("编辑器的纯文本内容为：");
+                  arr.push(UE.getEditor('editor').getContentTxt());
+                  alert(arr.join("\n"));
+              }
+              function hasContent() {
+                  var arr = [];
+                  arr.push("使用editor.hasContents()方法判断编辑器里是否有内容");
+                  arr.push("判断结果为：");
+                  arr.push(UE.getEditor('editor').hasContents());
+                  alert(arr.join("\n"));
+              }
+              function setFocus() {
+                  UE.getEditor('editor').focus();
+              }
+              function deleteEditor() {
+                  disableBtn();
+                  UE.getEditor('editor').destroy();
+              }
+              function disableBtn(str) {
+                  var div = document.getElementById('btns');
+                  var btns = UE.dom.domUtils.getElementsByTagName(div, "button");
+                  for (var i = 0, btn; btn = btns[i++];) {
+                      if (btn.id == str) {
+                          UE.dom.domUtils.removeAttributes(btn, ["disabled"]);
+                      } else {
+                          btn.setAttribute("disabled", "true");
+                      }
+                  }
+              }
+              function enableBtn() {
+                  var div = document.getElementById('btns');
+                  var btns = UE.dom.domUtils.getElementsByTagName(div, "button");
+                  for (var i = 0, btn; btn = btns[i++];) {
+                      UE.dom.domUtils.removeAttributes(btn, ["disabled"]);
+                  }
+              }
+
+              function getLocalData () {
+                  alert(UE.getEditor('editor').execCommand( "getlocaldata" ));
+              }
+
+              function clearLocalData () {
+                  UE.getEditor('editor').execCommand( "clearlocaldata" );
+                  alert("已清空草稿箱")
+              }
 $(function(){
+  var check = '<?php echo $check; ?>';
+  var ue = UE.getEditor('editor');
+  if(check>0){
+    $('input').not('#back').attr('disabled',true);
+    $('select').attr('disabled',true);
+    ue.ready(function() {
+      //不可编辑
+      ue.setDisabled();
+      });
+  }
   $("#submit").click(function(){
     var file = $('input[name = file]').val();
     var title = $.trim($('input[name = title]').val());
@@ -134,7 +265,16 @@ $(function(){
     $(this).remove();
     get_employee();
   })
-})
+$('#change_dept').live('click',function(){
+  var par = $(this).parent().parent().prev();
+  $(this).parent().parent().remove();
+  var add = '<tr>          <th>接收部门</th>          <td >            <select class="input_txt txt" id="dept">              <option value="">--请选择--</option>            <?php
+                foreach($array_data_dept as $k=>$dept){                  echo '<option value="'.$k.'">'.$dept.'</option>';
+                }              ?>            </select>        </td>        <th>部门人员</th>        <td id="employee" colspan="5" style="text-align:left"></td>        </tr>        <tr>          <th>接收人员</th>          <td colspan="7" id="select_employee" style="text-align:left"><?php if($result_employee_name->num_rows){ while($row_employee_name =$result_employee_name->fetch_assoc()){ echo '<span class="select_employee" employeeid="'.$row_employee_name['employeeid'].'" id="select_'.$row_employee_name['employeeid'].'" style="padding:5px;cursor:pointer;color:blue">'.$row_employee_name['employee_name'].'<input type="hidden" value="'.$row_employee_name['employeeid'].'" name="employeeid[]"></span>'; }} ?></td>        </tr>';
+  par.after(add);
+
+    })
+  })
 </script>
 <title>项目管理-嘉泰隆</title>
 </head>
@@ -197,23 +337,61 @@ $(function(){
       </tr>
       <tr>
         <td colspan="8" style="height:150px;padding-top:10px;text-align:left">
-          <p style="text-align:left;background:white">
+         <!--  <p style="text-align:left;background:white">
             修改内容贴图及说明：
           </p>
            <?php
             foreach($image_file as $k=>$v){
-              $image_info = explode('##',$v);
-              echo '<div style="float:left;width:46%;margin-left:3%;margin-bottom:10px" class="mould_image"><img width="100%" height="250px" src='.$image_info[0].' ><span style="display:block;text-align:center">'.$image_info[1].'</span></div>';
+              $image_info = explode('**',$v);
+              echo '<div style="float:left;width:46%;margin-left:3%;margin-bottom:10px" class="mould_image"><img width="100%" src='.$image_info[0].' ><span style="display:block;text-align:center">'.$image_info[1].'</span></div>';
             }
            ?>
-
           <input type="file" style="float:left" name="file[]" onchange="mould_change(this)">
-          <div style="float:left;margin-left:3%;margin-bottom:2%;width:46%"></div>
-        </td>
+          <div style="float:left;margin-left:3%;margin-bottom:2%;width:46%"></div> -->
+          <div>
+            <script id="editor" type="text/plain" style="width:100%;height:500px;">
+              <?php echo htmlspecialchars_decode($info['image_path']); ?>
+            </script>  
+          </div>
+    <!--       <div id="btns">
+          <div>
+            <button onclick="getAllHtml()">获得整个html的内容</button>
+            <button onclick="getContent()">获得内容</button>
+            <button onclick="setContent()">写入内容</button>
+            <button onclick="setContent(true)">追加内容</button>
+            <button onclick="getContentTxt()">获得纯文本</button>
+            <button onclick="getPlainTxt()">获得带格式的纯文本</button>
+            <button onclick="hasContent()">判断是否有内容</button>
+            <button onclick="setFocus()">使编辑器获得焦点</button>
+            <button onmousedown="isFocus(event)">编辑器是否获得焦点</button>
+            <button onmousedown="setblur(event)" >编辑器失去焦点</button>
+
+          </div>
+          <div>
+            <button onclick="getText()">获得当前选中的文本</button>
+            <button onclick="insertHtml()">插入给定的内容</button>
+            <button id="enable" onclick="setEnabled()">可以编辑</button>
+            <button onclick="setDisabled()">不可编辑</button>
+            <button onclick=" UE.getEditor('editor').setHide()">隐藏编辑器</button>
+            <button onclick=" UE.getEditor('editor').setShow()">显示编辑器</button>
+            <button onclick=" UE.getEditor('editor').setHeight(300)">设置高度为300默认关闭了自动长高</button>
+          </div>
+          <div>
+              <button onclick="getLocalData()" >获取草稿箱内容</button>
+              <button onclick="clearLocalData()" >清空草稿箱</button>
+          </div>
+          </div>
+          <div>
+              <button onclick="createEditor()">
+              创建编辑器</button>
+              <button onclick="deleteEditor()">
+              删除编辑器</button>
+          </div>
+        </td> -->
       </tr>
       <tr>
         <td>
-          以上所有图档
+          图档位置：              
         </td>
         <td colspan="7" style="text-align:left;padding-right:10px">
           <label><input name="document_use[]" value="K" <?php echo in_array('K',$array_use)?'checked':'' ?> type="checkbox" />开粗 </label> 
@@ -261,7 +439,7 @@ $(function(){
         </td>
         <th>审核</th>
         <td>
-           <select name="check" <?php echo $isconfirm == '1'?'':'disabled'; ?>>
+           <select name="check" <?php echo $isadmin == '1'?'':'disabled'; ?>>
             <option value="">--请选择--</option>
             <?php
               if($array_check){
@@ -299,6 +477,9 @@ $(function(){
               echo $array_data_dept[$row_employee['deptid']].'：'.$row_employee['geter'].'  ';
             }
            }
+          if(empty($check)){
+            echo '<span style="margin-left:10px;cursor:pointer" id="change_dept"><img title="更改人员" alt="更改人员" src="../images/system_ico/edit_10_10.png" width="12"></span>';
+          }
         ?>
         </td>
       </tr>
@@ -329,19 +510,19 @@ $(function(){
         <td colspan="7" style="text-align:left">
           <?php foreach ($array_data_dept as $key => $value): ?>
               <?php echo $value.':'; ?>
-              <span style="padding:40px"></span>
+              <span style="padding-left:80px"></span>
           <?php endforeach ?>
         </td>
       </tr>
       <tr>
         <td colspan="8">
-          <input type="button"  id="export" value="导出" class="button">
+          <!-- <input type="button"  id="export" value="导出" class="button"> -->
           <input type="submit"  value="确定" class="button" />
           <input type="hidden" name="specification_id" value="<?php echo $_GET['specification_id'] ?>" />
           <input type="hidden" name="changeid" value="<?php echo $changeid ?>" />
           <input type="hidden" name="document_no" value="<?php echo $document_no; ?>" />
           <input type="hidden"  name="submit" value="确定" />
-          <input type="button" value="返回" class="button" onclick="javascript:window.history.go(-1);" />
+          <input type="button" value="返回" id="back" class="button" onclick="javascript:window.history.go(-1);" />
         </td>
       </tr>
     </table>

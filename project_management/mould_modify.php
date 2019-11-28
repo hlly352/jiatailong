@@ -80,6 +80,7 @@ function showData($str,$rows){
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
+<script language="javascript" type="text/javascript" src="../js/enlarge_img.js"></script>
 <script type="text/javascript">
   $(function(){
     //鼠标滑过
@@ -94,23 +95,23 @@ function showData($str,$rows){
         window.open('mould_specification_edit.php?show=show&specification_id='+specification_id,'_self');
       })
     //点击图片
-    var show = true;
-    $('.img').live('click',function(){
-      if(show == true){
-        //图片地址
-        var img_file = $(this).html();
-        var client_width = (window.screen.availWidth-600)/2;
-        var client_height = (window.screen.availHeight-300)/2;
-        var divs = '<div  id="divs" style="position:absolute;top:'+client_height+'px;left:'+client_width+'px">'+img_file+'</div>';
-        $('#table_list').prepend(divs);
-        $('#divs').children('img').css('width','600px');
-        $('#divs').children('img').css('height','300px');
-        show = false;
-      }else if(show == false){
-        $('#divs').remove();
-        show = true;
-      }
-      })
+    // var show = true;
+    // $('.img').live('click',function(){
+    //   if(show == true){
+    //     //图片地址
+    //     var img_file = $(this).html();
+    //     var client_width = (window.screen.availWidth-600)/2;
+    //     var client_height = (window.screen.availHeight-300)/2;
+    //     var divs = '<div  id="divs" style="position:absolute;top:'+client_height+'px;left:'+client_width+'px">'+img_file+'</div>';
+    //     $('#table_list').prepend(divs);
+    //     $('#divs').children('img').css('width','600px');
+    //     $('#divs').children('img').css('height','300px');
+    //     show = false;
+    //   }else if(show == false){
+    //     $('#divs').remove();
+    //     show = true;
+    //   }
+    //   })
         $(document).mouseup(function (e) {
           var con = $("#divs");   // 设置目标区域
           if (!con.is(e.target) && con.has(e.target).length === 0) {
@@ -342,7 +343,7 @@ function showData($str,$rows){
         <td><?php echo showData('sample_check',$rows); ?></td>
         <td><?php echo showData('sample_delivery',$rows);  ?></td>
         <td><?php echo $modify_count>1?'<a href="" onclick="return false" class="version" id="version_'.$specificationid.'">查看</a>':'查看'; ?></td>
-        <td><a href="<?php echo $system_info[0] == '1'?'mould_modify_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
+        <td><a href="<?php echo $system_info[1] == '1'?'mould_modify_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
       </tr>
       <?php } ?>
     </table>

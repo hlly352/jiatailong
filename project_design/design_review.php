@@ -200,15 +200,15 @@ $result = $db->query($sqllist);
         <th>产品名称</th>
         <th>零件图片</th>
         <th>模具穴数</th>
-        <th>评审会项目</th>
         <?php
           if($result_data->num_rows){
             while($row_data = $result_data->fetch_assoc()){
         ?>
         <th><?php echo $row_data['typename'] ?></th>
         <?php }} ?>
+        <th>评审会项目</th>
         <th>Add</th>
-        <th>操作</th>
+        <th>查看</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
@@ -234,20 +234,6 @@ $result = $db->query($sqllist);
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
         <td><?php echo $row['cavity_num']; ?></td>
-        <td>
-          <?php
-            //评审会通过项目
-            $sql_meeting_complete = "SELECT COUNT(`db_design_review_list`.`listid`) AS `count_meeting_complete` FROM `db_design_review_list` INNER JOIN `db_mould_check_data` ON `db_design_review_list`.`dataid` = `db_mould_check_data`.`id` WHERE `db_mould_check_data`.`degree` = 'B' AND `db_design_review_list`.`reviewid` = '$reviewid' GROUP BY `db_design_review_list`.`reviewid`";
-            $result_meeting_complete = $db->query($sql_meeting_complete);
-            $count_meeting_complete = 0;
-            if($result_meeting_complete->num_rows){
-              $count_meeting_complete = $result_meeting_complete->fetch_assoc()['count_meeting_complete'];
-            }
-            if($reviewid){
-               echo '<a href="design_review_info.php?action=edit&specification_id='.$specification_id.'&reviewid='.$reviewid.'">'. $count_meeting_complete.'/'.$count_meeting.'</a>';
-            }
-          ?>        
-        </td>
          <?php
           $result_data = $db->query($sql_data);
           if($result_data->num_rows && $reviewid){
@@ -262,7 +248,8 @@ $result = $db->query($sqllist);
               }
         ?>
         <td>
-          <a href="design_review_info.php?action=edit&specification_id=<?php echo $specification_id; ?>&reviewid=<?php echo $reviewid ?>&categoryid=<?php echo $categoryid; ?>">
+          <a href="design_review_info.php?action=edit&specification_id=<?php echo $specification_id; ?>&reviewid=<?php echo $reviewid ?>&categoryid=<?php echo $categoryid; ?>" <?php if($complete_data == $row_data['count']) echo 'style="color:green"' ?>>
+
             <?php echo $complete_data.'/'.$row_data['count'] ?>  
           </a>
         </td>
@@ -275,12 +262,32 @@ $result = $db->query($sqllist);
         } 
         ?>
         <td>
-            <a href="<?php echo 'design_review_edit.php?action=add&specification_id='.$row['mould_specification_id']; ?>">
-              <img src="../images/system_ico/info_8_10.png" width="10">
-            </a>
+          <?php
+            //评审会通过项目
+            $sql_meeting_complete = "SELECT COUNT(`db_design_review_list`.`listid`) AS `count_meeting_complete` FROM `db_design_review_list` INNER JOIN `db_mould_check_data` ON `db_design_review_list`.`dataid` = `db_mould_check_data`.`id` WHERE `db_mould_check_data`.`degree` = 'B' AND `db_design_review_list`.`reviewid` = '$reviewid' GROUP BY `db_design_review_list`.`reviewid`";
+            $result_meeting_complete = $db->query($sql_meeting_complete);
+            $count_meeting_complete = 0;
+            if($result_meeting_complete->num_rows){
+              $count_meeting_complete = $result_meeting_complete->fetch_assoc()['count_meeting_complete'];
+            }
+            if($reviewid){
+               echo '<a href="design_review_info.php?action=edit&specification_id='.$specification_id.'&reviewid='.$reviewid.'">'. $count_meeting_complete.'/'.$count_meeting.'</a>';
+            }
+          ?>        
         </td>
         <td>
-          <a href="<?php echo 'design_review_edit.php?action=edit&specification_id='.$row['mould_specification_id'].'&reviewid='.$row['reviewid']; ?>">更新</a>
+          <?php if(!$reviewid){ ?>
+            <a href="<?php echo 'design_review_edit.php?action=add&specification_id='.$row['mould_specification_id']; ?>">
+              <img src="../images/system_ico/edit_10_10.png" width="10">
+            </a>
+          <?php } ?>
+        </td>
+        <td>
+          <?php if($reviewid){ ?>
+          <a href="<?php echo 'design_review_edit.php?action=edit&specification_id='.$row['mould_specification_id'].'&reviewid='.$row['reviewid']; ?>">
+            <img src="../images/system_ico/info_8_10.png" width="10" />
+          </a>
+          <?php } ?>
         </td>
       </tr>
       <?php } ?>

@@ -29,9 +29,6 @@ $employeeid = $_SESSION['employee_info']['employeeid'];
   }
 $isconfirm = $system_info[0];
 $isadmin   = $system_info[1];
-//查询模具状态
-$sql_mould_status = "SELECT `mould_statusid`,`mould_statusname` FROM `db_mould_status` ORDER BY `mould_statusid` ASC";
-$result_mould_status = $db->query($sql_mould_status);
 if($_GET['submit']){
   $client_code = trim($_GET['client_code']);
   $mould_number = trim($_GET['mould_number']);
@@ -48,14 +45,9 @@ if($_GET['submit']){
   if($difficulty_degree){
     $sql_difficulty_degree = " AND `db_mould`.`difficulty_degree` = '$difficulty_degree'";
   }
-  // $mould_statusid = $_GET['mould_statusid'];
-  // if($mould_statusid){
-  //   $sql_mould_statusid = " AND `db_mould`.`mould_statusid` = '$mould_statusid'";
-  // }
   $sqlwhere = " AND `db_mould_specification`.`project_name` LIKE '%$project_name%' AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_specification`.`customer_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
 $sql = "SELECT *,`db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_technical_information` ON `db_technical_information`.`specification_id` = `db_mould_specification`.`mould_specification_id` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
-
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
@@ -113,6 +105,7 @@ function display($row,$array_project_data_type,$index){
 <link rel="shortcut icon" href="../images/logo/xel.ico" />
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
+<script language="javascript" type="text/javascript" src="../js/enlarge_img.js"></script>
 <script type="text/javascript">
   $(function(){
     var num = $('.trs').size();
@@ -129,39 +122,12 @@ function display($row,$array_project_data_type,$index){
       last.prevAll().not('.default').not('.have').css('background','yellow');
       
     }
-
-    
-  
-    //鼠标滑过
-    $('.detail').css('color','blue').hover(function(){
-        $(this).css('cursor','pointer');
-        $(this).css('color','black');
-      },function(){
-        $(this).css('color','blue');
-      //点击事件
-      }).live('click',function(){
-        var specification_id = $(this).children('input:hidden').val();
-        window.open('mould_specification_edit.php?show=show&specification_id='+specification_id,'_self');
-      })
-    //点击图片
-    $('.img').live('click',function(){
-      //图片地址
-      var img_file = $(this).html();
-      var client_width = (window.screen.availWidth-600)/2;
-      var client_height = (window.screen.availHeight-300)/2;
-      var divs = '<div  id="divs" style="position:absolute;top:'+client_height+'px;left:'+client_width+'px">'+img_file+'</div>';
-      $('#table_list').prepend(divs);
-      $('#divs').children('img').css('width','600px');
-      $('#divs').children('img').css('height','300px');
+    $('.detail').live('click',function(){
+    	var specification_id = $(this).children().eq(1).val();
+    	window.location.href = '/project_management/mould_specification_edit.php?show=show&specification_id='+specification_id;
+    }).mouseover(function(){
+    	$(this).css('cursor','pointer');
     })
-      $(document).mouseup(function (e) {
-        var con = $("#divs");   // 设置目标区域
-        if (!con.is(e.target) && con.has(e.target).length === 0) {
-            $('#divs').remove();
-        }
-    });
-
-
 })
 </script>
 <title>项目管理-希尔林</title>
@@ -263,7 +229,7 @@ function display($row,$array_project_data_type,$index){
         <th colspan="3">模具试模</th>
         <th colspan="3">品质控制</th>
         <th colspan="3">模具修改</th>
-        <th colspan="6">模具交付及售后</th>
+        <th colspan="7">模具交付及售后</th>
         <th>项目总结</th>
         <!-- <th rowspan="2" width="4%">目前状态</th> -->
         <th rowspan="2">操作</th>
@@ -298,6 +264,7 @@ function display($row,$array_project_data_type,$index){
         <th>改模<br/>计划</th>
         <th>客户<br />交付<br />确认</th>
         <th>出厂<br />检查表</th>
+        <th>剩余<br />物料<br />清单</th>
         <th>装箱<br />、装车<br />照片</th>
         <th>放行条、<br />送货单</th>
         <th>售后<br />服务<br />记录</th>
@@ -333,6 +300,7 @@ function display($row,$array_project_data_type,$index){
       }else{
         $modify_plan = '';
       }
+
       //处理表面要求
       if(strpos($row['surface_require'],'$$')){
         $surface_require = explode('$$',$row['surface_require'])[4];
@@ -374,7 +342,9 @@ function display($row,$array_project_data_type,$index){
      //查询模具更改联络单
      $sql_mould_change = "SELECT * FROM `db_mould_change` WHERE `specification_id` = '$specificationid'";
      $result_mould_change = $db->query($sql_mould_change);
-
+      //设计评审
+      $sql_design_review = "SELECT `reviewid` FROM `db_design_review` WHERE `specification_id` = '$specification_id'";
+      $result_design_review = $db->query($sql_design_review);
     ?>
       <tr class="trs">
         <td class="default"><input type="checkbox" name="id[]" value="<?php echo $mouldid; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
@@ -411,7 +381,14 @@ function display($row,$array_project_data_type,$index){
             }
           ?>
         </td>
-        <td></td>
+        <td>
+          <?php
+          if($result_design_review->num_rows){
+            $reviewid = $result_design_review->fetch_assoc()['reviewid'];
+            echo '<a href="../project_design/design_review_edit.php?action=edit&specification_id='.$specification_id.'&reviewid='.$reviewid.'&from=project"><img src=""><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+              }
+          ?>
+        </td>
         <td>
           <?php
             if($result_mould_change->num_rows){
@@ -435,6 +412,7 @@ function display($row,$array_project_data_type,$index){
         <td><?php echo $modify_plan; ?></td>
         <td><?php echo shows($row,'after_sale_confirm'); ?></td>
         <td><?php echo shows($row,'out_factory'); ?></td>
+        <td><?php echo shows($row,'annex_list'); ?></td>
         <td><?php echo shows($row,'car_photo'); ?></td>
         <td><?php echo shows($row,'delivery_note'); ?></td>
         <td><?php echo shows($row,'service'); ?></td>
@@ -451,7 +429,7 @@ function display($row,$array_project_data_type,$index){
         <td>
           <?php echo show($row,'standard'); ?>
         </td> -->
-       <td class="default"><a href="<?php echo $system_info[0] == '1'?'technical_information_edit.php?action=add&from=technical_information&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a>
+       <td class="default"><a href="<?php echo $system_info[1] == '1'?'technical_information_edit.php?action=add&from=technical_information&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a>
        </td> 
       </tr>
       <?php } ?>

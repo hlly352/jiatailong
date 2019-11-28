@@ -71,6 +71,7 @@ $(function(){
 	  //我的试模未审批
 	  $sql_my_mould_try = "SELECT `db_mould_try`.`tryid`,`db_mould_try`.`plan_date`,`db_mould`.`mould_number` FROM `db_mould_try` INNER JOIN `db_mould` ON `db_mould`.`mouldid` = `db_mould_try`.`mouldid` WHERE `db_mould_try`.`approve_status` = 'A' AND `db_mould_try`.`try_status` = 1 AND `db_mould_try`.`employeeid` = '$employeeid'";
 	  $result_my_mould_try = $db->query($sql_my_mould_try);
+	
 	  $total_apply = $result_my_goout->num_rows+$result_my_leave->num_rows+$result_my_overtime->num_rows+$result_my_vehicle->num_rows+$result_my_express->num_rows+$result_my_mould_try->num_rows;
 	  //分割线-----------------------------------------------------------------------------------------------
 	  //待审批出门证
@@ -161,7 +162,15 @@ $(function(){
 	  	$financial_account_num = 0;
 	  	$invoice_num = 0;
 	  }
-	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows+$purchase_isadmin_num+$purchase_isconfirm_num+$financial_isconfirm_num+$pay_isconfirm_num+$pay_financial_num+$pay_num+$financial_account_num+$invoice_num+$result_total_other_material->num_rows+$result_outward_no_back->num_rows;
+	   //未审批设计图纸联络单
+	  $isadmin_design = $_SESSION['system_shell']['/project_design/']['isadmin'];
+	  $mould_change_number = 0;
+	  if($isadmin_design == '1'){
+	  	$sql_mould_change = "SELECT `specification_id`,`changeid`,`document_no` FROM `db_mould_change` WHERE `check` = '0'";
+	  	$result_mould_change = $db->query($sql_mould_change);
+	  	$mould_change_number = $result_mould_change->num_rows;
+	  }
+	  $total_approve = $result_goout->num_rows+$result_leave->num_rows+$result_overtime->num_rows+$result_vehicle->num_rows+$result_express->num_rows+$result_express_receive->num_rows+$result_mould_try_approve->num_rows+$result_other_material->num_rows+$purchase_isadmin_num+$purchase_isconfirm_num+$financial_isconfirm_num+$pay_isconfirm_num+$pay_financial_num+$pay_num+$financial_account_num+$invoice_num+$result_total_other_material->num_rows+$result_outward_no_back->num_rows+$mould_change_number;
 	  //计划任务
 	  $sql_plan = "SELECT `planid`,`plan_content`,`start_date` FROM `db_job_plan` WHERE `employeeid` = '$employeeid' AND `plan_status` = 1 AND `plan_result` = 0";
 	  $result_plan = $db->query($sql_plan);
@@ -376,6 +385,15 @@ $(function(){
 		?>
 		<li><a href="/mould_processing/mould_outward_order_list.php?id=<?php echo $row_outward_no_back['listid'] ?>"><?php echo '【外协加工】'.$row_outward_no_back['material_name'].'/'.$row_outward_no_back['specification'] ?></a></li>
 		 <?php
+			}
+		}
+		?>
+		 <?php
+		if($result_mould_change->num_rows){
+			while($row_mould_change = $result_mould_change->fetch_assoc()){
+		?>
+        <li><a href="/project_design/mould_change_edit.php?action=edit&specification_id=<?php echo $row_mould_change['specification_id']; ?>&changeid=<?php echo $row_mould_change['changeid'] ?>">【模具更改联络单】<?php echo '文件编号:'.$row_mould_change['document_no']; ?></a></li>
+        <?php
 			}
 		}
 		?>

@@ -144,6 +144,13 @@ foreach($depart_name as $k=>$v){
       var shrink = $('input[name=shrink]').val();
       window.open('specification_export.php?action=show&shrink='+shrink+'&specification_id='+specification_id,'_self');
     })
+    $('.material_specification').live('change',function(){
+      var specification = $(this);
+      var material_specification_id = $(this).val();
+      $.post('../ajax_function/switch_material_hard.php',{material_specification_id:material_specification_id},function(data){
+         var sel = specification.parent().next().children().val(data);
+      })
+    })
     })
 </script>
 </head>
