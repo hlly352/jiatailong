@@ -50,6 +50,7 @@
         <li><a href="mould_check_data.php">检查项目名称</a></li>
       </ul>
     </li>
+    <li class="menulevel"><a href="project_review.php">项目评审</a></li>
     <li class="menulevel"><a href="/myjtl/">内网首页</a></li>
   </ul>
   <span><?php echo $_SESSION['employee_info']['employee_name']; ?> <a href="../passport/logout.php">退出</a></span>

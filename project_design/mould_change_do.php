@@ -69,7 +69,7 @@ if (isset($_GET["callback"])) {
 	$document_no = $data['document_no'];
 	$document_use = $data['document_use'];
 	$special_require = $data['special_require'];
-	$document_location = $data['document_location'];
+	$document_location = str_replace('\\','/',trim($data['document_location']));
 	$specification_id = $data['specification_id'];
 	$changeid = $data['changeid'];
 	$mould_no = $data['mould_no'];
@@ -132,6 +132,7 @@ if (isset($_GET["callback"])) {
 	if(empty($changeid)){
 		//插入新的图纸联络单
 		$sql_change = "INSERT INTO `db_mould_change`(`specification_id`,`designer`,`engnieer`,`approval`,`check`,`data_content`,`data_dept`,`change_parts`,`cancel_parts`,`image_path`,`document_no`,`document_use`,`special_require`,`document_location`,`employeeid`,`geter`,`dodate`,`tips`) VALUES('$specification_id','$designer','$engnieer','$approval','$check','$data_content','$data_dept','$change_parts','$cancel_parts','$image_path','$document_no','$document_use','$special_require','$document_location','$employeeid','$geter','$date','$tips')";
+		echo $sql_change;
 		$db->query($sql_change);
 		$changeid = $db->insert_id;
 		header('location:mould_change.php');

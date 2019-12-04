@@ -97,8 +97,8 @@ $result_employee_name = $db->query($sql_employee_name);
 <script language="javascript" type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script type="text/javascript" src="../js/view_img.js"></script>
- <script type="text/javascript" charset="utf-8" src="../js/utf8-php/ueditor.config.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/utf8-php/ueditor.all.min.js"> </script>
+<script type="text/javascript" charset="utf-8" src="../js/utf8-php/ueditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/utf8-php/ueditor.all.min.js"> </script>
     <!--建议手动加在语言，避免在ie下有时因为加载语言失败导致编辑器加载失败-->
     <!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
     <script type="text/javascript" charset="utf-8" src="../js/utf8-php/lang/zh-cn/zh-cn.js"></script>
@@ -386,8 +386,8 @@ $('#change_dept').live('click',function(){
               创建编辑器</button>
               <button onclick="deleteEditor()">
               删除编辑器</button>
-          </div>
-        </td> -->
+          </div>-->
+        </td> 
       </tr>
       <tr>
         <td>

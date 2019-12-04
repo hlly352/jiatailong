@@ -61,8 +61,17 @@ $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
-
 $result = $db->query($sqllist);
+//获取地址每个资料的地址信息
+function shows($rows,$from,$specification_id){
+  if($rows[$from]){
+         $informationid = $rows['information_id'];
+         $str = '<a href="technical_information_edit.php?action=edit&data='.$from.'&informationid='.$informationid.'&specification_id='.$specification_id.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+       }else{
+          $str = '<a href="technical_information_edit.php?action=add&data='.$from.'&specification_id='.$specification_id.'"><img src="../images/system_ico/edit_10_10.png" width="15" /></a>';
+       }
+       return $str;
+}
 //获取地址每个资料的地址信息
 function show($row,$from){
           $title_key = $from.'_title';
@@ -119,47 +128,7 @@ function show($row,$from){
         <td><input type="text" name="project_name" class="input_txt" /></td>
         <th>模具编号：</th>
         <td><input type="text" name="mould_number" class="input_txt" /></td>
-       <!--  <th>是否出口：</th>
-        <td><select name="isexport">
-            <option value="">所有</option>
-            <?php
-            foreach($array_is_status as $is_status_key=>$is_status_value){
-        echo "<option value=\"".$is_status_key."\">".$is_status_value."</option>";
-      }
-      ?>
-          </select></td>
-        <th>质量等级：</th>
-        <td><select name="quality_grade">
-            <option value="">所有</option>
-            <?php
-            foreach($array_mould_quality_grade as $quality_grade_key=>$quality_grade_value){
-        echo "<option value=\"".$quality_grade_value."\">".$quality_grade_value."</option>";
-      }
-      ?>
-          </select></td>
-        <th>难度系数：</th>
-        <td><select name="difficulty_degree">
-            <option value="">所有</option>
-            <?php
-      for($i=0.5;$i<1.4;$i+=0.1){
-        echo "<option value=\"".$i."\">".$i."</option>";
-      }
-      ?>
-          </select></td>
-        <th>目前状态：</th>
-        <td><select name="mould_statusid">
-            <option value="">所有</option>
-            <?php
-      if($result_mould_status->num_rows){
-        while($row_mould_status = $result_mould_status->fetch_assoc()){
-          echo "<option value=\"".$row_mould_status['mould_statusid']."\">".$row_mould_status['mould_statusname']."</option>";
-        }
-      }
-      ?>
-          </select></td> -->
         <td><input type="submit" name="submit" value="查询" class="button" />
-          <!-- <input type="button" name="button" value="添加" class="button" onclick="location.href='mouldae.php?action=add'"<?php if(!$_SESSION['system_shell'][$system_dir]['isadmin']) echo " disabled=\"disabled\""; ?> />
-          <input type="button" name="button" value="导出" class="button" onclick="location.href='excel_mould.php'" /> -->
         </td>
       </tr>
     </table>
@@ -196,73 +165,47 @@ function show($row,$from){
         <th>DFM报告</th>
         <th>进度规划</th>
         <th>客户方案确认</th>
-        <th>操作</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
-      //处理表面要求
-      if(strpos($row['surface_require'],'$$')){
-        $surface_require = explode('$$',$row['surface_require'])[4];
-      }elseif(strpos($row['surface_require'],'//')){
-        $surface_requires = substr($row['surface_require'],0,strlen($row['surface_require'])-2);
-      }else{
-        $surface_require = '';
-      }
-
-      //查找型芯和型腔的材质
-      $cavity_sql = "SELECT `material_specification` FROM `db_mould_data` WHERE `mould_dataid`=".$row['mould_id'];
-      $res = $db->query($cavity_sql);
-      if($res->num_rows){
-        $cavity = $res->fetch_row();
-      }
-      //处理是否出口
-      if(strlen($row['is_export']) == 0){
-        $export = '';
-      }else{
-        $export = $row['is_export'] == '1'?'是':'否';
-      }
-      //转换为数组
-       $cavity = explode('$$',$cavity[0]);
+        $specification_id = $row['mould_specification_id'];
       //图片处理
-      $image_filedir = $row['image_filedir'];
-      $image_filename = $row['image_filename'];
-      //$image_filepath = "../upload/mould_image/".$image_filedir.'/'.$image_filename;
       $image_filepath = empty($row['image_filepath'])?$row['image_filepaths']:$row['image_filepath'];
-      
       if(is_file($image_filepath)){
         $image_file = "<img src=\"".$image_filepath."\" width=\"85\" height=\"45\"/>";
       }else{
         $image_file = "<img src=\"../images/no_image_85_45.png\" width=\"85\" height=\"45\" />";
       }
-      //查询模具状态
-      $mould_status_sql = "SELECT `mould_statusname` FROM `db_mould_status` WHERE `mould_statusid`=".$row['mould_statusid'];
-      $result_status = $db->query($mould_status_sql);
-      if($result_status->num_rows){
-        $mould_status = $result_status->fetch_assoc()['mould_statusname'];
+      //查找是否有项目评审内容
+      $sql_review = "SELECT * FROM `db_project_review_list` WHERE `specification_id` = '$specification_id'";
+      $result_review = $db->query($sql_review);
+      if($result_review->num_rows){
+        $src = "../images/system_ico/info_8_10.png";
+      }else{
+        $src = "../images/system_ico/edit_10_10.png";
       }
     ?>
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $mouldid; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
         <td><?php echo $row['customer_code']; ?></td>
         <td><?php echo $row['project_name']; ?></td>
-        <td ><!-- <?php if($_SESSION['system_shell'][$system_dir]['isadmin']){ ?><a href="mouldae.php?id=<?php echo $mouldid; ?>&action=edit"><?php echo $row['mould_number']; ?></a><?php }else{ echo $row['mould_number']; }; ?> -->
-          <?php echo $row['mould_no'] ?>
-        </td>
+        <td ><?php echo $row['mould_no'] ?></td>
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
         <td>
-          <?php echo shows($row,'project_review') ?>
+          <a href="project_review.php?action=add&specification_id=<?php echo $specification_id; ?>">
+            <img src="<?php echo $src; ?>" width="15">
+          </a>
         </td>
         <td>
-          <?php echo shows($row,'dfm_report'); ?>
+          <?php echo shows($row,'dfm_report',$specification_id); ?>
         </td>
         <td>
-          <?php echo shows($row,'progress'); ?>
+          <?php echo shows($row,'progress',$specification_id); ?>
         </td>
         <td>
-          <?php echo shows($row,'customer_confirm'); ?>
+          <?php echo shows($row,'customer_confirm',$specification_id); ?>
         </td>
-        <td><a href="<?php echo $system_info[1] == '1'?'technical_information_edit.php?action=add&from=project_start&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
       </tr>
       <?php } ?>
     </table>

@@ -6,52 +6,28 @@
 	require_once '../class/uploads.php';
 	require_once 'shell.php';
 	$employeeid = $_SESSION['employee_info']['employeeid'];
-	$reviewid = $_POST['reviewid'];
-	$array_pic_remark = $_POST['pic_remark'];
+	$specification_id = trim($_POST['specification_id']);
 	if($_POST['submit']){
 	$data = $_POST;
 	$array_dataid = $data['dataid'];
-	$images = $_FILES;
 	foreach($array_dataid as $k=>$v){
 		if($v){
-			//判断是否有图片上传
-			if($_FILES['image_'.$v]['name'][0]){
-				$filedir = date("Ymd");
-				$upload_path = "../upload/technical_other/".$filedir."/";
-				$upload = new upload($images['image_'.$v]['name'],$images['image_'.$v]['tmp_name'],$images['image_'.$v]['size'],$images['image_'.$v]['error']);
-				$upload->upload_files($upload_path);
-				$array_upload_files = $upload ->array_upload_files;
-				if($array_upload_files){
-					foreach($array_upload_files as $ks=>$vs){
-						$data['image_path_'.$v] .= $upload_path.$vs['upload_final_name'].'**'.$array_pic_remark[$ks].'&&';
-					}
-				}
-				//$file_path = $upload_path.$array_upload_file['upload_final_name'];
-				//$file_name = $array_upload_file['upload_name'];
-				//$data['image_path_'.$v] = $file_path;
-			}
-			$data['image_path_'.$v] = rtrim($data['image_path_'.$v],'&&');
-			$sql_exists = "SELECT * FROM `db_design_review_list` WHERE `reviewid` = '$reviewid' AND `dataid` = '$v'";
+			$sql_exists = "SELECT * FROM `db_project_review_list` WHERE `specification_id` = '$specification_id' AND `dataid` = '$v'";
 			$result_exists = $db->query($sql_exists);
 			//判断评审详情表是否存在项目
 			$approval = $data['approval_'.$v];
 			$remark   = htmlspecialchars(trim($data['remark_'.$v]));
-			$image_path = $data['image_path_'.$v];
 			//是否有当前评审记录
 			if($result_exists->num_rows){
-				if($_FILES['image_'.$v]['name'][0]){
-					$sql_list = "UPDATE `db_design_review_list` SET `approval` = '$approval',`remark` = '$remark',`image_path` = '$image_path' WHERE `reviewid` = '$reviewid' AND `dataid` = '$v'";
-				}else{
-					$sql_list = "UPDATE `db_design_review_list` SET `approval` = '$approval',`remark` = '$remark' WHERE `reviewid` = '$reviewid' AND `dataid` = '$v'";
-				}
+					$sql_list = "UPDATE `db_project_review_list` SET `approval` = '$approval',`remark` = '$remark' WHERE `specification_id` = '$specification_id' AND `dataid` = '$v'";
 			}else{
-				$sql_list = "INSERT INTO `db_design_review_list`(`reviewid`,`dataid`,`approval`,`remark`,`image_path`) VALUES('$reviewid','$v','$approval','$remark','$image_path')";
-			}
+				$sql_list = "INSERT INTO `db_project_review_list`(`specification_id`,`dataid`,`approval`,`remark`) VALUES('$specification_id','$v','$approval','$remark')";
+			};
 			//echo $sql_list.'<br>';
 			$db->query($sql_list);
 		}	
 	}
-	header('location:'.$_SERVER['HTTP_REFERER']);
+	header('location:project_start.php');
 	exit;
 		//查找发件人
 		$sql_send = "SELECT `email` FROM `db_employee` WHERE `employeeid` = '$employeeid'";

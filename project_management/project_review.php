@@ -6,16 +6,6 @@ require_once 'shell.php';
 $from = $_GET['from'];
 $action = fun_check_action($_GET['action']);
 $specification_id = htmlspecialchars(trim($_GET['specification_id']));
-$reviewid = htmlspecialchars(trim($_GET['reviewid']));
-$categoryid = htmlspecialchars(trim($_GET['categoryid']));
-  //查找文件号
-  $sql_document = "SELECT `document_no` FROM `db_design_review` WHERE `reviewid` = '$reviewid'";
-  $result_document = $db->query($sql_document);
-  if($result_document->num_rows){
-    $document_no = $result_document->fetch_assoc()['document_no'];
-  }
-
-
 //项目信息
 $sql_project = "SELECT `project_name`,`mould_name`,`customer_code`,`mould_no` FROM `db_mould_specification` WHERE `mould_specification_id` = '$specification_id'";
 $result_project = $db->query($sql_project);
@@ -23,24 +13,15 @@ if($result_project ->num_rows){
   $mould_info = $result_project->fetch_assoc();
 }
 //查询对应项目类型的所有项目
-if($categoryid){
-  $sql_data = "SELECT `db_mould_check_type`.`typename`,`db_mould_check_data`.`id`,`db_mould_check_data`.`checkname` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id` WHERE `db_mould_check_type`.`id` = '$categoryid' ORDER BY `db_mould_check_data`.`sort`";
-}else{
-  $sql_data = "SELECT `id`,`checkname` FROM `db_mould_check_data` WHERE `degree` = 'B'";
-  }
+$sql_data = "SELECT * FROM `db_project_review_data`";
 $result_data = $db->query($sql_data);
-$result_datas = $db->query($sql_data);
-if($result_datas->num_rows){
-  $title = $result_datas->fetch_assoc()['typename'];
-}
-  $title = $title?$title:'评审会项目';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <style type="text/css">
   th,td{height:30px;}
-  img.not('#logo'){height:150px;}
+  img:not('#logo'){height:150px;}
   #table_list tr .nobor{border:none;background:white;}
 </style>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -81,10 +62,6 @@ $(function(){
     var reviewid = $("input[name=reviewid]").val();
     window.location.href = 'excel_design_review.php?reviewid='+reviewid;
   })
-  $('#back').live('click',function(){
-    var from = '<?php echo $from; ?>';
-    window.location.href = 'design_review'+from+'.php?action=edit&specification_id=<?php echo $specification_id; ?>&reviewid=<?php echo $reviewid; ?>';
-  })
 })
 </script>
 <title>工程设计-嘉泰隆</title>
@@ -93,20 +70,18 @@ $(function(){
 <?php include "header.php"; ?>
 <div id="table_list" style="width:85%;margin:0px auto">
   <?php if($action == "add" || $action == 'edit'){ ?>
-  <form action="design_review_do.php" name="material_order" method="post" enctype="multipart/form-data">
+  <form action="project_review_do.php" name="material_order" method="post" enctype="multipart/form-data">
    
     <table style="margin-bottom:20px">
       <tr>
         <td rowspan="2" class="nobor"><img src='../jtl.png' width="100"></td>
         <th colspan="6" class="nobor" style="font-size:20px">
-          <?php echo $title; ?>
+          项目评审会
         </th>
         <td class="nobor"></td>
       </tr>
       <tr>
-        <td class="nobor" colspan="5"></td>
-        <th class="nobor">文件编号：</th>
-        <td class="nobor" style="text-align:left"><?php echo $document_no; ?></td>
+        <td class="nobor" colspan="7"></td>
       </tr>
       <tr>
         <th width="10%">客户代码</th>
@@ -134,7 +109,7 @@ $(function(){
         while($row_data = $result_data->fetch_assoc()){
           $dataid = $row_data['id'];
           //查找已经评审的信息
-          $sql_complete = "SELECT * FROM `db_design_review_list` WHERE `reviewid` = '$reviewid' AND `dataid` = '$dataid'";
+          $sql_complete = "SELECT * FROM `db_project_review_list` WHERE `specification_id` = '$specification_id' AND `dataid` = '$dataid'";
           $result_complete = $db->query($sql_complete);
           $data_complete = array();
           if($result_complete->num_rows){
@@ -145,8 +120,8 @@ $(function(){
        <td><?php echo $i; ?></td> 
        <td colspan="3" class="checkname" style="text-align:left" id="checkname_<?php echo $dataid; ?>">
           <?php 
-            $checkname =  $row_data['checkname'];
-            echo str_pos($checkname,$db,$specification_id);
+              echo $row_data['name'];
+            
           ?>
        </td>
        <input type="hidden" id="dataid_<?php echo $dataid; ?>" name="dataid[]" />
@@ -200,9 +175,7 @@ $(function(){
           <!-- <input type="button"  id="export" value="导出" class="button"> -->
           <input type="submit" name="submit" id="submit" value="确定" class="button" />
           <input type="hidden" name="specification_id" value="<?php echo $_GET['specification_id'] ?>" />
-          <input type="hidden" name="document_no" vlaue="<?php echo $document_no; ?>" />
-          <input type="hidden" name="reviewid" value="<?php echo $reviewid ?>" />
-          <input type="button" value="返回" class="button" id="back"/>
+          <input type="button" value="返回" class="button" onclick="window.history.go(-1);"/>
         </td>
       </tr>
     </table>

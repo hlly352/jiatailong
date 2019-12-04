@@ -316,12 +316,12 @@ try {
 }
 }
 //获取地址每个资料的地址信息
-function shows($rows,$from){
-	if($rows[$from]){  
-         $informationid = $rows['information_id'];  
-         return  $str = '<a href="technical_data_list.php?action=show&data='.$from.'&informationid='.$informationid.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
-       }
-}
+// function shows($rows,$from){
+// 	if($rows[$from]){  
+//          $informationid = $rows['information_id'];  
+//          return  $str = '<a href="technical_data_list.php?action=show&data='.$from.'&informationid='.$informationid.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+//        }
+// }
 //资料名称
 function data_name($str,$array_mould_modify,$array_design_out,$array_processing_data,$array_quality_data,$array_project_data_type){
 	$new_arr = array_merge($array_mould_modify,$array_design_out,$array_processing_data,$array_quality_data);

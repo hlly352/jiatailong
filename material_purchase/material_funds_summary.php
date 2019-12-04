@@ -19,7 +19,6 @@ if($_GET['submit']){
   $sqlwhere = "$sql_supplierid";
 }
 $sql = "SELECT GROUP_CONCAT(`db_material_funds_list`.`fundsid`) AS `fundsid`,`db_supplier`.`supplier_cname`,`db_material_funds_list`.`supplierid` FROM `db_material_funds_list` INNER JOIN `db_supplier` ON `db_material_funds_list`.`supplierid` = `db_supplier`.`supplierid` WHERE `db_material_funds_list`.`approval_status` = 'Z' $sqlwhere GROUP BY `db_material_funds_list`.`supplierid`";
-
         //数组用于接收到对应的月份
         $year = date('Y-');
         $date = array();
@@ -27,12 +26,11 @@ $sql = "SELECT GROUP_CONCAT(`db_material_funds_list`.`fundsid`) AS `fundsid`,`db
           $i = $i<10?'0'.$i:$i;
           $date[] = $year.$i;
         }
-
       $result = $db->query($sql);
         while($row = $result->fetch_assoc()){
           $fundsid = $row['fundsid'];
    
-          //根据供应商查询数据
+          //根据供应商查询应付款，实付款及发票数据
          $supplier_sql = "SELECT LEFT(`approval_date`,7) AS `date`,`apply_amount`,`amount`,`invoice_no` FROM `db_material_funds_list` WHERE `fundsid` IN($fundsid)";
           $result_supplier = $db->query($supplier_sql);
           if($result_supplier->num_rows){
@@ -49,9 +47,6 @@ $sql = "SELECT GROUP_CONCAT(`db_material_funds_list`.`fundsid`) AS `fundsid`,`db
               }
              }
             }
-            
-        
-          
           foreach($date as $v){
             $mon_amount_tot[$v] += $info[$v]['amount'];
             $mon_apply_amount_tot[$v] += $info[$v]['apply_amount'];
@@ -115,11 +110,9 @@ $result = $db->query($sqllist);
 <div id="table_list">
   <form action="order_taskdo.php?action=add" name="list" method="post">
     <table id="main" cellpadding="0" cellspacing="0">
-          <?php
-         if($result->num_rows){
-            
-        
-    ?>
+      <?php
+         if($result->num_rows){  
+      ?>
       <tr>
         <th rowspan="2">ID</th>
         <th rowspan="2">供应商</th>

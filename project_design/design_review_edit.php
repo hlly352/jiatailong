@@ -170,8 +170,7 @@ $(function(){
         <th width="2%">序号</th>
         <th colspan="3">评审目录</th>
         <th>判定</th>
-        <th >评审记录</th>
-        <th colspan="2">图片</th>
+        <th colspan="3">评审记录</th>
       </tr>
     <?php
       $i = 1; 
@@ -208,7 +207,7 @@ $(function(){
         <td><?php
           $array_approval = array('1'=>'是','0'=>'否','2'=>'无'); 
           echo $array_approval[array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['approval']:'']; ?></td>
-        <td>
+       <!--  <td>
           <?php echo array_key_exists($dataid,$array_review_list)?$array_review_list[$dataid]['remark']:''; ?>
         </td>
         <td colspan="2" style="text-align:left">
@@ -222,6 +221,9 @@ $(function(){
               }
             }
           } ?>
+        </td> -->
+        <td colspan="3">
+          <?php echo html_entity_decode($array_review_list[$dataid]['remark']) ?>
         </td>
       </tr>
      <?php }
