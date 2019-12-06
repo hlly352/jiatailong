@@ -6,6 +6,7 @@ require_once 'shell.php';
 $action = fun_check_action($_GET['action']);
 $informationid = $_GET['informationid'];
 $data_name = trim($_GET['data']);
+$data_key = trim($_GET['data_key']);
 $specification_id = $_GET['specification_id'];
 $isconfirm = $_SESSION['system_shell'][$system_dir]['isconfirm'];
 $isadmin   = $_SESSION['system_shell'][$system_dir]['isadmin'];
@@ -346,7 +347,7 @@ $('#change_dept').live('click',function(){
           <input type="submit"  value="确定" class="button" />
           <input type="hidden" name="specification_id" value="<?php echo $_GET['specification_id'] ?>" />
           <input type="hidden" name="informationid" value="<?php echo $informationid ?>" />
-          <input type="hidden" name="data_name"  value="<?php echo $data_name; ?>" />
+          <input type="hidden" name="data_name"  value="<?php echo $data_key; ?>" />
           <input type="hidden" name="information_listid" value="<?php echo $information_listid; ?>" />
           <input type="hidden"  name="submit" value="确定" />
           <input type="button" value="返回" id="back" class="button" onclick="javascript:window.history.go(-1);" />

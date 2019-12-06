@@ -42,6 +42,7 @@ if($_GET['submit']){
   // }
   $sqlwhere = " AND `db_mould_specification`.`project_name` LIKE '%$project_name%' AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_specification`.`customer_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
+//查找模具基本信息
 $sql = "SELECT *,`db_design_review`.`reviewid`,`db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_design_review` ON `db_mould_specification`.`mould_specification_id` = `db_design_review`.`specification_id` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
 $result = $db->query($sql);
 $result_id = $db->query($sql);
@@ -181,13 +182,13 @@ $result = $db->query($sqllist);
     //列举所有的检查项目
     $sql_data = "SELECT `db_mould_check_type`.`typename`,`db_mould_check_type`.`id`,COUNT(`db_mould_check_data`.`id`) AS `count` FROM `db_mould_check_type` INNER JOIN `db_mould_check_data` ON `db_mould_check_type`.`id` = `db_mould_check_data`.`categoryid` WHERE `db_mould_check_type`.`pid` = '0' GROUP BY `db_mould_check_data`.`categoryid`";
     $result_data = $db->query($sql_data);
-    //评审会项目
+    //评审会项目数目
     $sql_review_meeting = "SELECT COUNT(*) AS `meeting_number` FROM `db_mould_check_data` WHERE `degree` = 'B'";
     $result_meeting = $db->query($sql_review_meeting);
     $count_meeting = 0;
     if($result_meeting->num_rows){
       $count_meeting = $result_meeting->fetch_assoc()['meeting_number'];
-    }
+    }    
   ?>
   <form action="moulddo.php" name="mould_list" method="post">
     <table>
@@ -207,6 +208,7 @@ $result = $db->query($sqllist);
         <th><?php echo $row_data['typename'] ?></th>
         <?php }} ?>
         <th>评审会项目</th>
+        <th>未通过项目</th>
         <th>Add</th>
         <th>查看</th>
       </tr>
@@ -274,6 +276,21 @@ $result = $db->query($sqllist);
                echo '<a href="design_review_info.php?action=edit&specification_id='.$specification_id.'&reviewid='.$reviewid.'">'. $count_meeting_complete.'/'.$count_meeting.'</a>';
             }
           ?>        
+        </td>
+        <td>
+          <?php
+            if($reviewid){
+              //未通过项目数目
+               $sql_eng_count = "SELECT COUNT(`reviewid`) AS `eng` FROM `db_design_review_list` WHERE `reviewid` = '$reviewid' AND `approval` = '0'";
+               $result_eng_count = $db->query($sql_eng_count);
+               if($result_eng_count->num_rows){
+                  $eng_count = $result_eng_count->fetch_assoc()['eng'];
+               }else{
+                  $eng_count = 0;
+               }
+              echo '<a href="design_review_info.php?action=edit&categoryid=eng&specification_id='.$specification_id.'&reviewid='.$reviewid.'">'.$eng_count.'</a>';
+            }
+          ?>
         </td>
         <td>
           <?php if(!$reviewid){ ?>

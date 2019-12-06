@@ -68,8 +68,18 @@ function showData($str,$rows){
          $modify_id = $rows['modify_id'];  
          return  '<a href="mould_modify_show.php?data='.$str.'&action=show&modify_id='.$modify_id.'">           <img src="../images/system_ico/article_12_16.png" />        </a>';
        }
+   
 }
-
+function show_detail($rows,$from,$specification_id,$data_list,$array_project_data){
+  $title = $array_project_data[$data_list][1][$from];
+  if($rows[$from]){
+         $informationid = $rows['information_id'];
+         $str = '<td><a href="technical_information_edit.php?action=edit&data_key='.$from.'&data='.$title.'&informationid='.$informationid.'&specification_id='.$specification_id.'"><img src="../images/system_ico/info_8_10.png" width="15" title="'.$title.'" /></a></td>';
+       }else{
+          $str = '<td><a href="technical_information_edit.php?action=add&data='.$title.'&specification_id='.$specification_id.'"><img src="../images/system_ico/edit_10_10.png" width="15" title="'.$title.'" /></a></td>';
+       }
+       return $str;
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">

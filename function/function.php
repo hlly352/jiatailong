@@ -316,12 +316,30 @@ try {
 }
 }
 //获取地址每个资料的地址信息
-// function shows($rows,$from){
-// 	if($rows[$from]){  
-//          $informationid = $rows['information_id'];  
-//          return  $str = '<a href="technical_data_list.php?action=show&data='.$from.'&informationid='.$informationid.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
-//        }
-// }
+function shows($rows,$from){
+	if($rows[$from]){  
+         $informationid = $rows['information_id'];  
+         return  $str = '<a href="technical_data_list.php?action=show&data='.$from.'&informationid='.$informationid.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
+       }
+}
+//获取地址每个资料的地址信息
+function show_detail($rows,$from,$specification_id,$data_list,$array_project_data){
+  $title = $array_project_data[$data_list][1][$from];
+  if($rows[$from]){
+         $informationid = $rows['information_id'];
+         $str = '<td><a href="technical_information_edit.php?action=edit&data_key='.$from.'&data='.$title.'&informationid='.$informationid.'&specification_id='.$specification_id.'"><img src="../images/system_ico/info_8_10.png" width="15" title="'.$title.'" /></a></td>';
+       }else{
+          $str = '<td><a href="technical_information_edit.php?action=add&data_key='.$from.'&data='.$title.'&specification_id='.$specification_id.'"><img src="../images/system_ico/edit_10_10.png" width="15" title="'.$title.'" /></a></td>';
+       }
+       return $str;
+}
+//显示项目信息中的整个栏目信息
+function project_section($rows,$specification_id,$section,$array_project_data){
+	$array_project_section = $array_project_data[$section][1];
+	foreach($array_project_section as $key=>$val){
+		echo show_detail($rows,$key,$specification_id,$section,$array_project_data);
+	}
+}
 //资料名称
 function data_name($str,$array_mould_modify,$array_design_out,$array_processing_data,$array_quality_data,$array_project_data_type){
 	$new_arr = array_merge($array_mould_modify,$array_design_out,$array_processing_data,$array_quality_data);

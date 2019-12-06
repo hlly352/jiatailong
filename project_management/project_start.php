@@ -55,23 +55,13 @@ if($_GET['submit']){
   $sqlwhere = " AND `db_mould_specification`.`project_name` LIKE '%$project_name%' AND `db_mould_specification`.`mould_no` LIKE '%$mould_number%' AND `db_mould_specification`.`customer_code` LIKE '%$client_code%' $sql_isexport $sql_quality_grade $sql_difficulty_degree $sql_mould_statusid";
 }
 $sql = "SELECT *,`db_mould_specification`.`mould_specification_id`,`db_mould_specification`.`image_filepath`,`db_mould_specification`.`material_specification`,`db_mould_specification`.`project_name`,`db_mould_specification`.`mould_no`,`db_mould_specification`.`material_other`,`db_mould_specification`.`mould_name`,`db_mould_data`.`upload_final_path` as image_filepaths FROM `db_mould_specification` LEFT JOIN `db_mould_data` ON `db_mould_specification`.`mould_id` = `db_mould_data`.`mould_dataid` LEFT JOIN `db_technical_information` ON `db_technical_information`.`specification_id` = `db_mould_specification`.`mould_specification_id` WHERE `db_mould_specification`.`is_approval` = '1' $sqlwhere";
-
 $result = $db->query($sql);
 $result_id = $db->query($sql);
 $_SESSION['mould'] = $sql;
 $pages = new page($result->num_rows,15);
 $sqllist = $sql . " ORDER BY `db_mould_specification`.`mould_no` DESC,`db_mould_specification`.`mould_id` DESC" . $pages->limitsql;
 $result = $db->query($sqllist);
-//获取地址每个资料的地址信息
-function shows($rows,$from,$specification_id){
-  if($rows[$from]){
-         $informationid = $rows['information_id'];
-         $str = '<a href="technical_information_edit.php?action=edit&data='.$from.'&informationid='.$informationid.'&specification_id='.$specification_id.'"><img src="../images/system_ico/info_8_10.png" width="15" /></a>';
-       }else{
-          $str = '<a href="technical_information_edit.php?action=add&data='.$from.'&specification_id='.$specification_id.'"><img src="../images/system_ico/edit_10_10.png" width="15" /></a>';
-       }
-       return $str;
-}
+
 //获取地址每个资料的地址信息
 function show($row,$from){
           $title_key = $from.'_title';
@@ -169,6 +159,7 @@ function show($row,$from){
       <?php
       while($row = $result->fetch_assoc()){
         $specification_id = $row['mould_specification_id'];
+
       //图片处理
       $image_filepath = empty($row['image_filepath'])?$row['image_filepaths']:$row['image_filepath'];
       if(is_file($image_filepath)){
@@ -184,6 +175,17 @@ function show($row,$from){
       }else{
         $src = "../images/system_ico/edit_10_10.png";
       }
+      //查找是否有项目计划
+      $sql_plan = "SELECT * FROM `db_project_plan` WHERE `specification_id` = '$specification_id'";
+      $result_plan = $db->query($sql_plan);
+      if($result_plan->num_rows){
+        $progress = '../images/system_ico/info_8_10.png';
+        $todo = 'edit';
+        $project_planid = $result_plan->fetch_assoc()['project_planid'];
+      }else{
+        $progress = '../images/system_ico/edit_10_10.png';
+        $todo = 'add';
+      }
     ?>
       <tr>
         <td><input type="checkbox" name="id[]" value="<?php echo $mouldid; ?>"<?php if(in_array($mouldid,$array_mould_material)) echo " disabled=\"disabled\""; ?> /></td>
@@ -197,15 +199,13 @@ function show($row,$from){
             <img src="<?php echo $src; ?>" width="15">
           </a>
         </td>
+          <?php echo show_detail($row,'dfm_report',$specification_id,'project_start',$array_project_data); ?>
         <td>
-          <?php echo shows($row,'dfm_report',$specification_id); ?>
+          <a href="project_plan_edit.php?action=<?php echo $todo; ?>&specification_id=<?php echo $specification_id; ?>&project_planid=<?php echo $project_planid ?>">
+            <img src="<?php echo $progress; ?>" width="15">
+          </a>
         </td>
-        <td>
-          <?php echo shows($row,'progress',$specification_id); ?>
-        </td>
-        <td>
-          <?php echo shows($row,'customer_confirm',$specification_id); ?>
-        </td>
+          <?php echo show_detail($row,'customer_confirm',$specification_id,'project_start',$array_project_data); ?>
       </tr>
       <?php } ?>
     </table>

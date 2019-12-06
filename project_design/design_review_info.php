@@ -24,7 +24,11 @@ if($result_project ->num_rows){
 }
 //查询对应项目类型的所有项目
 if($categoryid){
-  $sql_data = "SELECT `db_mould_check_type`.`typename`,`db_mould_check_data`.`id`,`db_mould_check_data`.`checkname` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id` WHERE `db_mould_check_type`.`id` = '$categoryid' ORDER BY `db_mould_check_data`.`sort`";
+  if($categoryid == 'eng'){
+    $sql_data = "SELECT `db_mould_check_data`.`id`,`db_mould_check_data`.`checkname` FROM `db_mould_check_data` INNER JOIN `db_design_review_list` ON `db_mould_check_data`.`id` = `db_design_review_list`.`dataid` WHERE `db_design_review_list`.`approval` = '0' AND `db_design_review_list`.`reviewid` = '$reviewid'";
+  }else{
+    $sql_data = "SELECT `db_mould_check_type`.`typename`,`db_mould_check_data`.`id`,`db_mould_check_data`.`checkname` FROM `db_mould_check_data` INNER JOIN `db_mould_check_type` ON `db_mould_check_data`.`categoryid` = `db_mould_check_type`.`id` WHERE `db_mould_check_type`.`id` = '$categoryid' ORDER BY `db_mould_check_data`.`sort`";
+  }
 }else{
   $sql_data = "SELECT `id`,`checkname` FROM `db_mould_check_data` WHERE `degree` = 'B'";
   }
@@ -33,7 +37,18 @@ $result_datas = $db->query($sql_data);
 if($result_datas->num_rows){
   $title = $result_datas->fetch_assoc()['typename'];
 }
-  $title = $title?$title:'评审会项目';
+  if($title){
+    $title = $title;
+  }
+  if($categoryid){
+    if($categoryid == 'eng'){
+      $title = '未通过项目';
+    }else{
+      $title = $title;
+    }
+  }else{
+    $title = '评审会项目';
+  }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">

@@ -103,6 +103,16 @@ function show($row,$from){
 <script language="javascript" type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/main.js"></script>
 <script language="javascript" type="text/javascript" src="../js/enlarge_img.js"></script>
+<script type="text/javascript">
+  $(function(){
+   $('.detail').live('click',function(){
+      var specification_id = $(this).children().eq(1).val();
+      window.location.href = '/project_management/mould_specification_edit.php?show=show&specification_id='+specification_id;
+    }).mouseover(function(){
+      $(this).css('cursor','pointer');
+    })
+  })
+</script>
 <title>项目管理-希尔林</title>
 </head>
 
@@ -195,11 +205,12 @@ function show($row,$from){
         <th width="4%">项目资料</th>
         <th width="4%">模具资料</th>
         <th width="4%">2D图纸</th>
+        <th width="4%">模流分析</th>
         <th width="4%">模具规格书</th>
-        <th width="4%">操作</th>
       </tr>
       <?php
       while($row = $result->fetch_assoc()){
+        $specification_id = $row['mould_specification_id'];
       //处理表面要求
       if(strpos($row['surface_require'],'$$')){
         $surface_require = explode('$$',$row['surface_require'])[4];
@@ -250,23 +261,15 @@ function show($row,$from){
         </td>
         <td><?php echo $row['mould_name']; ?></td>
         <td class="img"><?php echo $image_file; ?></td>
-        <td>
-          <?php echo shows($row,'project_data') ?>
-        </td>
-        <td>
-          <?php echo shows($row,'mould_data'); ?>
-        </td>
-        <td>
-          <?php echo shows($row,'drawing'); ?>
-        </td>
+        <?php project_section($row,$specification_id,'technical_info',$array_project_data); ?>
         <td class="detail">
-          查看
+          <img src="../images/system_ico/info_8_10.png" width="15">
         <input type="hidden" name="specification_id" value="<?php echo $row['mould_specification_id'] ?>">
         </td>
       <!--  <td>
           
         </td> -->
-        <td><a href="<?php echo $system_info[1] == '1'?'technical_information_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td>
+     <!--    <td><a href="<?php echo $system_info[1] == '1'?'technical_information_edit.php?action=add&from=technology&specification_id='.$row['mould_specification_id'].'&mouldid='.$row['mould_dataid']:'#' ?>">更新</a></td> -->
       </tr>
       <?php } ?>
     </table>
